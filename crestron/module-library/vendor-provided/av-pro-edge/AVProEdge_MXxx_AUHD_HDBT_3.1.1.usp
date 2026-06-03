@@ -1,0 +1,391 @@
+
+#DEFINE_CONSTANT MAX_OUTPUTS_V 49
+#DEFINE_CONSTANT MAX_8X8     8
+#DEFINE_CONSTANT MAX_OUTPUTS 16
+#DEFINE_CONSTANT MAX_MX42_OUTPUTS 2
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+#INCLUDEPATH "..\\ac-mx9xhdl-hdbt\\SimplSharp\\AVSwitchSharp\\bin"
+#USER_SIMPLSHARP_LIBRARY "AVProEdge_MXSeries_Cloud9_3.1.1"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+BUFFER_INPUT SERIAL_RX[60000];
+STRING_INPUT CONSOLE_COMMAND[256];
+string_input CUSTOM_COMMAND[256];
+
+
+ANALOG_INPUT LCD_DISPLAY;
+ANALOG_INPUT LCD_TIME;
+ANALOG_INPUT AUDIO_EX_MODE;
+DIGITAL_INPUT KEYLOCK_ON;
+DIGITAL_INPUT KEYLOCK_OFF;            
+ 
+ANALOG_INPUT OUTPUTS[MAX_OUTPUTS_V];
+ANALOG_INPUT AUDIO_OUTPUTS[MAX_OUTPUTS_V];
+
+ANALOG_INPUT VIDEO_MODE[MAX_OUTPUTS_V];
+DIGITAL_INPUT EX_AUDIO_ENABLE[MAX_OUTPUTS_V];
+DIGITAL_INPUT EX_AUDIO_DISABLE[MAX_OUTPUTS_V];
+DIGITAL_INPUT BIND_TO_OUTPUT[MAX_MX42_OUTPUTS]; // Command only currently exists on MX42
+
+STRING_INPUT SERIAL_PASSTHROUGH[MAX_OUTPUTS_V][255];
+ 
+DIGITAL_INPUT HDMI_STREAM_ON[MAX_OUTPUTS_V];
+DIGITAL_INPUT HDMI_STREAM_OFF[MAX_OUTPUTS_V];
+
+DIGITAL_INPUT HDBT_STREAM_ON[MAX_OUTPUTS_V];
+DIGITAL_INPUT HDBT_STREAM_OFF[MAX_OUTPUTS_V];
+
+
+ANALOG_INPUT AUDIO_DELAY[MAX_OUTPUTS_V];
+ANALOG_INPUT OUTPUT_RESOLUTION[MAX_OUTPUTS_V];
+
+DIGITAL_INPUT ZONE_VOLUME_UP[MAX_OUTPUTS_V]; 
+DIGITAL_INPUT ZONE_VOLUME_DOWN[MAX_OUTPUTS_V]; 
+ANALOG_INPUT ZONE_VOLUME_SET[MAX_OUTPUTS_V]; 
+
+STRING_OUTPUT SERIAL_TX;
+STRING_OUTPUT CONNECTION_STATUS;
+DIGITAL_OUTPUT CONNECTION_STATE;
+ANALOG_OUTPUT OUTPUT_FB[MAX_OUTPUTS_V];
+ANALOG_OUTPUT AUDIO_OUTPUT_FB[MAX_OUTPUTS_V];
+ANALOG_OUTPUT ZONE_CURRENT_VOLUME[MAX_OUTPUTS_V]; //added for volume ????
+
+
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+STRING_PARAMETER IP_ADDRESS[16];
+INTEGER_PARAMETER PORT;
+INTEGER_PARAMETER NUMBER_OF_UNITS;
+INTEGER_PARAMETER MODEL;
+INTEGER_PARAMETER SERIAL_BAUDRATE[MAX_OUTPUTS_V];
+
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+AVProEdge_MXSeries_Cloud9 AVSwitchCSInstance;
+CMutex string_mutex;
+CMutex work_mutex;
+INTEGER IS_IP;
+INTEGER NUM_UNITS;
+
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+CALLBACK FUNCTION SerialTXSimpl( string toSend )
+{
+    SERIAL_TX = toSend;
+}
+
+CALLBACK FUNCTION SerialTxFunc( integer message[] )
+{
+    integer iSize, i;
+	string sMessage[1000];
+
+	sMessage = "";
+	iSize = GetNumArrayCols( message );
+	for (i = 0 to iSize)
+	{
+		sMessage = sMessage + chr( message[i] );
+	}
+	SERIAL_TX = sMessage;
+	Delay( 10 ); // Slow down comms slightly so that signals don't overwrite each other
+}
+
+CALLBACK FUNCTION ConnectionStatusFunc( string connstatus )
+{
+	CONNECTION_STATUS = connstatus;
+}
+
+
+CALLBACK FUNCTION ConnectionStateFunc( integer connstate )
+{
+	CONNECTION_STATE = connstate;
+}
+  
+CALLBACK FUNCTION StatusStateFuncCrestronHome( integer o, integer i, integer devNum, string type )
+{
+}
+
+CALLBACK FUNCTION VolUpdateFunc( integer o, integer v, integer x, integer y)
+{
+   ZONE_CURRENT_VOLUME[o] = v;  
+}
+
+
+CALLBACK FUNCTION StatusStateFunc( integer o, integer i, string type )
+{
+	if (type = "VIDEO")
+	{	
+		OUTPUT_FB[o] = i;
+	}
+	else if (type = "AUDIO")
+	{
+		AUDIO_OUTPUT_FB[o] = i;	
+	}
+}
+
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+CHANGE SERIAL_RX
+{
+  STRING serial[60000];      
+
+  string_mutex.WaitForMutex();
+  if (len(SERIAL_RX)> 0)
+  { 
+    serial = RemoveByLength( len( SERIAL_RX ), SERIAL_RX );
+  }
+  else
+  {
+    serial = "";
+  }
+  if (0 != len( serial ))
+  {
+    work_mutex.WaitForMutex();
+    string_mutex.ReleaseMutex();
+
+    AVSwitchCSInstance.SetSerialRx(serial);
+
+    work_mutex.ReleaseMutex();
+	Delay(500);
+  }
+  else
+  {
+    string_mutex.ReleaseMutex();
+  }
+}
+
+
+CHANGE OUTPUTS
+{
+  	integer o;
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetOutputToInput( o, OUTPUTS[o], "VIDEO" );
+}
+
+CHANGE AUDIO_OUTPUTS
+{
+  	integer o;
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetOutputToInput( o, AUDIO_OUTPUTS[o], "AUDIO" );
+}
+
+CHANGE VIDEO_MODE
+{
+  	integer o;
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetVideoMode(o, VIDEO_MODE[o]);	
+}
+
+
+CHANGE AUDIO_EX_MODE
+{
+	AVSwitchCSInstance.SetAudioExMode( AUDIO_EX_MODE );	
+}
+
+CHANGE LCD_DISPLAY
+{
+	AVSwitchCSInstance.SetLcdDisplayMode( LCD_DISPLAY );	 	
+}
+
+CHANGE LCD_TIME
+{
+	AVSwitchCSInstance.SetLcdOnTime( LCD_TIME );
+}
+
+
+CHANGE ZONE_VOLUME_SET
+{
+  	integer o;
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetOutputVolume(o,ZONE_VOLUME_SET[o]);
+}
+
+
+PUSH KEYLOCK_ON
+{
+	AVSwitchCSInstance.SetKeylock( TRUE );
+}
+
+PUSH KEYLOCK_OFF
+{  
+	AVSwitchCSInstance.SetKeylock( FALSE );	
+}
+
+PUSH HDMI_STREAM_ON
+{
+  	integer i;
+
+  	i = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetHDMIStream( i, 1 );
+}
+
+
+PUSH HDMI_STREAM_OFF
+{
+  	integer i;
+
+  	i = getlastmodifiedarrayindex();
+ 	AVSwitchCSInstance.SetHDMIStream( i, 0 );                
+}
+
+PUSH HDBT_STREAM_ON
+{
+  	integer i;
+  	i = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetHDBTStream( i, 1 );
+}
+
+PUSH HDBT_STREAM_OFF
+{
+  	integer i;
+  	i = getlastmodifiedarrayindex();
+ 	AVSwitchCSInstance.SetHDBTStream( i, 0 );                
+}
+
+
+
+RELEASE ZONE_VOLUME_UP
+{
+  	integer o;
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.setVolumeStep( o,1);	
+}
+
+RELEASE ZONE_VOLUME_DOWN
+{
+  	integer o;
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.setVolumeStep( o,0);	
+}
+
+RELEASE EX_AUDIO_ENABLE
+{
+
+  	integer o;
+  
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetAudioExEnDis( o, TRUE );	
+
+}
+
+RELEASE EX_AUDIO_DISABLE
+{
+
+  	integer o;
+  
+	o = getlastmodifiedarrayindex();
+	AVSwitchCSInstance.SetAudioExEnDis( o, FALSE );	
+
+
+}
+
+            
+CHANGE SERIAL_PASSTHROUGH 
+{
+  	integer x, i, o;
+
+  	i = getlastmodifiedarrayindex();
+    AVSwitchCSInstance.SendPassthrough( i, SERIAL_PASSTHROUGH[i], SERIAL_BAUDRATE[i] );                 
+}
+
+
+RELEASE BIND_TO_OUTPUT
+{
+  integer o;
+  o = getlastmodifiedarrayindex();
+  AVSwitchCSInstance.SetBtvOutput(o, 0);
+}
+
+CHANGE AUDIO_DELAY
+{
+
+  	integer o;
+	o = getlastmodifiedarrayindex();
+    AVSwitchCSInstance.SetAudioDelay( o, AUDIO_DELAY[o]);	
+}
+
+CHANGE OUTPUT_RESOLUTION
+{
+
+  	integer o;
+	o = getlastmodifiedarrayindex();
+    AVSwitchCSInstance.SetOutputResolution( o, OUTPUT_RESOLUTION[o] );	
+	
+
+}
+
+
+CHANGE CONSOLE_COMMAND
+{
+  AVSwitchCSInstance.ConsoleCommand( CONSOLE_COMMAND );
+}
+
+THREADSAFE CHANGE CUSTOM_COMMAND
+{
+	AVSwitchCSInstance.CustomCommand(CUSTOM_COMMAND);
+    clearbuffer(CUSTOM_COMMAND);	
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	WaitForInitializationComplete();
+    RegisterDelegate( AVSwitchCSInstance, TheSerialTXDelegate, SerialTXSimpl );
+  	RegisterDelegate( AVSwitchCSInstance, ConnectionStatusDelegate, ConnectionStatusFunc );
+	RegisterDelegate( AVSwitchCSInstance, ConnectionStateDelegate, ConnectionStateFunc );
+    RegisterDelegate( AVSwitchCSInstance, VolumeDelegate,  VolUpdateFunc);
+	RegisterDelegate( AVSwitchCSInstance, OutputToInputDelegate, StatusStateFuncCrestronHome );
+	RegisterDelegate( AVSwitchCSInstance, OutputToInputStackDelegate, StatusStateFunc );
+
+	Print( "Create Connection" );
+    NUM_UNITS = NUMBER_OF_UNITS;
+	AVSwitchCSInstance.SetNumberOfUnits( NUM_UNITS );
+	AVSwitchCSInstance.SetModel(MODEL);
+
+    if (IP_ADDRESS != "")
+    {
+	  	AVSwitchCSInstance.CreateTCPConnection( IP_ADDRESS, PORT );
+	  	IS_IP = 1;
+	 	AVSwitchCSInstance.GetStatus();
+    }
+	else
+	{
+ 	  	AVSwitchCSInstance.CreateSerialConnection();
+	  	IS_IP = 0;
+	  	if (NUM_UNITS > 0)
+		  	AVSwitchCSInstance.GetStatus();
+	  	else
+		  	AVSwitchCSInstance.GetStatus();
+	}
+}

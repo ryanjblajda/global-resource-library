@@ -1,0 +1,524 @@
+
+/*******************************************************************************************
+  SIMPL+ Module Information
+*******************************************************************************************/
+/*
+Dealer Name: 1Beyond
+Programmer: Mike B
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#SYMBOL_NAME "1Beyond - Automate Select v1.5"
+#CATEGORY "46" "Lecture Capture" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT Num_Presets 10
+#DEFINE_CONSTANT IPA_Length 50
+#DEFINE_CONSTANT UserName_Length 25
+#DEFINE_CONSTANT Password_Length 25
+#DEFINE_CONSTANT File_Length 75
+#DEFINE_CONSTANT ScenarioCount 10
+#DEFINE_CONSTANT CameraCount 8
+#DEFINE_CONSTANT NumOfPlugins 3
+#DEFINE_CONSTANT Plugin_Name_Length 50
+
+#DIGITAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+#HELP_END
+
+#USER_SIMPLSHARP_LIBRARY "Automate Select"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+ *******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_, Debug, Login, _SKIP_, Toggle_Recording, Start_Recording, Stop_Recording, Pause_Recording, _SKIP_,
+Toggle_ISO_Recording, Start_ISO_Recording, Stop_ISO_Recording, _SKIP_, Toggle_Stream, Start_Stream, Stop_Stream, 
+_SKIP_,Toggle_Output, Start_Output, Stop_Output, _SKIP_, Get_Record_Status, Get_ISO_Record_Status, Get_Stream_Status, Get_Output_Status, Get_Copy_Status,
+Get_Scenario_Status, Get_Scenarios, Get_Recording_Space_Avail, _SKIP_, Copy_Files, _SKIP_, Call_Plugin[NumOfPlugins], _SKIP_, Go_To_Scenario[ScenarioCount], _SKIP_;
+
+ANALOG_INPUT Port, _SKIP_, Delete_Source_File;
+
+STRING_INPUT _SKIP_, IP_Address$[IPA_Length], _SKIP_, Username$[UserName_Length], Password$[Password_Length], _SKIP_, Copy_Files_Destination[File_Length], Copy_Log_Destination[File_Length],
+_SKIP_, Plugin_Arg1[File_Length], Plugin_Arg2[File_Length], Plugin_Arg3[File_Length], _SKIP_, Plugin_Name[NumOfPlugins][Plugin_Name_Length];
+  
+  
+DIGITAL_OUTPUT  _SKIP_, _SKIP_, _SKIP_, Login_FB, _SKIP_,_SKIP_, Recording_Started_FB, Recording_Stopped_FB,
+_SKIP_, _SKIP_, _SKIP_, ISO_Recording_Started_FB, ISO_Recording_Stopped_FB, _SKIP_, _SKIP_, Stream_Started_FB, Stream_Stopped_FB, 
+_SKIP_, _SKIP_, Output_Started_FB, Output_Stopped_FB, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Pause_Enabled, _SKIP_, _SKIP_, Copy_Files_Success, Copy_Files_In_Progress, Call_Plugin_Complete[NumOfPlugins], _SKIP_, Go_To_Scenario_FB[ScenarioCount], _SKIP_;
+
+ANALOG_OUTPUT Record_State, Num_Of_Scenarios, _SKIP_, Error_Status, _SKIP_, Space_Avail_Gb, Space_Total_Gb;
+
+STRING_OUTPUT _SKIP_, Recording_Status$, Error_Message$, _SKIP_, _SKIP_, _SKIP_,_SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,_SKIP_, _SKIP_, Scenario_Names$[ScenarioCount];
+
+AutomateSelect Automate;
+
+/*******************************************************************************************
+  Parameters
+*******************************************************************************************/
+
+INTEGER_PARAMETER Request_Type;
+
+/*******************************************************************************************
+  Parameter Properties
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES Request_Type
+   	propValidUnits = unitDecimal;  
+   	propShortDescription = "HTTP or HTTPS Request";
+   	propBounds=0d, 1d;
+   	propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+
+/*******************************************************************************************
+  Global Variables
+ *******************************************************************************************/
+
+INTEGER Active_Preset, CurScenario;
+STRING Plugins[NumOfPlugins][Plugin_Name_Length];
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+
+PUSH Debug
+{
+	Automate.Debug(TRUE);	
+}
+
+RELEASE Debug
+{
+	Automate.Debug(FALSE);	
+}
+
+THREADSAFE PUSH Login
+{
+	Automate.Login();
+}
+
+THREADSAFE PUSH Toggle_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.ToggleRecord();
+}
+
+THREADSAFE PUSH Start_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.StartRecord();	
+}
+
+THREADSAFE PUSH Stop_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.StopRecord();
+}
+
+THREADSAFE PUSH Pause_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.PauseRecord();
+}
+
+
+PUSH Toggle_Stream
+{
+	Automate.ToggleStream();
+}
+
+PUSH Start_Stream
+{
+     Automate.StartStream();
+}
+
+PUSH Stop_Stream
+{
+     Automate.StopStream();
+}
+
+PUSH Toggle_ISO_Recording
+{
+	Automate.ToggleIsoRecord();
+}
+
+PUSH Start_ISO_Recording
+{
+     Automate.StartIsoRecord();
+}
+
+PUSH Stop_ISO_Recording
+{
+     Automate.StopIsoRecord();
+}
+
+PUSH Start_Output
+{
+     Automate.StartOutput();
+}
+   
+PUSH Toggle_Output
+{
+	Automate.ToggleOutput();
+}
+
+PUSH Stop_Output
+{
+     Automate.StopOutput();
+}
+
+PUSH Get_Scenario_Status
+{
+    Automate.GetCurrentScenario();
+}
+
+PUSH Get_Scenarios
+{
+	Automate.GetScenarios();
+}
+
+PUSH Go_To_Scenario
+{
+	INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ChangeScenario(i);
+}
+  
+PUSH Get_Record_Status
+{
+	Automate.GetRecordStatus();
+}
+
+PUSH Get_ISO_Record_Status
+{
+	Automate.GetIsoRecordStatus();
+}
+
+PUSH Get_Stream_Status
+{
+	Automate.GetStreamStatus();
+}
+
+PUSH Get_Output_Status
+{
+	Automate.GetOutputStatus();
+}
+
+THREADSAFE PUSH Copy_Files
+{
+    Automate.CopyFiles();
+}
+
+PUSH Get_Copy_Status
+{
+  Automate.GetCopyStatus();
+}
+
+PUSH Get_Recording_Space_Avail
+{
+    Automate.GetRecordingSpace();
+}
+
+PUSH Call_Plugin
+{
+	Automate.CallPlugin();
+}
+
+CHANGE Delete_Source_File
+{
+    Automate.DeleteSource = Delete_Source_File;
+}
+
+CHANGE Copy_Files_Destination
+{
+    Automate.FileDestination = Copy_Files_Destination;
+}
+
+CHANGE Copy_Log_Destination
+{
+    Automate.LogDestination = Copy_Log_Destination;
+}
+
+CHANGE Plugin_Name
+{
+	INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+    Automate.PluginName = Plugin_Name[i];
+	Plugins[i] = Plugin_Name[i];
+}
+
+CHANGE Plugin_Arg1
+{
+    Automate.PluginArg1 = Plugin_Arg1;
+}
+
+CHANGE Plugin_Arg2
+{
+    Automate.PluginArg2 = Plugin_Arg2;
+}
+
+CHANGE Plugin_Arg3
+{
+    Automate.PluginArg3 = Plugin_Arg3;
+}
+
+CHANGE Username$
+{
+	Automate.Username = Username$;	
+}
+
+CHANGE Password$
+{
+	Automate.Password = Password$;	
+}
+
+CHANGE IP_Address$
+{
+	Automate.IpAddress = IP_Address$;
+	Automate.CheckForToken();	
+}
+
+CHANGE Port
+{
+	Automate.Port = Port;
+}
+
+CALLBACK FUNCTION LoginStateCallback(INTEGER loginState)
+{
+	IF (loginState = 1)
+	{
+ 		Login_FB = ON;        
+		IF (Error_Status > 0)
+		{
+			Error_Status = 0;
+		}	
+	}
+	ELSE IF (loginState = 0)
+	{
+ 		Login_FB = OFF;
+	}	
+}
+
+CALLBACK FUNCTION AutomateSelectErrorCallback(INTEGER code, STRING error, STRING body)
+{
+	INTEGER i;
+	Error_Status = code;
+	Error_Message$ = error;
+	FOR (i = 1 TO NumOfPlugins)
+	{
+		IF(FINDNOCASE(Plugins[i], body) != 0)
+		{
+			PULSE(50, Call_Plugin_Complete[i]);
+			RETURN;
+		}
+	}
+}
+
+CALLBACK FUNCTION SystemStatusCallback(STRING status)
+{
+	Recording_Status$ = status; 
+}
+
+CALLBACK FUNCTION RecStatusCallback(INTEGER status, INTEGER state)
+{
+	IF(status = 0)
+	{
+        Recording_Stopped_FB = ON;
+		Recording_Started_FB = OFF;
+	}
+	ELSE IF(status = 1)
+	{
+		Recording_Stopped_FB = OFF;
+		Recording_Started_FB = ON;
+	}
+	
+	Record_State = state; 	
+	
+	IF (Error_Status > 0)
+	{
+		Error_Status = 0;
+	}
+}
+
+CALLBACK FUNCTION IsoRecStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		ISO_Recording_Started_FB = OFF;
+		ISO_Recording_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        ISO_Recording_Started_FB = ON;
+		ISO_Recording_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION StreamStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		Stream_Started_FB = OFF;
+		Stream_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        Stream_Started_FB = ON;
+		Stream_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION OutputStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		Output_Started_FB = OFF;
+		Output_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        Output_Started_FB = ON;
+		Output_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION ScenarioStatusCallback(INTEGER Scenario)
+{
+	IF(CurScenario != Scenario)
+	{
+		SETARRAY(Go_To_Scenario_FB, OFF);
+	}
+	
+	IF(Scenario > 0)
+	{
+		Go_To_Scenario_FB[Scenario] = ON;
+	}
+	CurScenario = Scenario;	
+}
+
+CALLBACK FUNCTION ScenarioNamesCallback(INTEGER index, STRING ScenarioName)
+{
+	Scenario_Names$[index] = ScenarioName;		
+}
+
+CALLBACK FUNCTION ScenarioCountCallback(INTEGER numberOfScenarios)
+{
+	IF(Num_Of_Scenarios != numberOfScenarios)
+	{
+		Num_Of_Scenarios = numberOfScenarios;
+	}
+}
+
+CALLBACK FUNCTION ScenarioClearCallback()
+{
+	SETARRAY(Scenario_Names$, "");
+}
+
+CALLBACK FUNCTION CopyFilesStatusCallback(INTEGER success)
+{
+	IF(success = TRUE)
+    {
+        PULSE(50, Copy_Files_Success);
+    }
+}
+
+CALLBACK FUNCTION RecSpaceInfoCallback(INTEGER available, INTEGER total)
+{
+    Space_Avail_Gb = available;
+    Space_Total_Gb = total;
+}
+
+CALLBACK FUNCTION PluginStatusCallback(STRING msg, INTEGER code, STRING body)
+{
+	INTEGER i;
+	IF(code = 0)
+    {
+		FOR (i = 1 TO NumOfPlugins)
+		{
+			IF(FINDNOCASE(Plugins[i], body) > 0)
+			{
+				PULSE(50, Call_Plugin_Complete[i]);
+				RETURN;
+			}
+		}
+    }
+}
+
+CALLBACK FUNCTION PauseEnabledCallback(INTEGER enabled)
+{
+	IF(enabled = TRUE)
+    {
+        Pause_Enabled = ON;    
+	}
+	ELSE
+	{
+		Pause_Enabled = OFF;
+	}
+}
+
+CALLBACK FUNCTION CopyStatusCallback(INTEGER inProgress)
+{
+	IF(inProgress = TRUE)
+    {
+        Copy_Files_In_Progress = ON;
+    }
+	ELSE
+	{
+		Copy_Files_In_Progress = OFF;
+	}
+}
+
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+function main()
+{
+	Automate.IsHttps = Request_Type;
+    REGISTERDELEGATE(Automate, LoginStateCallbackEvent, LoginStateCallback);
+	REGISTERDELEGATE(Automate, SystemStatusCallbackEvent, SystemStatusCallback);
+	REGISTERDELEGATE(Automate, RecStatusCallbackEvent, RecStatusCallback);
+	REGISTERDELEGATE(Automate, IsoRecStatusCallbackEvent, IsoRecStatusCallback); 
+	REGISTERDELEGATE(Automate, StreamStatusCallbackEvent, StreamStatusCallback);
+	REGISTERDELEGATE(Automate, OutputStatusCallbackEvent, OutputStatusCallback);
+	REGISTERDELEGATE(Automate, ScenarioStatusCallbackEvent, ScenarioStatusCallback);
+	REGISTERDELEGATE(Automate, ScenarioNamesCallbackEvent, ScenarioNamesCallback);
+	REGISTERDELEGATE(Automate, ScenarioCountCallbackEvent, ScenarioCountCallback);
+	REGISTERDELEGATE(Automate, ScenarioClearCallbackEvent, ScenarioClearCallback); 
+	REGISTERDELEGATE(Automate, AutomateSelectErrorCallbackEvent, AutomateSelectErrorCallback);
+    REGISTERDELEGATE(Automate, CopyFilesStatusCallbackEvent, CopyFilesStatusCallback);
+    REGISTERDELEGATE(Automate, RecSpaceInfoCallbackEvent, RecSpaceInfoCallback);
+    REGISTERDELEGATE(Automate, PluginStatusCallbackEvent, PluginStatusCallback);
+	REGISTERDELEGATE(Automate, PauseEnabledCallbackEvent, PauseEnabledCallback);
+	REGISTERDELEGATE(Automate, CopyStatusCallbackEvent, CopyStatusCallback);
+ 	SETARRAY(Plugins, "!*!");
+	    
+	IF (Port > 0)
+		Automate.Port = Port;
+
+	IF (LEN(IP_Address$) > 0)
+		Automate.IpAddress = IP_Address$;
+
+	IF (LEN(Username$) > 0)
+		Automate.Username = Username$;
+
+	IF (LEN(Password$) > 0)
+		Automate.Password = Password$;
+
+	WaitForInitializationComplete();         
+
+}
+
+

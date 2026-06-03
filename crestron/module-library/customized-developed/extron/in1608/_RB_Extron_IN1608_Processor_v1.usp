@@ -1,0 +1,131 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Extron Video Matrix Handler"
+#HINT ""
+
+#HELP_BEGIN
+INPUTS:
+Route Type: the type of route you would like to make, audio/video, audio only or video only. 
+	1 = AV
+	2 = A
+	3 = V
+
+Output_To_Input: the input you would like displayed on the output of the unit.
+
+rx$: incoming data from the unit
+
+OUTPUTS:
+Output_To_Input_Fb: the currently selected input on the unit
+tx$: outgoing data to the unit.
+
+#HELP_END
+
+#CATEGORY "46" "RBLAJDA_EXTRON" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT DEBUG  0
+#DEFINE_CONSTANT c_Del  "\x0D\x0A"
+#DEFINE_CONSTANT c_Space "\x20"
+#DEFINE_CONSTANT c_SrcResponse "In"
+#DEFINE_CONSTANT c_NumEndpoints 32
+#DEFINE_CONSTANT c_DstResponse "Out"
+
+//INPUTS
+BUFFER_INPUT  rx$[255], _SKIP_;
+ANALOG_INPUT  Route_Type, _SKIP_;
+ANALOG_INPUT  Output_To_Input[c_NumEndpoints];
+
+//OUTPUTS
+STRING_OUTPUT tx$, _SKIP_, _SKIP_, _SKIP_;
+ANALOG_OUTPUT Output_To_Input_Fb[c_NumEndpoints];
+
+//PARAMETERS
+
+//EVENT HANDLERS
+
+CHANGE rx$
+{
+	string _rxGathered[255];
+	string _currentInput[2], _currentOutput[2];
+	integer _position, _endposition, _input, _output;
+
+	while(find(c_Del, rx$) <> OFF)
+	{
+		_rxGathered = gather(c_Del, rx$);
+	
+		//find current input for output		
+		
+		_position = find(c_SrcResponse, _rxGathered);
+		
+		if(_position <> OFF)
+		{
+			print("Source Response Found");
+
+			_position = _position + len(c_SrcResponse);
+		
+			_endposition = find(c_Space, _rxGathered, _position);
+		
+			_currentInput = mid(_rxGathered, _position, _endposition - _position);
+		
+			//find current output
+		
+			_position = find(c_DstResponse, _rxGathered);
+			_position = _position + len(c_DstResponse);
+			_endposition = find(c_Space, _rxGathered, _position);
+			_currentOutput = mid(_rxGathered, _position, _endposition - _position);
+		    
+			#IF_DEFINED DEBUG
+				//print("%u, %u, %s", _position, _endposition, _currentInput);
+			#ENDIF
+		
+		    _output = atoi(_currentOutput);
+			_input  = atoi(_currentInput);
+
+			#IF_DEFINED DEBUG
+				print("out %u > in %u", _output, _input);
+			#ENDIF
+		
+			Output_To_Input_Fb[_output] = _input;
+		}
+		else { /*print("No Source Response Found"); */ }
+	}
+}
+
+CHANGE Output_To_Input
+{
+	integer iChanged;
+	string _routetype[1];
+	string _input[2];
+
+	iChanged = getLastModifiedArrayIndex();
+
+	switch(Route_Type)
+	{
+		case(1):
+		{
+			_routetype = "!";
+		}
+		case(2):
+		{
+			_routetype = "$";
+		}
+		case(3):
+		{
+			_routetype = "&";
+		}		
+		Default:
+		{
+			_routetype = "!";
+		}
+	}
+
+	makestring(tx$, "%d*%d%s", Output_To_Input[iChanged], iChanged, _routetype);	
+} 

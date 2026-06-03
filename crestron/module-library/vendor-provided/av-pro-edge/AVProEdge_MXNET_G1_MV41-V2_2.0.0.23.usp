@@ -1,0 +1,416 @@
+#DEFAULT_VOLATILE
+
+#ENABLE_STACK_CHECKING
+
+#ENABLE_TRACE
+
+#ENCODING_ASCII
+
+#define_constant MAX_INPUTS  4
+#define_constant MAX_TILES   4
+#define_constant MAX_PRESET  20
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/   
+
+#INCLUDEPATH "..\\AVProEdge_MXNET\\SimplSharp\\AVProEdge_MXNET\\bin\\debug"
+#USER_SIMPLSHARP_LIBRARY "libAVProEdge_MXNET_2.0.0.23"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT CONNECT;
+
+DIGITAL_INPUT LAYOUT_PIP_BL;
+DIGITAL_INPUT LAYOUT_PIP_BR;
+DIGITAL_INPUT LAYOUT_PIP_TL;
+DIGITAL_INPUT LAYOUT_PIP_TR;
+DIGITAL_INPUT LAYOUT_2x2;
+DIGITAL_INPUT LAYOUT_3_LEFT;
+DIGITAL_INPUT LAYOUT_3_BOTTOM;
+DIGITAL_INPUT LAYOUT_FULL_SCREEN;
+DIGITAL_INPUT LAYOUT_3_LEFT_LETTERBOX;
+DIGITAL_INPUT LAYOUT_3_BOTTOM_PILLARBOX;
+
+DIGITAL_INPUT AUDIO_FOLLOW;
+DIGITAL_INPUT AUDIO_HDMI; 
+DIGITAL_INPUT PRESET_TAKE;
+DIGITAL_INPUT OUTPUT_ASPECT_4x3;
+DIGITAL_INPUT OUTPUT_ASPECT_16x9;
+DIGITAL_INPUT OUTPUT_ASPECT_21x9;
+DIGITAL_INPUT OUTPUT_ASPECT_1_85x1;
+DIGITAL_INPUT OUTPUT_ASPECT_2_35x1;
+DIGITAL_INPUT OUTPUT_ASPECT_OFF;
+
+DIGITAL_INPUT SAVE_PRESET;
+ANALOG_INPUT FULL_SCREEN_SOURCE; 
+ANALOG_INPUT ASPECT_1_85x1_BLACK_EDGE_DELETE;
+ANALOG_INPUT ASPECT_2_35x1_BLACK_EDGE_DELETE; 
+ANALOG_INPUT SELECTED_TILE_SOURCE;
+ANALOG_INPUT SAVE_PRESET_NUMBER;
+
+STRING_INPUT SAVE_PRESET_NAME[255]; 
+STRING_INPUT API_PASSTHROUGH[255]; 
+
+ANALOG_OUTPUT PRESET_NUMBER;  
+
+
+ANALOG_INPUT SELECT_TILE_SOURCE[MAX_INPUTS];         
+
+DIGITAL_INPUT TILE_SELECT[MAX_TILES];
+DIGITAL_INPUT AUDIO_SOURCE[MAX_TILES];
+
+DIGITAL_OUTPUT CONNECTION_STATE;   
+
+DIGITAL_OUTPUT LAYOUT_IS_PIP_BL;
+DIGITAL_OUTPUT LAYOUT_IS_PIP_BR;
+DIGITAL_OUTPUT LAYOUT_IS_PIP_TL;
+DIGITAL_OUTPUT LAYOUT_IS_PIP_TR;
+DIGITAL_OUTPUT LAYOUT_IS_2x2;
+DIGITAL_OUTPUT LAYOUT_IS_3_LEFT;
+DIGITAL_OUTPUT LAYOUT_IS_3_BOTTOM;
+DIGITAL_OUTPUT LAYOUT_IS_FULL_SCREEN;
+DIGITAL_OUTPUT LAYOUT_IS_3_LEFT_LETTERBOX;
+DIGITAL_OUTPUT LAYOUT_IS_3_BOTTOM_PILLARBOX;
+
+DIGITAL_OUTPUT OUTPUT_ASPECT_IS_4x3;
+DIGITAL_OUTPUT OUTPUT_ASPECT_IS_16x9;
+DIGITAL_OUTPUT OUTPUT_ASPECT_IS_21x9;
+DIGITAL_OUTPUT OUTPUT_ASPECT_IS_1_85x1;
+DIGITAL_OUTPUT OUTPUT_ASPECT_IS_2_35x1;
+DIGITAL_OUTPUT OUTPUT_ASPECT_IS_OFF;
+
+DIGITAL_OUTPUT AUDIO_IS_FOLLOW; 
+DIGITAL_OUTPUT AUDIO_IS_HDMI; 
+
+ANALOG_OUTPUT FULLSCREEN_SOURCE_IS;
+ANALOG_OUTPUT AUDIO_SOURCE_IS;
+
+ANALOG_OUTPUT ASPECT_1_85x1_BLACK_EDGE_DELETE_IS;
+ANALOG_OUTPUT ASPECT_2_35x1_BLACK_EDGE_DELETE_IS;
+
+ANALOG_OUTPUT LAST_PRESET_NUMBER; 
+
+STRING_OUTPUT CONNECTION_STATUS;
+STRING_OUTPUT FULLSCREEN_SOURCE_NAME_IS;
+STRING_OUTPUT LAST_PRESET_NAME;
+    
+DIGITAL_OUTPUT TILE_SELECTED[MAX_TILES];
+                         
+ANALOG_OUTPUT TILE_IS_SOURCE[MAX_TILES]; 
+STRING_OUTPUT PRESET_NAME[MAX_PRESET];
+STRING_OUTPUT TILE_IS_SOURCE_NAME[MAX_INPUTS]; 
+
+/*******************************************************************************************
+Parameters
+*******************************************************************************************/
+integer_parameter port;
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+MV41_Manager CSInstance;
+
+integer selectedSwitchTile;
+
+push CONNECT
+{
+	CSInstance.Enable();	
+}
+
+release CONNECT
+{
+	CSInstance.Disable();
+}
+
+change FULL_SCREEN_SOURCE
+{
+	CSInstance.SetFullScreenSource(FULL_SCREEN_SOURCE);
+}
+
+change SELECT_TILE_SOURCE
+{
+ 	integer tile;
+
+	tile = getlastmodifiedarrayindex();
+
+	CSInstance.SetTileSource(tile , SELECT_TILE_SOURCE[tile]);	
+}
+
+push TILE_SELECT
+{ 
+	integer index,i; 
+    index = getlastmodifiedarrayindex();
+
+	selectedSwitchTile = index;
+    
+	for (i = 1 TO MAX_TILES)
+	{
+		if(index = i)
+		{
+			TILE_SELECTED[i] = 1;
+		}
+		else
+		{
+           	TILE_SELECTED[i] = 0;
+		}	
+	}
+}
+
+change SELECTED_TILE_SOURCE
+{
+	if(selectedSwitchTile > 0)
+	{
+		CSInstance.SetTileSource(selectedSwitchTile, SELECTED_TILE_SOURCE);
+	}
+}
+
+change SELECT_TILE_SOURCE
+{
+	integer index; 
+    index = getlastmodifiedarrayindex();
+
+	if(selectedSwitchTile > 0)
+	{
+		CSInstance.SetTileSource(index, SELECT_TILE_SOURCE[index]);
+	}
+} 
+
+push AUDIO_SOURCE
+{
+ 	integer source;
+
+	source = getlastmodifiedarrayindex();
+
+	CSInstance.SetAudioSource(source);
+}
+
+push AUDIO_FOLLOW
+{
+	CSInstance.SetAudioFollow();
+}
+
+push AUDIO_HDMI
+{
+	CSInstance.SetAudioHdmi();
+}
+
+push PRESET_TAKE
+{
+	if(PRESET_NUMBER > 0)
+	{
+    	CSInstance.RecallPreset(PRESET_NUMBER);
+	}
+} 
+
+push SAVE_PRESET
+{
+	if(len(SAVE_PRESET_NAME) > 0 & SAVE_PRESET_NUMBER > 0)
+	{
+      	CSInstance.SavePreset(SAVE_PRESET_NUMBER , SAVE_PRESET_NAME);
+	}
+}
+
+change SELECT_TILE_SOURCE
+{
+
+}
+
+change ASPECT_1_85x1_BLACK_EDGE_DELETE
+{
+	CSInstance.SetAspect1_85_bev(ASPECT_1_85x1_BLACK_EDGE_DELETE);
+}
+
+change ASPECT_2_35x1_BLACK_EDGE_DELETE
+{
+	CSInstance.SetAspect2_35_bev(ASPECT_2_35x1_BLACK_EDGE_DELETE);
+}
+
+push OUTPUT_ASPECT_4x3 { CSInstance.SetOutputAspect(1); }
+push OUTPUT_ASPECT_16x9{ CSInstance.SetOutputAspect(2); }
+push OUTPUT_ASPECT_21x9{ CSInstance.SetOutputAspect(3); }
+push OUTPUT_ASPECT_1_85x1{ CSInstance.SetOutputAspect(4); }
+push OUTPUT_ASPECT_2_35x1{ CSInstance.SetOutputAspect(5); }
+push OUTPUT_ASPECT_OFF{ CSInstance.SetOutputAspect(0); }
+
+
+push LAYOUT_FULL_SCREEN { CSInstance.CurrentLayout = 0; }
+push LAYOUT_PIP_BL { CSInstance.CurrentLayout = 1; }
+push LAYOUT_PIP_BR { CSInstance.CurrentLayout = 2; }
+push LAYOUT_PIP_TL { CSInstance.CurrentLayout = 3; }
+push LAYOUT_PIP_TR { CSInstance.CurrentLayout = 4; }
+push LAYOUT_2x2 { CSInstance.CurrentLayout = 5; }
+push LAYOUT_3_BOTTOM { CSInstance.CurrentLayout = 6; }
+push LAYOUT_3_LEFT { CSInstance.CurrentLayout = 7; }
+push LAYOUT_3_BOTTOM_PILLARBOX { CSInstance.CurrentLayout = 8; }
+push LAYOUT_3_LEFT_LETTERBOX { CSInstance.CurrentLayout = 9; }
+
+
+eventhandler OnMV41ConnectionStatus(MV41_Manager sender, MV41ConnectionEventArgs args)
+{
+	CONNECTION_STATUS = args.Status;
+	CONNECTION_STATE = args.State;
+}
+
+eventhandler OnMV41OutputLayoutChanged(MV41_Manager sender, MV41ValueAttributesEventArgs args)
+{
+
+	PRINT("OutputLayoutChangedHandler");
+	LAYOUT_IS_FULL_SCREEN = 0;
+	LAYOUT_IS_PIP_BL = 0;
+	LAYOUT_IS_PIP_BR = 0;
+	LAYOUT_IS_PIP_TL = 0;
+	LAYOUT_IS_PIP_TR = 0;
+	LAYOUT_IS_2x2 = 0;
+	LAYOUT_IS_3_LEFT = 0;
+	LAYOUT_IS_3_BOTTOM = 0;
+	LAYOUT_IS_3_BOTTOM_PILLARBOX = 0;
+    LAYOUT_IS_3_LEFT_LETTERBOX = 0;
+
+	switch(args.Value)
+	{
+    	CASE (0):
+			LAYOUT_IS_FULL_SCREEN = 1;
+		CASE (1):
+			LAYOUT_IS_PIP_BL = 1;
+		CASE (2):
+			LAYOUT_IS_PIP_BR = 1;
+		CASE (3):
+			LAYOUT_IS_PIP_TL = 1;
+		CASE (4):
+			LAYOUT_IS_PIP_TR = 1;
+		CASE (5):
+			LAYOUT_IS_2x2 = 1;
+		CASE (6):
+			LAYOUT_IS_3_BOTTOM = 1;
+		CASE (7):
+			LAYOUT_IS_3_LEFT = 1;
+		case (8):
+			LAYOUT_IS_3_BOTTOM_PILLARBOX = 1;
+		case (9):
+			LAYOUT_IS_3_LEFT_LETTERBOX = 1;
+
+	}
+}
+
+eventhandler OnMV41AudioModeChanged(MV41_Manager sender, MV41ValueAttributesEventArgs args)
+{
+	if(args.Value = 0)
+	{
+      AUDIO_IS_FOLLOW = 0;
+      AUDIO_IS_HDMI = 1;
+	}
+	else
+	{
+      AUDIO_IS_FOLLOW = 1;
+      AUDIO_IS_HDMI = 0;
+	}
+}
+ 
+
+eventhandler OnMV41AspectBevChanged(MV41_Manager sender, MV41OutputAttributesEventArgs args)
+{
+	if(args.Output = 4)
+	{
+		ASPECT_1_85x1_BLACK_EDGE_DELETE_IS = args.Value;
+	}
+	else if(args.Output = 5)
+	{
+        ASPECT_2_35x1_BLACK_EDGE_DELETE_IS = args.Value;
+
+	}
+}
+
+eventhandler OnMV41AspectModeChanged(MV41_Manager sender, MV41ValueAttributesEventArgs args)
+{
+	OUTPUT_ASPECT_IS_4x3 = 0;
+	OUTPUT_ASPECT_IS_16x9 = 0;
+	OUTPUT_ASPECT_IS_21x9 = 0;
+	OUTPUT_ASPECT_IS_1_85x1 = 0;
+	OUTPUT_ASPECT_IS_2_35x1 = 0;
+	OUTPUT_ASPECT_IS_OFF = 0;
+
+	 
+	switch(args.Value)
+	{
+    	CASE (1):
+			OUTPUT_ASPECT_IS_4x3 = 1;
+		CASE (2):
+			OUTPUT_ASPECT_IS_16x9 = 1;
+		CASE (3):
+			OUTPUT_ASPECT_IS_21x9 = 1;
+		CASE (4):
+			OUTPUT_ASPECT_IS_1_85x1 = 1;
+		CASE (5):
+			OUTPUT_ASPECT_IS_2_35x1 = 1;
+		CASE (0):
+			OUTPUT_ASPECT_IS_OFF = 1;
+	}
+}
+
+eventhandler OnMV41SwitchChanged(MV41_Manager sender, MV41OutputAttributesEventArgs args)
+{
+	TILE_IS_SOURCE[args.Output] = args.Value;
+	TILE_IS_SOURCE_NAME[args.Output] = args.Name;
+}
+
+eventhandler OnMV41FullscreenInputChanged(MV41_Manager sender, MV41ValueAttributesEventArgs args)
+{
+	FULLSCREEN_SOURCE_IS = args.Value;
+	FULLSCREEN_SOURCE_NAME_IS = args.Name;
+}
+
+eventhandler OnMV41AudioSourceChanged(MV41_Manager sender, MV41ValueAttributesEventArgs args)
+{
+	AUDIO_SOURCE_IS = args.Value;
+}
+
+
+eventhandler OnMV41PresetNameChangedHandler(MV41_Manager sender, MV41StringValueAttributesEventArgs args)
+{
+	TRACE("OnMV41PresetNameChangedHandler %d - %s",args.Idx , args.Value);
+	if(args.Idx <= MAX_PRESET)
+	{
+    	PRESET_NAME[args.Idx] = args.Value;
+	}	
+}
+
+eventhandler OnMV41PresetChangedHandler(MV41_Manager sender, MV41StringValueAttributesEventArgs args)
+{
+	TRACE("OnMV41PresetChangedHandler %d - %s",args.Idx , args.Value);
+
+	LAST_PRESET_NAME = args.Value;
+	LAST_PRESET_NUMBER = args.Idx;
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	WaitForInitializationComplete();
+	RegisterEvent(CSInstance, MV41ConnectionStatus, OnMV41ConnectionStatus);
+
+    RegisterEvent(CSInstance, MV41OutputLayoutChanged, OnMV41OutputLayoutChanged);
+    RegisterEvent(CSInstance, MV41AudioModeChanged, OnMV41AudioModeChanged);
+	RegisterEvent(CSInstance, MV41AudioSourceChanged, OnMV41AudioSourceChanged);
+	RegisterEvent(CSInstance, MV41AspectBevChanged, OnMV41AspectBevChanged);
+	RegisterEvent(CSInstance, MV41AspectModeChanged, OnMV41AspectModeChanged);
+	RegisterEvent(CSInstance, MV41SwitchChanged, OnMV41SwitchChanged);
+	RegisterEvent(CSInstance, MV41FullscreenInputChanged, OnMV41FullscreenInputChanged);
+	RegisterEvent(CSInstance, MV41PresetNameChanged, OnMV41PresetNameChangedHandler);
+	RegisterEvent(CSInstance, MV41PresetChanged, OnMV41PresetChangedHandler);
+
+	
+	CSInstance.AddMV41(port);
+	CSInstance.GetRefreshPresetNames();
+}

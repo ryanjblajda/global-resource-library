@@ -1,0 +1,20 @@
+#define_constant MAX_OUTPUTS  200
+#define_constant MAX_LAYOUTS  5
+
+analog_input LAYOUT[MAX_OUTPUTS];
+
+string_output CONFIGURE_RX_CMD;
+
+threadsafe change LAYOUT
+{
+	integer i;
+	String cmd[256];
+	
+	i = getlastmodifiedarrayindex();
+	
+	if(LAYOUT[i] <= MAX_LAYOUTS)
+	{
+		makestring( CMD, "config set device displaypicture %d OUTPUT_ALIAS[%d];" ,  LAYOUT[i], i); 
+		CONFIGURE_RX_CMD = cmd;
+	}
+}

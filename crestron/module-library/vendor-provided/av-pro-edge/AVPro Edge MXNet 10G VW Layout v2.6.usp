@@ -1,0 +1,150 @@
+/*******************************************************************************************
+  INFORMATION
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: AVPro Edge MXNet 10G VW Layout v2.6
+Programmer:  VNG
+Version:     2.5
+*/
+
+/*******************************************************************************************
+  COMPILER DIRECTIVES
+*******************************************************************************************/
+
+#SYMBOL_NAME "AVPro Edge MXNet 10G VW Layout v2.6"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+/*******************************************************************************************
+  CONSTANTS
+*******************************************************************************************/
+
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT MAX_STRING 255
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE 0
+
+#HELP_BEGIN
+To be used with AVPro Edge MXNet 10G VW Layout v2.6.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  INCLUDE LIBRARIES
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "AVProEdgeMXNetLib2"
+
+/*******************************************************************************************
+  MODULE I/O
+*******************************************************************************************/
+
+// --------------------- INPUTS
+
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			  _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			  TakeRoute;
+
+ANALOG_INPUT  SourceRoute;
+
+// --------------------- OUTPUTS
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			   _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			   IsInitialized, IsOnline;
+				
+/*******************************************************************************************
+  PARAMETERS
+*******************************************************************************************/
+
+INTEGER_PARAMETER CommandProcessorID;
+INTEGER_PARAMETER LayoutID;
+STRING_PARAMETER VideoWallName[MAX_STRING];
+INTEGER_PARAMETER TotalRows;
+INTEGER_PARAMETER TotalColumns;
+INTEGER_PARAMETER WallMode;
+INTEGER_PARAMETER RatioMode;
+INTEGER_PARAMETER HorizontalBezel;
+INTEGER_PARAMETER VerticalBezel;
+INTEGER_PARAMETER Resolution;
+
+/*******************************************************************************************
+  PARAMETER PROPERTIES
+*******************************************************************************************/
+
+/*******************************************************************************************
+  GLOBAL VARIABLES
+*******************************************************************************************/
+
+// --------------------- SIMPL# Classes
+
+TenGVwLayoutComponent layout;   
+
+/*******************************************************************************************
+  FUNCTIONS
+*******************************************************************************************/
+
+// --------------------- RESET
+          
+FUNCTION ResetOutputs()
+{
+  IsInitialized = FALSE;
+  IsOnline = FALSE;
+}
+
+// --------------------- SIMPL# EVENT HANDLERS
+
+EVENTHANDLER OnInitialize (VwLayoutComponent sender, DigEventArgs args)
+{
+  IsInitialized = args.Payload;
+}
+
+EVENTHANDLER OnOnline (VwLayoutComponent sender, DigEventArgs args)
+{
+  IsOnline = args.Payload;
+}
+
+
+
+/*******************************************************************************************
+  EVENT HANDLERS
+*******************************************************************************************/
+
+// --------------------- RECALL  
+
+THREADSAFE PUSH TakeRoute
+{
+  layout.TakeRoute(SourceRoute);
+}
+
+/*******************************************************************************************
+  MAIN
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  WAITFORINITIALIZATIONCOMPLETE();
+	
+  ResetOutputs();
+
+  REGISTEREVENT(layout, OnInitialize, OnInitialize);
+  REGISTEREVENT(layout, OnOnline, OnOnline);
+  layout.Configure(CommandProcessorID, LayoutID, VideoWallName, TotalRows, TotalColumns, WallMode, RatioMode, HorizontalBezel, VerticalBezel, Resolution);
+ }

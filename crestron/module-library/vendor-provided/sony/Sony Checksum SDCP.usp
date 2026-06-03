@@ -1,0 +1,76 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: CRESTRON
+System Name:
+System Number:
+Programmer: PAC
+Comments:
+*/
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#SYMBOL_NAME "Sony Checksum SDCP"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "24" 
+#CATEGORY "0" //HIDDEN 
+// #DEFAULT_VOLATILE
+#DEFAULT_NONVOLATILE
+
+#HELP_BEGIN
+	This SMPL+ module is only to be used in conjuction with the Sony VPL-VW1000ES projector
+module.
+#HELP_END
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+STRING_INPUT From_Smpl$[10];
+
+STRING_OUTPUT To_Device$;
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+*******************************************************************************************/
+INTEGER SEMAPHORE, I, Checksum; 
+STRING TEMP$[10];
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+CHANGE From_Smpl$
+{
+	IF(SEMAPHORE=0)
+	{
+		SEMAPHORE=1;
+		IF(FIND("\xA9", From_Smpl$) > 0)
+		{
+			TEMP$ = MID(From_Smpl$,2,5);
+			Checksum=0;
+			For(I=1 TO LEN(Temp$))
+			{
+				Checksum=(Checksum | BYTE(TEMP$,I));
+			}
+			To_Device$="\x02\x0ASONY\x00\x70\x00\x08" + From_Smpl$ + CHR(Checksum) + "\x9A";
+		}
+		SEMAPHORE=0;
+	}
+}		
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+	SEMAPHORE=0;
+	CLEARBUFFER(From_Smpl$);
+	CLEARBUFFER(TEMP$);		
+}
+
+
+ 

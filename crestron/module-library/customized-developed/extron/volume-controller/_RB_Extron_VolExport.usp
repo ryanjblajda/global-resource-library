@@ -1,0 +1,28 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Processor - Extron Volume Exporter"
+#HINT "for use with Extron MLA VC10 & other SIS Volume Replies"
+#CATEGORY "46" "RBLAJDA_EXTRON" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+ANALOG_INPUT volumeLevel;
+STRING_OUTPUT volumeCommand;
+
+CHANGE volumeLevel {
+	string result[3];
+	result = ITOA(volumeLevel);
+	volumeCommand = result + "V";
+}

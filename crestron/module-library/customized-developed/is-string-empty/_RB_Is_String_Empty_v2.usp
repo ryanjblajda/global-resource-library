@@ -1,0 +1,103 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Is String Empty? v2"
+#HINT "Checks If A String Is Empty - REQUIRES MSP"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#DEFINE_CONSTANT MAXIGNORE 15
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+PARAMETERS
+StringToIgnore: a predetermined string that you wish to ignore when checking to see if the string is empty, this is expandable
+
+INPUTS 
+
+String_To_Check: expandable array of string inputs to be checked
+
+OUTPUTS
+
+Not_Empty: an expandable array of digital outputs (these should match the number of inputs you have in theory, but not required) 
+and will go high if the string is not empty and does not match the specified string to ignore
+
+Items_Not_Empty: this will count the amount of strings that are active, useful for determining the size of dynamic lists.
+
+#HELP_END
+
+ 
+STRING_INPUT String_To_Check[MAXITEMS][MAXITEMS];
+STRING_PARAMETER StringToIgnore[MAXIGNORE][MAXITEMS];
+
+DIGITAL_OUTPUT Not_Empty[MAXITEMS];
+ANALOG_OUTPUT  Items_Not_Empty;
+
+
+/* GLOBAL VARIABLES */
+//string gsStoreStrings[MAXITEMS][MAXITEMS];
+integer giDefinedInputs;
+
+/* FUNCTIONS */
+
+integer_function CheckString(string _string) {
+	integer functionResult, i;
+	functionResult = 0;
+	if(_string <> "" && _string <> StringToIgnore[1] && _string <> StringToIgnore[2] && _string <> StringToIgnore[3] && _string <> StringToIgnore[4] && _string <> StringToIgnore[5]) {
+		functionResult = 1;
+	}
+	return(functionResult);
+}
+
+integer_function CountActiveItems()
+{
+	integer i, tempCount;
+
+	for(i = 1 to giDefinedInputs)
+	{
+		tempCount = tempCount + CheckString(String_To_Check[i]);
+	}
+
+	return(tempCount);
+}
+
+function Main()
+{
+	integer i;
+
+	for(i = MAXITEMS to 1 step -1)
+	{
+		if(isSignalDefined(String_To_Check[i])) break;
+	}
+	
+	giDefinedInputs = i;
+}
+
+/*** Event Handlers ***/
+
+CHANGE String_To_Check 
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	Not_Empty[iChanged] = CheckString(String_To_Check[iChanged]);
+
+	if(isSignalDefined(Items_Not_Empty)) Items_Not_Empty = CountActiveItems();
+}

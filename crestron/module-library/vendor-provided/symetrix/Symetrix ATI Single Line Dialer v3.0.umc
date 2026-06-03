@@ -1,0 +1,4434 @@
+[
+Version=1
+]
+[
+ObjTp=FSgntr
+Sgntr=UserMacro
+RelVrs=4.02.53
+IntStrVrs=2
+MinSMWVrs=3.00.00
+MinTIOVrs=0
+SavedBy=SMW4.01.10
+]
+[
+ObjTp=Hd
+S0Nd=1
+S1Nd=2
+SLNd=3
+PrNm=Symetrix ATI Single Line Dialer v3.0.umc
+DbVr=47.05.002.01
+DvcDbVr=60.02.001.00
+PgmNm=MK
+CltNm=Symetrix ATI Single Line Dialer v3.0
+Incl=362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,767,830,883,1032,1062,1079,1134,1157,1199,1220,1222,1299,1348,1439,1472,1473,1499,1746,1803,1975,2229,2354,2514,2523,2532,3708,3902,3912,3918,3925,1766,2574,2651,2817,2886,2938,2947,3181,3197,3233,3710,3735,3736,3816,4176,4591,
+McNm=Symetrix ATI Single Line Dialer v2.12 Beta
+SmVr=906
+DvVr=906
+TpN1=1
+TpN2=2
+TpN3=3
+TpN4=4
+TpN5=5
+PdfHelp=Symetrix ATI Single Line Dialer v3.0 Help.pdf
+DT=Audio Processor
+DST=Digital Signal Processor
+Mfg=Symetrix
+NumMdl=2
+Mdl1=Edge
+Mdl2=Radius
+APg=0
+StdCmd=0
+FltTmp=1
+FpCS=0
+EnType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Bk
+Nm1=\
+Sx1=0
+Sy1=0
+Mx1=0
+]
+[
+ObjTp=Symbol
+Name=Symetrix ATI Single Line Dialer v3.0
+Code=1
+SmplCName=Symetrix ATI Single Line Dialer v3.0.umc
+Smpl-C=3
+CompilerTimePrecision=Single_Or_Double_Precision
+Exclusions=1,19,20,21,88,89,167,168,179,216,225,248,249,266,302,305,213,214,215,217,226,267,310,718,756,854,
+Hint=Symetrix ATI Single Line Dialer v3.0
+SMWRev=3.00.00
+TIORev=0
+S+=1
+HelpID=1055
+PdfHelp=Symetrix ATI Single Line Dialer v3.0 Help.pdf
+DT=Audio Processor
+DST=Digital Signal Processor
+Mfg=Symetrix
+NumMdl=2
+Mdl1=Edge
+Mdl2=Radius
+APg=0
+StdCmd=0
+FltTmp=1
+FpCS=0
+NumFixedInputs=57
+NumFixedOutputs=57
+NumFixedParams=50
+MinVariableInputs=0
+MinVariableInputsList2=0
+MinVariableInputsList3=0
+MinVariableOutputs=0
+MinVariableOutputsList2=0
+MinVariableOutputsList3=0
+MinVariableParams=0
+SymbolTree=34
+InputSigType1=Digital
+InputSigType2=Digital
+InputSigType3=Digital
+InputSigType4=Digital
+InputSigType5=Digital
+InputSigType6=Digital
+InputSigType7=Digital
+InputSigType8=Digital
+InputSigType9=Digital
+InputSigType10=Digital
+InputSigType11=Digital
+InputSigType12=Digital
+InputSigType13=Digital
+InputSigType14=Digital
+InputSigType15=Digital
+InputSigType16=Digital
+InputSigType17=Digital|Analog|Serial|String
+InputSigType18=Digital
+InputSigType19=Digital
+InputSigType20=Digital
+InputSigType21=Digital|Analog|Serial|String
+InputSigType22=Serial
+InputSigType23=Digital|Analog|Serial|String
+InputSigType24=Digital|Analog|Serial|String
+InputSigType25=Digital|Analog|Serial|String
+InputSigType26=Digital|Analog|Serial|String
+InputSigType27=Digital|Analog|Serial|String
+InputSigType28=Digital|Analog|Serial|String
+InputSigType29=Digital|Analog|Serial|String
+InputSigType30=Digital|Analog|Serial|String
+InputSigType31=Digital|Analog|Serial|String
+InputSigType32=Digital
+InputSigType33=Digital
+InputSigType34=Digital
+InputSigType35=Digital|Analog|Serial|String
+InputSigType36=Digital
+InputSigType37=Digital
+InputSigType38=Digital
+InputSigType39=Digital
+InputSigType40=Digital
+InputSigType41=Digital
+InputSigType42=Digital
+InputSigType43=Digital
+InputSigType44=Digital
+InputSigType45=Digital
+InputSigType46=Digital
+InputSigType47=Digital
+InputSigType48=Digital
+InputSigType49=Digital
+InputSigType50=Digital
+InputSigType51=Digital
+InputSigType52=Digital
+InputSigType53=Digital
+InputSigType54=Digital
+InputSigType55=Digital
+InputSigType56=Digital|Analog|Serial|String
+InputSigType57=Serial
+OutputSigType1=Serial
+OutputSigType2=Serial
+OutputSigType3=Serial
+OutputSigType4=Digital|Analog|Serial|String
+OutputSigType5=Digital|Analog|Serial|String
+OutputSigType6=Digital|Analog|Serial|String
+OutputSigType7=Digital|Analog|Serial|String
+OutputSigType8=Digital|Analog|Serial|String
+OutputSigType9=Digital|Analog|Serial|String
+OutputSigType10=Digital|Analog|Serial|String
+OutputSigType11=Digital|Analog|Serial|String
+OutputSigType12=Digital|Analog|Serial|String
+OutputSigType13=Digital|Analog|Serial|String
+OutputSigType14=Digital|Analog|Serial|String
+OutputSigType15=Digital|Analog|Serial|String
+OutputSigType16=Digital|Analog|Serial|String
+OutputSigType17=Digital|Analog|Serial|String
+OutputSigType18=Digital
+OutputSigType19=Digital
+OutputSigType20=Digital
+OutputSigType21=Digital
+OutputSigType22=Digital
+OutputSigType23=Digital
+OutputSigType24=Digital
+OutputSigType25=Digital
+OutputSigType26=Digital|Analog|Serial|String
+OutputSigType27=Serial
+OutputSigType28=Digital|Analog|Serial|String
+OutputSigType29=Digital|Analog|Serial|String
+OutputSigType30=Digital|Analog|Serial|String
+OutputSigType31=Digital|Analog|Serial|String
+OutputSigType32=Digital
+OutputSigType33=Digital|Analog|Serial|String
+OutputSigType34=Digital|Analog|Serial|String
+OutputSigType35=Digital|Analog|Serial|String
+OutputSigType36=Digital|Analog|Serial|String
+OutputSigType37=Digital|Analog|Serial|String
+OutputSigType38=Digital|Analog|Serial|String
+OutputSigType39=Digital|Analog|Serial|String
+OutputSigType40=Digital|Analog|Serial|String
+OutputSigType41=Digital|Analog|Serial|String
+OutputSigType42=Digital|Analog|Serial|String
+OutputSigType43=Digital|Analog|Serial|String
+OutputSigType44=Digital|Analog|Serial|String
+OutputSigType45=Digital|Analog|Serial|String
+OutputSigType46=Digital|Analog|Serial|String
+OutputSigType47=Digital|Analog|Serial|String
+OutputSigType48=Digital|Analog|Serial|String
+OutputSigType49=Digital|Analog|Serial|String
+OutputSigType50=Digital|Analog|Serial|String
+OutputSigType51=Digital|Analog|Serial|String
+OutputSigType52=Digital|Analog|Serial|String
+OutputSigType53=Digital|Analog|Serial|String
+OutputSigType54=Digital|Analog|Serial|String
+OutputSigType55=Digital|Analog|Serial|String
+OutputSigType56=Digital|Analog|Serial|String
+OutputSigType57=Serial
+ParamSigType1=String
+ParamSigType2=String
+ParamSigType3=String
+ParamSigType4=String
+ParamSigType5=String
+ParamSigType6=String
+ParamSigType7=String
+ParamSigType8=String
+ParamSigType9=String
+ParamSigType10=String
+ParamSigType11=String
+ParamSigType12=String
+ParamSigType13=String
+ParamSigType14=String
+ParamSigType15=String
+ParamSigType16=String
+ParamSigType17=String
+ParamSigType18=String
+ParamSigType19=String
+ParamSigType20=String
+ParamSigType21=String
+ParamSigType22=String
+ParamSigType23=String
+ParamSigType24=String
+ParamSigType25=String
+ParamSigType26=String
+ParamSigType27=String
+ParamSigType28=String
+ParamSigType29=String
+ParamSigType30=String
+ParamSigType31=String
+ParamSigType32=String
+ParamSigType33=String
+ParamSigType34=String
+ParamSigType35=String
+ParamSigType36=String
+ParamSigType37=String
+ParamSigType38=String
+ParamSigType39=String
+ParamSigType40=String
+ParamSigType41=String
+ParamSigType42=String
+ParamSigType43=String
+ParamSigType44=String
+ParamSigType45=String
+ParamSigType46=Constant
+ParamSigType47=List
+ParamSigType48=List
+ParamSigType49=List
+ParamSigType50=List
+InputCue1=Keypad_1
+InputCue2=Keypad_2
+InputCue3=Keypad_3
+InputCue4=Keypad_4
+InputCue5=Keypad_5
+InputCue6=Keypad_6
+InputCue7=Keypad_7
+InputCue8=Keypad_8
+InputCue9=Keypad_9
+InputCue10=Keypad_0
+InputCue11=Keypad_Star
+InputCue12=Keypad_Pound
+InputCue13=Clear
+InputCue14=Delete
+InputCue15=Pause
+InputCue16=Redial
+InputCue17=[~UNUSED~]
+InputCue18=Connect/Disconnect
+InputCue19=Connect
+InputCue20=Disconnect
+InputCue21=[~UNUSED~]
+InputCue22=External_Dial_String_for_CS_Dial_<32_Chars
+InputCue23=[~UNUSED~]
+InputCue24=[~UNUSED~]
+InputCue25=[~UNUSED~]
+InputCue26=[~UNUSED~]
+InputCue27=[~UNUSED~]
+InputCue28=[~UNUSED~]
+InputCue29=[~UNUSED~]
+InputCue30=[~UNUSED~]
+InputCue31=[~UNUSED~]
+InputCue32=Do_Not_Disturb_On
+InputCue33=Do_Not_Disturb_Off
+InputCue34=Do_Not_Disturb_Toggle
+InputCue35=[~UNUSED~]
+InputCue36=Dial_Speed_Dial1
+InputCue37=Dial_Speed_Dial2
+InputCue38=Dial_Speed_Dial3
+InputCue39=Dial_Speed_Dial4
+InputCue40=Dial_Speed_Dial5
+InputCue41=Dial_Speed_Dial6
+InputCue42=Dial_Speed_Dial7
+InputCue43=Dial_Speed_Dial8
+InputCue44=Dial_Speed_Dial9
+InputCue45=Dial_Speed_Dial10
+InputCue46=Dial_Speed_Dial11
+InputCue47=Dial_Speed_Dial12
+InputCue48=Dial_Speed_Dial13
+InputCue49=Dial_Speed_Dial14
+InputCue50=Dial_Speed_Dial15
+InputCue51=Dial_Speed_Dial16
+InputCue52=Dial_Speed_Dial17
+InputCue53=Dial_Speed_Dial18
+InputCue54=Dial_Speed_Dial19
+InputCue55=Dial_Speed_Dial20
+InputCue56=[~UNUSED~]
+InputCue57=From_Command_Processor
+OutputCue1=Dial_Display
+OutputCue2=Line_Status1
+OutputCue3=Line_Status2
+OutputCue4=[~UNUSED~]
+OutputCue5=[~UNUSED~]
+OutputCue6=[~UNUSED~]
+OutputCue7=[~UNUSED~]
+OutputCue8=[~UNUSED~]
+OutputCue9=[~UNUSED~]
+OutputCue10=[~UNUSED~]
+OutputCue11=[~UNUSED~]
+OutputCue12=[~UNUSED~]
+OutputCue13=[~UNUSED~]
+OutputCue14=[~UNUSED~]
+OutputCue15=[~UNUSED~]
+OutputCue16=[~UNUSED~]
+OutputCue17=[~UNUSED~]
+OutputCue18=Connected_LED_is_On
+OutputCue19=Ready_LED_is_On
+OutputCue20=Dialing_LED_is_On
+OutputCue21=Ringing_LED_is_On
+OutputCue22=Busy_LED_is_On
+OutputCue23=In_Use_LED_is_On
+OutputCue24=Intrusion_LED_is_On
+OutputCue25=Fault_LED_is_On
+OutputCue26=[~UNUSED~]
+OutputCue27=Caller_ID
+OutputCue28=[~UNUSED~]
+OutputCue29=[~UNUSED~]
+OutputCue30=[~UNUSED~]
+OutputCue31=[~UNUSED~]
+OutputCue32=Do_Not_Disturb_Is_On
+OutputCue33=[~UNUSED~]
+OutputCue34=[~UNUSED~]
+OutputCue35=[~UNUSED~]
+OutputCue36=[~UNUSED~]
+OutputCue37=[~UNUSED~]
+OutputCue38=[~UNUSED~]
+OutputCue39=[~UNUSED~]
+OutputCue40=[~UNUSED~]
+OutputCue41=[~UNUSED~]
+OutputCue42=[~UNUSED~]
+OutputCue43=[~UNUSED~]
+OutputCue44=[~UNUSED~]
+OutputCue45=[~UNUSED~]
+OutputCue46=[~UNUSED~]
+OutputCue47=[~UNUSED~]
+OutputCue48=[~UNUSED~]
+OutputCue49=[~UNUSED~]
+OutputCue50=[~UNUSED~]
+OutputCue51=[~UNUSED~]
+OutputCue52=[~UNUSED~]
+OutputCue53=[~UNUSED~]
+OutputCue54=[~UNUSED~]
+OutputCue55=[~UNUSED~]
+OutputCue56=[~UNUSED~]
+OutputCue57=To_Command_Processor
+ParamCue1=Keypad_1 Controller_Number
+ParamCue2=Keypad_2 Controller_Number
+ParamCue3=Keypad_3 Controller_Number
+ParamCue4=Keypad_4 Controller_Number
+ParamCue5=Keypad_5 Controller_Number
+ParamCue6=Keypad_6 Controller_Number
+ParamCue7=Keypad_7 Controller_Number
+ParamCue8=Keypad_8 Controller_Number
+ParamCue9=Keypad_9 Controller_Number
+ParamCue10=Keypad_0 Controller_Number
+ParamCue11=Keypad_Star_Controller_Number
+ParamCue12=Keypad_Pound_Controller_Number
+ParamCue13=Connect/Disconnect_Controller_Number
+ParamCue14=Clear_Controller_Number
+ParamCue15=Delete_Controller_Number
+ParamCue16=Do_Not_Disturb_Controller_Number
+ParamCue17=Redial_Controller_Number
+ParamCue18=Connected_LED_Controller_Number
+ParamCue19=Ready_LED_Controller_Number
+ParamCue20=Dialing_LED_Controller_Number
+ParamCue21=Ringing_LED_Controller_Number
+ParamCue22=Busy_LED_Controller_Number
+ParamCue23=In_Use_LED_Controller_Number
+ParamCue24=Intrusion_LED_Controller_Number
+ParamCue25=Fault_LED_Controller_Number
+ParamCue26=Speed_Dial1 Controller_Number
+ParamCue27=Speed_Dial2 Controller_Number
+ParamCue28=Speed_Dial3 Controller_Number
+ParamCue29=Speed_Dial4 Controller_Number
+ParamCue30=Speed_Dial5 Controller_Number
+ParamCue31=Speed_Dial6 Controller_Number
+ParamCue32=Speed_Dial7 Controller_Number
+ParamCue33=Speed_Dial8 Controller_Number
+ParamCue34=Speed_Dial9 Controller_Number
+ParamCue35=Speed_Dial10 Controller_Number
+ParamCue36=Speed_Dial11 Controller_Number
+ParamCue37=Speed_Dial12 Controller_Number
+ParamCue38=Speed_Dial13 Controller_Number
+ParamCue39=Speed_Dial14 Controller_Number
+ParamCue40=Speed_Dial15 Controller_Number
+ParamCue41=Speed_Dial16 Controller_Number
+ParamCue42=Speed_Dial17 Controller_Number
+ParamCue43=Speed_Dial18 Controller_Number
+ParamCue44=Speed_Dial19 Controller_Number
+ParamCue45=Speed_Dial20 Controller_Number
+ParamCue46=Unit_Number
+ParamCue47=Card_Slot,0d,1d,2d,3d
+ParamCue48=Line_Number,0d,1d
+ParamCue49=On_Hook_Dialing_Option,0d,1d
+ParamCue50=Speed_Dial_for_Control_System_Dialing,1d,2d,3d,4d,5d,6d,7d,8d,9d,10d,11d,12d,13d,14d,15d,16d,17d,18d,19d,20d
+MPi=57
+Pi1=30
+Pi2=31
+Pi3=32
+Pi4=33
+Pi5=34
+Pi6=35
+Pi7=36
+Pi8=37
+Pi9=38
+Pi10=39
+Pi11=40
+Pi12=41
+Pi13=42
+Pi14=43
+Pi15=44
+Pi16=45
+Pi18=46
+Pi19=47
+Pi20=48
+Pi22=49
+Pi32=50
+Pi33=51
+Pi34=52
+Pi36=53
+Pi37=54
+Pi38=55
+Pi39=56
+Pi40=57
+Pi41=58
+Pi42=59
+Pi43=60
+Pi44=61
+Pi45=62
+Pi46=63
+Pi47=64
+Pi48=65
+Pi49=66
+Pi50=67
+Pi51=68
+Pi52=69
+Pi53=70
+Pi54=71
+Pi55=72
+Pi57=73
+MPo=57
+Po1=75
+Po2=76
+Po3=77
+Po18=78
+Po19=79
+Po20=80
+Po21=81
+Po22=82
+Po23=83
+Po24=84
+Po25=85
+Po27=86
+Po32=87
+Po57=74
+MPp=50
+Pp1=88
+Pp2=1
+Pp3=3
+Pp4=4
+Pp5=5
+Pp6=6
+Pp7=7
+Pp8=8
+Pp9=9
+Pp10=10
+Pp11=11
+Pp12=12
+Pp13=13
+Pp14=14
+Pp15=15
+Pp16=16
+Pp17=17
+Pp18=18
+Pp19=19
+Pp20=20
+Pp21=21
+Pp22=22
+Pp23=23
+Pp24=24
+Pp25=25
+Pp26=89
+Pp27=90
+Pp28=91
+Pp29=92
+Pp30=93
+Pp31=94
+Pp32=95
+Pp33=96
+Pp34=97
+Pp35=98
+Pp36=99
+Pp37=100
+Pp38=101
+Pp39=102
+Pp40=103
+Pp41=104
+Pp42=105
+Pp43=106
+Pp44=107
+Pp45=108
+Pp46=29
+Pp47=2
+Pp48=26
+Pp49=27
+Pp50=28
+FileName=Symetrix ATI Single Line Dialer v3.0.umc
+EncodingType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Sm
+H=1
+SmC=157
+Nm=Central Control Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=2
+SmC=157
+Nm=Network Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=3
+SmC=157
+Nm=Ethernet
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=4
+SmC=156
+Nm=Logic
+ObjVer=1
+CF=2
+mC=7
+C1=8
+C2=61
+C3=432
+C4=12
+C5=17
+C6=32
+C7=55
+]
+[
+ObjTp=Sm
+H=5
+SmC=157
+Nm=DefineArguments
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mC=1
+C1=222
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=6
+SmC=9
+Nm=One Shot
+ObjVer=1
+PrH=432
+CF=2
+n1I=3
+n1O=2
+Cmn1=Connected LED Turns Off\\
+mI=3
+I1=95
+mO=2
+tO=2
+O1=8
+mP=1
+P1=.1s
+]
+[
+ObjTp=Sm
+H=7
+SmC=101
+Nm=Serial I/O
+ObjVer=1
+PrH=215
+CF=2
+n1I=7
+n1O=2
+Cmn1=Telephone line status 1\\
+mI=7
+I3=68
+I4=69
+I5=70
+I6=71
+I7=72
+mO=2
+tO=2
+O1=45
+mP=7
+P1=
+P2=Ready
+P3=Connected
+P4=Dialing
+P5=Ringing
+P6=""
+P7=
+]
+[
+ObjTp=Sm
+H=8
+SmC=101
+Nm=Serial I/O
+ObjVer=1
+PrH=4
+CF=2
+n1I=45
+n1O=21
+Cmn1=Commands and Respones\\
+mI=45
+I1=24
+I3=55
+I4=56
+I5=57
+I6=73
+I7=74
+I8=77
+I9=78
+I10=84
+I11=85
+I12=97
+I13=98
+I14=99
+I15=92
+I16=100
+I17=101
+I18=36
+I20=47
+I21=54
+I22=58
+I23=59
+I24=62
+I25=63
+I26=64
+I27=65
+I28=66
+I29=67
+I30=106
+I31=107
+I32=108
+I33=109
+I34=110
+I35=111
+I36=112
+I37=113
+I38=114
+I39=115
+I41=75
+I42=76
+I44=88
+I45=89
+mO=21
+tO=21
+O1=21
+O2=124
+O3=125
+O4=126
+O5=127
+O6=128
+O7=129
+O8=130
+O9=131
+O11=116
+O12=117
+O13=118
+O14=119
+O15=120
+O16=121
+O17=122
+O18=123
+O20=60
+O21=61
+mP=64
+P1=
+P2=CS \[#Keypad_1 Controller_Number\] 65535\x0D
+P3=CS \[#Keypad_2 Controller_Number\] 65535\x0D
+P4=CS \[#Keypad_3 Controller_Number\] 65535\x0D
+P5=CS \[#Keypad_4 Controller_Number\] 65535\x0D
+P6=CS \[#Keypad_5 Controller_Number\] 65535\x0D
+P7=CS \[#Keypad_6 Controller_Number\] 65535\x0D
+P8=CS \[#Keypad_7 Controller_Number\] 65535\x0D
+P9=CS \[#Keypad_8 Controller_Number\] 65535\x0D
+P10=CS \[#Keypad_9 Controller_Number\] 65535\x0D
+P11=CS \[#Keypad_0 Controller_Number\] 65535\x0D
+P12=CS \[#Keypad_Star_Controller_Number\] 65535\x0D
+P13=CS \[#Keypad_Pound_Controller_Number\] 65535\x0D
+P14=CS \[#Connect/Disconnect_Controller_Number\] 65535\x0D
+P15=CS \[#Clear_Controller_Number\] 65535\x0D
+P16=CS \[#Delete_Controller_Number\] 65535\x0D
+P17=CS \[#Redial_Controller_Number\] 65535\x0D
+P18=
+P19=CS \[#Speed_Dial1 Controller_Number\] 65535\x0D
+P20=CS \[#Speed_Dial2 Controller_Number\] 65535\x0D
+P21=CS \[#Speed_Dial3 Controller_Number\] 65535\x0D
+P22=CS \[#Speed_Dial4 Controller_Number\] 65535\x0D
+P23=CS \[#Speed_Dial5 Controller_Number\] 65535\x0D
+P24=CS \[#Speed_Dial6 Controller_Number\] 65535\x0D
+P25=CS \[#Speed_Dial7 Controller_Number\] 65535\x0D
+P26=CS \[#Speed_Dial8 Controller_Number\] 65535\x0D
+P27=CS \[#Speed_Dial9 Controller_Number\] 65535\x0D
+P28=CS \[#Speed_Dial10 Controller_Number\] 65535\x0D
+P29=CS \[#Speed_Dial11 Controller_Number\] 65535\x0D
+P30=CS \[#Speed_Dial12 Controller_Number\] 65535\x0D
+P31=CS \[#Speed_Dial13 Controller_Number\] 65535\x0D
+P32=CS \[#Speed_Dial14 Controller_Number\] 65535\x0D
+P33=CS \[#Speed_Dial15 Controller_Number\] 65535\x0D
+P34=CS \[#Speed_Dial16 Controller_Number\] 65535\x0D
+P35=CS \[#Speed_Dial17 Controller_Number\] 65535\x0D
+P36=CS \[#Speed_Dial18 Controller_Number\] 65535\x0D
+P37=CS \[#Speed_Dial19 Controller_Number\] 65535\x0D
+P38=CS \[#Speed_Dial20 Controller_Number\] 65535\x0D
+P39=
+P40=CS \[#Do_Not_Disturb_Controller_Number\] 65535\x0D
+P41=CS \[#Do_Not_Disturb_Controller_Number\] 0\x0D
+P42=
+P43=GSYSS \[#Unit_Number\].1003.0.\[#Card_Slot\].\[#Line_Number\]\r
+P44=GSYSS \[#Unit_Number\].1002.0.\[#Card_Slot\].\[#Line_Number\]\r
+P45=\[#Ready_LED_Controller_Number\]=65535\x0D
+P46=\[#Ready_LED_Controller_Number\]=00000\x0D
+P47=\[#Connected_LED_Controller_Number\]=65535\x0D
+P48=\[#Connected_LED_Controller_Number\]=00000\x0D
+P49=\[#Dialing_LED_Controller_Number\]=65535\x0D
+P50=\[#Dialing_LED_Controller_Number\]=00000\x0D
+P51=\[#Ringing_LED_Controller_Number\]=65535\x0D
+P52=\[#Ringing_LED_Controller_Number\]=00000\x0D
+P53=
+P54=\[#In_Use_LED_Controller_Number\]=65535\x0D
+P55=\[#In_Use_LED_Controller_Number\]=00000\x0D
+P56=\[#Intrusion_LED_Controller_Number\]=65535\x0D
+P57=\[#Intrusion_LED_Controller_Number\]=00000\x0D
+P58=\[#Fault_LED_Controller_Number\]=65535\x0D
+P59=\[#Fault_LED_Controller_Number\]=00000\x0D
+P60=\[#Busy_LED_Controller_Number\]=65535\x0D
+P61=\[#Busy_LED_Controller_Number\]=00000\x0D
+P62=
+P63=\[#Do_Not_Disturb_Controller_Number\]=65535\x0D
+P64=\[#Do_Not_Disturb_Controller_Number\]=00000\x0D
+]
+[
+ObjTp=Sm
+H=9
+SmC=32
+Nm=Analog Initialize
+ObjVer=1
+PrH=432
+CF=2
+n1I=1
+n1O=2
+Cmn1=Init Module Parameters\\
+mI=1
+I1=2
+mO=2
+tO=2
+O1=4
+O2=13
+mP=2
+P1=#On_Hook_Dialing_Option
+P2=#Speed_Dial_for_Control_System_Dialing
+]
+[
+ObjTp=Sm
+H=10
+SmC=38
+Nm=Analog Equate
+ObjVer=1
+PrH=432
+CF=2
+n1I=2
+n1O=1
+Cmn1=Dial In Control System?\\
+mI=2
+I1=4
+mO=1
+tO=1
+O1=16
+mP=1
+P1=1d
+]
+[
+ObjTp=Sm
+H=11
+SmC=205
+Nm=NOT
+ObjVer=1
+PrH=432
+CF=2
+n1I=1
+n1O=1
+Cmn1=Dial In Device\\
+mI=1
+I1=16
+mO=1
+tO=1
+O1=39
+]
+[
+ObjTp=Sm
+H=12
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=4
+CF=2
+Cmn1=Do Not Disturb\\
+mC=5
+C1=13
+C2=16
+C3=20
+C4=23
+C5=24
+]
+[
+ObjTp=Sm
+H=13
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=12
+CF=2
+n1I=4
+n1O=2
+Cmn1=Hold DND State\\
+mI=4
+I3=60
+I4=61
+mO=2
+tO=2
+O1=50
+O2=17
+]
+[
+ObjTp=Sm
+H=14
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=Ready\\
+mI=4
+I3=124
+I4=125
+mO=2
+tO=2
+O1=7
+O2=17
+]
+[
+ObjTp=Sm
+H=15
+SmC=46
+Nm=Analog Buffer
+ObjVer=1
+PrH=432
+CF=2
+n1I=2
+n1O=1
+Cmn1=Pass Device Dial Buffer to Dial Display\\
+mI=2
+I1=132
+I2=40
+mO=1
+tO=1
+O1=42
+]
+[
+ObjTp=Sm
+H=16
+SmC=205
+Nm=NOT
+ObjVer=1
+PrH=12
+CF=2
+n1I=1
+n1O=1
+Cmn1=DND is not on\\
+mI=1
+I1=50
+mO=1
+tO=1
+O1=43
+]
+[
+ObjTp=Sm
+H=17
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=4
+CF=2
+Cmn1=line status\\
+mC=1
+C1=215
+]
+[
+ObjTp=Sm
+H=18
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=432
+CF=2
+n1I=15
+n1O=14
+Cmn1=Pass Keypad Functions To Device\\
+mI=15
+I1=132
+I2=5
+I3=15
+I4=18
+I5=19
+I6=23
+I7=25
+I8=26
+I9=27
+I10=28
+I11=29
+I12=30
+I13=31
+I14=33
+I15=34
+mO=14
+tO=14
+O1=55
+O2=56
+O3=57
+O4=73
+O5=74
+O6=77
+O7=78
+O8=84
+O9=85
+O10=97
+O11=98
+O12=99
+O13=100
+O14=101
+]
+[
+ObjTp=Sm
+H=19
+SmC=3
+Nm=OR
+ObjVer=1
+PrH=432
+CF=2
+n1I=3
+n1O=1
+Cmn1=Enable Keypad Functions To Device\\
+mI=3
+I1=39
+I2=41
+I3=48
+mO=1
+tO=1
+O1=53
+]
+[
+ObjTp=Sm
+H=20
+SmC=13
+Nm=Toggle
+ObjVer=1
+PrH=12
+CF=2
+n1I=3
+n1O=2
+Cmn1=Single Logic Wave Pulse\\
+mI=3
+I2=52
+I3=44
+mO=2
+tO=2
+O1=52
+]
+[
+ObjTp=Sm
+H=21
+SmC=28
+Nm=Truth Table
+ObjVer=1
+PrH=215
+CF=2
+n1I=5
+n1O=5
+Cmn1=Line Status 1 Text\\
+mI=5
+I1=7
+I2=11
+I3=9
+I4=48
+I5=22
+mO=5
+tO=5
+O1=68
+O2=69
+O3=70
+O4=71
+O5=72
+mP=10
+P1=H,H,H,H,X
+P2=L,H,X,L,X
+P3=L,L,H,L,X
+P4=L,L,L,H,X
+P5=L,L,L,L,H
+P6=H,L,L,L,L
+P7=L,H,L,L,L
+P8=L,L,H,L,L
+P9=L,L,L,H,L
+P10=L,L,L,L,H
+]
+[
+ObjTp=Sm
+H=23
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=12
+CF=2
+n1I=3
+n1O=2
+Cmn1=Send Discrete Functions on Toggle\\
+mI=3
+I1=52
+I2=50
+I3=43
+mO=2
+tO=2
+O1=76
+O2=75
+]
+[
+ObjTp=Sm
+H=24
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=12
+CF=2
+n1I=3
+n1O=2
+Cmn1=Pass Discrete Inputs\\
+mI=3
+I1=2
+I2=35
+I3=51
+mO=2
+tO=2
+O1=75
+O2=76
+]
+[
+ObjTp=Sm
+H=25
+SmC=38
+Nm=Analog Equate
+ObjVer=1
+PrH=32
+CF=2
+n1I=2
+n1O=20
+Cmn1=Speed Dial to use for CS dialing\\
+mI=2
+I1=13
+mO=20
+tO=20
+O1=152
+O2=153
+O3=154
+O4=155
+O5=156
+O6=157
+O7=158
+O8=159
+O9=160
+O10=161
+O11=162
+O12=163
+O13=164
+O14=165
+O15=166
+O16=167
+O17=168
+O18=169
+O19=170
+O20=171
+mP=20
+P1=1d
+P2=2d
+P3=3d
+P4=4d
+P5=5d
+P6=6d
+P7=7d
+P8=8d
+P9=9d
+P10=10d
+P11=11d
+P12=12d
+P13=13d
+P14=14d
+P15=15d
+P16=16d
+P17=17d
+P18=18d
+P19=19d
+P20=20d
+]
+[
+ObjTp=Sm
+H=26
+SmC=46
+Nm=Analog Buffer
+ObjVer=1
+PrH=432
+CF=2
+n1I=2
+n1O=1
+Cmn1=Pass CS Dial String to Dial Display\\
+mI=2
+I1=133
+I2=149
+mO=1
+tO=1
+O1=42
+]
+[
+ObjTp=Sm
+H=27
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=432
+CF=2
+n1I=2
+n1O=1
+Cmn1=Clear CS Dial String on Disconnect\\
+mI=2
+I1=8
+I2=2
+mO=1
+tO=1
+O1=146
+]
+[
+ObjTp=Sm
+H=28
+SmC=3
+Nm=OR
+ObjVer=1
+PrH=32
+CF=2
+n1I=2
+n1O=1
+Cmn1=Enable Send Connect/Disconnect for Connect button\\
+mI=2
+I1=132
+I2=104
+mO=1
+tO=1
+O1=49
+]
+[
+ObjTp=Sm
+H=29
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=Connected\\
+mI=4
+I3=126
+I4=127
+mO=2
+tO=2
+O1=11
+O2=17
+]
+[
+ObjTp=Sm
+H=30
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=Dialing\\
+mI=4
+I3=128
+I4=129
+mO=2
+tO=2
+O1=9
+O2=17
+]
+[
+ObjTp=Sm
+H=31
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=Ringing\\
+mI=4
+I3=130
+I4=131
+mO=2
+tO=2
+O1=48
+O2=17
+]
+[
+ObjTp=Sm
+H=32
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=4
+CF=2
+Cmn1=Discrete Connect Disconnect\\
+mC=12
+C1=39
+C2=33
+C3=49
+C4=54
+C5=28
+C6=53
+C7=38
+C8=25
+C9=51
+C10=52
+C11=46
+C12=47
+]
+[
+ObjTp=Sm
+H=33
+SmC=13
+Nm=Toggle
+ObjVer=1
+PrH=32
+CF=2
+n1I=3
+n1O=2
+Cmn1=Single Logic Wave Connect\\
+mI=3
+I2=94
+I3=90
+mO=2
+tO=2
+O1=94
+]
+[
+ObjTp=Sm
+H=34
+SmC=1
+Nm=AND
+ObjVer=1
+PrH=432
+CF=2
+n1I=2
+n1O=1
+Cmn1=CS Dial Off Hook\\
+mI=2
+I1=16
+I2=11
+mO=1
+tO=1
+O1=41
+]
+[
+ObjTp=Sm
+H=35
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=In_Use\\
+mI=4
+I3=116
+I4=117
+mO=2
+tO=2
+O1=10
+O2=17
+]
+[
+ObjTp=Sm
+H=36
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=55
+CF=2
+n1I=2
+n1O=1
+Cmn1=Pass Connect/Disconnect Button\\
+mI=2
+I1=39
+I2=105
+mO=1
+tO=1
+O1=92
+]
+[
+ObjTp=Sm
+H=37
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=Intrusion\\
+mI=4
+I3=118
+I4=119
+mO=2
+tO=2
+O1=20
+O2=17
+]
+[
+ObjTp=Sm
+H=38
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=32
+CF=2
+n1I=3
+n1O=2
+Cmn1=Connect button functions\\
+mI=3
+I1=150
+I2=49
+I3=87
+mO=2
+tO=2
+O1=92
+O2=151
+]
+[
+ObjTp=Sm
+H=39
+SmC=205
+Nm=NOT
+ObjVer=1
+PrH=32
+CF=2
+n1I=1
+n1O=1
+Cmn1=Connect LED is not on\\
+mI=1
+I1=11
+mO=1
+tO=1
+O1=95
+]
+[
+ObjTp=Sm
+H=40
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=Fault\\
+mI=4
+I3=120
+I4=121
+mO=2
+tO=2
+O1=22
+O2=17
+]
+[
+ObjTp=Sm
+H=41
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=266
+CF=2
+n1I=4
+n1O=2
+Cmn1=Busy\\
+mI=4
+I3=122
+I4=123
+mO=2
+tO=2
+O1=93
+O2=17
+]
+[
+ObjTp=Sm
+H=42
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=432
+CF=2
+n1I=16
+n1O=15
+Cmn1=Pass Keypad Functions To CS\\
+mI=16
+I1=133
+I2=5
+I3=15
+I4=18
+I5=19
+I6=23
+I7=25
+I8=26
+I9=27
+I10=28
+I11=29
+I12=30
+I13=31
+I14=33
+I15=34
+I16=102
+mO=15
+tO=15
+O1=134
+O2=135
+O3=136
+O4=137
+O5=138
+O6=139
+O7=140
+O8=141
+O9=142
+O10=143
+O11=144
+O12=145
+O13=146
+O14=147
+O15=148
+]
+[
+ObjTp=Sm
+H=43
+SmC=205
+Nm=NOT
+ObjVer=1
+PrH=432
+CF=2
+n1I=1
+n1O=1
+Cmn1=Enable Keypad Functions To CS\\
+mI=1
+I1=53
+mO=1
+tO=1
+O1=103
+]
+[
+ObjTp=Sm
+H=44
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=432
+CF=2
+n1I=4
+n1O=2
+Cmn1=Hold Keypad State\\
+mI=4
+I3=53
+I4=103
+mO=2
+tO=2
+O1=132
+O2=133
+]
+[
+ObjTp=Sm
+H=45
+SmC=123
+Nm=ASCII Keypad
+ObjVer=1
+PrH=432
+CF=2
+n1I=61
+n1O=1
+Cmn1=Create CS Dial String\\
+mI=61
+I1=146
+I2=2
+I3=147
+I4=17
+I5=17
+I6=17
+I7=17
+I8=17
+I9=17
+I10=17
+I11=17
+I12=17
+I13=17
+I14=17
+I15=17
+I16=17
+I17=17
+I18=17
+I19=17
+I20=17
+I21=17
+I22=17
+I23=17
+I24=17
+I25=17
+I26=17
+I27=17
+I28=17
+I29=17
+I30=17
+I31=17
+I32=17
+I33=17
+I34=17
+I35=17
+I36=17
+I37=17
+I38=17
+I39=145
+I40=17
+I41=17
+I42=17
+I43=17
+I44=17
+I45=17
+I46=144
+I47=17
+I48=148
+I49=17
+I50=17
+I51=17
+I52=143
+I53=134
+I54=135
+I55=136
+I56=137
+I57=138
+I58=139
+I59=140
+I60=141
+I61=142
+mO=1
+tO=1
+O1=149
+mP=1
+P1=31d
+]
+[
+ObjTp=Sm
+H=46
+SmC=13
+Nm=Toggle
+ObjVer=1
+PrH=32
+CF=2
+n1I=3
+n1O=2
+Cmn1=Single Logic Wave Disconnect\\
+mI=3
+I2=96
+I3=91
+mO=2
+tO=2
+O1=96
+]
+[
+ObjTp=Sm
+H=47
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=32
+CF=2
+n1I=2
+n1O=1
+Cmn1=Discrete Disconnect\\
+mI=2
+I1=96
+I2=11
+mO=1
+tO=1
+O1=92
+]
+[
+ObjTp=Sm
+H=48
+SmC=858
+Nm=Make String Permanent
+ObjVer=1
+PrH=432
+CF=2
+n1I=2
+mI=2
+I1=149
+I2=40
+mP=1
+P1=31d
+]
+[
+ObjTp=Sm
+H=49
+SmC=1
+Nm=AND
+ObjVer=1
+PrH=32
+CF=2
+n1I=2
+n1O=1
+Cmn1=Connect button and LED is not on\\
+mI=2
+I1=94
+I2=95
+mO=1
+tO=1
+O1=150
+]
+[
+ObjTp=Sm
+H=50
+SmC=56
+Nm=Serial Buffer
+ObjVer=1
+PrH=432
+CF=2
+n1I=2
+n1O=1
+Cmn1=Pass External Dialing String for CS Dialing\\
+mI=2
+I1=2
+I2=176
+mO=1
+tO=1
+O1=149
+]
+[
+ObjTp=Sm
+H=51
+SmC=98
+Nm=Stepper
+ObjVer=1
+PrH=32
+CF=2
+n1I=1
+n1O=2
+Cmn1=Delay speed dial command on CS dial\\
+mI=1
+I1=151
+mO=2
+tO=2
+O1=17
+O2=172
+mP=2
+P1=.25s
+P2=.01s
+]
+[
+ObjTp=Sm
+H=52
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=32
+CF=2
+n1I=21
+n1O=20
+Cmn1=Which speed dial preset to send\\
+mI=21
+I1=172
+I2=152
+I3=153
+I4=154
+I5=155
+I6=156
+I7=157
+I8=158
+I9=159
+I10=160
+I11=161
+I12=162
+I13=163
+I14=164
+I15=165
+I16=166
+I17=167
+I18=168
+I19=169
+I20=170
+I21=171
+mO=20
+tO=20
+O1=47
+O2=54
+O3=58
+O4=59
+O5=62
+O6=63
+O7=64
+O8=65
+O9=66
+O10=67
+O11=106
+O12=107
+O13=108
+O14=109
+O15=110
+O16=111
+O17=112
+O18=113
+O19=114
+O20=115
+]
+[
+ObjTp=Sm
+H=53
+SmC=205
+Nm=NOT
+ObjVer=1
+PrH=32
+CF=2
+n1I=1
+n1O=1
+Cmn1=Negate Enable\\
+mI=1
+I1=49
+mO=1
+tO=1
+O1=87
+]
+[
+ObjTp=Sm
+H=54
+SmC=1
+Nm=AND
+ObjVer=1
+PrH=32
+CF=2
+n1I=2
+n1O=1
+Cmn1=Dial in CS and Dial String is empty\\
+mI=2
+I1=16
+I2=38
+mO=1
+tO=1
+O1=104
+]
+[
+ObjTp=Sm
+H=55
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=4
+CF=2
+Cmn1=Connect Disconnect Button\\
+mC=6
+C1=57
+C2=36
+C3=58
+C4=59
+C5=60
+C6=56
+]
+[
+ObjTp=Sm
+H=56
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=55
+CF=2
+n1I=3
+n1O=2
+Cmn1=Which function to send for CS dial\\
+mI=3
+I1=173
+I2=174
+I3=175
+mO=2
+tO=2
+O1=92
+O2=151
+]
+[
+ObjTp=Sm
+H=57
+SmC=13
+Nm=Toggle
+ObjVer=1
+PrH=55
+CF=2
+n1I=3
+n1O=2
+Cmn1=Single Logic Wave Connect/Disconnect\\
+mI=3
+I2=105
+I3=32
+mO=2
+tO=2
+O1=105
+]
+[
+ObjTp=Sm
+H=58
+SmC=1
+Nm=AND
+ObjVer=1
+PrH=55
+CF=2
+n1I=2
+n1O=1
+Cmn1=Dial in CS\\
+mI=2
+I1=105
+I2=16
+mO=1
+tO=1
+O1=173
+]
+[
+ObjTp=Sm
+H=59
+SmC=3
+Nm=OR
+ObjVer=1
+PrH=55
+CF=2
+n1I=2
+n1O=1
+Cmn1=Connected and CS dial string is empty\\
+mI=2
+I1=11
+I2=104
+mO=1
+tO=1
+O1=174
+]
+[
+ObjTp=Sm
+H=60
+SmC=205
+Nm=NOT
+ObjVer=1
+PrH=55
+CF=2
+n1I=1
+n1O=1
+Cmn1=Enable CS Dialing\\
+mI=1
+I1=174
+mO=1
+tO=1
+O1=175
+]
+[
+ObjTp=Sm
+H=61
+SmC=103
+Nm=Symetrix ATI Dialer Processor v3.0.usp
+ObjVer=1
+PrH=4
+CF=2
+n1I=1
+n2I=2
+n1O=1
+mI=3
+I1=151
+I2=149
+I3=24
+mO=4
+tO=4
+O1=38
+O2=21
+O3=40
+O4=86
+mP=59
+P1=
+P2=
+P3=
+P4=
+P5=
+P6=#Unit_Number
+P7=#Card_Slot
+P8=#Line_Number
+P9=#Speed_Dial_for_Control_System_Dialing
+P10=#Keypad_1 Controller_Number
+P11=#Keypad_2 Controller_Number
+P12=#Keypad_3 Controller_Number
+P13=#Keypad_4 Controller_Number
+P14=#Keypad_5 Controller_Number
+P15=#Keypad_6 Controller_Number
+P16=#Keypad_7 Controller_Number
+P17=#Keypad_8 Controller_Number
+P18=#Keypad_9 Controller_Number
+P19=#Keypad_0 Controller_Number
+P20=#Keypad_Star_Controller_Number
+P21=#Keypad_Pound_Controller_Number
+P22=#Connect/Disconnect_Controller_Number
+P23=#Clear_Controller_Number
+P24=#Delete_Controller_Number
+P25=#Do_Not_Disturb_Controller_Number
+P26=#Redial_Controller_Number
+P27=#Connected_LED_Controller_Number
+P28=#Ready_LED_Controller_Number
+P29=#Dialing_LED_Controller_Number
+P30=#Ringing_LED_Controller_Number
+P31=#Busy_LED_Controller_Number
+P32=#In_Use_LED_Controller_Number
+P33=#Intrusion_LED_Controller_Number
+P34=#Fault_LED_Controller_Number
+P35=#Speed_Dial1 Controller_Number
+P36=#Speed_Dial2 Controller_Number
+P37=#Speed_Dial3 Controller_Number
+P38=#Speed_Dial4 Controller_Number
+P39=#Speed_Dial5 Controller_Number
+P40=#Speed_Dial6 Controller_Number
+P41=#Speed_Dial7 Controller_Number
+P42=#Speed_Dial8 Controller_Number
+P43=#Speed_Dial9 Controller_Number
+P44=#Speed_Dial10 Controller_Number
+P45=#Speed_Dial11 Controller_Number
+P46=#Speed_Dial12 Controller_Number
+P47=#Speed_Dial13 Controller_Number
+P48=#Speed_Dial14 Controller_Number
+P49=#Speed_Dial15 Controller_Number
+P50=#Speed_Dial16 Controller_Number
+P51=#Speed_Dial17 Controller_Number
+P52=#Speed_Dial18 Controller_Number
+P53=#Speed_Dial19 Controller_Number
+P54=#Speed_Dial20 Controller_Number
+P55=0
+P56=0
+P57=0
+P58=0
+P59=0
+]
+[
+ObjTp=Sm
+H=215
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=17
+CF=2
+Cmn1=Telephone Line\\
+mC=5
+C1=7
+C2=217
+C3=266
+C4=21
+C5=544
+]
+[
+ObjTp=Sm
+H=217
+SmC=101
+Nm=Serial I/O
+ObjVer=1
+PrH=215
+CF=2
+n1I=7
+n1O=2
+Cmn1=Telephone line status 2\\
+mI=7
+I3=79
+I4=80
+I5=81
+I6=82
+I7=83
+mO=2
+tO=2
+O1=46
+mP=7
+P1=
+P2=In Use
+P3=Intrusion
+P4=Fault
+P5=Busy
+P6=""
+P7=
+]
+[
+ObjTp=Sm
+H=222
+SmC=55
+Nm=Argument Definition
+ObjVer=1
+PrH=5
+CF=2
+n1I=57
+n1O=57
+Cmn1=\\\\
+mI=57
+I1=5
+I2=15
+I3=18
+I4=19
+I5=23
+I6=25
+I7=26
+I8=27
+I9=28
+I10=29
+I11=30
+I12=31
+I13=33
+I14=34
+I15=102
+I16=36
+I17=6
+I18=32
+I19=90
+I20=91
+I21=6
+I22=176
+I23=6
+I24=6
+I25=6
+I26=6
+I27=6
+I28=6
+I29=6
+I30=6
+I31=6
+I32=35
+I33=51
+I34=44
+I35=6
+I36=47
+I37=54
+I38=58
+I39=59
+I40=62
+I41=63
+I42=64
+I43=65
+I44=66
+I45=67
+I46=106
+I47=107
+I48=108
+I49=109
+I50=110
+I51=111
+I52=112
+I53=113
+I54=114
+I55=115
+I56=6
+I57=24
+mO=57
+tO=57
+O1=42
+O2=45
+O3=46
+O4=6
+O5=6
+O6=6
+O7=6
+O8=6
+O9=6
+O10=6
+O11=6
+O12=6
+O13=6
+O14=6
+O15=6
+O16=6
+O17=6
+O18=11
+O19=7
+O20=9
+O21=48
+O22=93
+O23=10
+O24=20
+O25=22
+O26=6
+O27=86
+O28=6
+O29=6
+O30=6
+O31=6
+O32=50
+O33=6
+O34=6
+O35=6
+O36=6
+O37=6
+O38=6
+O39=6
+O40=6
+O41=6
+O42=6
+O43=6
+O44=6
+O45=6
+O46=6
+O47=6
+O48=6
+O49=6
+O50=6
+O51=6
+O52=6
+O53=6
+O54=6
+O55=6
+O56=6
+O57=21
+mP=50
+P1=Keypad_1 Controller_Number
+P2=Keypad_2 Controller_Number
+P3=Keypad_3 Controller_Number
+P4=Keypad_4 Controller_Number
+P5=Keypad_5 Controller_Number
+P6=Keypad_6 Controller_Number
+P7=Keypad_7 Controller_Number
+P8=Keypad_8 Controller_Number
+P9=Keypad_9 Controller_Number
+P10=Keypad_0 Controller_Number
+P11=Keypad_Star_Controller_Number
+P12=Keypad_Pound_Controller_Number
+P13=Connect/Disconnect_Controller_Number
+P14=Clear_Controller_Number
+P15=Delete_Controller_Number
+P16=Do_Not_Disturb_Controller_Number
+P17=Redial_Controller_Number
+P18=Connected_LED_Controller_Number
+P19=Ready_LED_Controller_Number
+P20=Dialing_LED_Controller_Number
+P21=Ringing_LED_Controller_Number
+P22=Busy_LED_Controller_Number
+P23=In_Use_LED_Controller_Number
+P24=Intrusion_LED_Controller_Number
+P25=Fault_LED_Controller_Number
+P26=Speed_Dial1 Controller_Number
+P27=Speed_Dial2 Controller_Number
+P28=Speed_Dial3 Controller_Number
+P29=Speed_Dial4 Controller_Number
+P30=Speed_Dial5 Controller_Number
+P31=Speed_Dial6 Controller_Number
+P32=Speed_Dial7 Controller_Number
+P33=Speed_Dial8 Controller_Number
+P34=Speed_Dial9 Controller_Number
+P35=Speed_Dial10 Controller_Number
+P36=Speed_Dial11 Controller_Number
+P37=Speed_Dial12 Controller_Number
+P38=Speed_Dial13 Controller_Number
+P39=Speed_Dial14 Controller_Number
+P40=Speed_Dial15 Controller_Number
+P41=Speed_Dial16 Controller_Number
+P42=Speed_Dial17 Controller_Number
+P43=Speed_Dial18 Controller_Number
+P44=Speed_Dial19 Controller_Number
+P45=Speed_Dial20 Controller_Number
+P46=Unit_Number
+P47=Card_Slot
+P48=Line_Number
+P49=On_Hook_Dialing_Option
+P50=Speed_Dial_for_Control_System_Dialing
+MPi=57
+Pi1=30
+Pi2=31
+Pi3=32
+Pi4=33
+Pi5=34
+Pi6=35
+Pi7=36
+Pi8=37
+Pi9=38
+Pi10=39
+Pi11=40
+Pi12=41
+Pi13=42
+Pi14=43
+Pi15=44
+Pi16=45
+Pi18=46
+Pi19=47
+Pi20=48
+Pi22=49
+Pi32=50
+Pi33=51
+Pi34=52
+Pi36=53
+Pi37=54
+Pi38=55
+Pi39=56
+Pi40=57
+Pi41=58
+Pi42=59
+Pi43=60
+Pi44=61
+Pi45=62
+Pi46=63
+Pi47=64
+Pi48=65
+Pi49=66
+Pi50=67
+Pi51=68
+Pi52=69
+Pi53=70
+Pi54=71
+Pi55=72
+Pi57=73
+MPo=57
+Po1=75
+Po2=76
+Po3=77
+Po18=78
+Po19=79
+Po20=80
+Po21=81
+Po22=82
+Po23=83
+Po24=84
+Po25=85
+Po27=86
+Po32=87
+Po57=74
+MPp=50
+Pp1=88
+Pp2=1
+Pp3=3
+Pp4=4
+Pp5=5
+Pp6=6
+Pp7=7
+Pp8=8
+Pp9=9
+Pp10=10
+Pp11=11
+Pp12=12
+Pp13=13
+Pp14=14
+Pp15=15
+Pp16=16
+Pp17=17
+Pp18=18
+Pp19=19
+Pp20=20
+Pp21=21
+Pp22=22
+Pp23=23
+Pp24=24
+Pp25=25
+Pp26=89
+Pp27=90
+Pp28=91
+Pp29=92
+Pp30=93
+Pp31=94
+Pp32=95
+Pp33=96
+Pp34=97
+Pp35=98
+Pp36=99
+Pp37=100
+Pp38=101
+Pp39=102
+Pp40=103
+Pp41=104
+Pp42=105
+Pp43=106
+Pp44=107
+Pp45=108
+Pp46=29
+Pp47=2
+Pp48=26
+Pp49=27
+Pp50=28
+]
+[
+ObjTp=Sm
+H=266
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=215
+CF=2
+Cmn1=line state feedback\\
+mC=8
+C1=14
+C2=29
+C3=30
+C4=31
+C5=35
+C6=37
+C7=40
+C8=41
+]
+[
+ObjTp=Sm
+H=432
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=4
+CF=2
+Cmn1=Dial Display\\
+mC=16
+C1=9
+C2=10
+C3=11
+C4=34
+C5=19
+C6=43
+C7=44
+C8=15
+C9=18
+C10=42
+C11=45
+C12=26
+C13=6
+C14=27
+C15=48
+C16=50
+]
+[
+ObjTp=Sm
+H=544
+SmC=28
+Nm=Truth Table
+ObjVer=1
+PrH=215
+CF=2
+n1I=5
+n1O=5
+Cmn1=Line Status 2 Text\\
+mI=5
+I1=10
+I2=20
+I3=22
+I4=93
+I5=7
+mO=5
+tO=5
+O1=79
+O2=80
+O3=81
+O4=82
+O5=83
+mP=10
+P1=H,X,X,X,L
+P2=L,H,X,X,L
+P3=L,L,H,X,L
+P4=L,X,X,H,L
+P5=X,X,X,X,H
+P6=H,L,L,L,L
+P7=L,H,L,L,L
+P8=L,L,H,L,L
+P9=L,L,L,H,L
+P10=L,L,L,L,H
+]
+[
+ObjTp=Sg
+H=4
+Nm=On_Hook_Option_An
+SgTp=2
+]
+[
+ObjTp=Sg
+H=5
+Nm=Keypad_1
+]
+[
+ObjTp=Sg
+H=6
+Nm=[~UNUSED~]
+SgTp=31
+]
+[
+ObjTp=Sg
+H=7
+Nm=Ready_LED_is_On
+]
+[
+ObjTp=Sg
+H=8
+Nm=Connected_LED_turned_Off
+]
+[
+ObjTp=Sg
+H=9
+Nm=Dialing_LED_is_On
+]
+[
+ObjTp=Sg
+H=10
+Nm=In_Use_LED_is_On
+]
+[
+ObjTp=Sg
+H=11
+Nm=Connected_LED_is_On
+]
+[
+ObjTp=Sg
+H=13
+Nm=Speed_Dial_For_CS_Dialing
+SgTp=2
+]
+[
+ObjTp=Sg
+H=15
+Nm=Keypad_2
+]
+[
+ObjTp=Sg
+H=16
+Nm=On_Hook_Dial_In_CS
+]
+[
+ObjTp=Sg
+H=17
+Nm=//__digital_reserved__
+]
+[
+ObjTp=Sg
+H=18
+Nm=Keypad_3
+]
+[
+ObjTp=Sg
+H=19
+Nm=Keypad_4
+]
+[
+ObjTp=Sg
+H=20
+Nm=Intrusion_LED_is_On
+]
+[
+ObjTp=Sg
+H=21
+Nm=To_Command_Processor
+SgTp=4
+SgTf=Yes
+]
+[
+ObjTp=Sg
+H=22
+Nm=Fault_LED_is_On
+]
+[
+ObjTp=Sg
+H=23
+Nm=Keypad_5
+]
+[
+ObjTp=Sg
+H=24
+Nm=From_Command_Processor
+SgTp=4
+SgTf=Yes
+]
+[
+ObjTp=Sg
+H=25
+Nm=Keypad_6
+]
+[
+ObjTp=Sg
+H=26
+Nm=Keypad_7
+]
+[
+ObjTp=Sg
+H=27
+Nm=Keypad_8
+]
+[
+ObjTp=Sg
+H=28
+Nm=Keypad_9
+]
+[
+ObjTp=Sg
+H=29
+Nm=Keypad_0
+]
+[
+ObjTp=Sg
+H=30
+Nm=Keypad_Star
+]
+[
+ObjTp=Sg
+H=31
+Nm=Keypad_Pound
+]
+[
+ObjTp=Sg
+H=32
+Nm=Connect/Disconnect
+]
+[
+ObjTp=Sg
+H=33
+Nm=Clear
+]
+[
+ObjTp=Sg
+H=34
+Nm=Delete
+]
+[
+ObjTp=Sg
+H=35
+Nm=Do_Not_Disturb_On
+]
+[
+ObjTp=Sg
+H=36
+Nm=Redial
+]
+[
+ObjTp=Sg
+H=38
+Nm=CS_Dial_String_is_Empty
+]
+[
+ObjTp=Sg
+H=39
+Nm=On_Hook_Dial_In_Device
+]
+[
+ObjTp=Sg
+H=40
+Nm=Dial_Display_Device
+SgTp=4
+]
+[
+ObjTp=Sg
+H=41
+Nm=CS_Dial_Off_Hook
+]
+[
+ObjTp=Sg
+H=42
+Nm=Dial_Display
+SgTp=4
+]
+[
+ObjTp=Sg
+H=43
+Nm=Do_Not_Disturb_Is_On*
+]
+[
+ObjTp=Sg
+H=44
+Nm=Do_Not_Disturb_Toggle
+]
+[
+ObjTp=Sg
+H=45
+Nm=Line_Status1
+SgTp=4
+]
+[
+ObjTp=Sg
+H=46
+Nm=Line_Status2
+SgTp=4
+]
+[
+ObjTp=Sg
+H=47
+Nm=Dial_Speed_Dial1
+]
+[
+ObjTp=Sg
+H=48
+Nm=Ringing_LED_is_On
+]
+[
+ObjTp=Sg
+H=49
+Nm=Connect_button_send_connect/disconnect
+]
+[
+ObjTp=Sg
+H=50
+Nm=Do_Not_Disturb_Is_On
+]
+[
+ObjTp=Sg
+H=51
+Nm=Do_Not_Disturb_Off
+]
+[
+ObjTp=Sg
+H=52
+Nm=Do_Not_Disturb_Toggle_t
+]
+[
+ObjTp=Sg
+H=53
+Nm=Enable_Keypad_To_Device
+]
+[
+ObjTp=Sg
+H=54
+Nm=Dial_Speed_Dial2
+]
+[
+ObjTp=Sg
+H=55
+Nm=Keypad_1_Device
+]
+[
+ObjTp=Sg
+H=56
+Nm=Keypad_2_Device
+]
+[
+ObjTp=Sg
+H=57
+Nm=Keypad_3_Device
+]
+[
+ObjTp=Sg
+H=58
+Nm=Dial_Speed_Dial3
+]
+[
+ObjTp=Sg
+H=59
+Nm=Dial_Speed_Dial4
+]
+[
+ObjTp=Sg
+H=60
+Nm=Do_Not_Disturb_On_In
+]
+[
+ObjTp=Sg
+H=61
+Nm=Do_Not_Disturb_Off_In
+]
+[
+ObjTp=Sg
+H=62
+Nm=Dial_Speed_Dial5
+]
+[
+ObjTp=Sg
+H=63
+Nm=Dial_Speed_Dial6
+]
+[
+ObjTp=Sg
+H=64
+Nm=Dial_Speed_Dial7
+]
+[
+ObjTp=Sg
+H=65
+Nm=Dial_Speed_Dial8
+]
+[
+ObjTp=Sg
+H=66
+Nm=Dial_Speed_Dial9
+]
+[
+ObjTp=Sg
+H=67
+Nm=Dial_Speed_Dial10
+]
+[
+ObjTp=Sg
+H=68
+Nm=Line_Status1_Ready
+]
+[
+ObjTp=Sg
+H=69
+Nm=Line_Status1_Connected
+]
+[
+ObjTp=Sg
+H=70
+Nm=Line_Status1_Dialing
+]
+[
+ObjTp=Sg
+H=71
+Nm=Line_Status1_Ringing
+]
+[
+ObjTp=Sg
+H=72
+Nm=Line_Status1_Fault
+]
+[
+ObjTp=Sg
+H=73
+Nm=Keypad_4_Device
+]
+[
+ObjTp=Sg
+H=74
+Nm=Keypad_5_Device
+]
+[
+ObjTp=Sg
+H=75
+Nm=Do_Not_Disturb_On_Go
+]
+[
+ObjTp=Sg
+H=76
+Nm=Do_Not_Disturb_Off_Go
+]
+[
+ObjTp=Sg
+H=77
+Nm=Keypad_6_Device
+]
+[
+ObjTp=Sg
+H=78
+Nm=Keypad_7_Device
+]
+[
+ObjTp=Sg
+H=79
+Nm=Line_Status2_In_Use
+]
+[
+ObjTp=Sg
+H=80
+Nm=Line_Status2_Intrusion
+]
+[
+ObjTp=Sg
+H=81
+Nm=Line_Status2_Fault
+]
+[
+ObjTp=Sg
+H=82
+Nm=Line_Status2_Busy
+]
+[
+ObjTp=Sg
+H=83
+Nm=Line_Status2_Ready
+]
+[
+ObjTp=Sg
+H=84
+Nm=Keypad_8_Device
+]
+[
+ObjTp=Sg
+H=85
+Nm=Keypad_9_Device
+]
+[
+ObjTp=Sg
+H=86
+Nm=Caller_ID
+SgTp=4
+]
+[
+ObjTp=Sg
+H=87
+Nm=Connect_button_send_connect/disconnect*
+]
+[
+ObjTp=Sg
+H=88
+Nm=//Poll_Caller_ID
+]
+[
+ObjTp=Sg
+H=89
+Nm=//Poll_Dialed_Number
+]
+[
+ObjTp=Sg
+H=90
+Nm=Connect
+]
+[
+ObjTp=Sg
+H=91
+Nm=Disconnect
+]
+[
+ObjTp=Sg
+H=92
+Nm=Connect/Disconnect_Go
+]
+[
+ObjTp=Sg
+H=93
+Nm=Busy_LED_is_On
+]
+[
+ObjTp=Sg
+H=94
+Nm=Connect_t
+]
+[
+ObjTp=Sg
+H=95
+Nm=Connected_LED_is_On*
+]
+[
+ObjTp=Sg
+H=96
+Nm=Disconnect_t
+]
+[
+ObjTp=Sg
+H=97
+Nm=Keypad_0_Device
+]
+[
+ObjTp=Sg
+H=98
+Nm=Keypad_Star_Device
+]
+[
+ObjTp=Sg
+H=99
+Nm=Keypad_Pound_Device
+]
+[
+ObjTp=Sg
+H=100
+Nm=Clear_Device
+]
+[
+ObjTp=Sg
+H=101
+Nm=Delete_Device
+]
+[
+ObjTp=Sg
+H=102
+Nm=Pause
+]
+[
+ObjTp=Sg
+H=103
+Nm=Enable_Keypad_To_CS
+]
+[
+ObjTp=Sg
+H=104
+Nm=On_Hook_Dial_In_CS_Dial_String_is_Empty
+]
+[
+ObjTp=Sg
+H=105
+Nm=Connect/Disconnect_t
+]
+[
+ObjTp=Sg
+H=106
+Nm=Dial_Speed_Dial11
+]
+[
+ObjTp=Sg
+H=107
+Nm=Dial_Speed_Dial12
+]
+[
+ObjTp=Sg
+H=108
+Nm=Dial_Speed_Dial13
+]
+[
+ObjTp=Sg
+H=109
+Nm=Dial_Speed_Dial14
+]
+[
+ObjTp=Sg
+H=110
+Nm=Dial_Speed_Dial15
+]
+[
+ObjTp=Sg
+H=111
+Nm=Dial_Speed_Dial16
+]
+[
+ObjTp=Sg
+H=112
+Nm=Dial_Speed_Dial17
+]
+[
+ObjTp=Sg
+H=113
+Nm=Dial_Speed_Dial18
+]
+[
+ObjTp=Sg
+H=114
+Nm=Dial_Speed_Dial19
+]
+[
+ObjTp=Sg
+H=115
+Nm=Dial_Speed_Dial20
+]
+[
+ObjTp=Sg
+H=116
+Nm=In_Use_LED_On_In
+]
+[
+ObjTp=Sg
+H=117
+Nm=In_Use_LED_Off_In
+]
+[
+ObjTp=Sg
+H=118
+Nm=Intrusion_LED_On_In
+]
+[
+ObjTp=Sg
+H=119
+Nm=Intrusion_LED_Off_In
+]
+[
+ObjTp=Sg
+H=120
+Nm=Fault_LED_On_In
+]
+[
+ObjTp=Sg
+H=121
+Nm=Fault_LED_Off_In
+]
+[
+ObjTp=Sg
+H=122
+Nm=Busy_LED_On_In
+]
+[
+ObjTp=Sg
+H=123
+Nm=Busy_LED_Off_In
+]
+[
+ObjTp=Sg
+H=124
+Nm=Ready_LED_On_In
+]
+[
+ObjTp=Sg
+H=125
+Nm=Ready_LED_Off_In
+]
+[
+ObjTp=Sg
+H=126
+Nm=Connected_LED_On_In
+]
+[
+ObjTp=Sg
+H=127
+Nm=Connected_LED_Off_In
+]
+[
+ObjTp=Sg
+H=128
+Nm=Dialing_LED_On_In
+]
+[
+ObjTp=Sg
+H=129
+Nm=Dialing_LED_Off_In
+]
+[
+ObjTp=Sg
+H=130
+Nm=Ringing_LED_On_In
+]
+[
+ObjTp=Sg
+H=131
+Nm=Ringing_LED_Off_In
+]
+[
+ObjTp=Sg
+H=132
+Nm=Enable_Keypad_To_Device_I
+]
+[
+ObjTp=Sg
+H=133
+Nm=Enable_Keypad_To_CS_I
+]
+[
+ObjTp=Sg
+H=134
+Nm=Keypad_1_CS
+]
+[
+ObjTp=Sg
+H=135
+Nm=Keypad_2_CS
+]
+[
+ObjTp=Sg
+H=136
+Nm=Keypad_3_CS
+]
+[
+ObjTp=Sg
+H=137
+Nm=Keypad_4_CS
+]
+[
+ObjTp=Sg
+H=138
+Nm=Keypad_5_CS
+]
+[
+ObjTp=Sg
+H=139
+Nm=Keypad_6_CS
+]
+[
+ObjTp=Sg
+H=140
+Nm=Keypad_7_CS
+]
+[
+ObjTp=Sg
+H=141
+Nm=Keypad_8_CS
+]
+[
+ObjTp=Sg
+H=142
+Nm=Keypad_9_CS
+]
+[
+ObjTp=Sg
+H=143
+Nm=Keypad_0_CS
+]
+[
+ObjTp=Sg
+H=144
+Nm=Keypad_Star_CS
+]
+[
+ObjTp=Sg
+H=145
+Nm=Keypad_Pound_CS
+]
+[
+ObjTp=Sg
+H=146
+Nm=Clear_CS
+]
+[
+ObjTp=Sg
+H=147
+Nm=Delete_CS
+]
+[
+ObjTp=Sg
+H=148
+Nm=Pause_CS
+]
+[
+ObjTp=Sg
+H=149
+Nm=Dial_Display_CS
+SgTp=4
+]
+[
+ObjTp=Sg
+H=150
+Nm=Connect_button_and
+]
+[
+ObjTp=Sg
+H=151
+Nm=CS_Dial
+]
+[
+ObjTp=Sg
+H=152
+Nm=CS_Dial_Use_Speed_Dial1
+]
+[
+ObjTp=Sg
+H=153
+Nm=CS_Dial_Use_Speed_Dial2
+]
+[
+ObjTp=Sg
+H=154
+Nm=CS_Dial_Use_Speed_Dial3
+]
+[
+ObjTp=Sg
+H=155
+Nm=CS_Dial_Use_Speed_Dial4
+]
+[
+ObjTp=Sg
+H=156
+Nm=CS_Dial_Use_Speed_Dial5
+]
+[
+ObjTp=Sg
+H=157
+Nm=CS_Dial_Use_Speed_Dial6
+]
+[
+ObjTp=Sg
+H=158
+Nm=CS_Dial_Use_Speed_Dial7
+]
+[
+ObjTp=Sg
+H=159
+Nm=CS_Dial_Use_Speed_Dial8
+]
+[
+ObjTp=Sg
+H=160
+Nm=CS_Dial_Use_Speed_Dial9
+]
+[
+ObjTp=Sg
+H=161
+Nm=CS_Dial_Use_Speed_Dial10
+]
+[
+ObjTp=Sg
+H=162
+Nm=CS_Dial_Use_Speed_Dial11
+]
+[
+ObjTp=Sg
+H=163
+Nm=CS_Dial_Use_Speed_Dial12
+]
+[
+ObjTp=Sg
+H=164
+Nm=CS_Dial_Use_Speed_Dial13
+]
+[
+ObjTp=Sg
+H=165
+Nm=CS_Dial_Use_Speed_Dial14
+]
+[
+ObjTp=Sg
+H=166
+Nm=CS_Dial_Use_Speed_Dial15
+]
+[
+ObjTp=Sg
+H=167
+Nm=CS_Dial_Use_Speed_Dial16
+]
+[
+ObjTp=Sg
+H=168
+Nm=CS_Dial_Use_Speed_Dial17
+]
+[
+ObjTp=Sg
+H=169
+Nm=CS_Dial_Use_Speed_Dial18
+]
+[
+ObjTp=Sg
+H=170
+Nm=CS_Dial_Use_Speed_Dial19
+]
+[
+ObjTp=Sg
+H=171
+Nm=CS_Dial_Use_Speed_Dial20
+]
+[
+ObjTp=Sg
+H=172
+Nm=CS_Dial_Send_Speed_Preset
+]
+[
+ObjTp=Sg
+H=173
+Nm=On_Hook_Dial_In_CS_Connect/Disconnect
+]
+[
+ObjTp=Sg
+H=174
+Nm=On_Hook_Dial_In_CS_Connect/Disconnect_Enable_Button_Or
+]
+[
+ObjTp=Sg
+H=175
+Nm=On_Hook_Dial_In_CS_Connect/Disconnect_Enable_CS_Dial
+]
+[
+ObjTp=Sg
+H=176
+Nm=External_Dial_String_for_CS_Dial_<32_Chars
+SgTp=4
+]
+[
+ObjTp=Dp
+H=1
+Tp=1
+FD1=Keypad 2 controller number on the device
+SD=Keypad 2 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=2
+Tp=1
+FD1=Card Slot where the dialer is installed
+SD=Card Slot
+HD=TRUE
+DV=3d
+NF=63
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=4
+Val1=0d
+Lbl1=A
+Val2=1d
+Lbl2=B
+Val3=2d
+Lbl3=C
+Val4=3d
+Lbl4=D
+Sgn=0
+]
+[
+ObjTp=Dp
+H=3
+Tp=1
+FD1=Keypad 3 controller number on the device
+SD=Keypad 3 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=4
+Tp=1
+FD1=Keypad 4 controller number on the device
+SD=Keypad 4 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=5
+Tp=1
+FD1=Keypad 5 controller number on the device
+SD=Keypad 5 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=6
+Tp=1
+FD1=Keypad 6 controller number on the device
+SD=Keypad 6 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=7
+Tp=1
+FD1=Keypad 7 controller number on the device
+SD=Keypad 7 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=8
+Tp=1
+FD1=Keypad 8 controller number on the device
+SD=Keypad 8 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=9
+Tp=1
+FD1=Keypad 9 controller number on the device
+SD=Keypad 9 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=10
+Tp=1
+FD1=Keypad 0 controller number on the device
+SD=Keypad 0 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=11
+Tp=1
+FD1=Keypad star controller number on the device
+SD=Keypad Star Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=12
+Tp=1
+FD1=Keypad pound controller number on the device
+SD=Keypad Pound Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=13
+Tp=1
+FD1=Connect/Disconnect controller number on the device
+SD=Connect/Disconnect Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=14
+Tp=1
+FD1=Clear controller number on the device
+SD=Clear Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=15
+Tp=1
+FD1=Delete controller number on the device
+SD=Delete Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=16
+Tp=1
+FD1=Do Not Disturb controller number on the device
+SD=Do Not Disturb Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=17
+Tp=1
+FD1=Redial controller number on the device
+SD=Redial Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=18
+Tp=1
+FD1=Connected LED controller number on the device
+SD=Connected LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=19
+Tp=1
+FD1=Ready LED controller number on the device
+SD=Ready LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=20
+Tp=1
+FD1=Dialing LED controller number on the device
+SD=Dialing LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=21
+Tp=1
+FD1=Ringing LED controller number on the device
+SD=Ringing LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=22
+Tp=1
+FD1=Busy LED controller number on the device
+SD=Busy LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=23
+Tp=1
+FD1=In Use LED controller number on the device
+SD=In Use LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=24
+Tp=1
+FD1=Intrusion LED controller number on the device
+SD=Intrusion LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=25
+Tp=1
+FD1=Fault LED controller number on the device
+SD=Fault LED Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=26
+Tp=1
+FD1=Number of the line to be controlled by the module
+SD=Line Number
+HD=TRUE
+DV=0d
+NF=63
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=2
+Val1=0d
+Lbl1=Line 1
+Val2=1d
+Lbl2=Line 2
+Sgn=0
+]
+[
+ObjTp=Dp
+H=27
+Tp=1
+FD1=Option to dial on the device or in the control system when on hook
+SD=On Hook Dialing Option
+HD=TRUE
+DV=1d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=2
+Val1=0d
+Lbl1=Dial On Device
+Val2=1d
+Lbl2=Dial In Control System
+Sgn=0
+]
+[
+ObjTp=Dp
+H=28
+Tp=1
+FD1=Speed dial preset to be used for the control system dialing option
+SD=Speed Dial for Control System Dialing
+HD=TRUE
+DV=1d
+NF=63
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=20
+Val1=1d
+Lbl1=Preset 1
+Val2=2d
+Lbl2=Preset 2
+Val3=3d
+Lbl3=Preset 3
+Val4=4d
+Lbl4=Preset 4
+Val5=5d
+Lbl5=Preset 5
+Val6=6d
+Lbl6=Preset 6
+Val7=7d
+Lbl7=Preset 7
+Val8=8d
+Lbl8=Preset 8
+Val9=9d
+Lbl9=Preset 9
+Val10=10d
+Lbl10=Preset 10
+Val11=11d
+Lbl11=Preset 11
+Val12=12d
+Lbl12=Preset 12
+Val13=13d
+Lbl13=Preset 13
+Val14=14d
+Lbl14=Preset 14
+Val15=15d
+Lbl15=Preset 15
+Val16=16d
+Lbl16=Preset 16
+Val17=17d
+Lbl17=Preset 17
+Val18=18d
+Lbl18=Preset 18
+Val19=19d
+Lbl19=Preset 19
+Val20=20d
+Lbl20=Preset 20
+Sgn=0
+]
+[
+ObjTp=Dp
+H=29
+Tp=1
+FD1=Unit Number of the device that the card is installed in
+SD=Unit Number
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=30
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 1 function
+SD=Keypad 1
+Trg=2
+]
+[
+ObjTp=Dp
+H=31
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 2 function
+SD=Keypad 2
+Trg=2
+]
+[
+ObjTp=Dp
+H=32
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 3 function
+SD=Keypad 3
+Trg=2
+]
+[
+ObjTp=Dp
+H=33
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 4 function
+SD=Keypad 4
+Trg=2
+]
+[
+ObjTp=Dp
+H=34
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 5 function
+SD=Keypad 5
+Trg=2
+]
+[
+ObjTp=Dp
+H=35
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 6 function
+SD=Keypad 6
+Trg=2
+]
+[
+ObjTp=Dp
+H=36
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 7 function
+SD=Keypad 7
+Trg=2
+]
+[
+ObjTp=Dp
+H=37
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 8 function
+SD=Keypad 8
+Trg=2
+]
+[
+ObjTp=Dp
+H=38
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 9 function
+SD=Keypad 9
+Trg=2
+]
+[
+ObjTp=Dp
+H=39
+Tp=2
+DT=1
+FD1=Pulse to send the keypad 0 function
+SD=Keypad 0
+Trg=2
+]
+[
+ObjTp=Dp
+H=40
+Tp=2
+DT=1
+FD1=Pulse to send the keypad star function
+SD=Keypad Star
+Trg=2
+]
+[
+ObjTp=Dp
+H=41
+Tp=2
+DT=1
+FD1=Pulse to send the keypad pound function
+SD=Keypad Pound
+Trg=2
+]
+[
+ObjTp=Dp
+H=42
+Tp=2
+DT=1
+FD1=Pulse to clear the keypad entry
+SD=Clear
+Trg=2
+]
+[
+ObjTp=Dp
+H=43
+Tp=2
+DT=1
+FD1=Pulse to delete the last digit of the keypad entry
+SD=Delete
+Trg=2
+]
+[
+ObjTp=Dp
+H=44
+Tp=2
+DT=1
+FD1=Pulse to insert a pause character in the dial string
+SD=Pause
+Trg=2
+]
+[
+ObjTp=Dp
+H=45
+Tp=2
+DT=1
+FD1=Pulse to redial the last number dialed
+SD=Redial
+Trg=2
+]
+[
+ObjTp=Dp
+H=46
+Tp=2
+DT=1
+FD1=Pulse to toggle the connect/disconnect function
+SD=Connect/Disconnect
+Trg=2
+]
+[
+ObjTp=Dp
+H=47
+Tp=2
+DT=1
+FD1=Pulse to connect the phone line (go off hook)
+SD=Connect
+Trg=2
+]
+[
+ObjTp=Dp
+H=48
+Tp=2
+DT=1
+FD1=Pulse to disconnect the phone line (go on hook)
+SD=Disconnect
+Trg=2
+]
+[
+ObjTp=Dp
+H=49
+Tp=6
+DT=4
+FD1=Serial entry for a phone number to be dialed
+SD=External Dial String for CS Dial <32 Chars
+]
+[
+ObjTp=Dp
+H=50
+Tp=2
+DT=1
+FD1=Pulse to turn do not disturb on
+SD=Do Not Disturb On
+Trg=2
+]
+[
+ObjTp=Dp
+H=51
+Tp=2
+DT=1
+FD1=Pulse to turn do not disturb off
+SD=Do Not Disturb Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=52
+Tp=2
+DT=1
+FD1=Pulse to toggle the do not disturb function on and off
+SD=Do Not Disturb Toggle
+Trg=2
+]
+[
+ObjTp=Dp
+H=53
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 1
+SD=Dial Speed Dial1
+Trg=2
+]
+[
+ObjTp=Dp
+H=54
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 2
+SD=Dial Speed Dial2
+Trg=2
+]
+[
+ObjTp=Dp
+H=55
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 3
+SD=Dial Speed Dial3
+Trg=2
+]
+[
+ObjTp=Dp
+H=56
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 4
+SD=Dial Speed Dial4
+Trg=2
+]
+[
+ObjTp=Dp
+H=57
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 5
+SD=Dial Speed Dial5
+Trg=2
+]
+[
+ObjTp=Dp
+H=58
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 6
+SD=Dial Speed Dial6
+Trg=2
+]
+[
+ObjTp=Dp
+H=59
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 7
+SD=Dial Speed Dial7
+Trg=2
+]
+[
+ObjTp=Dp
+H=60
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 8
+SD=Dial Speed Dial8
+Trg=2
+]
+[
+ObjTp=Dp
+H=61
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 9
+SD=Dial Speed Dial9
+Trg=2
+]
+[
+ObjTp=Dp
+H=62
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 10
+SD=Dial Speed Dial10
+Trg=2
+]
+[
+ObjTp=Dp
+H=63
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 11
+SD=Dial Speed Dial11
+Trg=2
+]
+[
+ObjTp=Dp
+H=64
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 12
+SD=Dial Speed Dial12
+Trg=2
+]
+[
+ObjTp=Dp
+H=65
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 13
+SD=Dial Speed Dial13
+Trg=2
+]
+[
+ObjTp=Dp
+H=66
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 14
+SD=Dial Speed Dial14
+Trg=2
+]
+[
+ObjTp=Dp
+H=67
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 15
+SD=Dial Speed Dial15
+Trg=2
+]
+[
+ObjTp=Dp
+H=68
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 16
+SD=Dial Speed Dial16
+Trg=2
+]
+[
+ObjTp=Dp
+H=69
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 17
+SD=Dial Speed Dial17
+Trg=2
+]
+[
+ObjTp=Dp
+H=70
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 18
+SD=Dial Speed Dial18
+Trg=2
+]
+[
+ObjTp=Dp
+H=71
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 19
+SD=Dial Speed Dial19
+Trg=2
+]
+[
+ObjTp=Dp
+H=72
+Tp=2
+DT=1
+FD1=Pulse to dial speed dial preset 20
+SD=Dial Speed Dial20
+Trg=2
+]
+[
+ObjTp=Dp
+H=73
+Tp=6
+DT=4
+FD1=From a To_Modules output of a command processor module
+SD=From Command Processor
+]
+[
+ObjTp=Dp
+H=74
+Tp=7
+DT=4
+FD1=Connect to the From_Modules input of a command processor module
+SD=To Command Processor
+]
+[
+ObjTp=Dp
+H=75
+Tp=7
+DT=4
+FD1=Serial signal showing the phone number to be dialed
+SD=Dial Display
+]
+[
+ObjTp=Dp
+H=76
+Tp=7
+DT=4
+FD1=Serial signal indicating line status for call activity
+SD=Line Status1
+]
+[
+ObjTp=Dp
+H=77
+Tp=7
+DT=4
+FD1=Serial signal indicating line status for line state
+SD=Line Status2
+]
+[
+ObjTp=Dp
+H=78
+Tp=3
+DT=1
+FD1=Digital signal indicating that the connected LED is on
+SD=Connected LED is On
+]
+[
+ObjTp=Dp
+H=79
+Tp=3
+DT=1
+FD1=Digital signal indicating that the ready LED is on
+SD=Ready LED is On
+]
+[
+ObjTp=Dp
+H=80
+Tp=3
+DT=1
+FD1=Digital signal indicating that the dialing LED is on
+SD=Dialing LED is On
+]
+[
+ObjTp=Dp
+H=81
+Tp=3
+DT=1
+FD1=Digital signal indicating that the ringing LED is on
+SD=Ringing LED is On
+]
+[
+ObjTp=Dp
+H=82
+Tp=3
+DT=1
+FD1=Digital signal indicating that the busy LED is on
+SD=Busy LED is On
+]
+[
+ObjTp=Dp
+H=83
+Tp=3
+DT=1
+FD1=Digital signal indicating that the in use LED is on
+SD=In Use LED is On
+]
+[
+ObjTp=Dp
+H=84
+Tp=3
+DT=1
+FD1=Digital signal indicating that the intrusion LED is on
+SD=Intrusion LED is On
+]
+[
+ObjTp=Dp
+H=85
+Tp=3
+DT=1
+FD1=Digital signal indicating that the fault LED is on
+SD=Fault LED is On
+]
+[
+ObjTp=Dp
+H=86
+Tp=7
+DT=4
+FD1=Serial signal showing the caller ID information from the device
+SD=Dial Display
+]
+[
+ObjTp=Dp
+H=87
+Tp=3
+DT=1
+FD1=Digital signal indicating that the do not disturb function is on
+SD=Do Not Disturb is On
+]
+[
+ObjTp=Dp
+H=88
+Tp=1
+FD1=Keypad 1 controller number on the device
+SD=Keypad 1 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=89
+Tp=1
+FD1=Speed Dial1 controller number on the device
+SD=Speed Dial1 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=90
+Tp=1
+FD1=Speed Dial2 controller number on the device
+SD=Speed Dial2 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=91
+Tp=1
+FD1=Speed Dial3 controller number on the device
+SD=Speed Dial3 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=92
+Tp=1
+FD1=Speed Dial4 controller number on the device
+SD=Speed Dial4 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=93
+Tp=1
+FD1=Speed Dial5 controller number on the device
+SD=Speed Dial5 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=94
+Tp=1
+FD1=Speed Dial6 controller number on the device
+SD=Speed Dial6 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=95
+Tp=1
+FD1=Speed Dial7 controller number on the device
+SD=Speed Dial7 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=96
+Tp=1
+FD1=Speed Dial8 controller number on the device
+SD=Speed Dial8 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=97
+Tp=1
+FD1=Speed Dial9 controller number on the device
+SD=Speed Dial9 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=98
+Tp=1
+FD1=Speed Dial10 controller number on the device
+SD=Speed Dial10 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=99
+Tp=1
+FD1=Speed Dial11 controller number on the device
+SD=Speed Dial11 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=100
+Tp=1
+FD1=Speed Dial12 controller number on the device
+SD=Speed Dial12 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=101
+Tp=1
+FD1=Speed Dial13 controller number on the device
+SD=Speed Dial13 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=102
+Tp=1
+FD1=Speed Dial14 controller number on the device
+SD=Speed Dial14 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=103
+Tp=1
+FD1=Speed Dial15 controller number on the device
+SD=Speed Dial15 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=104
+Tp=1
+FD1=Speed Dial16 controller number on the device
+SD=Speed Dial16 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=105
+Tp=1
+FD1=Speed Dial17 controller number on the device
+SD=Speed Dial17 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=106
+Tp=1
+FD1=Speed Dial18 controller number on the device
+SD=Speed Dial18 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=107
+Tp=1
+FD1=Speed Dial19 controller number on the device
+SD=Speed Dial19 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=108
+Tp=1
+FD1=Speed Dial20 controller number on the device
+SD=Speed Dial20 Controller Number
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]

@@ -1,0 +1,195 @@
+#CATEGORY "46" "Visual Commands" // Custom
+#INCLUDEPATH "C:\Visual Commands\Visual Commands\VC-RDM\Crestron - Simpl#\Current\bin\Release"
+#USER_SIMPLSHARP_LIBRARY "VCRDMLib"
+
+#DEFINE_CONSTANT MAXPARAMS 10 
+#DEFINE_CONSTANT MAXLENGTH 100
+
+#HELP_BEGIN
+Slot  = Match slot parameter with the Room to add this device to
+Name  = (100 chars max.) Friendly name
+ID    = (50 chars max.) Unique identifier of Device - Make sure no other custom device has the same ID!!
+         * To tie this to an IPtable device, use the ID: "IP-ID #"; # = 3 to FF.
+Group = (100 chars max.) Used to display like devices in the a grouped manner on the web interface		
+#HELP_END
+
+
+DIGITAL_INPUT Enable_Fb, Online_Fb, Usage_Fb;
+DIGITAL_INPUT Parameter_Digital_To_RDM[MAXPARAMS];
+STRING_INPUT LogMessage$[MAXLENGTH], Parameter_Serial_To_RDM$[MAXPARAMS][MAXLENGTH]; 
+ANALOG_INPUT Parameter_Analog_To_RDM[MAXPARAMS];
+
+DIGITAL_OUTPUT Parameter_Digital_From_RDM_On[MAXPARAMS], Parameter_Digital_From_RDM_Off[MAXPARAMS];
+STRING_OUTPUT Parameter_Serial_From_RDM$[MAXPARAMS];
+ANALOG_OUTPUT Parameter_Analog_From_RDM[MAXPARAMS];
+
+INTEGER_PARAMETER Slot;
+STRING_PARAMETER Name$[30], ID$[30], Group$[50];
+STRING_PARAMETER Static_Attribute_Settings$[MAXPARAMS][100], Digital_Attribute_Settings$[MAXPARAMS][100], Serial_Attribute_Settings$[MAXPARAMS][100], Analog_Attribute_Settings$[MAXPARAMS][100];
+
+DeviceStatusClass Device; 
+integer i, init_done;  
+string attrNameDigital[MAXPARAMS][MAXLENGTH], attrNameSerial[MAXPARAMS][MAXLENGTH], attrNameAnalog[MAXPARAMS][MAXLENGTH];
+
+
+function InitializeAttributes()
+{
+ 	for(i = 1 to MAXPARAMS)
+	{
+		if(len(Static_Attribute_Settings$[i]) > 1)
+		{
+			Device.AddStaticAttribute(Static_Attribute_Settings$[i]);		
+		} 
+		if(len(Digital_Attribute_Settings$[i]) > 1)
+		{
+			attrNameDigital[i] = Device.AddDigitalAttribute(Digital_Attribute_Settings$[i], Parameter_Digital_To_RDM[i]);		
+		}
+		if(len(Serial_Attribute_Settings$[i]) > 1)
+		{
+			attrNameSerial[i] = Device.AddSerialAttribute(Serial_Attribute_Settings$[i], Parameter_Serial_To_RDM$[i]);		
+		} 
+		if(len(Analog_Attribute_Settings$[i]) > 1)
+		{
+			attrNameAnalog[i] = Device.AddAnalogAttribute(Analog_Attribute_Settings$[i], itoa(Parameter_Analog_To_RDM[i]));		
+		} 
+	}
+}
+
+
+CHANGE Online_Fb
+{
+ 	if(Enable_Fb && MainClass.Initialized)
+ 		Device.Online = Online_Fb;
+}
+
+CHANGE LogMessage$
+{
+	if(Enable_Fb && MainClass.Initialized)
+		Device.AddToLog(LogMessage$);
+}
+
+
+CHANGE Parameter_Digital_To_RDM
+{
+ 	if(Enable_Fb && MainClass.Initialized)
+ 	{
+ 		Device.SetDigitalAttribute(attrNameDigital[getlastmodifiedarrayindex()], Parameter_Digital_To_RDM[getlastmodifiedarrayindex()]);		
+ 	}
+}
+CHANGE Parameter_Serial_To_RDM$
+{
+ 	if(Enable_Fb && MainClass.Initialized)
+ 	{
+ 		Device.SetSerialAttribute(attrNameSerial[getlastmodifiedarrayindex()], Parameter_Serial_To_RDM$[getlastmodifiedarrayindex()]);		
+ 	}
+}
+CHANGE Parameter_Analog_To_RDM
+{
+ 	if(Enable_Fb && MainClass.Initialized)
+ 	{
+ 		Device.SetAnalogAttribute(attrNameAnalog[getlastmodifiedarrayindex()], Parameter_Analog_To_RDM[getlastmodifiedarrayindex()]);		
+ 	}
+}
+
+PUSH Usage_Fb
+{
+ 	if(Enable_Fb && MainClass.Initialized)
+ 		Device.StartUsage();
+}
+RELEASE Usage_Fb
+{
+    if(Enable_Fb && MainClass.Initialized)
+    	Device.StopUsage();
+}
+
+EventHandler RDMEventFired(DeviceStatusClass o, RDMEventArgs e)
+{
+	integer k;
+	
+	for(k = 1 to MAXPARAMS)
+	{
+	 	switch(e.Type)
+	 	{
+	 	 	case (0):
+	 	 	{ 
+		 	 	if(attrNameDigital[k] = e.Key)
+		 	 	{
+		 	 		if(e.Value = "0")
+		 	 			PULSE(25, Parameter_Digital_From_RDM_Off[k]);
+		 	 		else
+		 	 			PULSE(25, Parameter_Digital_From_RDM_On[k]);
+		 	 		break;
+		 	 	}
+	 	 	} 
+	 	 	
+	 	 	case(1):
+	 	 	{
+	 	 	  	if(attrNameSerial[k] = e.Key)
+		 	 	{
+		 	 		Parameter_Serial_From_RDM$[k] = e.Value;
+		 	 		break;
+		 	 	}
+	 	 	}
+	 	 	
+	 	 	case(2):
+	 	 	{
+	 	 	   	if(attrNameAnalog[k] = e.Key)
+		 	 	{
+		 	 		Parameter_Analog_From_RDM[k] = atoi(e.Value);
+		 	 		break;
+		 	 	}
+	 	 	}
+	 	}
+	}
+}
+
+EventHandler RdmInitDevicesEventHandler(RDMEventArgs args)
+{
+  	if(Enable_Fb && MainClass.Initialized)
+  	{
+	  	init_done = 1;
+	  	Device.Name = Name$;
+	 	Device.ID = ID$;
+	 	Device.Group = Group$; 	 
+	 	Device.Online = Online_Fb;
+	 	MainClass.AddDevice(Slot, Device); 
+	 	InitializeAttributes();
+	 	RegisterEvent(Device, RDMEvent, RDMEventFired);
+	}
+}
+
+PUSH Enable_Fb
+{
+ 	if(MainClass.Initialized)
+ 	{
+	 	if(!init_done)
+	 	{
+	 		init_done = 1;
+		 	Device.Name = Name$;
+		 	Device.ID = ID$;
+		 	Device.Group = Group$; 	 
+		 	Device.Online = Online_Fb;
+		 	MainClass.AddDevice(Slot, Device); 
+		 	InitializeAttributes();
+		 	RegisterEvent(Device, RDMEvent, RDMEventFired);
+	 	}
+	 	else
+	 	{
+	 		MainClass.AddDevice(Slot, Device);
+	 	}
+	}
+}
+RELEASE Enable_Fb
+{
+ 	MainClass.RemoveDevice(Slot, Device);
+ 	UnRegisterEvent(Device, RDMEvent, RDMEventFired);
+}           
+
+
+function main()
+{
+ 	init_done = 0;
+ 	waitforinitializationcomplete();
+ 	delay(500); 	
+	RegisterEvent(MainClass, RdmInitDevicesEvent, RdmInitDevicesEventHandler); 	 	
+}

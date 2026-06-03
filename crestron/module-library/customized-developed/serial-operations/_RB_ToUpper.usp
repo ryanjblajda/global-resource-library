@@ -1,0 +1,36 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ToUpper"
+#HINT "turns string to uppercase"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+
+/* INPUT */
+STRING_INPUT String_To_Modify[1024];
+
+/* OUTPUTS */
+STRING_OUTPUT String_Modified;
+
+/* FUNCTIONS */
+
+/* GLOBAL VARIABLES */
+
+/* EVENT HANDLERS */
+CHANGE String_To_Modify
+{
+	String_Modified = upper(String_To_Modify);
+}

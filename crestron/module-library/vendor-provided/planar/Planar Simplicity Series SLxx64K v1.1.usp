@@ -1,0 +1,1322 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Control Concepts, Inc.
+System Name:
+System Number:
+Programmer: DG
+Comments: v1.1 (build 2 - 1/2/19)
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+
+#SYMBOL_NAME "Planar Simplicity Series SLxx64K v1.1"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+  
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+// MAX STUFF
+#DEFINE_CONSTANT MAX_QUEUE_ITEMS 				50
+#DEFINE_CONSTANT MAX_COMMAND_SIZE 				255
+#DEFINE_CONSTANT MAX_RESPONSE_SIZE 				255
+#DEFINE_CONSTANT MAX_BUFFER_SIZE 				10000
+#DEFINE_CONSTANT MAX_INPUTS 					13
+#DEFINE_CONSTANT MAX_IR_COMMANDS				28
+#DEFINE_CONSTANT MAX_VOL_LVL 					100
+
+// MIN STUFF
+#DEFINE_CONSTANT MIN_VOL_LVL 					0 
+
+// VALUE RESET
+#DEFINE_CONSTANT BLANK_STRING 					""
+#DEFINE_CONSTANT NULL		 					65535
+
+// OTHER STUFF
+#DEFINE_CONSTANT TRUE 							1
+#DEFINE_CONSTANT FALSE 							0
+#DEFINE_CONSTANT QTY_OF_QUEUES 					2
+#DEFINE_CONSTANT POLL_TIME 						2000 // 20 seconds
+#DEFINE_CONSTANT HEARTBEAT_TIME 				3000 // 30 seconds
+
+// STATIC MESSAGE DATA
+#DEFINE_CONSTANT MSG_CATEGORY					"\x00"
+#DEFINE_CONSTANT MSG_CODE_0						"\x00"
+#DEFINE_CONSTANT MSG_CODE_1						"\x00"
+#DEFINE_CONSTANT MSG_DATA_CTRL					"\x01"
+
+// OUTGOING COMMAND DATA
+#DEFINE_CONSTANT CMD_HEAD_SET					"\xA6"
+#DEFINE_CONSTANT CMD_HEAD_GET					"\xA6"
+#DEFINE_CONSTANT CMD_VERSION_GET				"\xA1\x01"
+#DEFINE_CONSTANT CMD_PWR_SET					"\x18"
+#DEFINE_CONSTANT CMD_PWR_GET					"\x19"
+#DEFINE_CONSTANT CMD_PWR_STATE_OFF				"\x01"
+#DEFINE_CONSTANT CMD_PWR_STATE_ON				"\x02"
+#DEFINE_CONSTANT CMD_INPUT_SET					"\xAC"
+#DEFINE_CONSTANT CMD_INPUT_GET					"\xAD"
+#DEFINE_CONSTANT CMD_IR_SET						"\xDB"
+#DEFINE_CONSTANT CMD_VOL_SET					"\x44"
+#DEFINE_CONSTANT CMD_VOL_GET					"\x45"
+
+// BYTE POSITIONS (SET COMMANDS - GENERAL)
+#DEFINE_CONSTANT CMD_SET_POS_HEAD   			1
+#DEFINE_CONSTANT CMD_SET_POS_ID   				2
+#DEFINE_CONSTANT CMD_SET_POS_CATEGORY   		3
+#DEFINE_CONSTANT CMD_SET_POS_CODE_0   			4
+#DEFINE_CONSTANT CMD_SET_POS_CODE_1   			5
+#DEFINE_CONSTANT CMD_SET_POS_LENGTH   			6
+#DEFINE_CONSTANT CMD_SET_POS_DATA_CTRL  		7
+#DEFINE_CONSTANT CMD_SET_POS_DATA_START			8
+                            
+// INCOMING RESPONSE DATA
+#DEFINE_CONSTANT RSP_HEADER						"\x21"
+#DEFINE_CONSTANT RSP_ACK						"\x00"
+#DEFINE_CONSTANT RSP_NACK						"\x03"
+#DEFINE_CONSTANT RSP_NAV						"\x04"
+
+// BYTE POSITIONS (RESPONSE - ALL)
+#DEFINE_CONSTANT RSP_POS_HEADER   				1
+#DEFINE_CONSTANT RSP_POS_ID   					2
+#DEFINE_CONSTANT RSP_POS_CATEGORY   			3
+#DEFINE_CONSTANT RSP_POS_PAGE   				4
+#DEFINE_CONSTANT RSP_POS_LENGTH   				5
+#DEFINE_CONSTANT RSP_POS_DATA_CTRL  			6
+#DEFINE_CONSTANT RSP_POS_DATA_START				7
+
+// BYTE POSITIONS (SET RESPONSE - ACK/NACK/NAV)
+#DEFINE_CONSTANT RSP_SET_POS_DATA_STATUS		8
+
+#HELP_BEGIN
+To be used with Planar Simplicity Series SLxx64K v1.1 RS232.umc or Planar Simplicity Series SLxx64K v1.1 IP.umc modules only.
+Not to be used as a stand-alone module. 
+#HELP_END
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+
+DIGITAL_INPUT 	Connect, Disconnect, Initialize, Power_On, Power_Off, Power_Toggle, 
+                Volume_Up, Volume_Down, Volume_Mute_On, Volume_Mute_Off, Volume_Mute_Toggle, 
+                Poll_Enable, Input_Cycle, Inputs[MAX_INPUTS], IR_Commands[MAX_IR_COMMANDS];    
+
+ANALOG_INPUT 	Volume_Set;
+
+BUFFER_INPUT 	From_Device[MAX_BUFFER_SIZE];  
+         
+/*----------------------------------------------------------------------------------------*/
+
+DIGITAL_OUTPUT 	Is_Communicating, Is_Initialized, Power_Is_On, Volume_Is_Muted,  
+				Is_Polling, Inputs_FB[MAX_INPUTS];
+       
+ANALOG_OUTPUT 	Volume_Level;
+
+STRING_OUTPUT 	To_Device;
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+
+INTEGER_PARAMETER Monitor_ID, Volume_Step_Size;
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+
+STRUCTURE _ModuleStatus
+{
+	INTEGER nIsCommunicating;
+	INTEGER nIsInitializing;
+	INTEGER nIsInitialized;	
+	INTEGER nIsParsing;
+	INTEGER nIsHeartbeating;
+	INTEGER nIsPolling;
+	STRING 	sLastMsgIn[MAX_RESPONSE_SIZE];
+};
+
+STRUCTURE _DeviceStatus
+{
+	INTEGER nPower;
+	INTEGER nInput;
+	INTEGER nVolumeLevel;
+	INTEGER nLastVolumeLevel;
+	INTEGER nVolumeMute;
+};
+
+STRUCTURE _Queue
+{
+	INTEGER nBusy;
+	INTEGER nWaitActive;
+	INTEGER nHasItems;
+	INTEGER nCommandHead;
+	INTEGER nCommandTail;
+	INTEGER nStatusHead;
+	INTEGER nStatusTail;
+	INTEGER nStrikeCount;
+	STRING  sLastMsgOut[MAX_COMMAND_SIZE];
+};
+
+_ModuleStatus uModule;
+_DeviceStatus uDevice;
+_Queue uQueue;
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+
+STRING sCommandQueue[MAX_QUEUE_ITEMS][MAX_COMMAND_SIZE];
+STRING sStatusQueue[MAX_QUEUE_ITEMS][MAX_COMMAND_SIZE];
+STRING sInputCommands[MAX_INPUTS][4];
+STRING sInputTracking[MAX_INPUTS][20];
+STRING sInputResponses[MAX_INPUTS][2];
+STRING sIRCommands[MAX_IR_COMMANDS][1];
+STRING sIRTracking[MAX_IR_COMMANDS][20];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+     
+////////////////////////////////////////////////////////////
+// String Method Helpers
+////////////////////////////////////////////////////////////
+                        
+INTEGER_FUNCTION startsWith(STRING matchString, STRING sourceString)
+{
+	RETURN (FIND(matchString,sourceString) = 1); 
+}
+
+INTEGER_FUNCTION contains(STRING matchString, STRING sourceString)
+{
+	RETURN (FIND(matchString,sourceString) > 0); 
+}
+
+STRING_FUNCTION getBoundString(STRING source, STRING startString, STRING endString)
+{
+	INTEGER startIndex;
+	INTEGER endIndex;
+	STRING response[MAX_COMMAND_SIZE];
+                                     
+    response = "";
+
+	IF (LEN(source) > 0)
+	{
+		startIndex = FIND(startString, source);
+		endIndex = FIND(endString, source, startIndex + 1);
+	
+		IF (startIndex > 0 && startIndex < endIndex)
+		{
+			startIndex = startIndex + LEN(startString);
+			response = MID(source, startIndex, endIndex - startIndex);
+		}
+	}
+
+	RETURN (response);
+}   
+
+STRING_FUNCTION getBoundString_Last(STRING source, STRING startString, STRING endString)
+{
+	INTEGER startIndex;
+	INTEGER endIndex;
+	STRING response[MAX_COMMAND_SIZE];
+                                     
+    response = "";
+
+	IF (LEN(source) > 0)
+	{
+		startIndex = FIND(startString, source);
+		endIndex = REVERSEFIND(endString, source);
+	
+		IF (startIndex > 0 && startIndex < endIndex)
+		{
+			startIndex = startIndex + LEN(startString);
+			response = MID(source, startIndex, endIndex - startIndex);
+		}
+	}
+
+	RETURN (response);
+}
+
+INTEGER_FUNCTION getMsgDevID(STRING msg)
+{
+	RETURN (ATOI(getBoundString(msg,"<","-")));
+}
+
+STRING_FUNCTION getMsgClass(STRING msg)
+{
+	RETURN (getBoundString(msg,"-",","));
+}
+
+STRING_FUNCTION getMsgType(STRING msg)
+{
+	RETURN (getBoundString(msg,",","*"));
+}
+
+STRING_FUNCTION getMsgState(STRING msg)
+{
+	RETURN (getBoundString(msg,"*","|"));
+}
+
+STRING_FUNCTION getMsgData(STRING msg)
+{
+	RETURN (getBoundString_Last(msg,"|",">"));
+}
+
+////////////////////////////////////////////////////////////
+// Protocol Method Helpers	
+////////////////////////////////////////////////////////////
+
+INTEGER_FUNCTION getSumBytes(STRING msg)
+{
+	INTEGER i;
+	INTEGER sum;
+	
+	sum = 0;
+	
+	FOR (i = 1 TO LEN(msg))
+		sum = sum ^ BYTE(msg,i);		
+	
+	RETURN (sum);
+}   
+
+STRING_FUNCTION getProtocolLength(STRING data)
+{
+	RETURN (CHR(LEN(MSG_DATA_CTRL) + LEN(data) + 1)); // +1 is for checksum byte which hasn't been calculated yet to pass in		
+}
+
+STRING_FUNCTION buildSetMsg(INTEGER monitorID, STRING command, STRING control)
+{
+	STRING data[MAX_COMMAND_SIZE];
+	STRING length[MAX_COMMAND_SIZE];
+	STRING checksum[MAX_COMMAND_SIZE];
+	STRING msg[MAX_COMMAND_SIZE];
+    
+    MAKESTRING(data, "%s%s", command, control);
+    length = getProtocolLength(data);
+    
+    MAKESTRING(msg, "%s%s", msg, CMD_HEAD_SET);
+    MAKESTRING(msg, "%s%s", msg, CHR(monitorID));
+    MAKESTRING(msg, "%s%s", msg, MSG_CATEGORY);
+    MAKESTRING(msg, "%s%s", msg, MSG_CODE_0);
+    MAKESTRING(msg, "%s%s", msg, MSG_CODE_1);
+    MAKESTRING(msg, "%s%s", msg, length);
+    MAKESTRING(msg, "%s%s", msg, MSG_DATA_CTRL);
+    MAKESTRING(msg, "%s%s", msg, command);
+    MAKESTRING(msg, "%s%s", msg, control);
+    
+    checksum = CHR(getSumBytes(msg));
+    
+    MAKESTRING(msg, "%s%s", msg, checksum);
+    
+    RETURN (msg);
+}
+
+STRING_FUNCTION buildGetMsg(INTEGER monitorID, STRING command)
+{
+	STRING length[MAX_COMMAND_SIZE];
+	STRING checksum[MAX_COMMAND_SIZE];
+	STRING msg[MAX_COMMAND_SIZE];
+    
+    length = getProtocolLength(command);
+    
+    MAKESTRING(msg, "%s%s", msg, CMD_HEAD_SET);
+    MAKESTRING(msg, "%s%s", msg, CHR(monitorID));
+    MAKESTRING(msg, "%s%s", msg, MSG_CATEGORY);
+    MAKESTRING(msg, "%s%s", msg, MSG_CODE_0);
+    MAKESTRING(msg, "%s%s", msg, MSG_CODE_1);
+    MAKESTRING(msg, "%s%s", msg, length);
+    MAKESTRING(msg, "%s%s", msg, MSG_DATA_CTRL);
+    MAKESTRING(msg, "%s%s", msg, command);
+    
+    checksum = CHR(getSumBytes(msg));
+    
+    MAKESTRING(msg, "%s%s", msg, checksum);
+    
+    RETURN (msg);
+}
+
+STRING_FUNCTION buildTrackingHeader(INTEGER deviceID, STRING msgClass, STRING msgType, STRING msgState)
+{
+	STRING msg[MAX_COMMAND_SIZE];
+    
+	MAKESTRING(msg,"%u-%s,%s*%s", deviceID, msgClass, msgType, msgState);
+
+	RETURN (msg);
+}
+
+////////////////////////////////////////////////////////////
+// Reset Helpers
+////////////////////////////////////////////////////////////
+
+FUNCTION resetQueue()
+{
+	uQueue.nBusy = FALSE;
+	uQueue.nWaitActive = FALSE;
+	uQueue.nHasItems = FALSE;
+	uQueue.nCommandHead = 1;
+	uQueue.nCommandTail = 1;
+	uQueue.nStatusHead = 1;
+	uQueue.nStatusTail = 1;
+	uQueue.nStrikeCount = 0;	
+	uQueue.sLastMsgOut = BLANK_STRING;         
+}
+
+FUNCTION resetModule()
+{
+	uModule.nIsCommunicating = FALSE;
+	uModule.nIsInitializing = FALSE;
+	uModule.nIsInitialized = FALSE;
+	uModule.nIsParsing = FALSE;
+	uModule.nIsPolling = FALSE;
+	uModule.sLastMsgIn = BLANK_STRING;
+	
+	Is_Communicating = FALSE;
+	Is_Initialized = FALSE;
+}
+
+FUNCTION resetDevice()
+{
+	INTEGER i;
+	
+	uDevice.nPower = NULL;
+	uDevice.nInput = NULL;
+	uDevice.nVolumeLevel = NULL;
+	uDevice.nLastVolumeLevel = NULL;
+	uDevice.nVolumeMute = NULL;
+		
+	Power_Is_On = FALSE;
+	Volume_Is_Muted = FALSE; 
+	Volume_Level = 0; 
+	
+	FOR(i = 1 TO MAX_INPUTS)
+		Inputs_FB[i] = FALSE;
+}
+
+FUNCTION reset()
+{              
+	trace("reset");
+
+	resetQueue();
+    resetModule();
+    resetDevice();
+}
+
+////////////////////////////////////////////////////////////
+// Queue Helpers
+////////////////////////////////////////////////////////////
+
+INTEGER_FUNCTION isQueueEmpty()
+{
+	RETURN (uQueue.nHasItems = FALSE && uQueue.nBusy = FALSE);
+}
+
+STRING_FUNCTION deQueue()
+{
+	STRING sCmd[MAX_COMMAND_SIZE];
+                        
+	sCmd = BLANK_STRING;
+
+	IF (uQueue.nHasItems = TRUE && uQueue.nBusy = FALSE)
+	{        
+		uQueue.nBusy = TRUE;
+
+		// Priority Queue has items
+		IF (uQueue.nCommandHead != uQueue.nCommandTail)
+		{
+			IF (uQueue.nCommandTail = GETNUMARRAYROWS(sCommandQueue))
+				uQueue.nCommandTail = 1;
+			ELSE
+				uQueue.nCommandTail = uQueue.nCommandTail + 1;
+
+			uQueue.sLastMsgOut = sCommandQueue[uQueue.nCommandTail];
+		}
+		// Secondary Queue has items
+		ELSE IF (uQueue.nStatusHead != uQueue.nStatusTail)
+		{
+			IF (uQueue.nStatusTail = GETNUMARRAYROWS(sStatusQueue))
+				uQueue.nStatusTail = 1;
+			ELSE
+				uQueue.nStatusTail = uQueue.nStatusTail + 1;
+
+			uQueue.sLastMsgOut = sStatusQueue[uQueue.nStatusTail];
+		}
+	
+		IF (uQueue.nCommandHead = uQueue.nCommandTail && uQueue.nStatusHead = uQueue.nStatusTail)
+			uQueue.nHasItems = FALSE;         
+        
+		sCmd = getMsgData(uQueue.sLastMsgOut);
+	}
+
+	RETURN (sCmd);
+}
+
+FUNCTION sendNextQueueItem()
+{
+	STRING sOutgoing[MAX_COMMAND_SIZE];
+    
+    IF (uQueue.nWaitActive = FALSE)
+	{
+		sOutgoing = deQueue();
+		
+		IF (LEN(sOutgoing) > 0)
+		{
+			TRACE("sendNextQueueItem() - sending next message");
+	               
+			MAKESTRING(To_Device, "%s", sOutgoing);
+			//uQueue.nWaitActive = TRUE;
+
+			//WAIT (250)
+			//{
+         		//uQueue.nWaitActive = FALSE;
+				sendNextQueueItem();   	
+			//}			
+
+	        WAIT (250, QueueFalseResponse)
+			{
+				IF (uQueue.nBusy = TRUE)
+				{
+					uQueue.nBusy = FALSE;
+					
+					IF (uQueue.nStrikeCount < 3)
+					{
+						uQueue.nStrikeCount = uQueue.nStrikeCount + 1;
+	
+						TRACE("Failed Response[%s]",uQueue.sLastMsgOut); 
+						TRACE("nStrikeCount[%u]",uQueue.nStrikeCount);
+						sendNextQueueItem();
+					}
+					ELSE
+						reset();
+				}
+			}
+		}
+		ELSE
+			TRACE("sendNextQueueItem() - nothing to send");
+	}
+}
+
+FUNCTION enQueue(STRING sCmd, INTEGER bPriority)
+{
+	INTEGER nQueueWasEmpty;
+
+	nQueueWasEmpty = isQueueEmpty();
+    
+	IF (bPriority = TRUE)
+	{
+		IF (uQueue.nCommandHead = GetNumArrayRows(sCommandQueue))
+		{
+			IF (uQueue.nCommandTail != 1)
+			{
+				uQueue.nCommandHead = 1;
+				sCommandQueue[uQueue.nCommandHead] = sCmd;
+				uQueue.nHasItems = TRUE;
+			}
+		}
+		ELSE IF (uQueue.nCommandTail != (uQueue.nCommandHead + 1))
+		{
+			uQueue.nCommandHead = uQueue.nCommandHead + 1;
+			sCommandQueue[uQueue.nCommandHead] = sCmd;
+			uQueue.nHasItems = TRUE;
+		}
+	}
+	ELSE
+	{
+		IF (uQueue.nStatusHead = GetNumArrayRows(sStatusQueue))
+		{
+			IF (uQueue.nStatusTail != 1)
+			{
+				uQueue.nStatusHead = 1;
+				sStatusQueue[uQueue.nStatusHead] = sCmd;
+				uQueue.nHasItems = TRUE;
+			}
+		}
+		ELSE IF (uQueue.nStatusTail != (uQueue.nStatusHead + 1))
+		{
+			uQueue.nStatusHead = uQueue.nStatusHead + 1;
+			sStatusQueue[uQueue.nStatusHead] = sCmd;
+			uQueue.nHasItems = TRUE;
+		}
+	}
+
+	IF (nQueueWasEmpty)
+		sendNextQueueItem();
+}
+
+////////////////////////////////////////////////////////////
+// Device Command Helpers
+////////////////////////////////////////////////////////////
+
+FUNCTION setPower(INTEGER monitorID, INTEGER state)
+{
+	STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sSetMsg[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+	
+	IF(Is_Initialized = TRUE)
+	{
+		IF(state = TRUE)
+		{
+			sTrackingHeader = buildTrackingHeader(monitorID, "POWER", "SET", "ON");
+			sSetMsg = buildSetMsg(monitorID, CMD_PWR_SET, CMD_PWR_STATE_ON);
+		}
+		ELSE
+		{
+			sTrackingHeader = buildTrackingHeader(monitorID, "POWER", "SET", "OFF");
+			sSetMsg = buildSetMsg(monitorID, CMD_PWR_SET, CMD_PWR_STATE_OFF);
+		}
+	    
+	    MakeString(sCommand,"<%s|%s>", sTrackingHeader, sSetMsg);
+	    enQueue(sCommand, TRUE);	
+	}		
+}
+
+FUNCTION getPower(INTEGER monitorID)
+{
+	STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sGetMsg[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+	
+	sTrackingHeader = buildTrackingHeader(monitorID, "POWER", "GET", BLANK_STRING);
+	sGetMsg = buildGetMsg(monitorID, CMD_PWR_GET);
+	
+   	MakeString(sCommand,"<%s|%s>", sTrackingHeader, sGetMsg);
+    enQueue(sCommand, FALSE);		
+}
+
+FUNCTION setInput(INTEGER monitorID, INTEGER input)
+{
+	STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sSetMsg[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+	
+	IF(Is_Initialized = TRUE)
+	{
+		sTrackingHeader = buildTrackingHeader(monitorID, "INPUT", "SET", sInputTracking[input]);
+        sSetMsg = buildSetMsg(monitorID, CMD_INPUT_SET, sInputCommands[input]);
+	    
+	    MakeString(sCommand,"<%s|%s>", sTrackingHeader, sSetMsg);
+	    enQueue(sCommand, TRUE);	
+	}		
+}
+
+FUNCTION getInput(INTEGER monitorID)
+{
+	STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sGetMsg[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+	
+	sTrackingHeader = buildTrackingHeader(monitorID, "INPUT", "GET", BLANK_STRING);
+	sGetMsg = buildGetMsg(monitorID, CMD_INPUT_GET);
+	
+   	MakeString(sCommand,"<%s|%s>", sTrackingHeader, sGetMsg);
+    enQueue(sCommand, FALSE);		
+}
+
+FUNCTION sendIR(INTEGER monitorID, INTEGER irFunction)
+{
+	STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sSetMsg[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+	
+	IF(Is_Initialized = TRUE)
+	{
+		sTrackingHeader = buildTrackingHeader(monitorID, "IR", "SET", sIRTracking[irFunction]);
+        sSetMsg = buildSetMsg(monitorID, CMD_IR_SET, sIRCommands[irFunction]);
+    	
+    	MakeString(sCommand,"<%s|%s>", sTrackingHeader, sSetMsg);
+	    enQueue(sCommand, TRUE);	
+	}		
+}
+
+FUNCTION setVolume(INTEGER monitorID, INTEGER level)
+{
+	STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sSetMsg[MAX_COMMAND_SIZE];
+	STRING sCombined[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+	
+	IF(Is_Initialized = TRUE)
+	{
+		IF(level >= MIN_VOL_LVL && level <= MAX_VOL_LVL)
+		{
+            MAKESTRING(sCombined,"%s%s", CHR(level), CHR(level));
+
+			sTrackingHeader = buildTrackingHeader(monitorID, "VOLUME", "SET", ITOA(level));
+			sSetMsg = buildSetMsg(monitorID, CMD_VOL_SET, sCombined);
+			                                               
+			MAKESTRING(sCommand,"<%s|%s>", sTrackingHeader, sSetMsg);			
+			enQueue(sCommand, TRUE);
+		}
+	}
+}
+
+FUNCTION getVolume(INTEGER monitorID)
+{
+    STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sGetMsg[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+	
+	sTrackingHeader = buildTrackingHeader(monitorID, "VOLUME", "GET", BLANK_STRING);
+	sGetMsg = buildGetMsg(monitorID, CMD_VOL_GET);
+	
+   	MAKESTRING(sCommand,"<%s|%s>", sTrackingHeader, sGetMsg);
+    enQueue(sCommand, FALSE);		
+}
+
+////////////////////////////////////////////////////////////
+// Polling Helpers
+////////////////////////////////////////////////////////////
+
+FUNCTION getCurrentStatusAll()
+{
+    getPower(Monitor_ID);
+    getInput(Monitor_ID);
+    getVolume(Monitor_ID);	
+}
+
+FUNCTION sendPoll()
+{
+	IF (uModule.nIsPolling = TRUE)
+	{
+		TRACE("sendPoll()");
+		
+		getCurrentStatusAll();
+
+		WAIT (POLL_TIME, POLL)
+			IF (uModule.nIsPolling = TRUE)
+				sendPoll();
+	}
+}
+
+FUNCTION startPoll()
+{
+	IF (uModule.nIsPolling = FALSE)
+	{   
+		uModule.nIsPolling = TRUE; 
+		Is_Polling = TRUE;
+		sendPoll();		
+	}
+}
+
+FUNCTION stopPoll()
+{
+	uModule.nIsPolling = FALSE;
+	Is_Polling = FALSE;
+	CANCELWAIT(POLL);
+}
+
+////////////////////////////////////////////////////////////
+// Initialize Helpers
+////////////////////////////////////////////////////////////
+
+INTEGER_FUNCTION isInitialized()
+{
+	IF(uDevice.nPower = NULL || uDevice.nInput = NULL || uDevice.nVolumeLevel = NULL)
+	    RETURN (FALSE);
+	
+	RETURN (TRUE);
+}
+
+FUNCTION getInitialized()
+{
+	IF(uModule.nIsInitializing = FALSE && isInitialized() = FALSE)
+	{
+	    trace("getInitialized()");
+	    
+	    uModule.nIsInitializing = TRUE;
+		getCurrentStatusAll();
+	}
+}
+
+////////////////////////////////////////////////////////////
+// Response Helpers
+////////////////////////////////////////////////////////////
+
+FUNCTION goodResponse()
+{
+	STRING sClass[MAX_COMMAND_SIZE];
+	
+	TRACE("goodResponse()");
+
+   	uModule.nIsCommunicating = TRUE; 
+   	Is_Communicating = TRUE; 
+    
+	uQueue.nStrikeCount = 0; 
+    
+    sClass = getMsgClass(uQueue.sLastMsgOut);
+    
+    IF(sClass = "HEARTBEAT" && uModule.nIsInitializing = FALSE)
+    	getInitialized();
+    
+	uQueue.nBusy = FALSE;
+
+	sendNextQueueItem();
+}
+
+FUNCTION ProcessDeviceMsg()
+{
+	INTEGER i;
+	INTEGER deviceID;
+    STRING  msgClass[MAX_COMMAND_SIZE];
+    STRING  msgType[MAX_COMMAND_SIZE];
+    STRING  msgState[MAX_COMMAND_SIZE];
+    INTEGER volumeLvlIn;
+	
+	IF (LEN(uModule.sLastMsgIn) > 0)
+	{
+		msgType = getMsgType(uQueue.sLastMsgOut);
+
+		IF (msgType = "GET")
+		{
+            deviceID = BYTE(uModule.sLastMsgIn, RSP_POS_ID);
+            msgClass = CHR(BYTE(uModule.sLastMsgIn, RSP_POS_DATA_START)); 
+                      
+            IF(msgClass = CMD_VERSION_GET)
+           		TRACE("got response to heartbeat"); 		
+            ELSE IF(msgClass = CMD_PWR_GET)
+            {
+               	TRACE("got response to power query");
+                
+                msgState = CHR(BYTE(uModule.sLastMsgIn, RSP_POS_DATA_START + 1)); 
+                	
+            	IF(msgState = CMD_PWR_STATE_ON)
+            	{
+            		uDevice.nPower = TRUE;
+            		Power_Is_On = TRUE;
+            	}
+	            ELSE IF(msgState = CMD_PWR_STATE_OFF)
+				{
+					uDevice.nPower = FALSE;
+					Power_Is_On = FALSE;
+				}  		
+			}
+            ELSE IF(msgClass = CMD_INPUT_GET)
+            {
+                TRACE("got response to input query");
+                
+                msgState = CHR(BYTE(uModule.sLastMsgIn, RSP_POS_DATA_START + 1)); 
+                
+                FOR(i = 1 TO MAX_INPUTS)
+                {
+                	IF(msgState = sInputResponses[i])
+                	{
+               			uDevice.nInput = i;
+               			Inputs_FB[i] = TRUE; 		
+                	}
+                	ELSE
+                	{
+                		Inputs_FB[i] = FALSE;
+                	}
+                }		
+			}
+            ELSE IF(msgClass = CMD_VOL_GET)
+            {
+                TRACE("got response to volume query");
+                
+                volumeLvlIn = BYTE(uModule.sLastMsgIn, RSP_POS_DATA_START + 1); 
+                
+               	uDevice.nVolumeLevel = volumeLvlIn;
+               	Volume_Level = volumeLvlIn;
+               	
+               	IF(volumeLvlIn = 0)
+               	{
+               		uDevice.nVolumeMute = TRUE;
+               		Volume_Is_Muted = TRUE;
+               	}
+               	ELSE
+               	{
+               		uDevice.nLastVolumeLevel = volumeLvlIn;
+               		uDevice.nVolumeMute = FALSE;
+               		Volume_Is_Muted = FALSE;	
+               	}
+			}
+		} 
+		ELSE IF (msgType = "SET")
+		{
+			IF (CHR(BYTE(uModule.sLastMsgIn, RSP_SET_POS_DATA_STATUS)) = RSP_ACK)
+			{
+				TRACE("got ACK response to set");
+                   
+                deviceID = getMsgDevID(uQueue.sLastMsgOut);
+                msgClass = getMsgClass(uQueue.sLastMsgOut); 
+                msgState = getMsgState(uQueue.sLastMsgOut); 
+                
+                IF(msgClass = "POWER")
+                {
+                   	TRACE("got response to power command");
+                   	
+                   	IF(msgState = "ON")
+                   	{
+                 		uDevice.nPower = TRUE;
+                 		Power_Is_On = TRUE;
+                   	}
+                   	ELSE IF(msgState = "OFF")
+                   	{
+                 		uDevice.nPower = FALSE;
+                 		Power_Is_On = FALSE;
+                   	}
+				}
+                ELSE IF(msgClass = "INPUT")
+                {
+                   	TRACE("got response to input command");
+                    
+                    FOR(i = 1 TO MAX_INPUTS)
+	                {
+	                	IF(msgState = sInputTracking[i])
+	                	{
+	               			uDevice.nInput = i;
+	               			Inputs_FB[i] = TRUE; 		
+	                	}
+	                	ELSE
+	                	{
+	                		Inputs_FB[i] = FALSE;
+	                	}
+	                } 
+
+				}
+                ELSE IF(msgClass = "VOLUME")
+                {
+                   	TRACE("got response to volume command");
+
+                   	volumeLvlIn = ATOI(msgState);
+                   	
+                   	uDevice.nVolumeLevel = volumeLvlIn;
+                   	Volume_Level = volumeLvlIn;
+                   	
+                   	IF(volumeLvlIn = 0)
+                   	{
+                   		uDevice.nVolumeMute = TRUE;
+                   		Volume_Is_Muted = TRUE;
+                   	}
+                   	ELSE
+                   	{
+                   		uDevice.nLastVolumeLevel = volumeLvlIn;
+                   		uDevice.nVolumeMute = FALSE;
+                   		Volume_Is_Muted = FALSE;	
+                   	}
+                }	
+			}
+			ELSE
+				TRACE("got NACK or NAV response to set");
+		} 
+		
+		CANCELWAIT(QueueFalseResponse);
+		goodResponse();
+		
+		IF(uModule.nIsInitializing = TRUE && isInitialized() = TRUE)
+		{
+			trace("initialization complete");
+			
+			uModule.nIsInitializing = FALSE;
+			uModule.nIsInitialized = TRUE;
+			Is_Initialized = TRUE;
+			
+			IF(Poll_Enable = TRUE && uModule.nIsPolling = FALSE)
+				WAIT(POLL_TIME, StartPollingProcess)
+					startPoll();
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+// Heartbeat Helpers
+//////////////////////////////////////////////////////////// 
+
+FUNCTION sendHeartbeat()
+{
+	STRING sTrackingHeader[MAX_COMMAND_SIZE];
+	STRING sGetMsg[MAX_COMMAND_SIZE];
+	STRING sCommand[MAX_COMMAND_SIZE];
+
+	IF (uModule.nIsHeartbeating = TRUE)
+	{
+		IF (isQueueEmpty())
+		{
+			TRACE("sendHeartbeat()");
+			
+			sTrackingHeader = buildTrackingHeader(Monitor_ID, "HEARTBEAT", "GET", BLANK_STRING);
+			sGetMsg = buildGetMsg(Monitor_ID, CMD_VERSION_GET); 
+			
+			MAKESTRING(sCommand,"<%s|%s>", sTrackingHeader, sGetMsg);                               
+			enQueue(sCommand, FALSE);
+		}
+
+		WAIT (HEARTBEAT_TIME, HEARTBEAT)
+			IF (uModule.nIsHeartbeating = TRUE)
+				sendHeartbeat();
+	}		
+}    
+
+FUNCTION startHeartbeat()
+{
+	IF (uModule.nIsHeartbeating = FALSE)
+	{   
+		uModule.nIsHeartbeating = TRUE;
+		sendHeartbeat();		
+	}
+}
+
+FUNCTION stopHeartbeat()
+{
+	uModule.nIsHeartbeating = FALSE;
+	CANCELWAIT(HEARTBEAT);
+}
+
+////////////////////////////////////////////////////////////
+// Connect/Disconnect/Reinit Helpers
+////////////////////////////////////////////////////////////
+
+FUNCTION doConnect()
+{
+	TRACE("doConnect()");
+		
+	reset();
+	CANCELWAIT(QueueFalseResponse);
+	
+	WAIT(500, StartHeartBeatProcess)
+		startHeartbeat();
+}   
+
+FUNCTION doDisconnect()
+{
+	TRACE("doDisconnect()");
+	
+	reset();
+	CANCELWAIT(StartHeartBeatProcess);
+	CANCELWAIT(StartPollingProcess);
+	CANCELWAIT(QueueFalseResponse);
+	stopHeartbeat();
+	stopPoll();
+}
+
+FUNCTION doReinitialize()
+{
+	TRACE("doReinitialize()");
+
+	doDisconnect();
+	doConnect();	
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Connect
+{
+    doConnect();	
+}
+
+PUSH Disconnect
+{
+	doDisconnect();
+}
+
+PUSH Initialize
+{
+	doReinitialize();
+}
+
+PUSH Power_On
+{
+    setPower(Monitor_ID, TRUE);
+}
+
+PUSH Power_Off
+{
+    setPower(Monitor_ID, FALSE);
+}
+
+PUSH Power_Toggle
+{
+    IF(uDevice.nPower = TRUE)
+    	setPower(Monitor_ID, FALSE); 
+   	ELSE IF(uDevice.nPower = FALSE)
+    	setPower(Monitor_ID, TRUE);
+}
+
+PUSH Inputs
+{
+    INTEGER input;
+    input = GETLASTMODIFIEDARRAYINDEX();
+    
+    setInput(Monitor_ID, input);
+}
+
+PUSH Input_Cycle
+{
+    IF(uDevice.nInput = MAX_INPUTS)
+    	setInput(Monitor_ID, 1);
+    ELSE
+    	setInput(Monitor_ID, uDevice.nInput + 1);
+}
+
+PUSH Volume_Up
+{
+    IF(uDevice.nVolumeLevel < MAX_VOL_LVL)
+    {
+  		IF((MAX_VOL_LVL - uDevice.nVolumeLevel) > Volume_Step_Size)
+    		setVolume(Monitor_ID, uDevice.nVolumeLevel + Volume_Step_Size);
+    	ELSE
+    		setVolume(Monitor_ID, MAX_VOL_LVL);  	
+    }
+}
+
+PUSH Volume_Down
+{
+   	IF(uDevice.nVolumeLevel > MIN_VOL_LVL)
+    {
+  		IF((uDevice.nVolumeLevel - MIN_VOL_LVL) > Volume_Step_Size)
+    		setVolume(Monitor_ID, uDevice.nVolumeLevel - Volume_Step_Size);
+    	ELSE
+    		setVolume(Monitor_ID, MIN_VOL_LVL);  	
+    }
+}
+
+PUSH Volume_Mute_On
+{
+    setVolume(Monitor_ID, 0);
+}
+
+PUSH Volume_Mute_Off
+{
+    setVolume(Monitor_ID, uDevice.nLastVolumeLevel);
+}
+ 
+PUSH Volume_Mute_Toggle
+{
+    IF(uDevice.nVolumeMute = TRUE)
+    	setVolume(Monitor_ID, uDevice.nLastVolumeLevel); 
+   	ELSE IF(uDevice.nVolumeMute = FALSE)
+    	setVolume(Monitor_ID, 0);
+}
+
+CHANGE Volume_Set
+{
+    IF(Volume_Set >= MIN_VOL_LVL && Volume_Set <= MAX_VOL_LVL)
+    	setVolume(Monitor_ID, Volume_Set);
+}
+
+PUSH IR_Commands
+{
+	INTEGER irFunction;
+    irFunction = GETLASTMODIFIEDARRAYINDEX();
+    
+    sendIR(Monitor_ID, irFunction);
+}
+
+PUSH Poll_Enable
+{
+    IF(uModule.nIsPolling = FALSE)
+    	startPoll();
+}
+
+RELEASE Poll_Enable
+{
+    IF(uModule.nIsPolling = TRUE)
+    	stopPoll();
+}
+
+#IF_SERIES3 || #IF_SERIES4
+THREADSAFE CHANGE From_Device
+{           
+	STRING 	msgToLength[MAX_COMMAND_SIZE];
+	STRING 	msgRemainder[MAX_COMMAND_SIZE];
+	STRING  delim[MAX_COMMAND_SIZE];
+	INTEGER delimIndex;
+	
+	WHILE(TRUE)
+	{
+		TRY                       
+		{
+			msgToLength = GATHERBYLENGTH(RSP_POS_LENGTH, From_Device);
+			
+			IF(CHR(BYTE(msgToLength,RSP_POS_HEADER)) = RSP_HEADER)
+			{
+				msgRemainder = GATHERBYLENGTH(BYTE(msgToLength,RSP_POS_LENGTH), From_Device);
+				MAKESTRING(uModule.sLastMsgIn,"%s%s", msgToLength, msgRemainder);
+				
+				IF(BYTE(msgToLength,RSP_POS_ID) = Monitor_ID)
+					ProcessDeviceMsg();
+			}				
+		}
+		CATCH
+		{
+			TRACE("Issue with Device message handling\n");
+		}		
+	}
+}
+#ELSE
+CHANGE From_Device
+{
+    STRING 	msgToLength[MAX_COMMAND_SIZE];
+	STRING 	msgRemainder[MAX_COMMAND_SIZE];
+	STRING  delim[MAX_COMMAND_SIZE];
+	INTEGER delimIndex;
+	
+    IF (uModule.nIsParsing = FALSE)
+    {
+    	uModule.nIsParsing = TRUE;
+    	
+    	WHILE(TRUE)
+    	{
+			msgToLength = GATHERBYLENGTH(RSP_POS_LENGTH, From_Device);
+			
+			IF(CHR(BYTE(msgToLength,RSP_POS_HEADER)) = RSP_HEADER)
+			{
+				msgRemainder = GATHERBYLENGTH(BYTE(msgToLength,RSP_POS_LENGTH), From_Device);
+				MAKESTRING(uModule.sLastMsgIn,"%s%s", msgToLength, msgRemainder);
+				
+				IF(BYTE(msgToLength,RSP_POS_ID) = Monitor_ID)
+					ProcessDeviceMsg();
+			}
+		}
+    	
+    	uModule.nIsParsing = FALSE;
+    }
+}
+#ENDIF
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+	sInputCommands[1]  	= "\x05\x00\x00\x00"; // VGA
+	sInputCommands[2]  	= "\x06\x00\x00\x00"; // HDMI 2
+	sInputCommands[3]  	= "\x0A\x00\x00\x00"; // DisplayPort
+	sInputCommands[4]  	= "\x0B\x00\x00\x00"; // OPS
+	sInputCommands[5]  	= "\x0D\x00\x00\x00"; // HDMI 1
+	sInputCommands[6]  	= "\x0E\x00\x00\x00"; // DVI-D  
+    sInputCommands[7]  	= "\x0F\x00\x00\x00"; // HDMI 3
+	sInputCommands[8]  	= "\x10\x00\x00\x00"; // Browser
+	sInputCommands[9]  	= "\x11\x00\x00\x00"; // CMS
+	sInputCommands[10]  = "\x16\x00\x00\x00"; // Media Player
+	sInputCommands[11]  = "\x17\x00\x00\x00"; // PDF Player
+	sInputCommands[12]  = "\x18\x00\x00\x00"; // Custom
+    sInputCommands[13]  = "\x19\x00\x00\x00"; // HDMI 4
+
+	sInputTracking[1]  	= "VGA";
+	sInputTracking[2]  	= "HDMI 2";
+	sInputTracking[3]  	= "DISPLAYPORT";
+	sInputTracking[4]  	= "OPS";
+	sInputTracking[5]  	= "HDMI 1";
+	sInputTracking[6]  	= "DVI-D";
+    sInputTracking[7]  	= "HDMI 3";
+	sInputTracking[8]  	= "BROWSER";
+	sInputTracking[9]  	= "CMS";
+	sInputTracking[10]  = "MEDIA";
+	sInputTracking[11]  = "PDF";
+	sInputTracking[12]  = "CUSTOM";
+	sInputTracking[13]  = "HDMI 4";
+    
+	sInputResponses[1] 	= "\x05"; // VGA
+	sInputResponses[2] 	= "\x06"; // HDMI 2
+	sInputResponses[3] 	= "\x0A"; // DisplayPort
+	sInputResponses[4] 	= "\x0B"; // OPS
+	sInputResponses[5] 	= "\x0D"; // HDMI 1
+	sInputResponses[6] 	= "\x0E"; // DVI-D   
+    sInputResponses[7] 	= "\x0F"; // HDMI 3
+	sInputResponses[8] 	= "\x10"; // Browser
+	sInputResponses[9] 	= "\x11"; // CMS
+	sInputResponses[10] = "\x16"; // Media Player
+	sInputResponses[11] = "\x17"; // PDF Player
+	sInputResponses[12] = "\x18"; // Custom
+	sInputResponses[13] = "\x19"; // HDMI 4
+
+	sIRCommands[1] 		= "\xA0"; // Power
+	sIRCommands[2] 		= "\xA1"; // Menu
+    sIRCommands[3] 		= "\xA2"; // Input
+    sIRCommands[4] 		= "\xA3"; // Volume Up
+    sIRCommands[5] 		= "\xA4"; // Volume Down
+    sIRCommands[6] 		= "\xA5"; // Volume Mute
+    sIRCommands[7] 		= "\xA6"; // Up
+    sIRCommands[8] 		= "\xA7"; // Down
+    sIRCommands[9] 		= "\xA8"; // Left
+    sIRCommands[10] 	= "\xA9"; // Right
+    sIRCommands[11] 	= "\xB1"; // OK
+    sIRCommands[12] 	= "\xB2"; // Return
+    sIRCommands[13] 	= "\xC1"; // Red
+    sIRCommands[14] 	= "\xC2"; // Green
+    sIRCommands[15] 	= "\xC3"; // Yellow
+    sIRCommands[16] 	= "\xC4"; // Blue
+    sIRCommands[17] 	= "\xD1"; // Format
+    sIRCommands[18] 	= "\xD2"; // Info
+    sIRCommands[19] 	= "\x00"; // 0
+    sIRCommands[20] 	= "\x01"; // 1
+    sIRCommands[21] 	= "\x02"; // 2
+    sIRCommands[22] 	= "\x03"; // 3
+    sIRCommands[23] 	= "\x04"; // 4
+    sIRCommands[24] 	= "\x05"; // 5
+    sIRCommands[25] 	= "\x06"; // 6
+    sIRCommands[26] 	= "\x07"; // 7
+    sIRCommands[27] 	= "\x08"; // 8
+    sIRCommands[28] 	= "\x09"; // 9
+	
+	sIRTracking[1] 		= "POWER";
+	sIRTracking[2] 		= "MENU";
+	sIRTracking[3] 		= "INPUT";
+	sIRTracking[4] 		= "VOL_UP";
+	sIRTracking[5] 		= "VOL_DN";
+	sIRTracking[6] 		= "VOL_MUTE";
+	sIRTracking[7] 		= "UP";
+	sIRTracking[8] 		= "DOWN";
+	sIRTracking[9] 		= "LEFT";
+	sIRTracking[10] 	= "RIGHT";
+	sIRTracking[11] 	= "OK";
+	sIRTracking[12] 	= "RETURN";
+	sIRTracking[13] 	= "RED";
+	sIRTracking[14] 	= "GREEN";
+	sIRTracking[15] 	= "YELLOW";
+	sIRTracking[16] 	= "BLUE";
+	sIRTracking[17] 	= "FORMAT";
+	sIRTracking[18] 	= "INFO";
+	sIRTracking[19] 	= "0";
+	sIRTracking[20] 	= "1";
+	sIRTracking[21] 	= "2";
+	sIRTracking[22] 	= "3";
+	sIRTracking[23] 	= "4";
+	sIRTracking[24] 	= "5";
+	sIRTracking[25] 	= "6";
+	sIRTracking[26] 	= "7";
+	sIRTracking[27] 	= "8";
+	sIRTracking[28] 	= "9";
+	
+	uModule.nIsHeartbeating = FALSE;
+	uModule.nIsPolling = FALSE;
+	
+	reset();
+	
+	WAITFORINITIALIZATIONCOMPLETE();
+}
+

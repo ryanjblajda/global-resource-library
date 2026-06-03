@@ -1,0 +1,98 @@
+// SIMPL+ Module Information
+/*
+Dealer Name:	Front Side Solutions, Inc.
+Programmer:		cdr
+Comments:			A&H AHM64 Audio Playback
+*/
+
+// Compiler Directives
+#ENABLE_DYNAMIC
+#SYMBOL_NAME "AandH Audio Play Back-AHM64"
+#CATEGORY "34" // Mixer
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+AandH Audio Play Back-AHM64 r0.0.usp
+
+Triggers Playing Tracks saved to the SHM64.
+
+Inputs:
+ Digital-
+ 	Play: Play selected TrackID. Can be pulsed or Latch to 1 to always play. 
+ Analog-
+  TrackID: Decimal Value of Track to play. Valid range is 1d ~ 128d.
+  MonoChnl: Assigns to Mono 1 or 2. Ignored if unit is in stereo mode. Valid range is 1d ~ 2d.
+ Serial-
+  FmMixer: Connect to the TCP/IP symbol receive line. For Future expansion.
+   
+  
+Outputs:
+ Serial-
+  ToMixer: Connect to the TCP/IP symbol Transmit line.
+
+Notes:
+ Reference the AHM64 protocol for valid Control Channels for the
+  selected control type.
+
+ For more information Reference: AHM-TCP-Protocol-V1.pdf
+
+ Tested with AHM64 Firmware V1.02 - Rev59154
+
+ Release: 2020-Dec-16 Release r0.0
+
+#HELP_END
+
+
+// DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+DIGITAL_INPUT 	Play;
+ANALOG_INPUT		TrackID, MonoChnl;
+BUFFER_INPUT 		FmMixer[1024];
+STRING_OUTPUT 	_SKIP_,_SKIP_,_SKIP_,ToMixer;
+
+
+// Global Variables
+STRING cCmdSysExHdr[8], cFuncHdr[2], cMono[2], cBuildHdr[11];
+NONVOLATILE INTEGER	nSrc;
+
+// Functions
+Function BuildCmd(Integer nTrackID)
+{
+  If(nTrackID >= 1 && nTrackID <= 128)
+ 	{
+ 		If((MonoChnl = 1) || (MonoChnl = 2))
+	 		Makestring(ToMixer, "%s%s%s\xF7", cBuildHdr, CHR(0x00 + MonoChnl - 1), CHR(0x00 + nTrackID - 1));
+ 		Else
+	 		Makestring(ToMixer, "%s\x00%s\xF7", cBuildHdr, CHR(0x00 + nTrackID - 1));
+
+	}
+}
+
+
+// Event Handlers
+CHANGE TrackID
+{
+	If(Play)
+		BuildCmd(TrackID);	
+}
+
+PUSH Play
+{
+	BuildCmd(TrackID);	
+}
+
+
+// Main()
+Function Main()
+{
+	WaitForInitializationComplete();
+	Makestring(cCmdSysExHdr, "\xF0\x00\x00\x1A\x50\x12\x01\x00");
+	Makestring(cFuncHdr, "\x00\x06");
+	Makestring(cBuildHdr, "%S%S",cCmdSysExHdr,cFuncHdr);
+}	

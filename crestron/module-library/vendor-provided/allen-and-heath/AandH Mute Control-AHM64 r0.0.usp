@@ -1,0 +1,197 @@
+// SIMPL+ Module Information
+/*
+Dealer Name:	Front Side Solutions, Inc.
+Programmer:		cdr
+Comments:			A&H AHM64 Mute Control
+*/
+
+// Compiler Directives
+#ENABLE_DYNAMIC
+#SYMBOL_NAME "AandH Mute Control-AHM64"
+#CATEGORY "34" // Mixer
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND
+// #OUTPUT_SHIFT
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+AandH Mute Control-AHM64 r0.0
+
+Controls Input, Zone and Group Mutes.
+
+Parameters:
+ ControlType: Select Input, Zone or Group.
+ ControlChnl: Select valid range from control type in decimal format.
+
+Inputs:
+ Digital-
+  MuteOn/Off/Toggle: Pulse to turn mute on/off or toggle state.
+	Poll: Pulse to poll and sync the current level. Should only be needed for initial 
+			reading of level at code start or after recalling a preset. Module will poll
+			internally for other changes.
+
+ Serial-
+  FmMixer: Connect to the TCP/IP symbol receive line.
+
+Outputs:
+ Digital-
+  MuteOnFb/OffFb: Mute Feedback. This is tracked internally
+   by the module. It is also updated when the mixer sends
+   feedback when the control is nudged.
+
+ Serial-
+  ToMixer: Connect to the TCP/IP symbol Transmit line.
+
+Notes:
+ Reference the AHM64 protocol for valid Control Channels for the
+  selected control type.
+
+ For more information Reference: AHM-TCP-Protocol-V1.pdf
+
+ Tested with AHM64 Firmware V1.02 - Rev59154
+
+ Release: 2020-Nov-19 Release r0.0
+
+#HELP_END
+
+
+// DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+DIGITAL_INPUT 	_SKIP_,_SKIP_,MuteOn, MuteOff, MuteToggle, Poll;
+BUFFER_INPUT 		FmMixer[1024];
+DIGITAL_OUTPUT 	_SKIP_,_SKIP_,MuteOnFb, MuteOffFb;
+STRING_OUTPUT 	_SKIP_,_SKIP_,ToMixer;
+
+// Parameters
+INTEGER_PARAMETER	ControlType;
+INTEGER_PARAMETER	ControlChnl;
+// Parameter Properties
+#BEGIN_PARAMETER_PROPERTIES ControlChnl
+	propValidUnits = unitDecimal;
+	propDefaultUnit = unitDecimal;
+	propBounds = 1d , 128d;
+  propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES ControlType
+	propValidUnits = unitDecimal;
+  propList = 	{1d ,"Input"},
+  						{2d ,"Zone"},
+  						{3d ,"Group"};
+#END_PARAMETER_PROPERTIES
+
+// Global Variables
+STRING cType[2], cCtrlChnl[2], cCmd[3][6],cOnRx[5], cOffRx[5];
+STRING cCmdSysExHdr[8], cPollType[2], cPollCmd[14];
+NONVOLATILE INTEGER	nState;
+
+// Functions
+Function BuildFb()
+{
+  If(nState)
+  {
+	  MuteOffFb = 0;
+	  MuteOnFb = 1;
+	}
+  Else
+  {
+	  MuteOnFb = 0;
+	  MuteOffFb = 1;
+	}
+}
+
+// Event Handlers
+PUSH MuteOn
+{
+	nState = 1;
+	Makestring(ToMixer, "%s", cCmd[1]);
+	BuildFb();
+}
+PUSH MuteOff
+{
+	nState = 0;
+	Makestring(ToMixer, "%s", cCmd[2]);
+	BuildFb();
+}
+PUSH MuteToggle
+{
+	nState =! nState;
+  If(nState)
+		Makestring(ToMixer, "%s", cCmd[1]);
+  Else
+		Makestring(ToMixer, "%s", cCmd[2]);
+	BuildFb();
+}
+
+PUSH Poll
+{
+	Makestring(ToMixer, "%s", cPollCmd);
+}
+
+THREADSAFE CHANGE FmMixer
+{
+// Standard Mute unsolicited Responses 
+// \x90\x00\x7F\x00\x00	(Input Channel 1)
+// \x90\x00\x3F\x00\x00	(Input Channel 1)
+	If (Find (cOnRx,FmMixer))
+	{
+		nState = 1;
+		BuildFb();
+		ClearBuffer(FmMixer);
+	}
+	Else If (Find (cOffRx,FmMixer))
+	{
+		nState = 0;
+		BuildFb();
+		ClearBuffer(FmMixer);
+	}
+	Else
+	{
+		ClearBuffer(FmMixer);
+	}
+}
+
+
+// Main()
+Function Main()
+{
+	WaitForInitializationComplete();
+
+	CSwitch (ControlType)
+	{
+		CASE (1):	//Input
+		{
+			cType = "\x90";
+			cCtrlChnl = CHR(0x00 + ControlChnl - 1);
+			Break;
+		}
+		CASE (2): //Zone
+		{
+			cType = "\x91";
+			cCtrlChnl = CHR(0x00 + ControlChnl - 1);
+			Break;
+		}
+		CASE (3): //Group
+		{
+			cType = "\x92";
+			cCtrlChnl = CHR(0x00 + ControlChnl - 1);
+			Break;
+		}
+	}
+	cPollType = CHR(0x00 + ControlType - 1);
+	Makestring(cCmdSysExHdr, "\xF0\x00\x00\x1A\x50\x12\x01\x00");
+
+	Makestring(cCmd[1], "%s%s\x7F%s%s\x00", cType,cCtrlChnl,cType,cCtrlChnl);//Mute On
+	Makestring(cCmd[2], "%s%s\x3F%s%s\x00", cType,cCtrlChnl,cType,cCtrlChnl);//Mute Off
+
+	Makestring(cPollCmd, "%S%S\x01\x09%S\xF7",cCmdSysExHdr,cPollType, cCtrlChnl);//Poll
+  
+  // Response
+ 	Makestring(cOnRx, "%s%s\x7F%s\x00", cType,cCtrlChnl,cCtrlChnl);
+	Makestring(cOffRx,"%s%s\x3F%s\x00", cType,cCtrlChnl,cCtrlChnl);
+
+	BuildFb();
+}	

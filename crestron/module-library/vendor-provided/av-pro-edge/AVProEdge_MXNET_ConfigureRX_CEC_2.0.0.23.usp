@@ -1,0 +1,58 @@
+#define_constant MAX_OUTPUTS  200
+
+digital_input CEC_ON[MAX_OUTPUTS];
+digital_input CEC_OFF[MAX_OUTPUTS];
+STRING_input CEC_HEX[MAX_OUTPUTS][MAX_OUTPUTS];
+
+string_output CONFIGURE_RX_CMD;
+
+string_function hexToHexString(string rawHex)
+{
+	string returnValue[255],newHex[2];
+	integer val,i;
+	
+	for(i = 1 to len(rawHex) step 1)
+	{
+		val = BYTE(rawHex,i);
+		
+		newHex = ITOHEX(val);
+		
+		if(LEN(newHex) < 2)
+		{
+			newHex = "0" + newHex;
+		}
+		
+		returnValue = returnValue + newHex;
+	}
+	return (returnValue);
+}
+
+push CEC_ON
+{
+	integer i;
+	String cmd[256];
+	
+	i = getlastmodifiedarrayindex();
+	makestring( CMD, "config set device cec poweron OUTPUT_ALIAS[%d];" , i ) ;
+	CONFIGURE_RX_CMD = cmd;
+}
+
+push CEC_OFF
+{
+	integer i;
+	String cmd[256];
+	
+	i = getlastmodifiedarrayindex();
+	makestring( CMD, "config set device cec poweroff OUTPUT_ALIAS[%d];" , i ) ;
+	CONFIGURE_RX_CMD = cmd;
+}
+
+threadsafe Change CEC_HEX
+{
+	integer i;
+	String cmd[256];
+	
+	i = getlastmodifiedarrayindex();
+	makestring( CMD, "config set device cec %s OUTPUT_ALIAS[%d];", hexToHexString(CEC_HEX[i]), i ) ;
+	CONFIGURE_RX_CMD = cmd;
+}

@@ -1,0 +1,199 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_SignalInfo"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,GetSignalInfo;
+STRING_INPUT _skip_,Cookie[256];
+
+DIGITAL_OUTPUT _skip_, HaveVideoInfo, HaveAudioInfo, HaveHdmiInfo, HaveSdiInfo, HaveInfoFrames;
+DIGITAL_OUTPUT _skip_, HdmiInfo_Scramble, HdmiInfo_ItContent;
+DIGITAL_OUTPUT _skip_, SdiInfo_LevelB, SdiInfo_Interlaced;
+
+ANALOG_OUTPUT _skip_,Status;
+
+STRING_OUTPUT _skip_, VideoInfo_Codec;
+ANALOG_OUTPUT VideoInfo_Width, VideoInfo_Height;
+STRING_OUTPUT VideoInfo_Scan, VideoInfo_FieldRate;
+ANALOG_OUTPUT VideoInfo_ColorDepth;
+STRING_OUTPUT VideoInfo_ColorFormat,VideoInfo_AspectRatio,VideoInfo_Sampling,VideoInfo_QuantRange,VideoInfo_SatRage,VideoInfo_FrameStruct;
+
+STRING_OUTPUT _skip_, AudioInfo_Codec, AudioInfo_NumChannels, AudioInfo_SampleRate, AudioInfo_BitCount;
+
+STRING_OUTPUT _skip_, HdmiInfo_Mode, HdmiInfo_Vic;
+ANALOG_OUTPUT HdmiInfo_ClockRatio;
+STRING_OUTPUT HdmiInfo_Hdcp, HdmiInfo_RepeatCount, HdmiInfo_TimingModeLine;
+
+STRING_OUTPUT _skip_, SdiInfo_LinkType, SdiInfo_LinkSpeed, SdiInfo_StreamType, SdiInfo_Assignment, SdiInfoSt352PayloadId;
+ANALOG_OUTPUT SdiInfo_HTotal, SdiInfo_VTotal, SdiInfo_HActive, SdiInfo_VActive;
+STRING_OUTPUT Test;
+
+ANALOG_OUTPUT _skip_, InfoFrame_Count;
+STRING_OUTPUT _skip_, InfoFrame_Id[5], InfoFrame_Type[5], InfoFrame_Version[5], InfoFrame_Checksum[5], InfoFrame_Data[5,5];
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+Callback Function SignalInfoFunc(SignalInfoArg arg)
+{  
+    integer i;
+    HaveVideoInfo = arg.haveVideoInfo;
+    HaveAudioInfo = arg.haveAudioInfo;
+    HaveHdmiInfo = arg.haveHDMIInfo;
+    HaveSdiInfo = arg.haveSDIInfo;
+    HaveInfoFrames = arg.haveInfoFrames;
+    //Video info.
+    if(HaveVideoInfo)
+    {
+        VideoInfo_Codec = arg.videoCodec;
+        VideoInfo_Width = arg.videoWidth;
+        VideoInfo_Height = arg.videoHeight;
+        VideoInfo_Scan = arg.videoScan;
+        VideoInfo_FieldRate = arg.videoFieldRate;
+        VideoInfo_ColorDepth = arg.videoColorDepth;
+        VideoInfo_ColorFormat = arg.videoColorFormat;
+        VideoInfo_AspectRatio = arg.videoAspectRatio;
+        VideoInfo_Sampling = arg.videoSampling;
+        VideoInfo_QuantRange = arg.videoQuantRange;
+        VideoInfo_SatRage = arg.videoSatRage;
+        VideoInfo_FrameStruct = arg.videoFrameStruct;
+    }
+    //Audio info.
+    if(HaveAudioInfo)
+    {
+        AudioInfo_Codec = arg.audioCodec;
+        AudioInfo_NumChannels = arg.audioNumChannels;
+        AudioInfo_SampleRate = arg.audioSampleRate;
+        AudioInfo_BitCount = arg.audioBitCount;
+    }
+    //HDMI info.
+    if(HaveHdmiInfo)
+    {
+        HdmiInfo_Mode = arg.hdmiMode;
+        HdmiInfo_Vic  = arg.hdmiVic;
+        HdmiInfo_Scramble = arg.hdmiScramble;
+        HdmiInfo_ClockRatio = arg.hdmiClockRatio;
+        HdmiInfo_Hdcp = arg.hdmiHdcp;
+        HdmiInfo_RepeatCount = arg.hdmiRepeatCount;
+        HdmiInfo_ItContent = arg.hdmiItContent;
+        HdmiInfo_TimingModeLine = arg.hdmiTimingModeLine;
+    }
+    if(HaveSdiInfo)
+    {
+        //SDI info.
+        SdiInfo_LinkType = arg.sdiLinkType;
+        SdiInfo_LinkSpeed = arg.sdiLinkSpeed;
+        SdiInfo_StreamType = arg.sdiStreamType;
+        SdiInfo_LevelB = arg.sdiLevelB;
+        SdiInfo_Interlaced = arg.sdiInterlaced;
+        SdiInfo_Assignment = arg.sdiAssignment;
+        SdiInfoSt352PayloadId = arg.sdiSt352PayloadId;
+        SdiInfo_HTotal = arg.sdiHTotal;
+        SdiInfo_VTotal = arg.sdiVTotal;
+        SdiInfo_HActive = arg.sdiHActive;
+        SdiInfo_VActive = arg.sdiVActive;
+    }
+    if(HaveInfoFrames)
+    {
+        //Info frames.
+        InfoFrame_Count = arg.infoFrameCount;
+        if(InfoFrame_Count>5)  //Max 5 info frames.
+        {
+            InfoFrame_Count = 5;
+        }
+        for (i = 1 to InfoFrame_Count)
+        {
+            InfoFrame_Id[i] = arg.infoFrameId[i-1];
+            InfoFrame_Type[i] = arg.infoFrameType[i-1];
+            InfoFrame_Version[i] = arg.infoFrameVersion[i-1];
+            InfoFrame_Checksum[i] = arg.infoFrameChecksum[i-1];
+            InfoFrame_Data[i] = arg.infoFrameData[i-1];
+        }
+    }
+}
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH GetSignalInfo
+{
+    Status = magewell.sGetSignalInfo();
+}
+
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp;
+    RegisterDelegate ( magewell,  SignalInfoCallBack, SignalInfoFunc );
+}
+

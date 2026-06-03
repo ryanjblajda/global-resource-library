@@ -1,0 +1,126 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME ""
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#DEFINE_CONSTANT c_Max 255
+#DEFINE_CONSTANT c_Debug 1
+#DEFINE_CONSTANT c_AllowedBlanks 5
+#DEFINE_CONSTANT c_CarriageReturn 0x000D
+
+#HELP_BEGIN
+
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Poll, Lights_Up, Lights_Down;
+ANALOG_INPUT  Lighting_Area, Lighting_Zone, Lighting_Level, Fade_Time, Lighting_Increment;
+ANALOG_OUTPUT Lighting_Level_Fb;
+BUFFER_INPUT  From_Device[2048];
+
+/*** OUTPUTS ***/
+
+STRING_OUTPUT To_Device;
+
+/*** GLOBAL VARIABLES ***/
+string gsZoneResponse[c_Max];
+
+/*** FUNCTIONS ***/
+
+/** EVENT HANDLERS **/
+PUSH Poll
+{
+	MakeString(To_Device, "@RC%03u:A%03u\n", Lighting_Zone, Lighting_Area);
+}
+
+PUSH Lights_Up
+{
+	integer tempLevel;
+
+	if((Lighting_Level_Fb + 10) <= 100)
+	{
+		tempLevel = Lighting_Level_Fb + Lighting_Increment;
+	}
+	else
+	{
+    	tempLevel = 100;
+	}
+
+	MakeString(To_Device, "@SC%03u:A%03u:L%02u:F%03u\n", Lighting_Zone, Lighting_Area, tempLevel, Fade_Time);
+	Lighting_Level_Fb = tempLevel;
+}
+
+PUSH Lights_Down
+{
+	integer tempLevel;
+
+	if((Lighting_Level_Fb - 10) >= 0 )
+	{
+		tempLevel = Lighting_Level_Fb - Lighting_Increment;
+	}
+	else
+	{
+    	tempLevel = 0;
+	}
+
+	MakeString(To_Device, "@SC%03u:A%03u:L%02u:F%03u\n", Lighting_Zone, Lighting_Area, tempLevel, Fade_Time);
+	Lighting_Level_Fb = tempLevel;
+}
+
+RELEASE Lights_Up, Lights_Down
+{
+	MakeString(To_Device, "@RC%03u:A%03u\n", Lighting_Zone, Lighting_Area);
+}
+
+CHANGE Lighting_Zone, Lighting_Area
+{
+	MakeString(gsZoneResponse, "@RL%03u:A%03u", Lighting_Zone, Lighting_Area);
+}
+
+CHANGE Lighting_Level
+{
+	MakeString(To_Device, "@SC%03u:A%03u:L%02u:F%03u\n", Lighting_Zone, Lighting_Area, Lighting_Level, Fade_Time);
+}
+
+CHANGE From_Device
+{
+	string sGathered[c_Max], zoneLevel[10];
+	integer responsePos, zoneLevelPos, zoneLength, endPos;
+      
+	sGathered = gather("\r", From_Device);
+	responsePos = find(gsZoneResponse, sGathered);
+    //"@RL%03u:A%03u:L%02u\n" response format
+
+	if(responsePos <> 0)
+	{
+		zoneLevelPos = find(":L", sGathered);
+		zoneLevelPos = zoneLevelPos + 1;
+		zoneLength = len(sGathered) - zoneLevelPos;
+		zoneLevel = right(sGathered, zoneLength);
+
+        print("gathered = %s", sGathered);
+		print("zoneLevelPos = %u zoneLength = %u, zoneLevel = %s", zoneLevelPos, zoneLength, zoneLevel);
+
+		endPos = find("\r", zoneLevel);
+
+		if(endPos <> 0)
+		{
+			zoneLevel = left(zoneLevel, (endPos - 1));
+		}
+
+        print("Removed \\n @ pos %u\n", endPos);
+
+		if(len(zoneLevel) <= 3)
+		{				
+			Lighting_Level_Fb = atoi(zoneLevel);
+		}	
+	}
+}

@@ -1,0 +1,74 @@
+#define_constant MAX_OUTPUTS  200
+
+digital_input LIGHT_ON_TX[MAX_OUTPUTS];
+digital_input LIGHT_ON_RX[MAX_OUTPUTS];
+
+digital_input LIGHT_OFF_TX[MAX_OUTPUTS];
+digital_input LIGHT_OFF_RX[MAX_OUTPUTS];
+
+digital_input LIGHT_FLASH_TX[MAX_OUTPUTS];
+digital_input LIGHT_FLASH_RX[MAX_OUTPUTS];  
+
+string_output CONFIGURE_RX_CMD;
+string_output CONFIGURE_TX_CMD;
+         
+       
+push LIGHT_ON_TX
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device light 0 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+push LIGHT_ON_RX
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device light 0 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+
+push LIGHT_OFF_TX
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device light 2 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+         
+push LIGHT_OFF_RX
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device light 2 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+push LIGHT_FLASH_TX
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device light 1 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+         
+push LIGHT_FLASH_RX
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device light 1 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}

@@ -1,0 +1,129 @@
+#CATEGORY "46" "Visual Commands" // Custom
+#INCLUDEPATH "C:\Visual Commands\Visual Commands\VC-RDM\Crestron - Simpl#\Current\bin\Release"
+#USER_SIMPLSHARP_LIBRARY "VCRDMLib"
+
+
+DIGITAL_INPUT _SKIP_, _SKIP_, Track_IP_Table, _SKIP_, Enable_Backup, Run_Backup, _SKIP_, Enable_ProgramLoad;
+STRING_INPUT _SKIP_, LogMessage$[1000];
+ANALOG_INPUT Cpu_Load, Cpu_Load_Max, _SKIP_, Server_Mode_Port;
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, Room_Initialized_Fb;
+
+INTEGER_PARAMETER Slot, Mode;
+
+#BEGIN_PARAMETER_PROPERTIES Slot
+   	propDefaultUnit = unitDecimal;
+   	propBounds = 1d ,50d;
+   	propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Mode
+   	propDefaultUnit = unitDecimal;
+   	propDefaultValue = 1d;
+   	propList={ 1d,"Client" },{ 2d,"Server" };
+#END_PARAMETER_PROPERTIES
+
+
+#HELP_BEGIN
+
+'Slot' must be unique within all programs in this processor, and a number between 1 and 50.
+
+'Enable_Backup' and 'Enable_ProgramLoad' need only be set for 1 room. Others will be ignored.
+
+'Mode' Server mode will listen for a connectino from server and client mode will initiate the connection to the server
+In client mode, an extra settings file (vcRDM_Settings.xml) is required to be dropeed in the NVRAM folder.
+
+'Server_Mode_Port' will set the module to listen on the provided port for connection and will disable client mode! 0 disables server mode.
+The port must not be in use ny any other service, including another RDM Room.
+
+#HELP_END 
+
+
+
+RDMClass Room;
+
+
+CHANGE LogMessage$
+{
+ 	if(Room.Initialized)
+	 	Room.AddToLog("Control System", LogMessage$);
+}
+
+CHANGE Track_IP_Table
+{
+ 	Room.EnableIPTable = Track_IP_Table;
+}
+
+THREADSAFE CHANGE Cpu_Load
+{
+  	Room.Cpu = Cpu_Load / 655;
+}
+THREADSAFE CHANGE Cpu_Load_Max
+{
+ 	Room.CpuMax = Cpu_Load_Max / 655;
+}
+
+
+PUSH Run_Backup
+{
+ 	if(Room_Initialized_Fb = 1)
+ 	{
+ 		Room.Backup.StartBackup();
+ 	}
+}
+
+PUSH Enable_Backup
+{
+ 	if(Room_Initialized_Fb = 1)
+ 	{
+ 		Room.Backup.Enable = 1;
+ 	}
+}
+RELEASE Enable_Backup
+{
+    if(Room_Initialized_Fb = 1)
+ 	{
+ 		Room.Backup.Enable = 0;
+ 	}
+}
+
+PUSH Enable_ProgramLoad
+{
+ 	if(Room_Initialized_Fb = 1)
+ 	{
+ 		Room.ProgramLoad.Enable = 1;
+ 	}
+}
+RELEASE Enable_ProgramLoad
+{
+    if(Room_Initialized_Fb = 1)
+ 	{
+ 		Room.ProgramLoad.Enable = 0;
+ 	}
+}
+
+EventHandler RdmInitRoomEventHandler(RDMEventArgs args)
+{
+  	Room.Initialize(Slot);
+  	Room.InitializeBackup("\\NVRAM", Enable_Backup);
+  	Room.InitializeProgramLoad(Enable_ProgramLoad);
+  	Room.EnableIPTable = Track_IP_Table;
+  	Room.BackupCapable = 1;
+  	Room_Initialized_Fb = Room.Initialized;
+  	if(Mode = 2 && Server_Mode_Port > 10 && Server_Mode_Port < 65535)
+  	{
+  		Room.StartServerMode(Server_Mode_Port);
+  	}
+}
+
+function main()
+{
+	Room_Initialized_Fb = 0;
+	waitforinitializationcomplete();
+	delay(500);
+	Room.EnableIPTable = Track_IP_Table;
+	Room.BackupCapable = 1;
+	Room.ModuleVersion = "2.6.0";
+	RegisterEvent(MainClass, RdmInitRoomEvent, RdmInitRoomEventHandler);
+}
+

@@ -1,0 +1,250 @@
+/*******************************************************************************************
+  INFORMATION
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: AVPro Edge MXNet DestinationRouter v2.6
+Programmer:  VNG
+Version:     2.5
+*/
+
+/*******************************************************************************************
+  COMPILER DIRECTIVES
+*******************************************************************************************/
+
+#SYMBOL_NAME "AVPro Edge MXNet DestinationRouter v2.6"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+/*******************************************************************************************
+  CONSTANTS
+*******************************************************************************************/
+
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT MAX_STRING 100
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE 0
+
+#HELP_BEGIN
+To be used with AVPro Edge MXNet DestinationRouter v2.6.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  INCLUDE LIBRARIES
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "AVProEdgeMXNetLib2"
+
+/*******************************************************************************************
+  MODULE I/O
+*******************************************************************************************/
+
+// --------------------- INPUTS
+
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_,
+			  TakeRoute,
+			  EnableVideo,
+			  EnableAudio,
+			  EnableUsb,
+			  EnableInfrared,
+			  EnableSerial;
+				
+ANALOG_INPUT  SourceRoute;
+
+// --------------------- OUTPUTS
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_,
+			   IsInitialized,
+			   IsOnline;
+				
+ANALOG_OUTPUT  SourceVideoFb,
+			   SourceAudioFb,
+			   SourceUsbFb,
+			   SourceInfraredFb,
+			   SourceSerialFb;
+				
+/*******************************************************************************************
+  PARAMETERS
+*******************************************************************************************/
+
+INTEGER_PARAMETER CommandProcessorID;
+INTEGER_PARAMETER MatrixDestinationIndex;
+STRING_PARAMETER MultiRouteGroupIdList[MAX_STRING];
+
+/*******************************************************************************************
+  PARAMETER PROPERTIES
+*******************************************************************************************/
+
+/*******************************************************************************************
+  GLOBAL VARIABLES
+*******************************************************************************************/
+
+// --------------------- SIMPL# Classes
+
+DestinationRouterComponent router;   
+
+/*******************************************************************************************
+  FUNCTIONS
+*******************************************************************************************/
+
+// --------------------- RESET
+      
+FUNCTION ResetOutputs()
+{
+  // -- DIGITALS
+
+  IsInitialized = FALSE;
+  IsOnline = FALSE;
+
+  // -- ANALOGS
+
+  SourceVideoFb = NULL_VALUE;
+  SourceAudioFb = NULL_VALUE;
+  SourceUsbFb = NULL_VALUE;
+  SourceInfraredFb = NULL_VALUE;
+  SourceSerialFb = NULL_VALUE;
+}
+
+// --------------------- SIMPL# EVENT HANDLERS
+
+EVENTHANDLER OnInitialize (DestinationRouterComponent sender, DigEventArgs args)
+{
+  IsInitialized = args.Payload;
+}
+
+EventHandler OnOnline ( DestinationRouterComponent sender, DigEventArgs args )
+{
+	IsOnline = args.Payload;
+}
+
+EVENTHANDLER OnSourceVideo (DestinationRouterComponent sender, AnaEventArgs args)
+{
+  SourceVideoFb = args.Payload;
+}
+
+EVENTHANDLER OnSourceAudio (DestinationRouterComponent sender, AnaEventArgs args)
+{
+  SourceAudioFb = args.Payload;
+}
+
+EVENTHANDLER OnSourceUsb (DestinationRouterComponent sender, AnaEventArgs args)
+{
+  SourceUsbFb = args.Payload;
+}
+
+EVENTHANDLER OnSourceInfrared (DestinationRouterComponent sender, AnaEventArgs args)
+{
+  SourceInfraredFb = args.Payload;
+}
+
+EVENTHANDLER OnSourceSerial (DestinationRouterComponent sender, AnaEventArgs args)
+{
+  SourceSerialFb = args.Payload;
+}
+
+
+/*******************************************************************************************
+  EVENT HANDLERS
+*******************************************************************************************/
+
+// --------------------- ROUTING  
+
+THREADSAFE CHANGE SourceRoute
+{
+   router.SetRoute(SourceRoute);
+}
+             
+THREADSAFE PUSH TakeRoute
+{
+  router.TakeRoute();
+}
+
+// --------------------- ENABLE
+
+THREADSAFE PUSH EnableVideo
+{
+  router.SetEnableVideo(TRUE);
+}
+
+THREADSAFE RELEASE EnableVideo
+{
+  router.SetEnableVideo(FALSE);
+}
+
+THREADSAFE PUSH EnableAudio
+{
+  router.SetEnableAudio(TRUE);
+}
+
+THREADSAFE RELEASE EnableAudio
+{
+  router.SetEnableAudio(FALSE);
+}
+
+THREADSAFE PUSH EnableUsb
+{
+  router.SetEnableUsb(TRUE);
+}
+
+THREADSAFE RELEASE EnableUsb
+{
+  router.SetEnableUsb(FALSE);
+}
+
+THREADSAFE PUSH EnableInfrared
+{
+  router.SetEnableInfrared(TRUE);
+}
+
+THREADSAFE RELEASE EnableInfrared
+{
+  router.SetEnableInfrared(FALSE);
+}
+
+THREADSAFE PUSH EnableSerial
+{
+  router.SetEnableSerial(TRUE);
+}
+
+THREADSAFE RELEASE EnableSerial
+{
+  router.SetEnableSerial(FALSE);
+}
+
+/*******************************************************************************************
+  MAIN
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  WAITFORINITIALIZATIONCOMPLETE();
+	
+  ResetOutputs();
+
+  REGISTEREVENT(router, OnInitialize, OnInitialize);
+  REGISTEREVENT(router, OnOnline, OnOnline);
+  REGISTEREVENT(router, OnSourceVideo, OnSourceVideo);
+  REGISTEREVENT(router, OnSourceAudio, OnSourceAudio);
+  REGISTEREVENT(router, OnSourceUsb, OnSourceUsb);
+  REGISTEREVENT(router, OnSourceInfrared, OnSourceInfrared);
+  REGISTEREVENT(router, OnSourceSerial, OnSourceSerial);
+
+  router.Configure(CommandProcessorID, MatrixDestinationIndex, MultiRouteGroupIdList);
+}

@@ -1,0 +1,160 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  Panasonic AW-HE50,120 Ini Camera Data Tx
+*******************************************************************************************/
+
+#SYMBOL_NAME "brightness_set"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "10" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+
+#default_volatile
+#enable_stack_checking
+
+// INPUT
+
+//buffer_input 	cam_rx$[255];			//cam_data_chk dispose
+
+DIGITAL_INPUT	IP;
+DIGITAL_INPUT	RS422;
+
+DIGITAL_INPUT	Bright_up_btn,Bright_down_btn;
+DIGITAL_INPUT	Bright_Auto_btn;
+DIGITAL_INPUT	Bright_Auto_data;
+
+//		(1365d -> 4095d)(273*10)		555h -> FFFh 
+ANALOG_INPUT 	Bright_Data;			//
+	
+// OUTPUT
+
+STRING_OUTPUT	cmd$;
+ANALOG_OUTPUT 	Bright_Data_OUT;			//
+STRING_OUTPUT 	debug;			//
+
+// GLOBAL VARIABLES //////////
+
+integer btn_release; 
+integer temp;
+string temp1$[255];
+
+
+//*******************************//
+// FUNCTIONS /////////////////
+Function data_chk()
+{
+
+	Bright_Data_OUT = temp;
+	if(temp >= 4095)	 //(MAX FFFh(4095d))
+    {
+		Bright_Data_OUT = 4095;
+		temp1$ = "FFF";
+	}
+	else if(temp <= 1365)	 //(MAX 555h(4095d))
+    {
+		Bright_Data_OUT = 1365;
+		temp1$ = "555";
+	}
+	else
+	{
+		temp1$ = ITOHEX(temp);
+	}
+	debug = temp1$;
+
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#AXI%03s&res=1 HTTP/1.0\n\n",temp1$);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#AXI%03s\x0d",temp1$);
+	}
+
+}
+
+
+push Bright_up_btn	//
+{
+    
+	if(Bright_Auto_data = 0)	//OFF 
+	{
+
+		btn_release = 1;
+		while(btn_release)
+		{
+			if(Bright_Data < 4095)
+			{
+//				temp = Bright_Data + 273;
+//				temp = Bright_Data + 91;	//(2730/30)
+				temp = Bright_Data + 500;
+				data_chk();
+			}
+			delay(50);
+		}
+	}
+}    
+push Bright_down_btn	//
+{
+    
+	if(Bright_Auto_data = 0)	//OFF 
+	{
+
+		btn_release = 1;
+		while(btn_release)
+		{
+			if(Bright_Data > 1365)
+			{
+//				temp = Bright_Data - 273;
+//				temp = Bright_Data - 91;	//(2730/30)
+				temp = Bright_Data - 500;	//
+				data_chk();
+			}
+			delay(50);
+		}
+	}
+}
+release Bright_up_btn,Bright_down_btn
+{
+	btn_release = 0;	
+}
+
+/*
+push Bright_Auto//
+{
+	cmd$="GET /cgi-bin/aw_ptz?cmd=#D31&res=1 HTTP/1.0\n\n";
+}
+release Bright_Auto
+{
+	cmd$="GET /cgi-bin/aw_ptz?cmd=#D30&res=1 HTTP/1.0\n\n";
+}
+*/
+push Bright_Auto_btn	//
+{
+
+	IF(IP)
+	{
+		if(Bright_Auto_data)		//ON -> OFF
+		{
+			cmd$="GET /cgi-bin/aw_ptz?cmd=#D30&res=1 HTTP/1.0\n\n";
+		}
+		if(Bright_Auto_data = 0)	//OFF -> ON
+		{
+			cmd$="GET /cgi-bin/aw_ptz?cmd=#D31&res=1 HTTP/1.0\n\n";
+		}
+	}
+	IF(RS422)
+	{
+		if(Bright_Auto_data)		//ON -> OFF
+		{
+			cmd$="#D30\x0d";
+		}
+		if(Bright_Auto_data = 0)	//OFF -> ON
+		{
+			cmd$="#D31\x0d";
+		}
+	}
+}

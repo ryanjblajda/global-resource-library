@@ -1,0 +1,116 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "JSON Simple Feature Enabler [Digital Data]"
+#HINT "allows digital signals to be set high or low based on a json config file"
+#CATEGORY "46" "RBLAJDA-C#" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciMaxButtons 32
+#DEFINE_CONSTANT ciMaxStringLength 256
+
+#HELP_BEGIN
+no skipping outputs that will break things
+
+match the text fields you want, exactly in SIMPL to allow items to be enabled or disabled
+
+{
+	"items":
+	[
+		{"name":"mics", 	"enable":false},
+		{"name":"combine",  "enable":false},
+		{"name":"laptop", 	"enable":true},
+		{"name":"cable tv", "enable":false},
+		{"name":"roku", 	"enable":true},
+		{"name":"appspace",  "enable":false},
+		{"name":"youtubetv", "enable":false}
+	]
+}
+
+#HELP_END
+
+/**LIBRARIES**/
+//#USER_SIMPLSHARP_LIBRARY "UserNotifications"
+//#INCLUDEPATH "D:\WORK\CCS\OneDrive - CCS Presentation Systems\Crestron Modules"
+#USER_SIMPLSHARP_LIBRARY "SimpleEnable"
+
+/**INPUTS**/
+DIGITAL_INPUT 	_SKIP_, Refresh;
+
+/**OUTPUTS**/
+#OUTPUT_SHIFT  2
+DIGITAL_OUTPUT Enabled[ciMaxButtons];
+
+/**PARAMETERS**/
+STRING_PARAMETER FilePath[ciMaxStringLength];
+STRING_PARAMETER _SKIP_, Item_[ciMaxStringLength][ciMaxButtons];
+
+/**GLOBAL VARIABLES**/
+Enable thisReader;
+
+/**FUNCTIONS**/
+FUNCTION Main()
+{
+	integer i, outputs;
+
+	waitForInitializationComplete();
+	RegisterEvent(thisReader, UpdateItems, OnUpdateItems);
+	
+
+	for(i = ciMaxButtons to 1 step -1)
+	{
+		if(Item_[i] <> "")
+		{
+			
+			thisReader.AddItem(i, Item_[i]);
+		}
+
+		if(isSignalDefined(Enabled[i]) <> ON) outputs = i;
+	}
+                                        
+    //print("%d", outputs);
+	
+	thisReader.DefinedOutputs = outputs;
+	thisReader.FilePath = FilePath;
+}
+
+/**EVENTS**/
+EVENTHANDLER OnUpdateItems(Enable sender, UpdateItemsArgs args)
+{
+	integer i;
+	SetArray(Enabled, 0);
+
+	if(args.EnableStatusCount <> 0)
+	{
+		for(i = 1 to args.EnableStatusCount - 1)
+		{
+			//print("%d %d", i, args.EnableStatus[i]);
+			Enabled[i] = args.EnableStatus[i];
+		}
+	}
+}
+
+PUSH Refresh
+{
+	thisReader.Refresh(thisReader.FilePath);
+}

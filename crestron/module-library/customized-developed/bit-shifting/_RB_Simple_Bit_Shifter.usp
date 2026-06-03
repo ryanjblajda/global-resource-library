@@ -1,0 +1,48 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Simple Bit Shifter"
+#HINT "Combines Multiple Bytes To Make One Value"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#DEFINE_CONSTANT DEBUG 1
+
+/* INPUT */
+ANALOG_INPUT Byte_1, Byte_2;
+DIGITAL_INPUT Complete;
+/* OUTPUTS */
+ANALOG_OUTPUT Result;
+STRING_OUTPUT Result_String;
+
+INTEGER_PARAMETER _SKIP_, _SKIP_, _SKIP_, Bits_To_Shift;
+
+/* FUNCTIONS */
+
+/* GLOBAL VARIABLES */
+
+/* EVENT HANDLERS */
+PUSH Complete
+{
+	INTEGER Byte_2_Shifted, Byte_3_Shifted;
+
+	Byte_2_Shifted = Byte_2 << Bits_To_Shift;
+
+	Result = Byte_1 + Byte_2_Shifted;
+	Result_String = itoa(Result);
+	#IF_DEFINED DEBUG
+		print("Result: %d, Byte 1: %d, Byte 2: %d", Result, Byte_1, Byte_2_Shifted);
+	#ENDIF
+}

@@ -1,0 +1,333 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Sony XBR-84X900 v1.0 Processor"
+// #HINT ""
+#DEFINE_CONSTANT ciReady	1
+#DEFINE_CONSTANT ciPoll		2
+#DEFINE_CONSTANT ciCommand	3
+
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+// #ENABLE_TRACE
+#ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+To be used with the Sony XBR-84X900 v1.0 module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Send_String, From_Device_Push, Command_In_Push;
+DIGITAL_INPUT Air, Cable, KP[14];// ANALOG_INPUT 
+STRING_INPUT Command_In[20], From_Device[20]; 
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT Sequence_Active; 
+ANALOG_OUTPUT Tuner_Band_Value; 
+STRING_OUTPUT To_Device, Status_String, Number_Text; 
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER a, b, c, d, iFunction, iData, iState, iCommandQueue[6], iFunctionActive, iCommandQueueFound, iCommandQueueFound2, iCurrentCommand;
+INTEGER iFeedbackFail, iLoc, iTunerBand; 
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING sCommandToSend[20], sDataRequest[6][20], sCommandTemp[20], sResponseReceived[20], sDataIn[20], sNumber[11], sChannelCommand[13], sNumberIn[10], sNumberInCurrent[10];
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+
+String_Function CalcCS(STRING sRawCommand)
+{
+	INTEGER a;
+	INTEGER iCS;
+	STRING sCS[1];
+	iCS = 0;
+	for(a = 1 to len(sRawCommand))
+	{
+		iCS = iCS + byte(sRawCommand, a);
+	}
+	sCS = chr(iCS);
+    Return(sCS);
+}
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+
+PUSH Send_String
+{
+	if(iState = ciReady)		// if steady
+ 	{
+		iCommandQueueFound = 0;		// clear command queue flag
+		for(a = 1 to 7)
+		{
+			if(iCommandQueue[a - 1] = 1)	// if a command queue is present
+			{
+				iCommandQueueFound = 1;		// set command queue flag
+				makestring(sCommandTemp, "\x8C\x00%s%s%s", chr(a - 1), chr(len(sDataRequest[a - 1]) + 1), sDataRequest[a - 1]);		// generate command
+				makestring(sCommandTemp, "%s%s", sCommandTemp, CalcCS(sCommandTemp));		// complete command with checksum
+				To_Device = sCommandTemp;		// send command to device
+				iFunctionActive = a - 1;		// set active function number to function of command
+				iState = ciCommand;		// command sent last
+				break;
+			}
+		}
+		if(iCommandQueueFound = 0)		// if no command queue found
+			Sequence_Active = 0;
+	}
+	else if(iState = ciCommand)		// if command was last sent
+	{
+		makestring(sCommandTemp, "\x83\x00%s\xFF\xFF", chr(iFunctionActive));		// generate poll command for active function number. 
+		To_Device = sCommandTemp + CalcCS(sCommandTemp);		// complete command with checksum
+		iState = ciPoll;		// poll sent last
+	}		
+	wait(100, NoResponse)	// set module to steady if no response received after command sent
+	{
+		Sequence_Active = 0;
+		iFeedbackFail = 0;
+		iState = ciReady;
+	}
+}
+
+
+PUSH Command_In_Push
+{
+	sCommandToSend = Command_In;
+    if(left(sCommandToSend, 1) = "\x8C")
+	{
+		iFunction = byte(sCommandToSend, 3);	// function of command in
+		iData = byte(sCommandToSend, 4);	// data length (including checksum)
+		sDataRequest[iFunction] = mid(sCommandToSend, 5, iData - 1);	// data associated with requested function
+		iCommandQueue[iFunction] = 1;
+		if(Sequence_Active = 0)
+		{
+			Sequence_Active = 1;
+		}
+	}
+	else if(left(sCommandToSend, 1) = "\x83" && Sequence_Active = 0)
+	{
+		iFunctionActive = byte(sCommandToSend, 3); // function of command in
+		iState = ciPoll;		
+		wait(100, NoResponse2)
+		{
+			Sequence_Active = 0;
+			iState = ciReady;
+		}
+	}	
+}
+
+
+PUSH From_Device_Push
+{
+	cancelwait(NoResponse);		// cancel 1s timeout
+	cancelwait(NoResponse2);		// cancel 1s timeout
+	sResponseReceived = From_Device;
+	if(iState = ciPoll && sResponseReceived = "\x70\x03\x73")		// if poll response signifies syntax error or function can't be performed
+	{
+		iCommandQueue[iFunctionActive] = 0;		// clear current function queue marker
+ 		iFeedbackFail = 0;
+		iState = ciReady;
+    }
+	else if(iState = ciPoll && len(sResponseReceived) > 3)		// if poll response is valid and contains data
+	{
+		sDataIn = mid(sResponseReceived, 4, byte(sResponseReceived, 3) - 1);		// extract data received
+		makestring(Status_String, "%s%s%s", chr(iFunctionActive), chr(len(sDataIn) + 1), sDataIn);
+		if(sDataIn = sDataRequest[iFunctionActive])	// if poll response data matches data sent in command - command successfull
+		{
+			iCommandQueue[iFunctionActive] = 0;	// clear current function queue marker
+			iFeedbackFail = 0;
+		}
+		else										// if poll response data does not match data sent in command - command failed
+		{
+			iFeedbackFail = iFeedbackFail + 1;		// increase fail counter by 1
+			if(iFeedbackFail > 2)					// if command failed 3 times
+			{
+				iCommandQueue[iFunctionActive] = 0;		// clear current function queue marker
+				iFeedbackFail = 0;
+			}
+		}
+		if(iFunctionActive = 0x04) // if poll was for channel number
+		{
+			sDataIn = right(sDataIn, len(sDataIn) - 1);		// knock off first byte
+			Tuner_Band_Value = getc(sDataIn);		// get band value (0x01 = terrestrial, 0x03 = CATV)
+			clearbuffer(sNumberIn);
+			for(d = 1 to len(sDataIn))		// generate channel number text
+			{
+				if(byte(sDataIn, d) = 0x2C) // "," represents a dot
+					makestring(sNumberIn, "%s.", sNumberIn);
+				else if(byte(sDataIn, d) <> 0xFF)		// 0xFF are filler bytes
+					makestring(sNumberIn, "%s%s", sNumberIn, chr(byte(sDataIn, d) + 48));
+			}
+			makestring(Number_Text, "%s", sNumberIn);		// send channel number text out
+			sNumberInCurrent = sNumberIn;	// set last number text for future comparison
+			clearbuffer(sNumber);  // clear keypad generated channel number
+		}
+		iState = ciReady;		// set module to steady
+	}
+	iCommandQueueFound2 = 0;	
+	for(b = 1 to 7)		// check for any queued commands
+	{
+		if(iCommandQueue[b - 1] = 1)	// if a command queue is present
+		{
+			iCommandQueueFound2 = 1;
+		} 
+	}
+	if(iCommandQueueFound2 = 0)		// if command queue is empty set module to steady
+	{
+		Sequence_Active = 0;
+		iFeedbackFail = 0;
+		iState = ciReady;
+	}
+}
+
+
+PUSH KP		// used to send channel number command
+{
+	switch(getlastmodifiedarrayindex())
+	{
+		case(1):
+			makestring(sNumber, "%s0", sNumber);
+		case(2):
+			makestring(sNumber, "%s1", sNumber);
+		case(3):
+			makestring(sNumber, "%s2", sNumber);
+		case(4):
+			makestring(sNumber, "%s3", sNumber);
+		case(5):
+			makestring(sNumber, "%s4", sNumber);
+		case(6):
+			makestring(sNumber, "%s5", sNumber);
+		case(7):
+			makestring(sNumber, "%s6", sNumber);
+		case(8):
+			makestring(sNumber, "%s7", sNumber);
+		case(9):
+			makestring(sNumber, "%s8", sNumber);
+		case(10):
+			makestring(sNumber, "%s9", sNumber);
+		case(11):		// dot
+		{
+			iLoc = find(".", sNumber);
+			if(iLoc = 0 && len(sNumber) > 0)	// if a dot doesn't already exist and the number field has at least one number in it
+			{
+				makestring(sNumber, "%s.", sNumber);
+			}
+		}
+		case(12):		// clear
+		{
+			clearbuffer(sNumber);
+			clearbuffer(sNumberInCurrent);
+		}
+		case(13):		//
+		{
+			clearbuffer(sChannelCommand);
+			for(c = 1 to 10)
+			{
+				if(byte(sNumber, c) = 0x2E) // ","
+					makestring(sChannelCommand, "%s\x2C", sChannelCommand);
+				else if(byte(sNumber, c) = 65535)
+					makestring(sChannelCommand, "%s\xFF", sChannelCommand);
+				else if(byte(sNumber, c) <> 0x2A) // "*"
+					makestring(sChannelCommand, "%s%s", sChannelCommand, chr(byte(sNumber, c) - 48));
+			}
+			if(Air)
+				makestring(sChannelCommand, "\x01\x01%s", sChannelCommand);
+			if(Cable)
+				makestring(sChannelCommand, "\x01\x03%s", sChannelCommand);
+
+			iFunction = 0x04;	// Program select function
+			sDataRequest[iFunction] = sChannelCommand;	// data associated with requested function
+			iCommandQueue[iFunction] = 1;
+			if(Sequence_Active = 0)
+			{
+				Sequence_Active = 1;
+			}
+		}
+		case(14):		// send channel command
+		{
+			if(len(sNumber) > 0)		// if number string exists
+			{
+				if(Air)
+					makestring(sChannelCommand, "\x01\x01\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
+				if(Cable)
+					makestring(sChannelCommand, "\x01\x03\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
+       	
+				iFunction = 0x04;	// Program select function
+				sDataRequest[iFunction] = sChannelCommand;	// data associated with requested function
+				iCommandQueue[iFunction] = 1;		// set queue flag for channel function (0x04)
+				if(Sequence_Active = 0)
+				{
+					Sequence_Active = 1;
+				}	
+			}
+		}
+	}
+	if(len(sNumber) > 0)		// if number string exists
+		makestring(Number_Text, "%s*", sNumber);		// send to text field 
+	else						// if not
+		makestring(Number_Text, "\x20");		// clear text field
+}		
+
+					 
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+
+Function Main()		// set module to steady 
+{
+	iState = ciReady;
+	Sequence_Active = 0;
+	iFeedbackFail = 0;
+}
+

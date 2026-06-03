@@ -1,0 +1,179 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Video Switcher Advanced Processor with Number Change V3"
+#HINT ""
+
+#CATEGORY "46" "RBLAJDA_PROCESSOR" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+//#DEFINE_CONSTANT DEBUG  0
+#DEFINE_CONSTANT c_Max 32
+#DEFINE_CONSTANT c_MaxChar 255
+
+//INPUTS
+STRING_INPUT  No_Source_Message[c_MaxChar];
+ANALOG_INPUT  Selected_Source;
+
+DIGITAL_INPUT Send_To_Output[c_Max];
+ANALOG_INPUT  _SKIP_;
+ANALOG_INPUT  VSW_Output_Fb[c_Max];
+STRING_INPUT  _SKIP_;
+STRING_INPUT  Source_Name$[c_Max][c_MaxChar];
+STRING_INPUT  Source_Help$[c_Max][c_MaxChar];
+
+//OUTPUTS
+ANALOG_OUTPUT Selected_Source_Corrected;
+STRING_OUTPUT Selected_Source_Name, Selected_Source_HelpText;
+
+ANALOG_OUTPUT Available_Sources;
+ANALOG_OUTPUT Output_To_Source[c_Max];
+ANALOG_OUTPUT Output_Fb_Corrected[c_Max];
+STRING_OUTPUT Output_Active_Source$[c_Max];
+
+//PARAMETERS
+
+INTEGER_PARAMETER changeNumberTo[c_Max];
+
+//VARIABLES
+
+INTEGER feedbackArray[c_Max];
+STRING  gSource_Names[c_Max][c_MaxChar], gSource_Help[c_Max][c_MaxChar];
+  
+//FUNCTIONS
+
+integer_function checkString(string _string) {
+	integer functionResult;
+	functionResult = 0;
+	if(_string <> "") {
+		functionResult = 1;
+	}
+	return(functionResult);
+}
+    
+integer_function countSources()
+{
+	integer i;
+	integer count;
+	integer result;
+
+	for(i = 1 to c_Max)//count all non-empty strings to build source list.
+	{
+		if(isSignalDefined(Source_Name$[i])) {
+
+			result = checkString(gSource_Names[i]);
+
+			if(result = 1) {
+
+				count = count + result;
+
+				//print("%s Not Empty, Count is %d", Source_Name$[i], count);
+			}
+		}
+		processLogic();
+	}
+
+	return(count);
+}
+
+
+//EVENT HANDLERS
+CHANGE Selected_Source
+{
+	integer i;
+	Selected_Source_Corrected = changeNumberTo[Selected_Source];
+	Selected_Source_Name = gSource_Names[Selected_Source];
+	Selected_Source_HelpText = gSource_Help[Selected_Source];
+
+	for(i = 1 to c_Max)
+	{
+		if(Send_To_Output[i] = ON)
+		{
+			Output_To_Source[i] = changeNumberTo[Selected_Source];
+		}
+	}
+
+}
+
+CHANGE Send_To_Output 
+{
+	integer _changed;
+	_changed = getLastModifiedArrayIndex();
+	//if the selected source is not zero, pass the change to value
+	if(Selected_Source <> 0){
+		Output_To_Source[_changed]      = changeNumberTo[Selected_Source];
+	}
+
+	//if selected source is zero, pass zero to the output
+	if(Selected_Source = 0)
+	{
+		Output_To_Source[_changed]   = Selected_Source;
+	}
+}
+
+CHANGE VSW_Output_Fb
+{
+	integer _changed;
+	_changed = getLastModifiedArrayIndex();
+	//if value is not zero, pass the change to value to correct the feedback
+	if(VSW_Output_Fb[_changed] <> 0)
+	{
+		Output_Fb_Corrected[_changed]   = feedbackArray[VSW_Output_FB[_changed]];
+		Output_Active_Source$[_changed] = gSource_Names[Output_Fb_Corrected[_changed]];
+		//print("%u - Output_Fb_Corrected[_changed]", Output_Fb_Corrected[_changed]);
+	}
+	
+	//if the value is zero, pass zero. 
+	if(VSW_Output_Fb[_changed] = 0)
+	{
+		Output_Fb_Corrected[_changed] = 0;
+		Output_Active_Source$[_changed] = gSource_Names[0]
+;
+	}
+}
+
+CHANGE No_Source_Message
+{
+	gSource_Names[0] = No_Source_Message;
+}
+
+CHANGE Source_Name$
+{
+	integer i, iChanged;                    
+	iChanged = getLastModifiedArrayIndex();
+	gSource_Names[iChanged] = Source_Name$[iChanged];
+
+	Available_Sources = countSources();
+
+	for(i = 1 to c_Max)
+	{
+		if(Output_Fb_Corrected[i] = iChanged)
+		{
+			Output_Active_Source$[i] = gSource_Names[iChanged];
+		}
+		processLogic();
+	}	
+}
+
+
+FUNCTION Main()
+{
+	integer i;
+	waitForInitializationComplete();
+	for(i = 1 to c_Max)
+	{
+		if(changeNumberTo[i] <> 0)
+		{
+			feedbackArray[changeNumberTo[i]] = i;
+		}
+	}
+
+	Available_Sources = countSources();
+}

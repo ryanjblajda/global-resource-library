@@ -1,0 +1,167 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_GetVideoConfig"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,Get_Video_Config;
+DIGITAL_INPUT _skip_,Show_Title_Input, Show_Tally_Input,Show_VuMeter_Input,Show_Center_Cross_Input,HFlip_Input,VFlip_Input,In_Auto_Color_Fmt_Input,Follow_Input_Mode_Input;
+STRING_INPUT _skip_,Cookie[256];
+
+DIGITAL_OUTPUT _skip_,Show_Title_Output, Show_Tally_Output, Show_VuMeter_Output;
+ANALOG_OUTPUT _skip_, Status;
+STRING_OUTPUT _skip_, VuMeter_Mode_Output;
+DIGITAL_OUTPUT Show_Center_Cross_Output; 
+STRING_OUTPUT Safe_Area_Mode_Output, Ident_Mode_Output, Ident_Text_Output;
+DIGITAL_OUTPUT HFlip_Output ,VFlip_Output; 
+STRING_OUTPUT Switch_Mode_Output, Deinterlace_Mode_Output;
+DIGITAL_OUTPUT In_Auto_Color_Fmt_Output;
+STRING_OUTPUT In_Color_Fmt_Output, Ar_Convert_Mode_Output, Alpha_Disp_Mode_Output;
+DIGITAL_OUTPUT Follow_Input_Mode_Output;
+
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+Callback Function GetVideoConfigFunc(VideoConfigArg arg)
+{   
+    Show_Title_Output = arg.showTitle;
+    Show_Tally_Output = arg.showTally;
+    Show_VuMeter_Output = arg.showVuMeter;
+    VuMeter_Mode_Output = arg.vuMeterMode;
+    Show_Center_Cross_Output = arg.showCenterCross;
+    Safe_Area_Mode_Output = arg.safeAreaMode;
+    Ident_Mode_Output = arg.identMode;
+    Ident_Text_Output = arg.identText;
+    HFlip_Output = arg.hFlip;
+    VFlip_Output = arg.vFlip; 
+    Switch_Mode_Output = arg.switchMode;
+    Deinterlace_Mode_Output = arg.deinterlaceMode;
+    In_Auto_Color_Fmt_Output = arg.inAutoColorFmt;
+    In_Color_Fmt_Output = arg.inColorFmt;
+    Ar_Convert_Mode_Output = arg.arConvertMode;
+    Alpha_Disp_Mode_Output = arg.alphaDispMode;
+    Follow_Input_Mode_Output = arg.followInputMode;
+}
+
+PUSH Show_Title_Input
+{
+    Show_Title_Output = !Show_Title_Output;
+}
+PUSH Show_Tally_Input
+{
+    Show_Tally_Output = !Show_Tally_Output;
+}
+PUSH Show_VuMeter_Input
+{
+    Show_VuMeter_Output = !Show_VuMeter_Output;
+}
+PUSH Show_Center_Cross_Input
+{
+    Show_Center_Cross_Output = !Show_Center_Cross_Output;
+}
+PUSH HFlip_Input
+{
+    HFlip_Output = !HFlip_Output;
+}
+
+PUSH VFlip_Input
+{
+    VFlip_Output = !VFlip_Output;
+}
+
+PUSH In_Auto_Color_Fmt_Input
+{
+    In_Auto_Color_Fmt_Output = !In_Auto_Color_Fmt_Output;
+}
+
+PUSH Follow_Input_Mode_Input
+{
+    Follow_Input_Mode_Output = !Follow_Input_Mode_Output;
+}
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH Get_Video_Config
+{
+    Status = magewell.sGetVideoConfig();
+}
+
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp; 
+
+    RegisterDelegate ( magewell,  VideoConfigCallBack, GetVideoConfigFunc );
+}
+

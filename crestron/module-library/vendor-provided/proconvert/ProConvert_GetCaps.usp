@@ -1,0 +1,119 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_GetCaps"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,Get_Caps;
+STRING_INPUT _skip_,Cookie[256];
+
+DIGITAL_OUTPUT _skip_,Has_Input, Has_Output, Has_Loop_Through, Has_Fan, Has_Input_EDID, Has_Output_EDID, Has_SDCard, Has_PTZ, Has_NDI, Has_Alpha_Disp_Mode;
+ANALOG_OUTPUT _skip_,Status, Max_Input_Width, Max_Input_Height, Max_Output_Width, Max_Output_Height;
+
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+Callback Function GetCapsFunc(CapsArg arg)
+{   
+    Max_Input_Width = arg.GetMaxInputWidth();
+    Max_Input_Height = arg.GetMaxInputHeight();
+    Max_Output_Width = arg.GetMaxOutputWidth();
+    Max_Output_Height = arg.GetMaxOutputHeight();
+    Has_Input = arg.GetHasInput();
+    Has_Output = arg.GetHasOutput();
+    Has_Loop_Through = arg.GetHasLoopThrough();
+    Has_Fan = arg.GetHasFan();
+    Has_Input_EDID = arg.GetHasInputEdid();
+    Has_Output_EDID = arg.GetHasOutputEdid();
+    Has_SDCard = arg.GetHasSdcard();
+    Has_PTZ = arg.GetHasPtz();
+    Has_NDI = arg.GetHasNdi();
+    Has_Alpha_Disp_Mode = arg.GetHasAlphaDispMode();
+}
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH Get_Caps
+{
+    Status = magewell.sGetCaps();
+}
+
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp; 
+
+    RegisterDelegate ( magewell,  GetCapsCallBack, GetCapsFunc );
+}
+

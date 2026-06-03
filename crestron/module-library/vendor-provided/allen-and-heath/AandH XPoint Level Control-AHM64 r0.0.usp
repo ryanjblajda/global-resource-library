@@ -1,0 +1,205 @@
+// SIMPL+ Module Information
+/*
+Dealer Name:	Front Side Solutions, Inc.
+Programmer:		cdr
+Comments:			A&H AHM64 XPoint Level Control
+*/
+
+// Compiler Directives
+#ENABLE_DYNAMIC
+#SYMBOL_NAME "AandH XPoint Level Control-AHM64"
+#CATEGORY "34" // Mixer
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND
+// #OUTPUT_SHIFT
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+AandH XPoint Level Control-AHM64 r0.0.usp
+
+Controls Input to Zone, and Zone to Zone levels.
+
+Parameters:
+ Input ControlType: Select Input, Zone or Group.
+ Input ControlChnl: Select valid range from control type in decimal format.
+ Output ControlType: Select Input, Zone or Group.
+ Output ControlChnl: Select valid range from control type in decimal format.
+
+Inputs:
+ Analog-
+  FdrLvl: Set the analog to the range of 0d~127d (00h~7Fh).
+  		See documentation for dBu converstion.
+  Inc: Increment Level (1) step with each pulse.
+  Dec: Decrement Level (1) step with each pulse.
+  		Note: Increment and Decrement does not ramp, must be done external to the module.
+	Poll: Pulse to poll and sync the current level. Should only be needed for initial 
+			reading of level at code start or after recalling a preset. Module will poll
+			internally for other changes.
+ Serial-
+  FmMixer: Connect to the TCP/IP symbol receive line.
+
+Outputs:
+ Analog-
+  FdrLvlFb: Feedback of the level in the range of 0d~127d (00h~7Fh). 
+	This is tracked internally by the module. It is also updated
+	when the mixer sends feedback when the control is nudged or on a poll.
+  
+ Serial-
+  ToMixer: Connect to the TCP/IP symbol Transmit line.
+
+Notes:
+ Reference the AHM64 protocol for valid Control Channels for the
+  selected control type.
+
+ For more information Reference: AHM-TCP-Protocol-V1.pdf
+
+ Tested with AHM64 Firmware V1.02 - Rev59154
+
+ Release: 2020-Dec-16 Release r0.0
+
+#HELP_END
+
+
+// DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+DIGITAL_INPUT		_SKIP_,_SKIP_,_SKIP_,_SKIP_,Inc, Dec, Poll;
+ANALOG_INPUT		FdrLvl;
+BUFFER_INPUT 		FmMixer[1024];
+ANALOG_OUTPUT		_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,FdrLvlFb;
+STRING_OUTPUT 	ToMixer;
+
+// Parameters
+INTEGER_PARAMETER	IptControlType;
+INTEGER_PARAMETER	IptControlChnl;
+INTEGER_PARAMETER	OptControlChnl;
+// Parameter Properties
+#BEGIN_PARAMETER_PROPERTIES IptControlChnl
+	propValidUnits = unitDecimal;
+	propDefaultUnit = unitDecimal;
+	propBounds = 1d , 128d;
+  propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES IptControlType
+	propValidUnits = unitDecimal;
+  propList = 	{1d ,"Input"},
+  						{2d ,"Zone"};
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES OptControlChnl
+	propValidUnits = unitDecimal;
+	propDefaultUnit = unitDecimal;
+	propBounds = 1d , 128d;
+  propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+// Global Variables
+STRING cType[2][2], cCtrlChnl[2][2], cCmd[3][20],cRxCmd[20];
+STRING cCmdSysExHdr[8], cPollCmd[20];
+
+NONVOLATILE INTEGER	nLvl;
+
+// Functions
+Function BuildFb()
+{
+	FdrLvlFb = nLvl;
+}
+
+// Event Handlers
+CHANGE FdrLvl
+{
+  CancelAllWait();
+  nLvl = FdrLvl;
+	Makestring(ToMixer, "%s%s\xF7", cCmd[1],Chr(nLvl));
+	BuildFb();
+	Wait(200)
+		Makestring(ToMixer, "%s", cPollCmd);
+}
+PUSH Inc
+{
+//  nLvl = FdrLvl;
+	Makestring(ToMixer, "%s", cCmd[2]);
+	Wait(5)
+		Makestring(ToMixer, "%s", cPollCmd);
+}
+PUSH Dec
+{
+	Makestring(ToMixer, "%s", cCmd[3]);
+	Wait(5)
+		Makestring(ToMixer, "%s", cPollCmd);
+}
+
+PUSH Poll
+{
+	Makestring(ToMixer, "%s", cPollCmd);
+}
+
+THREADSAFE CHANGE FmMixer
+{
+	INTEGER nLoc;
+	STRING cTrash[100],cTemp[1];
+
+	While (Len(FmMixer))
+	{
+		If (Find (cRxCmd,FmMixer))
+		{
+			cTrash = Remove(cRxCmd,FmMixer);
+			cTemp = Left(FmMixer,1);
+			nLvl = Byte(cTemp,1);
+			BuildFb();
+			ClearBuffer(FmMixer);
+		}
+		Else
+		{
+			ClearBuffer(FmMixer);
+		}
+	}
+}
+
+// Main()
+Function Main()
+{
+	WaitForInitializationComplete();
+
+	CSwitch (IptControlType)
+	{
+		CASE (1):	//Input
+		{
+			cType[1] = "\x00";
+			Break;
+		}
+		CASE (2): //Zone
+		{
+			cType[1] = "\x01";
+			Break;
+		}
+	}
+	cType[2] = "\x01";	//Destination is always zone.
+
+	cCtrlChnl[1] = CHR(IptControlChnl - 1);
+	cCtrlChnl[2] = CHR(OptControlChnl - 1);
+//	cCtrlChnl[1] = CHR(0x00 + IptControlChnl - 1);
+//	cCtrlChnl[2] = CHR(0x00 + OptControlChnl - 1);
+
+
+//	cPollType = CHR(0x00 + ControlType - 1);
+	Makestring(cCmdSysExHdr, "\xF0\x00\x00\x1A\x50\x12\x01\x00");
+
+//\xF0\x00\x00\x1A\x50\x12\x01\x00 \x00\x02\x00 \x01\x00\x69 \xF7 // Input 1 to Zone 1 0db
+	Makestring(cCmd[1],"%s%s\x02%s%s%s", cCmdSysExHdr,cType[1],cCtrlChnl[1],cType[2],cCtrlChnl[2]);// Level
+	Makestring(cCmd[2],"%s%s\x04%s%s%s\x7F\xF7", cCmdSysExHdr,cType[1],cCtrlChnl[1],cType[2],cCtrlChnl[2]);// Inc
+	Makestring(cCmd[3],"%s%s\x04%s%s%s\x3F\xF7", cCmdSysExHdr,cType[1],cCtrlChnl[1],cType[2],cCtrlChnl[2]);// Dec
+	Makestring(cPollCmd, "%s%s\x01\x0F\x02%s%s%s\xF7",cCmdSysExHdr,cType[1],cCtrlChnl[1],cType[2],cCtrlChnl[2]);//Poll
+  
+  // Response
+	Makestring(cRxCmd,"%s%s\x02%s%s%s", cCmdSysExHdr,cType[1],cCtrlChnl[1],cType[2],cCtrlChnl[2]);
+
+	BuildFb();
+}	
+
+               
+// \x00\x02\x01 \x01\x00\x69 \xF7
+// \x01\x0F\x02 \x00\x01\x00 \xF7

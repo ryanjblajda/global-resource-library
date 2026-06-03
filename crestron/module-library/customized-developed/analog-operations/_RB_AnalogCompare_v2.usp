@@ -1,0 +1,75 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Source Select Toggle (Clear) v1"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+//#DEFINE_CONSTANT DEBUG 1
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+	
+	this module will cause selected sources to toggle between 0 and the currently selected source. 	
+
+#HELP_END
+
+DIGITAL_INPUT Bypass;
+ANALOG_INPUT  Selected_Source, Selected_Source_Fb;
+ANALOG_OUTPUT Source_To_Select;
+
+INTEGER_PARAMETER _SKIP_, _SKIP_, _SKIP_, Enable_Zero_Input;
+
+#BEGIN_PARAMETER_PROPERTIES Enable_Zero_Input
+	propValidUnits = unitDecimal;
+   	propDefaultUnit = unitDecimal;
+   	propDefaultValue = 1d;
+   	propList = {1d, "Yes"},{0d, "No"};
+   	propShortDescription= "allow Selected_Source to be set to zero and pass that value";
+#END_PARAMETER_PROPERTIES
+
+/* GLOBAL VARIABLES */
+
+/* FUNCTIONS */
+FUNCTION DetermineSourceToggle() {
+	if(Selected_Source = Selected_Source_Fb) {
+		Source_To_Select = 0;
+	}
+	else {
+		Source_To_Select = Selected_Source;
+	}
+}
+
+/*** EVENT HANDLERS ***/
+
+CHANGE Selected_Source {
+	if(Bypass = ON) {
+		Source_To_Select = Selected_Source;
+	}
+	else {
+		if(Selected_Source = 0) {
+			if(Enable_Zero_Input = ON) {
+				DetermineSourceToggle();
+			}
+			else {
+				#IF_DEFINED DEBUG
+					print("Enable_Zero_Input = %d", Enable_Zero_Input);
+				#ENDIF
+			}
+		}
+		else {
+			DetermineSourceToggle();
+		}
+	}
+}

@@ -1,0 +1,132 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: BBI Engineering, Inc.
+System Name:
+System Number:
+Programmer: Sam Wong
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "UDP Client"
+#HINT "UDP Client with programmable IP and port."
+// #DEFINE_CONSTANT
+#CATEGORY "39" // Device Extender Modules
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+
+   Equivalent to the system TCP client module, but allow you to specify the IP as a string 
+and the port as an analog.
+
+	Verbose on will generate console outputs for connection/disconnect and other state messages.
+
+#HELP_END
+
+/* INPUTS */
+DIGITAL_INPUT Enable;
+DIGITAL_INPUT Verbose;
+ANALOG_INPUT _Skip_, Port_Number;
+STRING_INPUT IP_Address[128];
+BUFFER_INPUT _SKIP_, TX[10000];
+
+/* OUTPUTS */
+DIGITAL_OUTPUT Connected_Fb, _SKIP_, _SKIP_;
+ANALOG_OUTPUT Connection_Status;
+//STRING_OUTPUT _SKIP_, _SKIP_, RX$;
+ 
+/* VARIABLES */
+UDP_SOCKET udp_client[1024];
+STRING ipAddress[254];
+INTEGER connected;
+           
+FUNCTION OnDisabled()
+{
+	Connection_Status = SocketUDP_Disable(udp_client); 
+	if (Connection_Status = 0) { Connected_Fb = OFF; }
+}
+
+Function OnEnabled()
+{
+	OnDisabled();
+	Connection_Status = SocketUDP_Enable(udp_client, ipAddress, Port_Number);
+
+	if (Connection_Status = 0) { Connected_Fb = ON; }
+	else { Connected_Fb = OFF; }
+
+}
+
+/* EVENT HANDLERS */
+
+PUSH Enable { OnEnabled(); }
+
+RELEASE Enable { OnDisabled(); }
+      
+CHANGE IP_Address {
+	ipAddress = IP_Address;
+	if (Enable) { OnEnabled(); }
+}
+
+CHANGE Port_Number
+{
+	if (Enable) { OnEnabled(); }
+}
+
+SocketReceive udp_client {
+	ClearBuffer(udp_client.SocketRxBuf);
+}
+
+THREADSAFE CHANGE TX
+{
+    signed_integer ret;
+	integer length;
+   	string buf[256];
+         
+	If (!Connected_Fb)
+	{
+		ClearBuffer(TX);
+		TerminateEvent;
+    }
+
+	WHILE (LEN(TX) > 0)
+	{
+		try
+		{
+			length = LEN(TX);
+
+			if (length > 256){ length = 256; }
+
+			buf = RemoveByLength(length, TX);			
+
+		    ret = SocketSend(udp_client, buf);
+
+		    if (ret < 0) { Print("Error Sending to MyClient: %d\r\n", ret); }
+		}
+		catch {	}
+	}
+}
+
+Function Main()
+{
+    WaitForInitializationComplete();
+	Connected_Fb = 0;
+	Connection_Status = 0;
+}

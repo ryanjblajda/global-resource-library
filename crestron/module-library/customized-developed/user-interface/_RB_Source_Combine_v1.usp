@@ -1,0 +1,66 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Source Combine v1"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#DEFINE_CONSTANT ci_MaxItems 255
+#DIGITAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Show_All_Sources;
+DIGITAL_INPUT Source_Defined[ci_MaxItems];
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT _SKIP_, Source_Available[ci_MaxItems];
+
+/*** GLOBAL VARIABLES ***/
+INTEGER gi_SourcesDefined;
+
+/*** FUNCTIONS ***/
+FUNCTION Main() {
+	integer i;
+
+	for (i = ci_MaxItems to 1 step -1) {
+		if (IsSignalDefined(Source_Defined[i]) = ON) { break; }
+	}
+
+	gi_SourcesDefined = i;
+}
+
+/** EVENT HANDLERS **/
+CHANGE Show_All_Sources {
+	integer i;
+
+	if (Show_All_Sources = ON) { SetArray(Source_Available, ON); }
+	else {
+		//loop through all sources and show as needed
+		for (i = 1 to gi_SourcesDefined) {
+			// if the source signal is defined, assign it
+			if(IsSignalDefined(Source_Defined[i]) = ON) {
+				//assign the value 
+				Source_Available[i] = Source_Defined[i];				
+			}
+		}
+	}
+}
+
+CHANGE Source_Defined {
+	integer iChanged;
+	iChanged = GetLastModifiedArrayIndex();
+	if (Show_All_Sources = OFF) {
+		//if show all sources is not enabled, then 
+		Source_Available[iChanged] = Source_Defined[iChanged];
+	}
+	else {} //do nothing because show all sources is enabled, so regardless we want to view all sources
+}

@@ -1,0 +1,249 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Item Visibility Filter Dynamic v1"
+#HINT "Shows Items Based On Analog Join"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+//#DEFINE_CONSTANT DEBUG 1
+#DEFINE_CONSTANT MAXIGNORE 5
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+
+INPUTS
+
+Filter_Number: a number that will be compared against the Filter_List parameter for each input
+
+Item_IsDefined: a digital signal representing whether the item has been "defined" 
+
+OUTPUTS
+Item_IsVisible: when the Filter_Number value exists in the Filter_List for this item, AND Item_IsDefined is HIGH for the associated input, it will be high.
+
+PARAMETERS
+
+Filter_List: a list of Filter_Number values in which an Item_IsDefined input should be allowed to propogate to its associated Item_IsVisible output.
+#HELP_END
+
+/*** INPUTS ***/
+ANALOG_INPUT  Filter_Number;
+DIGITAL_INPUT Enable, _SKIP_;
+DIGITAL_INPUT Item_IsDefined[MAXITEMS];
+
+STRING_INPUT _SKIP_, _SKIP_, Filter_List[MAXITEMS][MAXITEMS];
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT _SKIP_, _SKIP_, Item_IsVisible[MAXITEMS];
+
+/*** GLOBAL VARIABLES ***/
+integer availabilityMap[MAXITEMS][MAXITEMS];
+integer totalInputs, generating;
+string _filter_list[MAXITEMS][MAXITEMS];
+
+/*** FUNCTIONS ***/
+FUNCTION ProcessFilterListItem(integer item) {
+	integer undefinedInputCount, maxLoops, delimiterPosition, i;
+	string currentFilterItem[MAXITEMS], chunk[32];
+    maxLoops = 1;
+	currentFilterItem = _filter_list[item];
+	#IF_DEFINED DEBUG
+		print("_filter_list[%d] = %s, maxLoops = %d\r\n", item, currentFilterItem, maxLoops);
+	#ENDIF
+    
+	if (currentFilterItem <> "") {
+		while(len(currentFilterItem) > 0 && (maxLoops < MAXITEMS)) {
+			delimiterPosition = Find(",", currentFilterItem);
+	
+			//get the current chunk which should be 1, or 10, or 111, by finding the delimiter position
+			if (delimiterPosition <> 0) { 
+				chunk = left(currentFilterItem, delimiterPosition - 1);
+				currentFilterItem = mid(currentFilterItem, delimiterPosition + 1, len(currentFilterItem));
+			}
+			//if the delimiter is not found, then we assume we are at the end of the string
+			else { 
+				chunk = right(currentFilterItem, len(currentFilterItem)); 
+				currentFilterItem = "";
+			} 
+			//rip the chunk off the rest of the string
+			//print so i can see it
+			#IF_DEFINED DEBUG		
+				print("processing filter_list[%d] --> current chunk == %s [item shall be available in filter: %s\r\n", item, chunk, chunk);
+			#ENDIF
+			//set the index of the availability map to on
+			availabilityMap[item][atoi(chunk)] = ON;
+	
+			#IF_DEFINED DEBUG
+				print("setting availabilityMap[%d][%d] = ON\r\n", item, atoi(chunk));
+			#ENDIF
+	
+			maxLoops = maxLoops + 1;
+	
+			#IF_DEFINED DEBUG
+				print("len currentFilterItem == %d, should be exiting loop\r\n", len(currentFilterItem));
+			#ENDIF
+		}
+	}
+	else {
+		#IF_DEFINED DEBUG
+			print("filter list is empty, setting all items to OFF");
+		#ENDIF
+		for (i = 1 to MAXITEMS) { availabilityMap[item][i] = OFF; }		
+	}
+}
+
+FUNCTION GenerateAvailablityMap()
+{
+	integer i;
+
+	if (generating = OFF) {
+		for (i = 0 to totalInputs)
+		{
+			generating = ON;
+			if (i <> 0) { ProcessFilterListItem(i); }
+			processLogic();
+		}
+	}
+	generating = OFF;
+}
+
+INTEGER_FUNCTION FilterItemViaMode(integer item, integer mode)
+{
+	string allowed[10];
+	if (availabilityMap[item][mode] = ON) { allowed = "True!"; }
+	else { allowed = "False!"; }
+
+	#IF_DEFINED DEBUG
+		print("availabilityMap[%d][%d] = %d\r\n", item, mode, availabilityMap[item][mode]); 
+	#ENDIF
+
+ 	#IF_DEFINED DEBUG
+		print("Current Item: %d // Current Mode: %d // Allowed: %s\r\n", item, mode, allowed);
+	#ENDIF
+	return (availabilityMap[item][mode]);
+}
+
+FUNCTION CheckAllItemsViaFilter()
+{
+	integer i;
+	//for all our defined inputs
+	for(i = 1 to totalInputs)
+	{
+		//if the input is defined
+		//print("input is %u, signal is %u\n", inputIsDefined[i], Item_IsDefined[i]);
+		if(ON = Item_IsDefined[i])
+		{	
+			//if the current room mode allows the Item to be active
+			Item_IsVisible[i] = FilterItemViaMode(i, Filter_Number);
+		}
+		else
+		{
+			Item_IsVisible[i] = OFF;
+		}
+		processLogic();
+	}
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE Filter_Number
+{
+	GenerateAvailablityMap();
+	CheckAllItemsViaFilter();
+}
+
+CHANGE Item_IsDefined
+{	
+	integer _last;
+	_last = getLastModifiedArrayIndex();
+
+	if(ENABLE = ON)
+	{
+		if(ON = Item_IsDefined[_last])
+		{
+			ProcessFilterListItem(_last);
+			Item_IsVisible[_last] = FilterItemViaMode(_last, Filter_Number);
+		}
+		else
+		{
+			Item_IsVisible[_last] = OFF;
+		}
+	}
+}
+
+PUSH Enable
+{
+	#IF_DEFINED DEBUG
+		print("generating availability map\r\n");
+	#ENDIF		
+	GenerateAvailablityMap();
+	#IF_DEFINED DEBUG
+		print("checking all items against filter\r\n");
+	#ENDIF
+	CheckAllItemsViaFilter();
+}
+
+RELEASE Enable 
+{
+	#IF_DEFINED DEBUG
+		print("enable false, set all visible = OFF\r\n");
+	#ENDIF
+
+	SetArray(Item_IsVisible, OFF);
+}
+
+THREADSAFE CHANGE Filter_List
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	#IF_DEFINED DEBUG
+		
+		print("filter list item %d changed = %s\r\n", iChanged, Filter_List[iChanged]);
+	#ENDIF
+
+	_filter_list[iChanged] = Filter_List[iChanged];
+    #IF_DEFINED DEBUG
+		print("process filter list item %d\r\n", iChanged);
+	#ENDIF
+
+	ProcessFilterListItem(iChanged);
+		
+	if (Item_IsDefined[iChanged] = ON) {
+		#IF_DEFINED DEBUG
+			print("filter list item %d defined, check if current filter allows item\r\n", iChanged);
+		#ENDIF
+
+		Item_IsVisible[iChanged] = FilterItemViaMode(iChanged, Filter_Number);
+	}
+	else { 
+		#IF_DEFINED DEBUG
+			print("filter list item %d NOT defined, setting OFF\r\n", iChanged);
+		#ENDIF
+		Item_IsVisible[iChanged] = OFF; 
+	}
+}
+
+/*** Main() ***/
+Function Main()
+{
+	integer i;
+
+	waitForInitializationComplete();
+
+	//count backwards from the last item
+	for(i = MAXITEMS to 1 step -1)
+	{
+		if(ON = isSignalDefined(Item_IsDefined[i]))
+		{
+			break;
+		}
+		processLogic();
+	}
+
+	totalInputs = i;
+}

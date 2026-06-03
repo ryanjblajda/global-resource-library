@@ -1,0 +1,27 @@
+#define_constant MAX_OUTPUTS  200
+
+digital_input OSD_ON[MAX_OUTPUTS];
+digital_input OSD_OFF[MAX_OUTPUTS];
+
+string_output CONFIGURE_RX_CMD;
+         
+       
+push OSD_ON
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device osd on OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+push OSD_OFF
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device osd off OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}

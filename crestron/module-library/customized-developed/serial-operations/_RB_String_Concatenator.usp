@@ -1,0 +1,59 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Actual String Concatenator"
+#HINT "Actually Concatenates Strings"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+
+/* INPUT */
+STRING_INPUT String_[255][1024];
+
+/* OUTPUTS */
+STRING_OUTPUT Output;
+
+/* GLOBAL VARIABLES */
+STRING gsStrings[256][1024]; 
+INTEGER giMaxSignals; 
+
+/* FUNCTIONS */
+FUNCTION MAIN()
+{
+	integer i;
+	for(i = 1 to 255)
+	{
+		if(isSignalDefined(String_[i]) = 0) break; 
+	}
+	giMaxSignals = i;
+}
+
+
+/* EVENT HANDLERS */
+CHANGE String_
+{
+	integer iChanged, i;
+	string temp[1024];
+
+	iChanged = GetLastModifiedArrayIndex();
+	gsStrings[iChanged] = String_[iChanged];
+	
+	for(i = 1 to giMaxSignals)
+	{
+		temp = temp + gsStrings[i];
+	}
+	
+	Output = temp;
+}

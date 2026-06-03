@@ -1,0 +1,115 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+*******************************************************************************************/
+/*
+Dealer Name: Janus Technology Limited
+System Name: 
+System Number:
+Programmer: MATTHEW, JAMES
+Comments: Just Add Power A/V Switch (Cisco ProSafe 7000 Series)
+          Copyright (c) 2011-2012 Janus Technology Limited, All Rights Reserved.
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+
+#symbol_name     "Rebrand_Favourite"
+#define_constant FAVOURITE_VERSION   "V2_06"
+#define_constant MAX_OUTPUT 200  
+digital_input Select_All, Clear_All, Create_Favourite[8], Recall_Favourite[8], Output[404];
+
+digital_output  FavouriteFileError, OutputFB[MAX_OUTPUT];      
+string_output FAVOURITE;                               
+
+volatile integer iSelectedOutputArray[MAX_OUTPUT];
+
+
+function fnCreateCommandForFavourite( integer iFavNumber ) 
+{ 
+  integer i, x;
+  string cmd[3000], tempOutput[3000]; 
+
+	for ( x = 1 to MAX_OUTPUT)
+	{      
+	  if (iSelectedOutputArray[x] = 1)
+	   tempOutput = tempOutput + itoa( x ) + ",";
+	} 
+	if (len( tempOutput ) > 0)
+	{
+	  tempOutput = left( tempOutput, len( tempOutput ) - 1 ); // removes last ","
+	  cmd = cmd + "FAV_CREATE " + tempOutput + "=" + itoa( iFavNumber ) + ";";
+      while(len(cmd) > 255)
+      {
+        FAVOURITE = removebylength(255, cmd);
+      } 
+      FAVOURITE = cmd;
+	}
+	else 
+	{
+	  Print("Nothing Selected"); 
+	}
+}
+
+push Select_All
+{
+  integer i;
+
+  for(i = 1 to MAX_OUTPUT)
+  {
+    iSelectedOutputArray[i] = 1; 
+    OutputFB[i] = 1; 
+  }
+}
+ 
+push Clear_All
+{
+  integer i;
+
+  for(i = 1 to MAX_OUTPUT)
+  {
+    iSelectedOutputArray[i] = 0; 
+    OutputFB[i] = 0; 
+  }
+}
+
+push Output
+{
+  integer i;
+  i = GetLastModifiedArrayIndex();
+  if (i <= MAX_OUTPUT)
+  {
+    if (iSelectedOutputArray[i] = 1)
+    {
+      iSelectedOutputArray[i] = 0; 
+      OutputFB[i] = iSelectedOutputArray[i]; 
+    }
+    else
+    {
+      iSelectedOutputArray[i] = 1; 
+      OutputFB[i] = iSelectedOutputArray[i]; 
+    }
+  }
+ } 
+      
+push Create_Favourite                               
+{
+  integer i;
+  i = GetLastModifiedArrayIndex();
+  fnCreateCommandForFavourite( i ); 
+}
+
+push Recall_Favourite                               
+{
+  integer i;
+  i = GetLastModifiedArrayIndex();
+  FAVOURITE = "FAV_RECALL =" + itoa(i) + ";";
+}
+
+
+/*******************************************************************************************
+  Main()
+*******************************************************************************************/
+function Main()
+{
+}

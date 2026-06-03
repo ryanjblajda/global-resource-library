@@ -1,0 +1,123 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "zoom_speed"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+
+DIGITAL_INPUT	IP;
+DIGITAL_INPUT	RS422;
+
+DIGITAL_INPUT	zoom_tele_btn,zoom_wide_btn;
+//BUFFER_INPUT 	cam_rx$[255];
+ANALOG_INPUT 	z_spd;	
+STRING_OUTPUT	cmd$;
+
+integer 	delay_flg;	
+
+//integer delay_flg;		// STOP --> 130ms delay
+integer i;				// STOP --> 130ms delay
+
+//string temp$[255];		// work space
+
+
+push zoom_tele_btn//51:min-99:max
+{
+	integer temp;
+
+	temp=50+z_spd;
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#Z%02u&res=1 HTTP/1.0\n\n",temp);
+		delay_flg = 0;
+		delay(25);
+		delay_flg = 1;
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#Z%02u\x0d",temp);
+	}
+}
+
+push zoom_wide_btn//1:max-49:min
+{
+	integer temp;
+
+	temp=50-z_spd;
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#Z%02u&res=1 HTTP/1.0\n\n",temp);
+		delay_flg = 0;
+		delay(25);
+		delay_flg = 1;
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#Z%02u\x0d",temp);
+	}
+}
+
+release zoom_tele_btn,zoom_wide_btn
+{
+	IF(IP)
+	{
+		WHILE(delay_flg = 0)
+		{
+			delay(2);
+		}	
+		IF(delay_flg)
+		{
+			cmd$="GET /cgi-bin/aw_ptz?cmd=#Z50&res=1 HTTP/1.0\n\n";
+			delay_flg = 0;
+            delay(5);
+			cmd$="GET /cgi-bin/aw_ptz?cmd=#Z50&res=1 HTTP/1.0\n\n";
+
+/*			WAIT (10,zoom_stop_timer1)
+			{
+				cmd$="GET /cgi-bin/aw_ptz?cmd=#Z50&res=1 HTTP/1.0\n\n";
+				WAIT (10,zoom_stop_timer2)
+				{
+					cmd$="GET /cgi-bin/aw_ptz?cmd=#Z50&res=1 HTTP/1.0\n\n";
+				}
+			}
+*/
+		}
+	}
+	IF(RS422)
+	{
+		cmd$="#Z50\x0d";
+		//delay(10);	
+		//cmd$="#Z50\x0d";
+	}
+
+}
+
+/*
+change cam_rx$
+{
+	temp$ = cam_rx$;
+	clearbuffer(cam_rx$);
+
+	if(right(temp$,4) = "zS50")	// 
+	{
+		CancelWait( zoom_stop_timer1 ); // 
+		CancelWait( zoom_stop_timer2 ); // 
+		//CancelWait( zoom_stop_timer3 ); // 
+		//CancelWait( zoom_stop_timer4 ); // 
+	}
+}
+*/

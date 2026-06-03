@@ -1,0 +1,407 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  Panasonic AW-HE50,120 Ini Camera Server
+*******************************************************************************************/
+/*
+Dealer Name:cam_server
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+#default_volatile
+#enable_stack_checking
+
+// INPUT
+
+buffer_input cam_rx$[255];
+
+digital_input IP;					// bit
+digital_input RS422;				// bit
+
+ANALOG_INPUT  R_Gain_data_in;		// 
+ANALOG_INPUT  B_Gain_data_in;		// 
+ANALOG_INPUT  R_Ped_data_in;		// 
+ANALOG_INPUT  B_Ped_data_in;		//
+
+string_input  cam_type$[255];		//Cam Type
+//	HE50
+//	HE50v2
+//	HE120
+ 
+ 
+// OUTPUT
+
+string_output cam_tx$;
+
+digital_output Focus_Auto_Set;	// bit
+digital_output Brightness_Auto;	// bit
+digital_output Day_Night_Mode;	// bit
+analog_output  Brightness_Data;	// 
+analog_output  R_Gain_data;		// 
+analog_output  B_Gain_data;		// 
+analog_output  R_Ped_data;		// 
+analog_output  B_Ped_data;		//
+ 
+
+string_output t$;
+analog_output debug;	// bit
+
+// GLOBAL VARIABLES //////////
+
+string temp$[255];		// work space
+string temp1$[255];		// work space
+
+string cam_type1$[255];		//Cam Type
+//	HE50
+//	HE50v2
+//	HE60
+//	HE120
+
+
+integer s;				// step
+integer data1;
+integer Day_Night_Mode_Data;
+long_integer data2;
+
+integer Send_OK;
+
+
+// FUNCTIONS /////////////////
+function OWS()
+{
+
+}
+//Function data_chk()
+//{
+//****************************************************************//
+//**************************   IP   ******************************//
+//****************************************************************//
+//ini
+//}
+
+change cam_rx$
+{
+	temp$ = cam_rx$;
+	clearbuffer(cam_rx$);
+
+//****************************************************************//
+//**************************   IP   ******************************//
+//****************************************************************//
+	if (IP)
+	{		                                
+		debug = 101;
+		if (right(temp$,3) = "d10")	// AutoFocus OFF
+		{
+			Focus_Auto_Set = 0;
+		}
+		else if (right(temp$,3) = "d11")	// AutoFocus ON
+		{
+			Focus_Auto_Set = 1;
+		}
+		else if (right(temp$,3) = "d30")	// Brightness_Auto OFF
+		{
+			Brightness_Auto = 0;
+		}
+		else if (right(temp$,3) = "d31")	// Brightness_Auto ON
+		{
+			Brightness_Auto = 1;
+		}
+		else if (right(temp$,3) = "d60")	// Day_Night Mode Day
+		{
+			Day_Night_Mode_Data = 0;
+			Day_Night_Mode = 0;
+		}
+		else if (right(temp$,3) = "d61")	// Day_Night Mode Night
+		{
+			Day_Night_Mode_Data = 1;
+			Day_Night_Mode = 1;
+		}
+
+		if (find("OWS",temp$))	// 
+		{
+			debug = 121;
+			if (find("ER3:",temp$))			// Shippai
+			{
+				if (find("HE120",cam_type1$))
+				{
+					debug = 122;
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50v2",cam_type1$))
+				{
+					debug = 123;
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50",cam_type1$))
+				{
+					debug = 124;
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+
+			}
+			else if (find("ER2:",temp$))	// Outou
+			{
+				//cam_tx$ = "GET /cgi-bin/aw_cam?cmd=OWS&res=1 HTTP/1.0\n\n";
+			}
+			else 								// Seikou 
+			{
+				debug = 125;
+			    //R_Gain_data = 32768;
+			    //B_Gain_data = 32768;
+				if (find("HE120",cam_type1$))
+				{
+					debug = 126;
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50v2",cam_type1$))
+				{
+					debug = 127;
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50",cam_type1$))
+				{
+					debug = 128;
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+			}
+		}
+
+		if (find("400 Bad Request",temp$))	// 
+		{
+			delay(1);
+		    cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+			delay(13);
+	    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+			delay(13);
+		    cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+			delay(13);
+	    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+		}
+
+		if (find("OAS",temp$))	// 
+		{
+			debug = 131;
+			if (find("ER3:",temp$))	// Shippai
+			{
+				if (find("HE120",cam_type1$))
+				{
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50v2",cam_type1$))
+				{
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50",cam_type1$))
+				{
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+
+			}
+			else if (find("ER2:",temp$))	// Outou
+			{
+               	//
+			}
+			else 
+			{
+				debug = 132;
+			    //R_Ped_data = 32768;
+			    //B_Ped_data = 32768;
+				if (find("HE120",cam_type1$))
+				{
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50v2",cam_type1$))
+				{
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+				else if (find("HE50",cam_type1$))
+				{
+					delay(1);
+			    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+					delay(20);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+					delay(13);
+		    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+				}
+			}
+		}
+
+		if(temp$ = "pTS5050")	// 
+		{
+
+		}
+
+		if (find("ORI",temp$))	// R Gain data 000h->12Ch
+		{
+			temp1$ = remove("ORI:",temp$);	// ORI:**** -> ****
+					
+			t$ = temp$;
+	
+	   		data1 = HexToI(Left(temp$,3));
+	   		data1 = data1 * (65535 / 300);
+	        R_Gain_data = data1;	
+		}
+		
+		if (find("ORG:",temp$))	// R Gain data 00h->3Ch
+		{
+			temp1$ = remove("ORG:",temp$);	// ORI:**** -> ****
+					
+			t$ = temp$;
+	
+	   		data1 = HexToI(Left(temp$,2));
+	   		data1 = data1 * (65535 / 60);
+	        R_Gain_data = data1;	
+		}
+		
+		if (find("OBI:",temp$))	// B Gain data 000h->12Ch
+		{
+			temp1$ = remove("OBI:",temp$);	// OBI:**** -> ****
+					
+			t$ = temp$;
+	
+	   		data1 = HexToI(Left(temp$,3));
+	   		data1 = data1 * (65535 / 300);
+	        B_Gain_data = data1;
+		}
+		
+		if(find("OBG:",temp$))	// B Gain data 00h->3CCh
+		{
+			temp1$ = remove("OBG:",temp$);	// OBI:**** -> ****
+					
+			t$ = temp$;
+	
+	   		data1 = HexToI(Left(temp$,2));
+	   		data1 = data1 * (65535 / 60);
+	        B_Gain_data = data1;
+		}
+		
+		if (find("ORP:",temp$))	// R Ped data 000h->12Ch
+		{
+			temp1$ = remove("ORP:",temp$);	// ORI:**** -> ****
+					
+			t$ = temp$;
+	
+	   		data1 = HexToI(Left(temp$,3));
+	   		data1 = data1 * (65535 / 300);
+	        R_Ped_data = data1;
+		}
+		
+		if (find("OBP:",temp$))	// B Ped data 000h->12Ch
+		{
+			temp1$ = remove("OBP:",temp$);	// OBP:**** -> ****
+					
+			t$ = temp$;
+	
+	   		data1 = HexToI(Left(temp$,3));
+	   		data1 = data1 * (65535 / 300);
+	        B_Ped_data = data1;
+		}
+		
+
+		if (find("ER1",temp$))	// 
+		{
+
+			if(1 <= Find("QRP",temp$))	// R Ped data 0
+			{
+		   		data1 = 32768;
+		        R_Ped_data = data1;
+			}
+			if(1 <= Find("QBP",temp$))	// B Ped data 0
+			{
+		
+		   		data1 = 32768;
+		        B_Ped_data = data1;
+			}
+		}
+	}
+}
+
+CHANGE cam_type$
+{
+	IF(1 <= Find("HE50v2",cam_type$))
+	{
+    	 cam_type1$ = cam_type$;
+	}
+	ELSE IF(1 <= Find("HE50",cam_type$))
+	{
+    	 cam_type1$ = cam_type$;
+	}
+	ELSE IF(1 <= Find("HE60",cam_type$))
+	{
+    	 cam_type1$ = "HE50v2";
+	}
+	ELSE IF(1 <= Find("HE120",cam_type$))
+	{
+    	 cam_type1$ = "HE120";
+	}
+	ELSE
+	{
+    	 cam_type1$ = "HE50v2";
+	}
+
+}
+
+
+// MAIN //////////////////////
+function main()
+{
+	
+
+}
+

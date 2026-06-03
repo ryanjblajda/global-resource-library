@@ -1,0 +1,307 @@
+/*******************************************************************************************
+  INFORMATION
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: AVPro Edge MXNet CommandProcessor v2.6
+Programmer:  VNG
+Version:     2.5
+*/
+
+/*******************************************************************************************
+  COMPILER DIRECTIVES
+*******************************************************************************************/
+
+#SYMBOL_NAME "AVPro Edge MXNet CommandProcessor v2.6"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+/*******************************************************************************************
+  CONSTANTS
+*******************************************************************************************/
+
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT MAX_IP_SIZE 15
+#DEFINE_CONSTANT MAX_PASSTHRU_SIZE 500
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE 0
+
+#HELP_BEGIN
+To be used with AVPro Edge MXNet CommandProcessor v2.6.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  INCLUDE LIBRARIES
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "AVProEdgeMXNetLib2"
+
+/*******************************************************************************************
+  MODULE I/O
+*******************************************************************************************/
+
+// --------------------- INPUTS
+
+DIGITAL_INPUT _SKIP_, _SKIP_, 
+			  Connect, 
+			  Disconnect,
+			  Reinitialize, 
+			  DebugEnable,
+			  SendPassthru,
+			  RebootController,
+			  RebootSystem,
+			  AllScreenOn,
+			  AllScreenFlash,
+			  AllScreenOff,
+			  AllOSDOn,
+			  AllOSDOff;
+
+ANALOG_INPUT  Debug_Level;
+
+STRING_INPUT  IPAddress_Input[MAX_IP_SIZE], 
+              PassThru[MAX_PASSTHRU_SIZE];
+
+// --------------------- OUTPUTS
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, 
+			   IsCommunicating, 
+			   IsInitialized;
+			   
+ANALOG_OUTPUT OfflineCount;
+				
+STRING_OUTPUT  Device_IPAddress;
+
+/*******************************************************************************************
+  PARAMETERS
+*******************************************************************************************/
+
+INTEGER_PARAMETER CommandProcessorID;
+
+STRING_PARAMETER  IPAddress[MAX_IP_SIZE];
+
+LONG_INTEGER_PARAMETER PollTime;
+
+/*******************************************************************************************
+  PARAMETER PROPERTIES
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES CommandProcessorID
+  propValidUnits = unitDecimal;
+  propDefaultUnit = unitDecimal;
+  propBounds = 1d , 10d;
+  propDefaultValue = 1d;
+  propShortDescription = "CommandProcessorID";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES IPAddress
+  propValidUnits = unitString;
+  propDefaultUnit = unitString;
+  propDefaultValue = "";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES PollTime
+  propValidUnits = unitTime;
+  propDefaultUnit = unitTime;
+  propBounds = 60s , 900s;
+  propDefaultValue = 60s;
+  propShortDescription = "PollTime";
+#END_PARAMETER_PROPERTIES
+
+
+/*******************************************************************************************
+  GLOBAL VARIABLES
+*******************************************************************************************/
+
+// --------------------- SIMPL# Classes
+
+CommandProcessor comm;
+ControlBoxComponent control;
+
+// --------------------- Internal Tracking Variables
+
+INTEGER Ready;
+
+STRING MyIpAddress[MAX_IP_SIZE];
+ 
+/*******************************************************************************************
+  FUNCTIONS
+*******************************************************************************************/
+
+// --------------------- RESET
+          
+FUNCTION ResetOutputs()
+{
+	IsCommunicating  = FALSE;
+	IsInitialized    = FALSE;
+	Device_IPAddress = NULL_STRING;
+}
+
+// --------------------- SIMPL# EVENT HANDLERS
+
+EVENTHANDLER OnInitializationChange (CommandProcessor sender, AnaEventArgs args)
+{
+  IsInitialized = args.Payload;
+}
+
+EVENTHANDLER OnCommunicationChange (CommandProcessor sender, AnaEventArgs args)
+{
+  IsCommunicating = args.Payload;
+}
+
+EVENTHANDLER OnOfflineCount (CommandProcessor sender, AnaEventArgs args)
+{
+  OfflineCount = args.Payload;
+}
+
+EVENTHANDLER OnDebugMessage (CommandProcessor sender, SerEventArgs args)
+{
+  IF (DebugEnable)
+    TRACE("%s", args.Payload);
+}
+
+EVENTHANDLER OnReadyState (CommandProcessor sender, EventArgs e)
+{
+  Ready = TRUE;
+
+  IF (Connect)
+    comm.Connect();
+}
+
+EVENTHANDLER OnIPAddress (ControlBoxComponent sender, SerEventArgs args)
+{
+  Device_IPAddress = args.Payload;
+}  
+
+/*******************************************************************************************
+  EVENT HANDLERS
+*******************************************************************************************/
+
+// --------------------- CONNECTION/INITIALIZATION
+
+THREADSAFE PUSH Connect
+{
+  IF (Ready)
+    comm.Connect(); 
+}
+
+THREADSAFE PUSH Disconnect
+{
+  IF (Ready)
+    comm.Disconnect();   
+}
+ 
+THREADSAFE PUSH Reinitialize
+{
+  comm.Reinitialize();
+} 
+
+THREADSAFE CHANGE IPAddress_Input
+{
+	IF (IPAddress_Input != NULL_STRING)
+    MyIpAddress = IPAddress_Input; 
+     comm.SetIPAddress(MyIpAddress);
+     control.ProcessIPAddress(MyIPAddress);
+}
+
+// --------------------- DEBUG
+
+THREADSAFE CHANGE Debug_Level
+{
+  comm.DebugLevel(Debug_Level);
+}
+
+// --------------------- PASSTHRU
+
+THREADSAFE PUSH SendPassthru
+{
+  IF (PassThru != NULL_STRING)
+    control.Passthru(PassThru); 
+}
+
+// --------------------- REBOOT
+
+THREADSAFE PUSH RebootController
+{
+  control.RebootController();
+}
+
+THREADSAFE PUSH RebootSystem
+{
+  control.RebootSystem();
+}
+
+// --------------------- ALL SCREEN
+
+THREADSAFE PUSH AllScreenOn
+{
+  control.AllScreenOn();
+}
+
+THREADSAFE PUSH AllScreenFlash
+{
+  control.AllScreenFlash();
+}
+
+THREADSAFE PUSH AllScreenOff
+{
+  control.AllScreenOff();
+}
+
+// --------------------- ALL OSD
+
+THREADSAFE PUSH AllOSDOn
+{
+  control.AllOsdOn();
+}
+
+THREADSAFE PUSH AllOSDOff
+{
+  control.AllOsdOff();
+}
+
+/*******************************************************************************************
+  MAIN
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  ResetOutputs();
+
+  Ready = FALSE;
+
+  IF (IPAddress_Input != NULL_STRING)
+    MyIpAddress = IPAddress_Input; 
+  
+  ELSE 
+    MyIpAddress = IPAddress;
+
+  WAITFORINITIALIZATIONCOMPLETE();
+
+  REGISTEREVENT(comm, OnReadyState, OnReadyState);
+  REGISTEREVENT(comm, OnInitializationChange, OnInitializationChange);
+  REGISTEREVENT(comm, OnCommunicationChange, OnCommunicationChange);
+  REGISTEREVENT(comm, OnOfflineCount, OnOfflineCount);
+  REGISTEREVENT(comm, OnDebugMessage, OnDebugMessage);
+  REGISTEREVENT(control, OnIPAddress, OnIPAddress);
+
+  comm.Configure(CommandProcessorID, MyIpAddress, PollTime);
+  control.Configure(CommandProcessorID);
+  control.ProcessIPAddress(MyIPAddress);
+}

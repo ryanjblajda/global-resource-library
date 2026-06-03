@@ -1,0 +1,58 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Processor - Extron Volume Response Handler v3"
+#HINT "For Handling Volume Replies From Extron Equipment"
+#CATEGORY "46" "RBLAJDA_EXTRON" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+//#DEFINE_CONSTANT DEBUG  0
+#DEFINE_CONSTANT c_Del  "\x0D\x0A"
+#DEFINE_CONSTANT c_Command "Vol"
+#DEFINE_CONSTANT c_Length 3
+
+BUFFER_INPUT rx$[255];
+ANALOG_OUTPUT volumeLevel;
+
+CHANGE rx$
+{
+	string  responseGathered[255];
+	string	tempResult[25];
+	integer commandPosition;
+	integer delimiterPosition;
+	integer volumeLength;
+
+	responseGathered = gather(c_Del, rx$);
+
+	commandPosition = find(c_Command, responseGathered);
+
+	//print("Command Position: %d", commandPosition);
+	
+	if(commandPosition <> 0)
+	{
+		commandPosition = commandPosition + 3;
+
+		//Vol90\x0D\x0A
+		//   ^=4 ^=6   
+		// 4 - 6 = 2 the length of our command, that we want to grab. 
+
+		delimiterPosition = find(c_Del, responseGathered);
+
+		volumeLength = (delimiterPosition - commandPosition);
+
+		tempResult = mid(responseGathered, commandPosition, volumeLength);
+		
+		volumeLevel = atoi(tempResult);
+	}
+
+	//print("Gathered Response: %s Volume: %s CommandPosition (After Math): %d, Delimiter Position: %d, Length: %d", responseGathered, tempResult, commandPosition, delimiterPosition, volumeLength);
+	
+	clearBuffer(rx$);
+}

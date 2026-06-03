@@ -1,0 +1,273 @@
+#IncludePath "C:\Visual Commands\Visual Commands\Standard SSP Libraries\Netgear AV Line\Current\Library\Netgear AV Line Library\bin\Debug"
+#USER_SIMPLSHARP_LIBRARY "Netgear_AV_Line_Library"
+
+#DEFINE_CONSTANT MAXPOEPORTS 40 
+#DEFINE_CONSTANT MAXPORTS 50
+
+Digital_Input Login, PollDevice, PollPoePorts, PollEthernetPorts, PollLogs;
+Digital_Input ResetPoePort[MAXPOEPORTS], EnablePoePort[MAXPOEPORTS], DisablePoePort[MAXPOEPORTS];
+
+String_Input IpAddress$[100], Username$[100], Password$[100];
+
+Digital_Output LoggedIn;
+
+Analog_Output NumberOfPorts, NumberOfActivePorts, NumberOfPoePorts;
+
+String_Output DeviceName, DeviceSerialNumber, DeviceMacAddress, DeviceModel, DeviceLanIpAddress, DeviceVersion, DeviceLastReboot, DeviceMemoryUsed, DeviceMemoryUsage,
+            DeviceCpuUsage, DeviceFanState, DeviceUpTime;
+
+Digital_Output PoePortEnable[MAXPOEPORTS], PoePortReset[MAXPOEPORTS], EthernetPortAdminMode[MAXPORTS], 
+				EthernetPortLinkTrap[MAXPORTS], EthernetPortIsPoe[MAXPORTS];
+            
+Analog_Output PoePortId[MAXPOEPORTS], PoePortCurrentPower[MAXPOEPORTS], PoePortPowerLimit[MAXPOEPORTS],
+		EthernetPortID[MAXPORTS], EthernetPortMaxFrameSize[MAXPORTS], EthernetPortTxRate[MAXPORTS],
+		EthernetPortVlanId[MAXPORTS], EthernetPortCrcErrorsRx[MAXPORTS], EthernetPortErrorsRxTx[MAXPORTS],
+		EthernetPortDropsRxTx[MAXPORTS];
+
+String_Output Logs[20], PoePortPowerLimitMode[MAXPOEPORTS], PoePortClassification[MAXPOEPORTS], PoePortStatus[MAXPOEPORTS],
+		EthernetPortDescription[MAXPORTS], EthernetPortPortType[MAXPORTS], EthernetPortPortSpeed[MAXPORTS], EthernetPortDuplexMode[MAXPORTS],
+		EthernetPortLinkStatus[MAXPORTS], EthernetPortMacAddress[MAXPORTS], EthernetPortAuthState[MAXPORTS], 
+		EthernetPortRxMbps[MAXPORTS], EthernetPortTxMbps[MAXPORTS];
+
+NetgearClass Device;
+
+Push Login
+{
+	Device.Login();
+}
+
+Push PollDevice
+{
+	Device.GetMainInfo();
+}
+
+Push PollPoePorts
+{
+	Device.GetPoePortInfo();
+}
+
+Push PollEthernetPorts
+{
+	Device.GetEthernetPortInfo();
+}
+
+Push ResetPoePort
+{
+	integer i;
+	i = getlastmodifiedarrayindex();
+	Device.ResetPoePort(i);
+}
+ 
+Push EnablePoePort
+{
+	integer i;
+	i = getlastmodifiedarrayindex();
+	Device.EnablePoePort(i);
+}
+
+Push DisablePoePort
+{
+	integer i;
+	i = getlastmodifiedarrayindex();
+	Device.DisablePoePort(i);
+}
+
+
+Change IpAddress$
+{
+	Device.BaseUrl = "https://" + IpAddress$ + ":8443/api/v1/";
+	Device.LanIpAddress = IpAddress$;
+}
+Change Username$
+{
+	Device.User = Username$;
+}
+Change Password$
+{
+	Device.Password = Password$;
+}
+
+EventHandler LoggedInHandler(NetgearClass sender, NetgearLoggedInEventArgs args)
+{
+	if(Device.LoggedIn = 1)
+		LoggedIn = 1;
+	else if(Device.LoggedIn = 0)
+		LoggedIn = 0;
+}
+EventHandler DeviceUpdateHandler(NetgearClass sender, NetgearLoggedInEventArgs args)
+{
+	DeviceName = Device.Name;
+	DeviceSerialNumber = Device.SerialNumber;
+	DeviceMacAddress = Device.MacAddress;
+	DeviceModel = Device.Model;
+	DeviceLanIpAddress = Device.LanIpAddress;
+	DeviceVersion = Device.Version;
+	DeviceLastReboot = Device.LastReboot;
+	DeviceMemoryUsed = Device.MemoryUsed;
+	DeviceMemoryUsage = Device.MemoryUsage;
+    DeviceCpuUsage = Device.CpuUsage;
+    DeviceFanState = Device.FanState;
+    DeviceUpTime = Device.UpTime;
+    NumberOfPorts = Device.NumberOfPorts;
+    NumberOfActivePorts = Device.NumberOfActivePorts;
+}
+EventHandler PoePortUpdateHandler(NetgearClass sender, NetgearLoggedInEventArgs args)
+{
+	integer i, a;
+	NumberOfPoePorts = Device.NumberOfPoePorts;
+	for(i = 1 to Device.NumberOfPoePorts)
+	{
+		if(i <= MAXPOEPORTS)
+		{
+			PoePortId[i] = Device.GetPoeInt(i, "portid");
+			PoePortEnable[i] = Device.GetPoeInt(i, "enable");
+			a = Device.GetPoeInt(i, "powerLimitMode");
+			if(a = 0)
+				PoePortPowerLimitMode[i] = "Invalid";
+			else if(a = 1)
+				PoePortPowerLimitMode[i] = "DOT3AF";
+			else if(a = 2)
+				PoePortPowerLimitMode[i] = "User";
+			else if(a = 3)
+				PoePortPowerLimitMode[i] = "None";
+			else if(a = 4)
+				PoePortPowerLimitMode[i] = "Count";
+	        a = Device.GetPoeInt(i, "classification");
+	        if(a = 0)
+	        	PoePortClassification[i] = "Invalid";
+	        else if(a = 1)
+	        	PoePortClassification[i] = "Class 0";
+	        else if(a = 2)
+	        	PoePortClassification[i] = "Class 1";
+	        else if(a = 3)
+	        	PoePortClassification[i] = "Class 2";
+	        else if(a = 4)
+	        	PoePortClassification[i] = "Class 3";
+	        PoePortCurrentPower[i] = Device.GetPoeInt(i, "currentPower");
+	 		PoePortPowerLimit[i] = Device.GetPoeInt(i, "powerLimit");
+	 		a = Device.GetPoeInt(i, "status");
+	 		if(a = -1)
+	 			PoePortStatus[i] = "Invalid";
+	 		else if(a = 0)
+	 			PoePortStatus[i] = "Disabled";
+	 		else if(a = 1)
+	 			PoePortStatus[i] = "Searching";
+	        else if(a = 2)
+	 			PoePortStatus[i] = "Delivering Power";
+			else if(a = 3)
+	 			PoePortStatus[i] = "Test";
+	 		else if(a = 4)
+	 			PoePortStatus[i] = "Fault";
+	 		else if(a = 5)
+	 			PoePortStatus[i] = "Other Fault";
+	 		else if(a = 6)
+	 			PoePortStatus[i] = "Requesting Power";
+	 		else if(a = 7)
+	 			PoePortStatus[i] = "Overload";
+	        PoePortReset[i] = Device.GetPoeInt(i, "reset");
+		}        
+	}
+}
+EventHandler EthernetPortUpdateHandler(NetgearClass sender, NetgearLoggedInEventArgs args)
+{
+	integer i, a;
+	for(i = 1 to Device.NumberOfPorts)
+	{
+		if(i <= MAXPORTS)
+		{
+			EthernetPortAdminMode[i] = Device.GetEthernetPortInt(i, "adminMode");
+			EthernetPortLinkTrap[i] = Device.GetEthernetPortInt(i, "linkTrap");
+			EthernetPortIsPoe[i] = Device.GetEthernetPortInt(i, "isPoE");
+			EthernetPortID[i] = Device.GetEthernetPortInt(i, "ID");
+			a = Device.GetEthernetPortInt(i, "portType");
+			if(a = 0)
+				EthernetPortPortType[i] = "MODE_NONE";
+			else if(a = 1)
+				EthernetPortPortType[i] = "MODE_GENERAL";
+			else if(a = 2)
+				EthernetPortPortType[i] = "MODE_ACCESS";
+			else if(a = 3)
+				EthernetPortPortType[i] = "MODE_TRUNK";
+			else if(a = 4)
+				EthernetPortPortType[i] = "MODE_PRIVATE_HOST";
+			else if(a = 5)
+				EthernetPortPortType[i] = "MODE_PRIVATE_PROMISC";
+	        a = Device.GetEthernetPortInt(i, "portSpeed");
+	        if(a = 0)
+	        	EthernetPortPortSpeed[i] = "Auto";
+	        else if(a = 1)
+	        	EthernetPortPortSpeed[i] = "SP10";
+	        else if(a = 2)
+	        	EthernetPortPortSpeed[i] = "SP100";
+	        else if(a = 3)
+	        	EthernetPortPortSpeed[i] = "SP1000";
+	        else if(a = 4)
+	        	EthernetPortPortSpeed[i] = "SP10G";
+	        a = Device.GetEthernetPortInt(i, "duplexMode");
+	        if(a = 0)
+	           EthernetPortDuplexMode[i] = "Half";
+	        else if(a = 1)
+	           EthernetPortDuplexMode[i] = "Full";
+	        else if(a = 2)
+	           EthernetPortDuplexMode[i] = "Auto";
+	        a = Device.GetEthernetPortInt(i, "linkStatus");
+	        if(a = 0)
+	        	EthernetPortLinkStatus[i] = "Up";
+	        else if(a = 1)
+	        	EthernetPortLinkStatus[i] = "Down";
+	        EthernetPortMaxFrameSize[i] = Device.GetEthernetPortInt(i, "maxFrameSize");
+		}
+	}
+}
+EventHandler LogsUpdateHandler(NetgearClass sender, NetgearLoggedInEventArgs args)
+{
+	integer i;
+	for(i = 1 to 20)
+	{
+		Logs[i] = Device.Logs[i -1];
+	}
+}
+
+Push PollLogs
+{
+	Device.GetLogs();
+}
+EventHandler PortStatsHandler(NetgearClass sender, NetgearLoggedInEventArgs args)
+{
+	integer i, a;
+	print("Got the Port Stats Handler\n");
+	for(i = 1 to Device.NumberOfPorts)
+	{
+		if(i <= MAXPORTS)
+		{
+			EthernetPortDescription[i] = Device.GetPortStatString(i, "myDesc");
+			EthernetPortMacAddress[i] = Device.GetPortStatString(i, "portMacAddress");
+			a = Device.GetPortStat(i, "portAuthState");
+			if(a = 1)
+				EthernetPortAuthState[i] = "Authorized";
+			else if(a = 2)
+				EthernetPortAuthState[i] = "Unauthorised";
+			else if(a = 3)
+				EthernetPortAuthState[i] = "N/A";
+			
+			EthernetPortRxMbps[i] = Device.GetPortStatString(i, "rxMbps");
+	        EthernetPortTxMbps[i] = Device.GetPortStatString(i, "txMbps");
+	        EthernetPortCrcErrorsRx[i] = Device.GetPortStat(i, "crcErrorsRx");
+	        EthernetPortErrorsRxTx[i] = Device.GetPortStat(i, "errorsRxTx");
+	        EthernetPortDropsRxTx[i] = Device.GetPortStat(i, "dropsRxTx");
+		}
+	}
+}
+Function Main()
+{
+	Waitforinitializationcomplete();
+	RegisterEvent(Device, IsLoggedInEvent, LoggedInHandler);
+	RegisterEvent(Device, DeviceUpdateEvent, DeviceUpdateHandler);
+	RegisterEvent(Device, PoePortUpdateEvent, PoePortUpdateHandler);
+	RegisterEvent(Device, EthernetPortUpdateEvent, EthernetPortUpdateHandler);
+	RegisterEvent(Device, LogsUpdateEvent, LogsUpdateHandler);
+	RegisterEvent(Device, PortStatsEvent, PortStatsHandler);
+
+
+
+}

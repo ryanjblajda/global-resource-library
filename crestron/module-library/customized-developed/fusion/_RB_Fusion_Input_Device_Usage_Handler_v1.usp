@@ -1,0 +1,128 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+#SYMBOL_NAME "Fusion Input Usage Handler"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciMaxEndpoints 32
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+
+/**INPUTS**/
+DIGITAL_INPUT Input_Is_Detected[ciMaxEndpoints];
+DIGITAL_INPUT Display_Power_On_Fb_For_Output[ciMaxEndpoints];
+ANALOG_INPUT Output_Current_Input_Fb[ciMaxEndpoints];
+
+/**OUTPUTS**/
+DIGITAL_OUTPUT Input_In_Use[ciMaxEndpoints];
+
+/**GLOBAL VARIABLES**/
+INTEGER giDefinedInputs;
+
+/** PARAMETERS **/
+INTEGER_PARAMETER Consider_Display_Power_Status;
+#BEGIN_PARAMETER_PROPERTIES Consider_Display_Power_Status
+	propValidUnits = unitDecimal;
+   	propDefaultUnit = unitDecimal;
+   	propDefaultValue = 1d;
+	propList = { 1d,"Yes" },{ 0d,"No" };
+   	propShortDescription= "whether or not the Display_Power_On_Fb_For_Output signal will be used when determining if the input is considered in use";
+#END_PARAMETER_PROPERTIES
+
+/**FUNCTIONS**/
+INTEGER_FUNCTION ValidateInputUsageChange(integer inputToCheck, integer inputDetected) {
+	integer inUse, i;
+	inUse = OFF;
+	
+	//if the input is not detected, dont bother continuing
+	if (inputDetected = ON) {
+		//loop through all our inputs that are defined
+		for(i = 1 to giDefinedInputs) {
+			if(Output_Current_Input_Fb[i] = inputToCheck) {
+				//if the current output has an input equal to the one we are checking against, continue to check
+				if (Consider_Display_Power_Status = ON) { //if we want to consider the display power status, drill further
+                	if(Display_Power_On_Fb_For_Output[i] = ON) {
+						//no that all our conditions have been met, we will break out of the loop after setting in use to true
+						inUse = ON;
+						break;
+					}
+				}
+				else { //if we dont want to consider the display power status, we break after setting in use
+					inUse = ON;
+					break;
+				}
+			}
+		}
+	}
+
+	return(inUse);
+}
+
+FUNCTION MAIN() {
+	integer i;
+	for(i = ciMaxEndpoints to 1 step -1) {
+    	if(isSignalDefined(Input_Is_Detected[i]) = ON) {
+			giDefinedInputs = i;
+			break;
+		}
+	}
+}
+ 
+/**EVENT HANDLERS**/
+CHANGE Input_Is_Detected {
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	
+	Input_In_Use[iChanged] = ValidateInputUsageChange(iChanged, Input_Is_Detected[iChanged]);
+}
+
+CHANGE Display_Power_On_Fb_For_Output {
+	integer iChanged, i;
+	iChanged = getLastModifiedArrayIndex();
+	
+	if(Consider_Display_Power_Status = ON) {
+		for (i = 1 to giDefinedInputs) {
+			Input_In_Use[i] = ValidateInputUsageChange(i, Input_Is_Detected[i]);
+		}
+	}
+}
+
+CHANGE Output_Current_Input_Fb {
+	integer iChanged, newInput, i;
+	iChanged = getLastModifiedArrayIndex();
+	
+    newInput = Output_Current_Input_Fb[iChanged];
+
+	if (newInput <> OFF) {
+		Input_In_Use[newInput] = ValidateInputUsageChange(newInput, Input_Is_Detected[newInput]);
+	}
+	else {
+		for (i = 1 to giDefinedInputs) {
+			Input_In_Use[i] = ValidateInputUsageChange(i, Input_Is_Detected[i]);
+		}
+	}
+}

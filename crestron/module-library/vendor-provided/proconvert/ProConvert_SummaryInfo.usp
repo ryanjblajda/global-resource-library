@@ -1,0 +1,165 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_SummaryInfo"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,GetSummaryInfo;
+STRING_INPUT _skip_,Cookie[256];
+
+DIGITAL_OUTPUT _skip_, Device_UpToDate;
+
+DIGITAL_OUTPUT _skip_, Ndi_Connected, Ndi_TallyPreview, Ndi_TallyProgram;
+
+ANALOG_OUTPUT _skip_,Status;
+STRING_OUTPUT _skip_, Device_Name, Device_Model, Device_SerialNo, Device_HwRevision, Device_FwVersion, Device_OutputState, Device_CpuUsage, Device_MemoryUsage, Device_CoreTemp, Device_BoardId;
+STRING_OUTPUT Device_UpTime, Device_SdSize;
+
+STRING_OUTPUT _skip_, Ethernet_State, Ethernet_MacAddr, Ethernet_IpAddr, Ethernet_IpMask, Ethernet_GwAddr, Ethernet_DNSAddr;
+STRING_OUTPUT Ethernet_TxSpeedKbps, Ethernet_RxSpeedKbps;
+
+STRING_OUTPUT _skip_, Rndis_State, Rndis_IpAddr;
+STRING_OUTPUT Rndis_TxSpeedKbps, Rndis_RxSpeedKbps;
+
+STRING_OUTPUT _skip_, Ndi_Name, Ndi_VideoScan, Ndi_VideoFieldRate;
+STRING_OUTPUT Ndi_AudioDropFrames, Ndi_AudioBitrate, Ndi_AudioNumChannels, Ndi_AudioSampleRate, Ndi_AudioBitCount, Ndi_VideoDropFrames, Ndi_VideoBitrate;
+ANALOG_OUTPUT Ndi_VideoWidth, Ndi_VideoHeight;
+STRING_OUTPUT Ndi_AudioJitter, Ndi_VideoJitter;
+
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+Callback Function SummaryInfoFunc(SummaryInfoArg arg)
+{
+    //Device
+    Device_Name = arg.deviceName;
+    Device_Model = arg.deviceModel;
+    Device_SerialNo = arg.deviceSerialNo;
+    Device_HwRevision = arg.deviceHwRevision;
+    Device_FwVersion = arg.deviceFwVersion;
+    Device_UpToDate = arg.deviceUpToDate;
+    Device_OutputState = arg.deviceOutputState;
+    Device_CpuUsage = arg.deviceCpuUsage;
+    Device_MemoryUsage = arg.deviceMemoryUsage;
+    Device_CoreTemp = arg.deviceCoreTemp;
+    Device_BoardId = arg.deviceBoardId;
+    Device_UpTime = arg.deviceUpTime;
+    Device_SdSize = arg.deviceSdSize;
+    //Ethernet
+    Ethernet_State = arg.ethernetState;
+    Ethernet_MacAddr = arg.ethernetMacAddr;
+    Ethernet_IpAddr = arg.ethernetIpAddr;
+    Ethernet_IpMask = arg.ethernetIpMask;
+    Ethernet_GwAddr = arg.ethernetGwAddr;
+    Ethernet_DNSAddr = arg.ethernetDNSAddr;
+    Ethernet_TxSpeedKbps = arg.ethernetTxSpeedKbps;
+    Ethernet_RxSpeedKbps = arg.ethernetRxSpeedKbps;
+    //Rndis
+    Rndis_State = arg.rndisState;
+    Rndis_IpAddr = arg.rndisIpAddr;
+    Rndis_TxSpeedKbps = arg.rndisTxSpeedKbps;
+    Rndis_RxSpeedKbps = arg.rndisRxSpeedKbps;
+    //Ndi
+    Ndi_Name = arg.ndiName;
+    Ndi_Connected = arg.ndiConnected;
+    Ndi_TallyPreview = arg.ndiTallyPreview;
+    Ndi_TallyProgram = arg.ndiTallyProgram;
+    Ndi_AudioDropFrames = arg.ndiAudioDropFrames;
+    Ndi_AudioBitrate = arg.ndiAudioBitrate;
+    Ndi_AudioNumChannels = arg.ndiAudioNumChannels;
+    Ndi_AudioSampleRate = arg.ndiAudioSampleRate;
+    Ndi_AudioBitCount = arg.ndiAudioBitCount;
+    Ndi_VideoDropFrames = arg.ndiVideoDropFrames;
+    Ndi_VideoBitrate = arg.ndiVideoBitrate;
+    Ndi_VideoWidth = arg.ndiVideoWidth;
+    Ndi_VideoHeight = arg.ndiVideoHeight;
+    Ndi_VideoScan = arg.ndiVideoScan;
+    Ndi_VideoFieldRate = arg.ndiVideoFieldRate;
+    Ndi_AudioJitter = arg.ndiAudioJitter;
+    Ndi_VideoJitter = arg.ndiVideoJitter;
+}
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH GetSummaryInfo
+{
+    Status = magewell.sGetSummaryInfo();}
+
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp;
+    RegisterDelegate ( magewell,  SummaryInfoCallBack, SummaryInfoFunc );
+}
+

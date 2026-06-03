@@ -1,0 +1,78 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Serial Substring"
+#HINT "finds a substring"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+
+INPUTS:
+	String_To_Search: the string containing content you want to find
+
+PARAMETERS:
+	StringToFind: a string to find that ends where you wish your substring to begin
+	Delimiter: a string or character that denotes the end of the substring [not included in the extracted substring output]
+
+example: 
+
+String_To_Search == {"error": false,"config": {"motion": {"detected": true,"lastDetection": "0:00:00:09","activeDelay": 3,"noDelay": 3}}}
+StringToFind = "detected":
+Delimiter = ,
+
+Substring = \x20true
+
+
+OUTPUTS:
+	Substring: the resulting substring you wish to extract
+
+#HELP_END
+
+
+/* INPUT */
+STRING_INPUT _SKIP_, _SKIP_, String_To_Search[1024];
+STRING_PARAMETER StringToFind[255];
+STRING_PARAMETER Delimiter[255];
+
+/* OUTPUTS */
+STRING_OUTPUT _SKIP_, _SKIP_, Substring;
+
+/* FUNCTIONS */
+
+/* GLOBAL VARIABLES */
+
+/* EVENT HANDLERS */
+CHANGE String_To_Search
+{
+	integer basePos, delimiterPos, subStartPos, subEndPos;
+	string sub[65534];
+	sub = "";
+
+	if (String_To_Search <> "") {
+		basePos = find(StringToFind, String_To_Search);
+		
+		if (basePos <> 0 ){
+			delimiterPos = find(Delimiter, String_To_Search, basePos);
+			if (delimiterPos <> 0) {
+				subStartPos = basePos + len(StringToFind);
+				subEndPos = delimiterPos - subStartPos;
+				sub = mid(String_To_Search, subStartPos, subEndPos);
+			}
+		}
+	}
+
+	Substring = sub;
+}

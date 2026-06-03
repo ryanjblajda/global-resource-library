@@ -1,0 +1,107 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_SetEthConfig"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,Set_Eth_Config;
+DIGITAL_INPUT _skip_, Dhcp_Input;
+STRING_INPUT _skip_, Device_Name_Input[256], Ip_Addr_Input[64], Ip_Mask_Input[64], Gateway_Addr_Input[64], Dns_Addr_Input[64];
+STRING_INPUT _skip_,Cookie[256];
+
+ANALOG_OUTPUT _skip_, Status;
+DIGITAL_OUTPUT _skip_, Reconnect;
+
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+Callback Function EthernetConfigFunc(EthernetConfigArg arg)
+{
+    Reconnect = arg.reconnect;
+}
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH Set_Eth_Config
+{
+    Status = magewell.sSetEthConfig(Device_Name_Input, Dhcp_Input, Ip_Addr_Input, Ip_Mask_Input, Gateway_Addr_Input, Dns_Addr_Input);
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp; 
+
+    RegisterDelegate ( magewell,  EthernetConfigCallBack, EthernetConfigFunc );
+}
+

@@ -1,0 +1,77 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "nLight Checksum Dual v1"
+#HINT "Takes Analog Inputs and Creates an Analog Value of the Checksum"
+#CATEGORY "46" "RBLAJDA_PROCESSOR" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+
+ANALOG_INPUT Input_[MAXITEMS];
+
+DIGITAL_OUTPUT SendCommand;
+ANALOG_OUTPUT Checksum_Byte_1, Checksum_Byte_2;
+
+INTEGER definedInputs;
+
+CHANGE Input_ {
+	integer checksumByteInverted, i, evenBytes, oddBytes;
+
+	evenBytes = 0;
+	oddBytes = 0;
+
+	//trace("Input Current %d -- EvenBytes Current %d -- OddBytes Current %d", Input_[1], evenBytes, oddBytes);
+
+	for(i = 1 to definedInputs) {
+		//catch first iteration and nor it against the odd nums
+		if(i = 1) { if(isSignalDefined(Input_[i])) { oddBytes = oddBytes ^ Input_[i]; } }
+		//catch even numbers
+		else if(i % 2 = 0) { if(isSignalDefined(Input_[i])) { evenBytes = evenBytes ^ Input_[i]; } }
+		//catch odd numbers
+		else { if(isSignalDefined(Input_[i])) { oddBytes = oddBytes ^ Input_[i]; } } 
+
+		processLogic();
+	}
+
+    Checksum_Byte_1 = not(oddBytes);
+	Checksum_Byte_2 = not(evenBytes);
+
+	wait(10) {
+		pulse(10, SendCommand);
+	}
+}
+
+Function Main()
+{
+	integer i;
+	waitForInitializationComplete();
+    //generate
+    for(i = MAXITEMS to 1 step -1) {
+		if(isSignalDefined(Input_[i]) <> 0) { 
+			break;
+		}
+		processLogic();
+	}
+    
+	definedInputs = i;
+
+	//trace("defined inputs: %d", definedInputs);
+}

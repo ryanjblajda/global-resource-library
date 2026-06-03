@@ -1,0 +1,223 @@
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+
+DIGITAL_INPUT	IP;
+DIGITAL_INPUT	RS422;
+
+DIGITAL_INPUT	pan_left,pan_right; //Cam left right
+DIGITAL_INPUT	tilt_up,tilt_dn;	//Cam Up Down
+
+DIGITAL_INPUT	tilt_up_pan_left;
+DIGITAL_INPUT	tilt_up_pan_right;
+DIGITAL_INPUT	tilt_down_pan_left;
+DIGITAL_INPUT	tilt_down_pan_right;
+DIGITAL_INPUT	pad_push;
+ 
+ANALOG_INPUT 	pan_spd,tilt_spd;
+ANALOG_INPUT 	pan_sc_data,tilt_sc_data;
+STRING_OUTPUT	cmd$;
+DIGITAL_OUTPUT	cam_stop_flg;
+
+
+
+
+push pan_right//51:min-99:max
+{
+	integer temp;
+
+	temp=50+pan_spd;	//Right
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#P%02u&res=1 HTTP/1.0\n\n",temp);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#P%02u\x0d",temp);
+	}
+}
+
+push pan_left//1:max-49:min
+{
+	integer temp;
+
+	temp=50-pan_spd;	//left
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#P%02u&res=1 HTTP/1.0\n\n",temp);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#P%02u\x0d",temp);
+	}
+
+}
+
+release pan_left,pan_right
+{
+	IF(IP)
+	{
+		delay(25);	
+		cmd$="GET /cgi-bin/aw_ptz?cmd=#PTS5050&res=1 HTTP/1.0\n\n";
+		//cam_stop_flg = 1;
+	}
+	IF(RS422)
+	{
+		delay(10);	
+		cmd$="#PTS5050\x0d";
+		//cam_stop_flg = 1;
+	}
+
+}
+
+
+push tilt_up//51:min-99:max
+{
+	integer temp;
+
+	temp=50+tilt_spd;	//Up
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#T%02u&res=1 HTTP/1.0\n\n",temp);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#T%02u\x0d",temp);
+	}
+
+}
+
+push tilt_dn//1:max-49:min
+{
+	integer temp;
+
+	temp=50-tilt_spd;	//Down
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#T%02u&res=1 HTTP/1.0\n\n",temp);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#T%02u\x0d",temp);
+	}
+
+}
+
+release tilt_up,tilt_dn
+{
+	IF(IP)
+	{
+		delay(25);	
+		cmd$="GET /cgi-bin/aw_ptz?cmd=#PTS5050&res=1 HTTP/1.0\n\n";
+		//cam_stop_flg = 1;
+	}
+	IF(RS422)
+	{
+		delay(10);	
+		cmd$="#PTS5050\x0d";
+		//cam_stop_flg = 1;
+	}
+
+}
+
+//****************************************//
+
+push tilt_up_pan_left//
+{
+	integer temp_p,temp_t;
+
+	temp_p=50-pan_spd;	//left
+	temp_t=50+tilt_spd;	//Up
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#PTS%02u%02u&res=1 HTTP/1.0\n\n",temp_p,temp_t);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#PTS%02u%02u\x0d",temp_p,temp_t);
+	}
+
+}
+
+push tilt_up_pan_right//1:max-49:min
+{
+	integer temp_p,temp_t;
+
+	temp_p=50+pan_spd;	//Right
+	temp_t=50+tilt_spd;	//Up
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#PTS%02u%02u&res=1 HTTP/1.0\n\n",temp_p,temp_t);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#PTS%02u%02u\x0d",temp_p,temp_t);
+	}
+}
+
+push tilt_down_pan_left	//
+{
+	integer temp_p,temp_t;
+
+	temp_p=50-pan_spd;	//left
+	temp_t=50-tilt_spd;	//Down
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#PTS%02u%02u&res=1 HTTP/1.0\n\n",temp_p,temp_t);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#PTS%02u%02u\x0d",temp_p,temp_t);
+	}
+}
+
+push tilt_down_pan_right	//1:max-49:min
+{
+	integer temp_p,temp_t;
+
+	temp_p=50+pan_spd;	//Right
+	temp_t=50-tilt_spd;	//Down
+	IF(IP)
+	{
+		makestring(cmd$,"GET /cgi-bin/aw_ptz?cmd=#PTS%02u%02u&res=1 HTTP/1.0\n\n",temp_p,temp_t);
+	}
+	IF(RS422)
+	{
+		makestring(cmd$,"#PTS%02u%02u\x0d",temp_p,temp_t);
+	}
+}
+
+release tilt_up_pan_left,tilt_up_pan_right,tilt_down_pan_left,tilt_down_pan_right
+{
+	IF(IP)
+	{
+		delay(25);	
+		cmd$="GET /cgi-bin/aw_ptz?cmd=#PTS5050&res=1 HTTP/1.0\n\n";
+		//cam_stop_flg = 1;
+	}
+	IF(RS422)
+	{
+		delay(10);	
+		cmd$="#PTS5050\x0d";
+		//cam_stop_flg = 1;
+	}
+	
+}
+
+release pad_push
+{
+	cam_stop_flg = 1;
+
+}
+
+/*
+CHANGE pan_sc_data,tilt_sc_data
+{
+	IF((pan_sc_data = 50) & (tilt_sc_data = 50))
+	{
+//		cmd$="GET /cgi-bin/aw_ptz?cmd=#PTS5050&res=1 HTTP/1.0\n\n";
+		cam_stop_flg = 1;
+	}
+
+}
+*/
+

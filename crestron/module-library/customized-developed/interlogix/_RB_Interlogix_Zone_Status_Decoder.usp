@@ -1,0 +1,217 @@
+/*
+Programmer: Ryan Blajda
+*/
+
+//COMPILER DIRECTIVES
+
+#SYMBOL_NAME "NX-587E Zone Status Module"
+#HINT "takes serial responses from the NX-587E and parses out information. Dont forget to choose whether or not to use the zone name, and to enable zone names in the main processor module."
+#CATEGORY "21" // Security
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+
+Parameters
+
+Zone_Number: use the 3 digit number for the zone you wish to get status for i.e. 001
+Enable_Zone_Name: enable or disable this if you want to spit the zone name on the aptly named Zone_Name$ signal
+
+Inputs 
+
+From_Device$: This should come directly from the RX$ of COM port connected to the NX587E. The module will handle whether 
+or not incoming strings are zone feedback strings and process things accordingly.
+
+Outputs
+
+zone_isXXXXX: This will go high whenever the zone is in the named state.
+zone_Name$: this will return the 16 character zone name, if you enable it. make sure you also enable Zone Name feedback 
+on the main processor module, or it will print the unprocessed zone feedback. aka fTtBaillb 
+
+#HELP_END
+
+//PARAMETERS
+string_parameter Zone_Number[3];
+integer_parameter Enable_Zone_Name;
+
+//PARAMETER PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Enable_Zone_Name
+   propValidUnits = unitDecimal;
+   propDefaultValue = 1d ;
+   propList = { 1d, "Yes" } , { 0d , "No" } ;
+   propShortDescription = "Parse Zone Name?";
+#END_PARAMETER_PROPERTIES
+
+//INPUTS
+string_input _SKIP_, _SKIP_;
+string_input From_Device$[100];
+
+//OUTPUTS
+digital_output _SKIP_, _SKIP_;
+digital_output zone_isFaulted;
+digital_output zone_isTamper;
+digital_output zone_isTrouble;
+digital_output zone_isBypass;
+digital_output zone_isAlarmMemory;
+digital_output zone_isInhibit;
+digital_output zone_isLowBattery;
+digital_output zone_isLost;
+digital_output zone_isBypassMemory;
+string_output _SKIP_;
+string_output Zone_Name$;
+
+                                  
+
+//FUNCTIONS
+integer_function findZoneNumber(string rx$, string zoneNumber) 
+{
+	integer result;
+	result = find(zoneNumber, rx$, 3);
+	return(result);		
+}
+
+string_function getZoneName(string rx$, string zoneNumber) 
+{
+	//Example Input: ZN001___ZONE_1_______FttBaillb\x0D (ZONE NAMES ARE ALWAYS 16 CHARACTERS LONG)
+	string zoneName[16];
+	string stringResult[100];
+	string output[5];
+	stringResult = left(From_Device$, 21);
+	output = remove(zoneNumber, stringResult);
+	zoneName = stringResult;
+	return(zoneName);
+}
+
+
+//EVENTS
+change From_Device$ 
+{
+	integer success;
+	integer i;
+	string _zonestatus[10];
+	success = findZoneNumber(From_Device$, Zone_Number);
+
+	if(success = 0){
+		//print("Not This Zone Info");
+	}
+	else {
+		_zonestatus = right(From_Device$, 10);
+
+		if(Enable_Zone_Name){
+			Zone_Name$ = getZoneName(From_Device$, Zone_Number);
+		}
+
+		for(i = 1 to len(_zonestatus)) 
+		{
+			switch(byte(_zonestatus, i)) 
+			{
+				case(65): 
+				{ //A
+					zone_isAlarmMemory = 1;
+				}	
+				case(84): 
+				{ //T
+					if(i = 2) 
+					{
+						//this character is for Tamper
+						zone_isTamper = 1;
+					}
+					else 
+					{
+						//this character is for Trouble
+						zone_isTrouble = 1;
+					}
+				}
+				case(73): 
+				{ //I
+					zone_isInhibit = 1;
+				}
+				case(66): 
+				{ //B
+					if(i = 4) 
+					{
+						//this character is for Bypass
+						zone_isBypass = 1;
+					}
+					else 
+					{
+						//this character is for Bypass Memory
+						zone_isBypassMemory = 1;
+					}
+				}
+				case(76): 
+				{ //L
+					if(i = 7) 
+					{
+						//this character is for Low Battery
+						zone_isLowBattery = 1;
+					}
+					else 
+					{
+						//this character is for Lost
+						zone_isLost = 1;
+					}
+				}
+				case(70): 
+				{ //F
+					zone_isFaulted = 1;
+				}
+				case(97): 
+				{ //a
+					zone_isAlarmMemory = 0;
+				}
+				case(116): 
+				{ //t
+					if(i = 2) 
+					{
+						//this character is for Tamper
+						zone_isTamper = 0;
+					}
+					else 
+					{
+						//this character is for Trouble
+						zone_isTrouble = 0;
+					}
+				}
+				case(105): 
+				{ //i
+					zone_isInhibit = 0;
+				}
+				case(98): 
+				{ //b
+					if(i = 4) 
+					{
+						//this character is for Bypass
+						zone_isBypass = 0;
+					}
+					else 
+					{
+						//this character is for Bypass Memory
+						zone_isBypassMemory = 0;
+					}
+				}
+				case(108): 
+				{ //l
+					if(i = 7) 
+					{
+						//this character is for Low Battery
+						zone_isLowBattery = 0;
+					}
+					else 
+					{
+						//this character is for Lost
+						zone_isLost = 0;
+					}
+				}
+				case(102): 
+				{ //f
+					zone_isFaulted = 0;
+				}
+			}
+			processLogic();
+		}
+	}
+}

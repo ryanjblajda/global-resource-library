@@ -1,0 +1,396 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Display Module v2"
+#HINT "handles all things display related"
+#CATEGORY "46" "RBLAJDA" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciPulseLength 10
+#DEFINE_CONSTANT ciDebug OFF
+
+#HELP_BEGIN
+PARAMETERS:
+Feedback_Type: Use Percent or Use Time (see progress meter description below)
+Source_Correction_Wait_Time: The time to wait after the display has finished warming to send an input command to try and correct the input if it is incorrect. 
+
+INPUTS
+Correct_Input_Fb: tie this to the correct feedback for the source you want the display to be on.
+Warming_Fb: tie this into a warming fb from a projector
+Cooling_Fb: tie this into a cooling fb from a projector 
+
+Power_On/Off_Press: tie this into a dedicated PowerOn/Off button from a touchpanel (eliminates the need for an OR symbol and makes things cleaner)
+
+Power_On/Off_Fb: tie this to the feedback from whatever display/projector module you are using.
+
+Display_Source: tie this to the source selection from the touchpanel, not FB from a video switcher (this wont always change on source selection so the display/projector wont fire on)
+
+OUTPUTS
+
+Progress_Meter: a value to denote progress, either 0-100% for either cooling or warming progress, or it will denote the seconds left until the action (either warming or cooling) is complete.
+
+	NOTE: this value is calculated by the actual time it takes the device to warm up or cool down. the time for warming will be equal to warming time + the source correction wait time.  
+
+Is_Busy: this signal will be high while Progress_Meter is ramping
+
+Correct_Input: tie this to the input you wish to set.
+	NOTE: if Warming_Fb is defined, this will fire 5s after Warming_Fb goes low. If Warming_Fb is not defined, it will fire 5s after Power_On_Fb goes high.
+
+Screen_Up/Down: these will fire when warming starts, and when cooling is finished to raise the screen.
+
+Power_On/Off: these should be connected to the inputs on the display/projector module.
+
+#HELP_END
+
+//INPUTS
+
+DIGITAL_INPUT _SKIP_, _SKIP_, Room_Power_Off;
+DIGITAL_INPUT _SKIP_, Correct_Input_Fb, _SKIP_, Screen_Up_Press, Screen_Down_Press, Screen_Stop_Press, Screen_Toggle_Press, _SKIP_, Power_On_Press, Power_Off_Press, Power_Toggle_Press, _SKIP_, Power_On_Fb, Power_Off_Fb, _SKIP_, Warming_Fb, Cooling_Fb;
+ANALOG_INPUT  _SKIP_, Display_Source;
+
+//OUTPUTS
+#OUTPUT_SHIFT  4
+DIGITAL_OUTPUT Correct_Input, _SKIP_, Screen_Up, Screen_Down, _SKIP_, _SKIP_, _SKIP_, Power_On, Power_Off;
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Is_Busy;
+ANALOG_OUTPUT  Progress_Meter;
+
+//PARAMETERS
+
+INTEGER_PARAMETER Feedback_Type, Source_Correction_Wait_Time;
+
+//INTEGER_PARAMETER Endpoint_Type;
+
+#BEGIN_PARAMETER_PROPERTIES Feedback_Type
+	propDefaultValue = 1d;
+	propList = {1d, "Use Percent"}, {2d, "Use Time"};
+	propValidUnits = UnitDecimal;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Source_Correction_Wait_Time
+	propBounds = 1s, 20s;
+	propDefaultValue = 5s;
+	propValidUnits = UnitTime;
+#END_PARAMETER_PROPERTIES
+
+//VARIABLES
+
+INTEGER Warming_Time, Cooling_Time, PowerOffRequested, PowerOnRequested, ScreenDown;
+STRING  _warmStart[10], _warmEnd[10], _coolStart[10], _coolEnd[10];
+
+//FUNCTIONS
+INTEGER_FUNCTION ElapsedTime(string _startTime, string _endTime)
+{
+	integer _endTimeHour, _startTimeHour;
+	integer _endTimeMin,  _startTimeMin;
+	integer _endTimeSec,  _startTimeSec; 
+	integer _hourRemainder, _minRemainder, _secRemainder;
+	integer _result;
+
+	/*----------------------------------------*/
+	_endTimeHour   = atoi(LEFT(_endTime, 	2));
+	_startTimeHour = atoi(LEFT(_startTime,	2));
+	_hourRemainder = _endTimeHour - _startTimeHour; //get the elapsed amount of hours
+	_hourRemainder = _hourRemainder * 3600; 		//convert to seconds
+
+	/*----------------------------------------*/	
+	_endTimeMin    = atoi(MID(_endTime,   4, 2));	
+	_startTimeMin  = atoi(MID(_startTime, 4, 2));	
+	_minRemainder  = _endTimeMin - _startTimeMin;   //get elapsed amount of minutes
+	_minRemainder  = _minRemainder * 60;            //convert to seconds
+
+	/*----------------------------------------*/	
+	_endTimeSec    = atoi(RIGHT(_endTime,	2));	
+	_startTimeSec  = atoi(RIGHT(_startTime,	2));	                                                    
+	_secRemainder  = _endTimeSec - _startTimeSec;	//get elapsed amount of seconds	
+	_result = _hourRemainder + _minRemainder + _secRemainder;
+                    
+	//print("Total Seconds, %u", _result);
+	return(_result);
+}
+
+FUNCTION PowerRequestCheck()
+{
+	if(PowerOnRequested = ON)
+	{
+		pulse(ciPulseLength, Power_On);
+	}
+	else if(PowerOffRequested = ON)
+	{
+		pulse(ciPulseLength, Power_Off);
+	}
+
+	PowerOnRequested = OFF;
+	PowerOffRequested = OFF;
+}
+
+FUNCTION ScreenUpCheck()
+{
+	wait(50) //wait .5 second then check if cooling fb is high...if not, assume that its not implemented and send screen up anyways
+	{
+		if(Cooling_FB = OFF)
+		{
+			pulse(ciPulseLength, Screen_Up);
+		}
+	}
+}
+
+FUNCTION ScreenStop()
+{
+	pulse(ciPulseLength, Screen_Up);
+	pulse(ciPulseLength, Screen_Down);
+}
+
+FUNCTION Main()
+{
+	if(ciDebug = ON)
+	{
+		print("%u", Source_Correction_Wait_Time);
+	}
+
+	ScreenDown = OFF;
+}
+
+//EVENT HANDLERS
+PUSH Room_Power_Off
+{
+	if(Warming_Fb <> ON)
+	{
+		if(Power_On_Fb = ON) pulse(ciPulseLength, Power_Off);
+
+		//ScreenUpCheck();
+	}
+	else
+	{
+		PowerOffRequested = ON;
+		PowerOnRequested  = OFF;
+	}
+}
+
+RELEASE Correct_Input_Fb
+{
+	if(Warming_Fb <> ON)
+	{
+		if(Power_On_Fb = ON) pulse(ciPulseLength, Correct_Input);
+	}
+}
+
+CHANGE Display_Source
+{
+	if(Display_Source <> 0)
+	{
+        //check if we are using warming/cooling to drive screen
+		if(0 = isSignalDefined(Warming_Fb) && 0 = isSignalDefined(Cooling_FB))
+		{			
+			pulse(ciPulseLength * 2, Screen_Down);
+		}
+                 
+		//check if display busy, if not turn on, if yes, set power request bits
+		if(Warming_Fb <> ON && Cooling_FB <> ON)
+		{
+			if(Power_Off_Fb = ON && Display_Source <> 0) pulse(ciPulseLength, Power_On);
+		}
+		else
+		{
+			PowerOnRequested  = ON;
+			PowerOffRequested = OFF;
+		}
+
+		//check if display needs correct	
+		if(Power_On_Fb = ON && Correct_Input_Fb = OFF)
+		{
+			pulse(ciPulseLength, Correct_Input);
+		}
+	}
+}
+
+PUSH Power_Off_Press
+{
+	if(Warming_FB = ON)
+	{
+		PowerOffRequested = ON;
+		PowerOnRequested  = OFF;
+	}
+	else
+	{
+		pulse(ciPulseLength, Power_Off);
+	}	
+}
+
+PUSH Power_On_Press
+{
+	if(Cooling_FB = ON)
+	{
+		PowerOnRequested  = ON;
+		PowerOffRequested = OFF;	
+	}
+	else
+	{
+		pulse(ciPulseLength, Power_On);
+	}
+}
+
+PUSH Power_Toggle_Press
+{
+	if(Power_On_Fb = ON)
+	{
+		pulse(ciPulseLength, Power_Off);
+	}
+	else
+	{
+		pulse(ciPulseLength, Power_On);
+	}
+}
+
+PUSH Screen_Toggle_Press
+{
+	if(ScreenDown = OFF)//screen is up
+	{
+		pulse(ciPulseLength * 2, Screen_Down); //send screen down
+		ScreenDown = ON;
+	}
+	else
+	{
+		pulse(ciPulseLength * 2, Screen_Up); //send screen up
+		ScreenDown = OFF;
+	}
+}
+
+PUSH Screen_Up_Press
+{
+	pulse(ciPulseLength * 2, Screen_Up);
+}
+
+PUSH Screen_Down_Press
+{
+	pulse(ciPulseLength * 2, Screen_Down);
+}
+
+PUSH Screen_Stop_Press
+{
+	ScreenStop();
+}
+
+PUSH Warming_Fb
+{
+	RAMP_INFO progress;
+
+	//for ui stuffs
+	Is_Busy = ON;
+
+	//store the current time
+	_warmStart = time();
+
+	//begin ramping process based on previous warming time, on startup, this will be instant.
+	progress.rampTransitionTime = Warming_Time * 100;
+    progress.rampIsAbsolute = 1;
+
+	if(Feedback_Type = 1)
+	{	
+		progress.rampBaseValue   = 0;
+		progress.rampTargetValue = 65535;
+	}
+	else if(Feedback_Type = 2)
+	{
+		progress.rampBaseValue   = Warming_Time;
+		progress.rampTargetValue = 0;		
+	}
+ 	
+	
+	if(PowerOffRequested <> ON)
+	{
+		/*
+		check if the user pressed the "power off" button 
+		during the warming cycle, if so, dont send the screen 
+		down as the projector will be turned off when it finishes the warmup cycle
+		*/
+	    pulse(ciPulseLength * 2, Screen_Down);
+	}
+    
+	//stop any ramping operations in progress
+	if(isRamping(Progress_Meter)) stopRamp(Progress_Meter);
+    //create a new ramp for the warming progress.
+	createRamp(Progress_Meter, progress);
+}
+
+RELEASE Warming_Fb {
+	integer _warmingTime;
+	//for ui stuffs
+	Is_Busy = OFF;
+	//store the current time
+	_warmEnd = time();
+	//calculate the time it took for the projector to warm.
+	_warmingTime = elapsedTime(_warmStart, _warmEnd);
+
+	Warming_Time = (Source_Correction_Wait_Time / 100) + _warmingTime;
+
+	if(ciDebug = ON) {
+		print("%d = %d + %d", Warming_Time, (Source_Correction_Wait_Time / 100), _warmingTime);
+	}
+
+	wait(Source_Correction_Wait_Time) {
+		if(Correct_Input_Fb = OFF) pulse(ciPulseLength, Correct_Input);		
+	}
+
+	PowerRequestCheck();
+}
+
+PUSH Cooling_Fb
+{
+	RAMP_INFO progress;
+	//for ui stuffs
+    Is_Busy = ON;
+
+	//store the current time
+	_coolStart = time();
+	//begin ramping process based on previous cooling time, on startup, this will be instant.
+	progress.rampTransitionTime = Cooling_Time * 100;
+	progress.rampIsAbsolute = 1;
+
+	if(Feedback_Type = 1)
+	{	
+		progress.rampBaseValue   = 0;
+		progress.rampTargetValue = 65535;
+	}
+	else if(Feedback_Type = 2)
+	{
+		progress.rampBaseValue   = Cooling_Time;
+		progress.rampTargetValue = 0;		
+	}
+		
+	if(isRamping(Progress_Meter)) stopRamp(Progress_Meter);
+	createRamp(Progress_Meter, progress);
+
+	if(PowerOnRequested <> ON)
+	{
+		pulse(ciPulseLength * 2, Screen_Up);
+	}
+}
+
+RELEASE Cooling_Fb
+{
+	//for ui stuffs
+	Is_Busy = OFF;
+    
+	//store the current time
+	_coolEnd = time();
+	//calculate the time it took for the projector to cool.
+	Cooling_Time = elapsedTime(_coolStart, _coolEnd);
+
+	PowerRequestCheck();
+}
+
+PUSH Power_On_Fb
+{
+	wait(Source_Correction_Wait_Time)
+	{
+		if(Correct_Input_Fb = OFF) pulse(ciPulseLength, Correct_Input);		
+	}
+}

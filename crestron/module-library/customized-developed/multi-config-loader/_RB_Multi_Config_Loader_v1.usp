@@ -1,0 +1,155 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Dynamic Config Loader"
+#HINT "handles loading configurations only if they need loading"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENABLE_DYNAMIC
+#PRINT_TO_TRACE
+#DEFINE_CONSTANT DEBUG OFF
+#DEFINE_CONSTANT MAXITEMS 255
+//#DEFINE_CONSTANT DEBUG 1
+#DEFINE_CONSTANT MAXIGNORE 5
+#DIGITAL_EXPAND InputsWithOutputs
+//#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT _SKIP_, Enable;
+DIGITAL_INPUT _SKIP_, Configuration_Loaded_Successfully[MAXITEMS];
+
+/*** PARAMETERS ***/
+INTEGER_PARAMETER Load_Interval;
+
+#BEGIN_PARAMETER_PROPERTIES Load_Interval
+	propValidUnits = unitTime;
+   	propDefaultUnit = unitTime;
+	propBounds=1s, 5s;
+	propDefaultValue = 2s;
+	propShortDescription= "the time in-between attempting to load configs";
+#END_PARAMETER_PROPERTIES
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT _SKIP_, Configuration_Load_In_Progress_Fb, _SKIP_, Load_Configuration[MAXITEMS];
+ANALOG_OUTPUT Loading_Configuration;
+
+/*** GLOBAL VARIABLES ***/
+INTEGER gi_ConfigurationsDefined;
+INTEGER gi_CurrentConfiguration;
+INTEGER gi_InitComplete;
+INTEGER gi_LoadInProgress;
+
+/*** FUNCTIONS ***/
+INTEGER_FUNCTION CheckConfigurationLoadStatus() {
+	integer index, load_required;
+	//by default we assume that we dont need to load any configurations
+	load_required = OFF;
+
+	for (index = 1 to gi_ConfigurationsDefined) {
+		//check each configuration to see if it is loaded
+		if (Configuration_Loaded_Successfully[index] = OFF) {
+			//if any index is low, set load required to true, then break the loop
+			load_required = ON;
+			break;
+		}
+	}
+
+	return (load_required);
+}
+
+INTEGER_FUNCTION CheckCurrentConfiguration(integer index) {
+	if (index <= gi_ConfigurationsDefined) {
+		if(DEBUG = ON) { print("the config index desired %d is valid [total: %d], continue to check\r\n", index, gi_ConfigurationsDefined); }
+		//we want to make sure we arent reloading successfully loaded configurations
+		if (Configuration_Loaded_Successfully[index] = OFF) {
+			//if the current config to load is not loaded successfully, return it.
+			if(DEBUG = ON) { print("config %d has not been loaded, return to load it", index); }
+			return (index);
+		}
+		//if its not loaded, check the next configuration recursively
+		else {
+			if(DEBUG = ON) { print("config %d has been loaded, check the next one\r\n", index); }
+			return (CheckCurrentConfiguration(index + 1)); 
+		}
+	}
+	else { 
+		if(DEBUG = ON) { print("the config index desired is not valid: %d, resetting to %d\r\n", index, 1); }
+		return (1); 
+	}
+}
+
+FUNCTION SetLoadInProgressStatus(integer status)
+{
+	gi_LoadInProgress = status;
+	Configuration_Load_In_Progress_Fb = gi_LoadInProgress;
+}
+
+FUNCTION LoadConfigurations() 
+{
+	integer temp, current;
+	//only start the loop if its not already running
+	if(gi_LoadInProgress = OFF) {
+	//prevent the loop from running forever
+		WHILE(Enable = ON && CheckConfigurationLoadStatus() = ON) {
+			SetLoadInProgressStatus(ON);
+			//check if any configurations require loading, if so continue, if not, wait for the load interval and decide if we need to go again
+			//recursively check whether the current configurations need to be loaded
+			current = CheckCurrentConfiguration(gi_CurrentConfiguration);
+			//pulse the config to load
+			Loading_Configuration = current;
+			pulse(20, Load_Configuration[current]);
+			//assign the current value to the global variable
+			gi_CurrentConfiguration = current;
+			//wait for the load interval after loading
+			delay(Load_Interval);
+		}
+		SetLoadInProgressStatus(OFF);	
+	}
+}
+
+FUNCTION Main() {
+	integer index;
+	
+	gi_CurrentConfiguration = 1;
+	
+	waitForInitializationComplete();
+   
+	for (index = MAXITEMS to 1 step -1)
+	{
+		if (isSignalDefined(Configuration_Loaded_Successfully[index]) = ON) { break; }
+	} 
+    
+	if(DEBUG = ON) { print("%d configurations defined\r\n", index); }
+	
+	gi_ConfigurationsDefined = index;
+	
+	if (gi_ConfigurationsDefined = 0) { gi_ConfigurationsDefined = 1; }
+	
+	gi_InitComplete = ON;
+	
+	LoadConfigurations();
+}
+
+PUSH Enable {
+	LoadConfigurations();
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE Configuration_Loaded_Successfully {
+	integer indexChanged;
+	indexChanged = getLastModifiedArrayIndex();
+	if(DEBUG = ON) { print("configuration %d loaded!\r\n", indexChanged); }
+	//check if the config that just changed is no longer loaded
+	if (Configuration_Loaded_Successfully[indexChanged] = OFF) {
+		//if the config is not loaded, check and see if the loop is already running. if not, try to re-start the loop
+		LoadConfigurations();
+	}
+}

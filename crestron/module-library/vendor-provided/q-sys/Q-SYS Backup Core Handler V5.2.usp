@@ -1,0 +1,89 @@
+/*
+Dealer Name:Crestron
+System Name:
+System Number:
+Programmer:JMG
+Comments:
+*/
+
+//Compiler Directives
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+// #DEFINE_CONSTANT
+#CATEGORY "0" // #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+//Include Libraries
+
+//#Includepath
+#User_SimplSharp_Library "Redundant Core"
+
+
+//IO Variables
+Digital_Input Get_Status;
+
+String_Input Redundant_Core_IP[500];
+
+Digital_Output Now_Active;
+
+String_Output New_Active_IP;
+
+RedundantCore myCore;
+
+//Global Variables
+string gsIP[500];
+ 
+//Events
+
+Change Redundant_Core_IP
+{
+	gsIP = Redundant_Core_IP;
+	myCore.IP_Address = gsIP;		  	
+
+}
+push Get_Status
+{
+ 	if(len(gsIP) > 0)
+ 	{
+ 		myCore.CheckStatus();
+ 	}
+}
+
+Callback Function cbf_CoreRedundancyStatus(integer status)
+{
+ 	Switch (Status)
+ 	{
+ 		case (0):
+ 		{
+ 		 	Now_Active = 0;
+ 			
+ 		}
+ 		case (1):
+ 		{
+ 		 	Now_Active = 1;
+            New_Active_IP = gsIP;
+ 			
+ 		}
+ 	
+ 	}
+}
+
+
+Function Main()
+{
+    // TODO:  Add code here
+    // Initialize declared global and local variables/arrays as needed.
+
+     WaitForInitializationComplete();
+     
+     registerdelegate(myCore,delCoreRedundancyStatus,cbf_CoreRedundancyStatus);
+         // If you are reading any Input or Output variables, uncomment
+    //   the WaitForInitializationComplete statement above and read
+    //   them afterwards.  Input/Output variables will not have
+    //   their correct values set until after the logic processor
+    //   runs and propagates the values to them.
+}
+

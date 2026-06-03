@@ -1,0 +1,408 @@
+/*******************************************************************************************
+  INFORMATION
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: AVPro Edge MXNet Decoder v2.6
+Programmer:  VNG
+Version:     2.5
+*/
+
+/*******************************************************************************************
+  COMPILER DIRECTIVES
+*******************************************************************************************/
+
+#SYMBOL_NAME "AVPro Edge MXNet Decoder v2.6"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+/*******************************************************************************************
+  CONSTANTS
+*******************************************************************************************/
+
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT MAX_STRING 100
+#DEFINE_CONSTANT SCREEN_ON 0
+#DEFINE_CONSTANT SCREEN_FLASH 1
+#DEFINE_CONSTANT SCREEN_OFF 2
+#DEFINE_CONSTANT OSD_ON 1
+#DEFINE_CONSTANT OSD_OFF 0
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE 0
+
+#HELP_BEGIN
+To be used with AVPro Edge MXNet Decoder v2.6.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  INCLUDE LIBRARIES
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "AVProEdgeMXNetLib2"
+
+/*******************************************************************************************
+  MODULE I/O
+*******************************************************************************************/
+
+// --------------------- INPUTS
+
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			  Reboot,
+			  ScreenOn,
+			  ScreenFlash,
+			  ScreenOff,
+			  OSDOn,
+			  OSDOff,
+			  VolumeInc,
+			  VolumeDec,
+			  VolumeSet,
+			  MuteOn,
+			  MuteOff,
+			  MuteTog,
+			  HotPlugReset;
+				
+ANALOG_INPUT  VolumeLevel,
+			  ResolutionSet;
+        
+// --------------------- OUTPUTS
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			   IsInitialized,
+			   IsOnline,
+			   ScreenOnFb,
+			   ScreenFlashFb,
+			   ScreenOffFb,
+			   OSDOnFb,
+			   OSDOffFb,
+			   VolumeMuteFb,
+			   HotPlugFb;
+
+ANALOG_OUTPUT  VolumeLevelFb,
+			   ResolutionFb,
+			   VideoWallCountFb;
+				
+STRING_OUTPUT  ConnectionRatingFb,
+				ResAndTimeFb,
+			   ColorspaceFb,
+			   BitdepthFb,
+			   HdrFb,
+			   HdcpFb,
+			   AudioFormatFb,
+			   NetworkConnectionFb,
+				_SKIP_,
+				DeviceIdFb,
+				MacAddressFb;
+				
+/*******************************************************************************************
+  PARAMETERS
+*******************************************************************************************/
+
+INTEGER_PARAMETER CommandProcessorID;
+STRING_PARAMETER DeviceID[MAX_STRING];
+INTEGER_PARAMETER Index;
+
+/*******************************************************************************************
+  PARAMETER PROPERTIES
+*******************************************************************************************/
+
+/*******************************************************************************************
+  GLOBAL VARIABLES
+*******************************************************************************************/
+
+// --------------------- SIMPL# Classes
+
+DecoderComponent decoder; 
+
+/*******************************************************************************************
+  FUNCTIONS
+*******************************************************************************************/
+
+// --------------------- RESET
+
+FUNCTION ResetOutputs()
+{
+  // -- DIGITALS
+
+  IsInitialized = FALSE;
+  IsOnline      = FALSE;
+  ScreenOnFb    = FALSE;
+  ScreenFlashFb = FALSE;
+  ScreenOffFb	= FALSE;
+  OSDOnFb  		= FALSE;
+  OSDOffFb  	= FALSE;
+  VolumeMuteFb  = FALSE;
+  HotPlugFb	    = FALSE;
+
+  // -- ANALOGS
+
+  VolumeLevelFb 	 = NULL_VALUE;
+  ResolutionFb 	 	 = NULL_VALUE;
+  VideoWallCountFb 	 = NULL_VALUE;
+  ConnectionRatingFb = NULL_STRING;
+
+  // -- SERIALS
+
+  ResAndTimeFb 		  = NULL_STRING;
+  ColorspaceFb 		  = NULL_STRING;
+  BitdepthFb 		  = NULL_STRING;
+  HdrFb 			  = NULL_STRING;
+  HdcpFb 			  = NULL_STRING;
+  AudioFormatFb 	  = NULL_STRING;
+  NetworkConnectionFb = NULL_STRING;
+}
+
+// --------------------- SIMPL# EVENT HANDLERS
+
+EVENTHANDLER OnInitialize (DecoderComponent sender, DigEventArgs args)
+{
+  IsInitialized = args.Payload;
+}
+
+EVENTHANDLER OnOnline (DecoderComponent sender, DigEventArgs args)
+{
+  IsOnline = args.Payload;
+}
+
+EVENTHANDLER OnScreen (DecoderComponent sender, AnaEventArgs args)
+{
+  // Do we actually need these? Logic below these will set all the values accordingly
+  // ScreenOnFb = FALSE;
+  // ScreenFlashFb = FALSE;
+  // ScreenOffFb = FALSE;
+
+  ScreenOnFb = (args.Payload = SCREEN_ON);
+  ScreenFlashFb = (args.Payload = SCREEN_FLASH);
+  ScreenOffFb = (args.Payload = SCREEN_OFF);
+}
+
+EVENTHANDLER OnOsdMode (DecoderComponent sender, AnaEventArgs args)
+{
+  // Do we actually need these? Logic below these will set all the values accordingly
+  // OsdOnFb = FALSE;
+  // OsdOffFb = FALSE;
+    
+  OsdOnFb = (args.Payload = OSD_ON);	 // value could be 1-3
+  OsdOffFb = (args.Payload = OSD_OFF); // 0 means off
+}
+EVENTHANDLER OnVolumeLevel ( DecoderComponent sender, AnaEventArgs args )
+{
+  VolumeLevelFb = args.Payload;
+}
+
+EVENTHANDLER OnVolumeMute ( DecoderComponent sender, DigEventArgs args )
+{
+  VolumeMuteFb = args.Payload;
+}
+
+EVENTHANDLER OnResolution (DecoderComponent sender, AnaEventArgs args)
+{
+  ResolutionFb = args.Payload;
+}
+
+EVENTHANDLER OnHotPlug (DecoderComponent sender, DigEventArgs args)
+{
+  HotPlugFb = args.Payload;
+}
+
+EVENTHANDLER OnConnectionRating (DecoderComponent sender, SerEventArgs args)
+{
+  ConnectionRatingFb = args.Payload;
+}
+
+EVENTHANDLER OnResAndTiming (DecoderComponent sender, SerEventArgs args)
+{
+  ResAndTimeFb = args.Payload;
+}
+
+EVENTHANDLER OnColorspace (DecoderComponent sender, SerEventArgs args)
+{
+  ColorspaceFb = args.Payload;
+}
+
+EVENTHANDLER OnBitdepth (DecoderComponent sender, SerEventArgs args)
+{
+  BitdepthFb = args.Payload;
+}
+
+EVENTHANDLER OnHdr (DecoderComponent sender, SerEventArgs args)
+{
+  HdrFb = args.Payload;
+}
+
+EVENTHANDLER OnHdcp (DecoderComponent sender, SerEventArgs args)
+{
+  HdcpFb = args.Payload;
+}
+
+EVENTHANDLER OnAudioFormat (DecoderComponent sender, SerEventArgs args)
+{
+  AudioFormatFb = args.Payload;
+}
+
+EVENTHANDLER OnNetworkConnection (DecoderComponent sender, SerEventArgs args)
+{
+  NetworkConnectionFb = args.Payload;
+}
+
+EVENTHANDLER OnVideoWallCount (DecoderComponent sender, AnaEventArgs args)
+{
+  VideoWallCountFb = args.Payload;
+}
+
+EVENTHANDLER OnDeviceId ( DecoderComponent sender, SerEventArgs args )
+{
+  DeviceIdFb = args.Payload;
+}
+
+EVENTHANDLER OnMacAddress ( DecoderComponent sender, SerEventArgs args )
+{
+  MacAddressFb = args.Payload;
+}
+
+/*******************************************************************************************
+  EVENT HANDLERS
+*******************************************************************************************/
+
+// --------------------- REBOOT 
+
+THREADSAFE PUSH Reboot
+{
+  decoder.SetReboot();
+}
+
+// --------------------- SCREEN
+
+THREADSAFE PUSH ScreenOn
+{
+  decoder.SetScreenOn();
+}
+
+THREADSAFE PUSH ScreenFlash
+{
+  decoder.SetScreenFlash();
+}
+
+THREADSAFE PUSH ScreenOff
+{
+  decoder.SetScreenOff();
+}
+
+// --------------------- OSD
+
+THREADSAFE PUSH OSDOn
+{
+  decoder.SetOsdOn();
+}
+
+THREADSAFE PUSH OSDOff
+{
+  decoder.SetOsdOff();
+}
+
+// --------------------- VOLUME
+
+THREADSAFE PUSH VolumeInc
+{
+  decoder.SetVolumeInc();
+}
+
+THREADSAFE PUSH VolumeDec
+{
+  decoder.SetVolumeDec();
+}
+
+THREADSAFE RELEASE VolumeInc
+{
+  decoder.SetVolumeStop();
+}
+
+THREADSAFE RELEASE VolumeDec
+{
+  decoder.SetVolumeStop();
+}
+
+THREADSAFE PUSH VolumeSet
+{
+  decoder.SetVolumeDiscrete(VolumeLevel);
+}
+
+THREADSAFE PUSH MuteOn
+{
+  decoder.SetMuteOn();
+}
+
+THREADSAFE PUSH MuteOff
+{
+  decoder.SetMuteOff();
+}
+
+THREADSAFE PUSH MuteTog
+{
+  decoder.SetMuteTog();
+}
+
+// --------------------- HOT PLUG
+
+THREADSAFE PUSH HotPlugReset
+{
+  decoder.SetHotplugReset();
+}
+
+// --------------------- RESOLUTION
+
+THREADSAFE CHANGE ResolutionSet 
+{
+  decoder.SetResolution(ResolutionSet);
+}
+
+/*******************************************************************************************
+  MAIN
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  WAITFORINITIALIZATIONCOMPLETE();
+	
+  ResetOutputs();
+	
+  REGISTEREVENT(decoder, OnInitialize, OnInitialize);
+  REGISTEREVENT(decoder, OnOnline, OnOnline);
+  REGISTEREVENT(decoder, OnScreen, OnScreen);
+  REGISTEREVENT(decoder, OnOsdMode, OnOsdMode);
+  REGISTEREVENT(decoder, OnResolution, OnResolution);
+  REGISTEREVENT(decoder, OnVolumeLevel, OnVolumeLevel);
+  REGISTEREVENT(decoder, OnVolumeMute, OnVolumeMute);
+  REGISTEREVENT(decoder, OnHotPlug, OnHotPlug);
+  REGISTEREVENT(decoder, OnConnectionRating, OnConnectionRating);
+  REGISTEREVENT(decoder, OnResAndTiming, OnResAndTiming);
+  REGISTEREVENT(decoder, OnColorspace, OnColorspace);
+  REGISTEREVENT(decoder, OnBitdepth, OnBitdepth);
+  REGISTEREVENT(decoder, OnHdr, OnHdr);
+  REGISTEREVENT(decoder, OnHdcp, OnHdcp);
+  REGISTEREVENT(decoder, OnAudioFormat, OnAudioFormat);
+  REGISTEREVENT(decoder, OnNetworkConnection, OnNetworkConnection);
+  REGISTEREVENT(decoder, OnVideoWallCount, OnVideoWallCount);
+  REGISTEREVENT(decoder, OnDeviceId, OnDeviceId);	
+  REGISTEREVENT(decoder, OnMacAddress, OnMacAddress);
+	
+  decoder.Configure(CommandProcessorID, DeviceID, Index);
+}
+
+

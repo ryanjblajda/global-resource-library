@@ -1,0 +1,449 @@
+/*
+Programmer: Ryan Blajda
+*/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Interlogix NX-587E Processor v2"
+#HINT "Processes Data From the NX587E Automation Module"
+#CATEGORY "21" // Security
+#PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+	Meant for use in the SIMPL User Macro/Module
+	Doesnt Parse Spanish Characters
+#HELP_END
+
+
+//CONSTANTS
+
+#DEFINE_CONSTANT ledOff   0 
+#DEFINE_CONSTANT ledOn 	  1 
+#DEFINE_CONSTANT ledFlash 2
+#DEFINE_CONSTANT DEBUG 1
+
+//INPUTS 
+BUFFER_INPUT From_Device[500];
+
+//OUTPUTS
+
+DIGITAL_OUTPUT Entry_Delay_Active;
+DIGITAL_OUTPUT Previous_Alarm_Active;
+DIGITAL_OUTPUT Siren_Active, _SKIP_;
+
+ANALOG_OUTPUT Armed_LED;
+ANALOG_OUTPUT Ready_LED;
+ANALOG_OUTPUT Fire_LED;
+ANALOG_OUTPUT Power_LED;
+ANALOG_OUTPUT Stay_LED;
+ANALOG_OUTPUT Chime_LED;
+ANALOG_OUTPUT Exit_LED;
+ANALOG_OUTPUT Bypass_LED;
+ANALOG_OUTPUT Cancel_LED, _SKIP_;
+
+STRING_OUTPUT Keypad_Tone_Status, _SKIP_;
+
+STRING_OUTPUT Line_1_Text;
+STRING_OUTPUT Line_2_Text;
+
+//VARIABLES
+
+integer isProcessing;
+string dataToProcess[255];
+string dataChunkToProcess[255];
+integer buzzerStatus;
+
+//ARRAY
+integer partitionStatusLED[4];
+//Armed = Index 1
+//Ready = Index 2
+//Fire  = Index 3
+//Power = Index 4
+integer keypadFunctionLED[5];
+//Stay   = Index 1
+//Chime  = Index 2
+//Exit   = Index 3
+//Bypass = Index 4
+//Cancel = Index 5
+integer advancedPartitionStatus[4];
+//Entry Delay 	 = Index 1
+//Previous Alarm = Index 2
+//Siren On       = Index 3
+
+//FUNCTIONS
+  
+string_function processLine(string message) {
+	string lineMessageFormatted[50];
+	string junkChar[5];
+	integer char;
+	integer stringPosition;
+	string lineMessage[50];
+	
+	lineMessage = message;
+
+	for(stringPosition = 1 to len(lineMessage)) {
+		char = getc(lineMessage);
+
+		if(char <> 0x002D && char <> 0x000D && char <> 0x005F) {
+			//check for special character, swap out
+			//00h = á 01h = é 02h = í 03h = ó 04h = ú 05h = ñ
+			//06h = Ñ 1Fh = blockthing 5Ch = updown 7Eh = up 7Fh = down
+			if(char = 0x007E || char = 0x005C || char = 0x007E || char = 0x007F){
+				junkChar = chr(char);
+				lineMessageFormatted = lineMessageFormatted + " ->";
+			}
+			else {
+				//If character is not a "-" hyphen, CR, or "_", or a special character extract it to the line 1 temp string
+				lineMessageFormatted = lineMessageFormatted + chr(char);
+				#IF_DEFINED DEBUG
+					print("parsed topLine: %S", lineMessageFormatted);
+				#ENDIF
+			}				
+		}
+		else {
+			//we dont want the character because it is something other than text
+			junkChar = chr(char);
+			#IF_DEFINED DEBUG
+				print("Removed: %S", junkChar);
+			#ENDIF
+		}
+		processLogic();
+	}//finish processing lineMessageTemp string
+	return(lineMessageFormatted);
+}//END LINE PROCESSING FUNCTION
+
+integer_function processLEDStatus(integer state) {
+	integer ledStatus;
+	switch(state) {
+		case(0x0030) : {
+			ledStatus = ledOff;
+		}//OFF
+		case(0x0031) : {
+			ledStatus = ledOn;
+		}//ON
+		case(0x0032) : {
+			ledStatus = ledFlash;
+		}//FLASHING
+	}//END STATE SWITCH
+	return(ledStatus);
+}//END LED PROCESSING FUNCTION
+
+//EVENT HANDLERS
+
+change From_Device {
+	string topLineMessageTemp[50];
+	string bottomLineMessageTemp[50];
+	string topLineMessage[50];
+	string bottomLineMessage[50];
+    
+	integer buzzerID;
+	string buzzerStatus[50];
+
+	integer currentLEDStatus;
+
+	integer stringPosition;
+	
+	integer nextChar;
+	string removedTemp[5];
+	string typeMessage[5];  
+
+	if(isProcessing = 0) {
+		isProcessing = 1;
+		
+		do {
+			nextChar = getc(From_Device);
+			dataToProcess = dataToProcess + chr(nextChar);
+			//next character is the end of a string, lets process
+
+			if(nextChar = 0x0D) {
+
+				dataChunkToProcess = dataToProcess;
+				dataToProcess = "";
+				
+				#IF_DEFINED DEBUG
+					print("Carriage Return Found, Data to Process: %S | Emptied dataToProcess: %S", dataChunkToProcess, dataToProcess);
+				#ENDIF
+				
+				if(find("\x0A", dataChunkToProcess)) {
+					removedTemp = remove("\x0A", dataChunkToProcess);
+				}							
+
+				if(left(dataChunkToProcess, 3) = "DL1") {//PARSE DATA IN DL1 STRING
+					topLineMessageTemp = dataChunkToProcess; //create a string to work on
+					typeMessage = remove("DL1", topLineMessageTemp); //remove DL1 from the string
+					
+					topLineMessage = processLine(topLineMessageTemp);
+                    Line_1_Text = topLineMessage;
+				}//END LINE 1
+				else if(left(dataChunkToProcess, 3) = "DL2") {
+					bottomLineMessageTemp = dataChunkToProcess; //create a string to work on
+					typeMessage = remove("DL2", bottomLineMessageTemp); //remove DL2 from the string
+					
+					bottomLineMessage = processLine(bottomLineMessageTemp);
+					Line_2_Text = bottomLineMessage;
+				}//END LINE 2
+				else if(left(dataChunkToProcess, 3) = "LDS") {
+					for(stringPosition = 4 to 7) {
+						currentLEDStatus = byte(dataChunkToProcess, stringPosition);
+						if(currentLEDStatus = 0x002D) {
+							partitionStatusLED[stringPosition - 3] = ledOff;			
+						}//LED IS OFF (hyphen)
+						else if(currentLEDStatus > 0x0060) {
+							partitionStatusLED[stringPosition - 3] = ledOn;
+						}//LED IS ON (lowercase)
+						else if(currentLEDStatus > 0x0040) {
+							partitionStatusLED[stringPosition - 3] = ledFlash;
+						}//LED IS FLASHING (uppercase)
+						else {
+							#IF_DEFINED DEBUG
+								print("IMPROPER STATE");
+							#ENDIF
+						}
+					}//END STRINGPOSITION LED STATE FOR LOOP
+					Armed_LED = partitionStatusLED[1];
+					Ready_LED = partitionStatusLED[2];
+					Fire_LED  = partitionStatusLED[3];
+					Power_LED = partitionStatusLED[4];
+					#IF_DEFINED DEBUG
+						print("PARTITION LED STATUS");
+					#ENDIF
+				}//END PARTITION LED STATUS
+				else if(left(dataChunkToProcess, 3) = "LDF") {
+					for(stringPosition = 4 to 8) {
+						currentLEDStatus = byte(dataChunkToProcess, stringPosition);
+						if(currentLEDStatus = 0x002D) {
+							keypadFunctionLED[stringPosition - 3] = ledOff;			
+						}//LED IS OFF (hyphen)
+						else if(currentLEDStatus > 0x0060) {
+							keypadFunctionLED[stringPosition - 3] = ledOn;
+						}//LED IS ON (lowercase)
+						else if(currentLEDStatus > 0x0040) {
+							keypadFunctionLED[stringPosition - 3] = ledFlash;
+						}//LED IS FLASHING (uppercase)
+						else {
+							#IF_DEFINED DEBUG
+								print("IMPROPER STATE");
+							#ENDIF
+						}
+					}//END STRINGPOSITION LED STATE FOR LOOP
+					Stay_LED   = keypadFunctionLED[1];
+					Chime_LED  = keypadFunctionLED[2];
+					Exit_LED   = keypadFunctionLED[3];
+					Bypass_LED = keypadFunctionLED[4];
+					Cancel_LED = keypadFunctionLED[5];
+					#IF_DEFINED DEBUG
+						print("KEYPAD FUNCTION STATUS");
+					#ENDIF
+				}//END KEYPAD FUNCTION LED STATUS
+				else if(left(dataChunkToProcess, 3) = "PA1") {
+					for(stringPosition = 4 to 11) {
+						currentLEDStatus = byte(dataChunkToProcess, stringPosition);
+						if(stringPosition = 4) {
+							if(currentLEDStatus > 0x0060) {
+								partitionStatusLED[2] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								partitionStatusLED[2] = ledOn;
+							}//LED IS ON (uppercase)			
+						}//READY LED
+						else if(stringPosition = 5) {
+							if(currentLEDStatus > 0x0060) {
+								partitionStatusLED[1] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								partitionStatusLED[1] = ledOn;
+							}//LED IS ON (uppercase)		
+						}//ARMED LED
+                        else if(stringPosition = 6) {
+							if(currentLEDStatus > 0x0060) {
+								keypadFunctionLED[1] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								keypadFunctionLED[1] = ledOn;
+							}//LED IS ON (uppercase)
+						}//STAY LED
+						else if(stringPosition = 7) {
+							if(currentLEDStatus > 0x0060) {
+								keypadFunctionLED[2] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								keypadFunctionLED[2] = ledOn;
+							}//LED IS ON (uppercase)
+						}//CHIME LED
+						else if(stringPosition = 8) {
+							if(currentLEDStatus > 0x0060) {
+								advancedPartitionStatus[1] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								advancedPartitionStatus[1] = ledOn;
+							}//LED IS ON (uppercase)
+						}//ENTRY PERIOD
+						else if(stringPosition = 9) {
+							if(currentLEDStatus > 0x0060) {
+								keypadFunctionLED[3] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								keypadFunctionLED[3] = ledOn;
+							}//LED IS ON (uppercase)
+						}//EXIT LED
+						else if(stringPosition = 10) {
+							if(currentLEDStatus > 0x0060) {
+								advancedPartitionStatus[2] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								advancedPartitionStatus[2] = ledOn;
+							}//LED IS ON (uppercase)
+						}//PREVIOUS ALARM
+						else if(stringPosition = 11) {
+							if(currentLEDStatus > 0x0060) {
+								advancedPartitionStatus[3] = ledOff;
+							}//LED IS OFF (lowercase)
+							else if(currentLEDStatus > 0x0040) {
+								advancedPartitionStatus[3] = ledOn;
+							}//LED IS ON (uppercase)
+						}//SIREN ON
+						processLogic();
+					}//END FOR LOOP
+					Armed_LED 			  = partitionStatusLED[1];
+					Ready_LED		      = partitionStatusLED[2];
+					Stay_LED  			  = keypadFunctionLED[1];
+					Chime_LED 			  = keypadFunctionLED[2];
+					Exit_LED    		  = keypadFunctionLED[3];
+					
+					Entry_Delay_Active    = advancedPartitionStatus[1];
+					Previous_Alarm_Active = advancedPartitionStatus[2];
+					Siren_Active          = advancedPartitionStatus[3];
+					
+					
+					#IF_DEFINED DEBUG
+						print("PARTITION STATUS");
+					#ENDIF
+				}//END PARTITION STATUS
+				else if(left(dataChunkToProcess, 2) = "BZ") {
+					buzzerID = byte(dataChunkToProcess, 3);
+					switch(buzzerID) {
+						case(0x0030) : {
+							buzzerStatus = "No Sound";
+						}//buzzState 0 = No Sound
+						case(0x0031) : {
+							buzzerStatus = "Steady Tone";
+						}//buzzState 1 = Steady Tone
+						case(0x0032) : {
+							buzzerStatus = "Alarm!!";
+						}//buzzState 2 = Alarm!!
+						case(0x0033) : {
+							buzzerStatus = "Exit Beep Slow";
+						}//buzzState 3 = Exit Beep Slow
+						case(0x0034) : {
+							buzzerStatus = "Exit Beep Fast";
+						}//buzzState 4 = Exit Beep Fast
+						case(0x0037) : {
+							buzzerStatus = "Chime!";
+						}//buzzState 7 = Chime!
+						case(0x0038) : {
+							buzzerStatus = "Error!";
+						}//buzzState 8 = Error!
+					}//END BUZZER ID SWITCH/CASE
+					Keypad_Tone_Status = buzzerStatus;
+					#IF_DEFINED DEBUG
+						print("BUZZER STATUS %S", buzzerStatus);
+					#ENDIF
+				}//END BUZZER STATUS
+				else if(left(dataChunkToProcess, 2) = "LA") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					partitionStatusLED[1] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("ARMED LED");
+					#ENDIF
+					Armed_LED = partitionStatusLED[1];
+				}//END ARMED LED
+				else if(left(dataChunkToProcess, 2) = "LR") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					partitionStatusLED[2] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("READY LED");
+					#ENDIF
+					Ready_LED = partitionStatusLED[2];
+				}//END READY LED
+				else if(left(dataChunkToProcess, 2) = "LF") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					partitionStatusLED[3] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("FIRE LED");
+					#ENDIF
+					Fire_LED = partitionStatusLED[3];
+				}//END FIRE LED
+				else if(left(dataChunkToProcess, 2) = "LP") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					partitionStatusLED[4] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("POWER LED");
+					#ENDIF
+					Power_LED = partitionStatusLED[4];
+				}//END POWER LED
+				else if(left(dataChunkToProcess, 2) = "LS") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					keypadFunctionLED[1] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("STAY");
+					#ENDIF
+					Stay_LED = keypadFunctionLED[1];
+				}//END STAY LED
+				else if(left(dataChunkToProcess, 2) = "LC") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					keypadFunctionLED[2] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("CHIME");
+					#ENDIF
+					Chime_LED = keypadFunctionLED[2];
+				}//END CHIME LED
+				else if(left(dataChunkToProcess, 2) = "LE") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					keypadFunctionLED[3] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("EXIT");
+					#ENDIF
+					Exit_LED = keypadFunctionLED[3];
+				}//END EXIT LED
+				else if(left(dataChunkToProcess, 2) = "LB") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					keypadFunctionLED[4] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("BYPASS");
+					#ENDIF
+					Bypass_LED = keypadFunctionLED[4];
+				}//END BYPASS LED
+				else if(left(dataChunkToProcess, 2) = "LK") {
+					currentLEDStatus = byte(dataChunkToProcess, 3);
+					keypadFunctionLED[5] = processLEDStatus(currentLEDStatus);
+					#IF_DEFINED DEBUG
+						print("CANCEL");
+					#ENDIF
+					Cancel_LED = keypadFunctionLED[5];
+				}//END CANCEL LED
+				else{
+				}
+			}//END IF CARRIAGE RETURN
+			else {
+			}
+			processLogic();
+		} until (len(From_Device) = 0); //EMPTY BUFFER
+	}//END IF PROCESSING BLOCK
+	isProcessing = 0;
+	removedTemp = "";		
+}//END CHANGE  
+
+function Main() {
+	isProcessing = 0;
+}

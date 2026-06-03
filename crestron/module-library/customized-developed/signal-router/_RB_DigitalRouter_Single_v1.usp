@@ -1,0 +1,60 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Digital Router v1"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#DEFINE_CONSTANT c_Max 255
+#DEFINE_CONSTANT c_Debug 1
+#DEFINE_CONSTANT c_AllowedBlanks 5
+
+#HELP_BEGIN
+
+Based on the Selected input, the associated digital signal, if high will be propogated to the associated output
+
+#HELP_END
+
+/*** INPUTS ***/
+ANALOG_INPUT Selected[c_Max];
+DIGITAL_INPUT InputToPass[c_Max];
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT Output[c_Max];
+
+/*** GLOBAL VARIABLES ***/
+
+/*** FUNCTIONS ***/
+
+/** EVENT HANDLERS **/
+CHANGE Selected
+{
+	integer i;
+	i = getLastModifiedArrayIndex();
+	
+	if(Selected[i] <> 0)
+	{
+		Output[i] = InputToPass[Selected[i]];
+	}
+	else { Output[i] = OFF; }
+}
+
+CHANGE InputToPass
+{	
+	integer iChanged, i;
+	iChanged = getLastModifiedArrayIndex();
+
+	for (i = 1 to c_Max)
+	{
+		if (Selected[i] = iChanged) {
+			Output[i] = InputToPass[iChanged];
+		}
+		processLogic();
+	}
+}

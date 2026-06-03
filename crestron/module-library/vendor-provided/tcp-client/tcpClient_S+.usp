@@ -1,0 +1,150 @@
+/*
+Programmer: RB
+*/
+
+#SYMBOL_NAME "Advanced TCP Client"
+#HINT "TCP Client with Pinging, WOL and Advanced Connection Logic"
+#CATEGORY "46" "RBLAJDA_PROCESSOR"
+
+#DEFINE_CONSTANT    FALSE        0
+#DEFINE_CONSTANT    TRUE         1
+#OUTPUT_SHIFT 3
+//#DEFINE_CONSTANT    INCLUDE_NEW_CODE    1
+
+DIGITAL_INPUT 		_SKIP_, _SKIP_, _SKIP_;
+DIGITAL_INPUT 		connectToClient;
+DIGITAL_INPUT 		reconnectToClient;
+INTEGER_PARAMETER 	clientPortNumber;
+STRING_PARAMETER 	IP_Address[256];
+INTEGER_PARAMETER	connectionAttempts;
+STRING_INPUT 		tx$[256];
+DIGITAL_OUTPUT 		clientIsConnected;
+ANALOG_OUTPUT  		clientConnectionStatus;
+ANALOG_OUTPUT		clientConnectionAttempts;
+ANALOG_OUTPUT		clientRemoteDisconnects;
+STRING_OUTPUT		clientConnectionStatus$;
+STRING_OUTPUT		rx$;		
+
+INTEGER remoteDisconnectCount;
+INTEGER connectionFailedCount;
+
+TCP_CLIENT clientDevice[1024];
+
+PUSH connectToClient {
+    SIGNED_INTEGER status;
+    status = SocketConnectClient(clientDevice, IP_Address, clientPortNumber, reconnectToClient);
+
+    if (status < 0)
+		Print("Error connecting socket to address %s on port  %d", IP_Address, clientPortNumber);
+}
+
+RELEASE connectToClient {
+    SIGNED_INTEGER status;
+    status = SocketDisconnectClient(clientDevice);
+
+	if (status < 0) 
+		Print("Error disconnecting socket to address %s on port  %d", IP_Address, clientPortNumber);
+}
+
+SOCKETCONNECT clientDevice {
+    SIGNED_LONG_INTEGER PortNumber;
+    SIGNED_INTEGER LocalStatus;
+    STRING RemoteIPAddress[20];
+    STRING RequestedAddress[256];
+
+    clientIsConnected = 1;
+    LocalStatus = SocketGetAddressAsRequested(clientDevice, RequestedAddress);
+
+    if (LocalStatus < 0)
+		Print("Error getting remote ip address. %d\n", LocalStatus);
+    	Print("OnConnect: Connect call to %s successful\n", RequestedAddress);
+    
+	PortNumber = SocketGetPortNumber(clientDevice);
+
+    if (PortNumber < 0)
+        Print("Error getting client port number. %ld\n", PortNumber);
+
+    LocalStatus = SocketGetRemoteIPAddress(clientDevice, RemoteIPAddress);
+
+    if (LocalStatus < 0)
+        Print("Error getting remote ip address. %d\n", LocalStatus);
+
+    Print("OnConnect: Connected to port %ld on address %s\n", PortNumber, RemoteIPAddress);
+}
+
+SOCKETDISCONNECT clientDevice {
+    clientIsConnected = 0;
+    if (connectToClient)
+        Print("Socket disconnected remotely");
+    Else
+        Print("Local disconnect complete.");
+}
+
+SOCKETSTATUS clientDevice {
+	SIGNED_INTEGER Status;
+    Status = SocketGetStatus();
+
+    clientConnectionStatus = Status;
+
+	switch(clientConnectionStatus) {
+		case(0): {//not connected
+			clientConnectionStatus$ = "Not Connected";			
+		}
+		case(1): {//waiting for connection
+			clientConnectionStatus$ = "Waiting...";
+		}
+		case(2): {//connected
+			clientConnectionAttempts = 0;
+			clientRemoteDisconnects = 0;
+			clientConnectionStatus$ = "Connected";
+		}
+		case(3): {//connection failed **
+			connectionFailedCount = connectionFailedCount + 1;
+			clientConnectionAttempts = connectionFailedCount;
+			clientConnectionStatus$ = "Connection Failed";
+			
+		}
+		case(4): {//connection broken remotely **
+			remoteDisconnectCount = remoteDisconnectCount + 1;
+			clientRemoteDisconnects = remoteDisconnectCount;
+			clientConnectionStatus$ = "Connection Broken Remotely";
+		}
+		case(5): {//connection broken locally
+			clientConnectionStatus$ = "Connection Broken Locally";
+		}
+		case(6): {//dns lookup
+		}	
+		case(7): {//dns failed
+		}
+		case(8): {//dns resolved
+		}
+		case(9): {//unused
+			clientConnectionStatus$ = "Type 9 Disconnect";
+		}
+	}
+
+	if(connectionFailedCount >= connectionAttempts) {
+		print("Exceeded Connection Attempt Limit");
+	}
+    //Print("The SocketGetStatus returns:       %d\n", Status);
+    //Print("The MyClient.SocketStatus returns: %d\n", clientDevice.SocketStatus);
+}
+
+CHANGE tx$ {
+	SOCKETSEND(clientDevice, tx$);
+}
+
+SOCKETRECEIVE clientDevice {
+    if (Len(clientDevice.SocketRxBuf) < 256)
+
+        Print("Rx: %s", clientDevice.SocketRxBuf);
+    // for now, send to serial output and clear buffer
+
+    rx$ = clientDevice.SocketRxBuf;
+    ClearBuffer(clientDevice.SocketRxBuf);
+}
+
+Function Main() {
+	remoteDisconnectCount = 0;
+	connectionFailedCount = 0;
+}

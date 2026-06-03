@@ -1,0 +1,232 @@
+/*
+Programmer: RBLAJDA
+Comments:
+*/
+
+#SYMBOL_NAME "Mersive Solstice v1"
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#USER_SIMPLSHARP_LIBRARY "MersiveSolstice"
+
+#CATEGORY "46" "RBLAJDA" // Custom
+
+STRING_PARAMETER  Device_IP_Address[50];
+STRING_PARAMETER  Device_Admin_Password[50];
+INTEGER_PARAMETER Poll_Interval;
+
+#BEGIN_PARAMETER_PROPERTIES Poll_Interval
+	propBounds = 5d, 120d;
+	propValidUnits = unitDecimal;
+#END_PARAMETER_PROPERTIES
+//Inputs
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, Enable_Polling, Manual_Refresh;
+
+DIGITAL_INPUT _SKIP_, Clear_Posts, Disconnect_Users, Reset_ScreenKey;
+
+DIGITAL_INPUT _SKIP_, Restart_Software, Reboot_Device;
+
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, Enable_Emergency_Message;
+STRING_INPUT  Emergency_Message[255];
+
+STRING_INPUT _SKIP_, Device_Name[255];
+
+//Outputs
+#OUTPUT_SHIFT 3
+
+//m_statistics
+
+//ANALOG_OUTPUT Current_Post_Count;
+//ANALOG_OUTPUT Current_Connected_Users;
+
+//m_AuthenticationCuration
+DIGITAL_OUTPUT 	Session_Key_Enabled;
+DIGITAL_OUTPUT 	Moderator_Approval_Disabled;
+DIGITAL_OUTPUT 	WiFi_DHCP_Enabled;
+DIGITAL_OUTPUT 	DHCP_Enabled;
+DIGITAL_OUTPUT 	Auto_DateTime;
+DIGITAL_OUTPUT  Emergency_Message_Enabled_Fb;
+
+//m_displayInformation
+STRING_OUTPUT 	_SKIP_, IP_Address;
+STRING_OUTPUT 	Hostname;
+ANALOG_OUTPUT 	Port;
+STRING_OUTPUT 	Session_Key;
+
+STRING_OUTPUT   _SKIP_, Emergency_Message_Fb;
+
+STRING_OUTPUT 	_SKIP_, _SKIP_, Device_Name_Fb;
+
+//m_NetworkCuration
+
+	//WifiConfig
+	ANALOG_OUTPUT	_SKIP_, WiFi_Mode;
+	STRING_OUTPUT 	WiFi_SSID;
+	STRING_OUTPUT 	WiFi_Password;	
+	
+	//AP_Config
+	STRING_OUTPUT 	_SKIP_, AP_SSID;
+	STRING_OUTPUT 	AP_Password;
+
+//m_LicenseCuration
+ANALOG_OUTPUT 	_SKIP_, License_Status;
+STRING_OUTPUT 	Expiration_Date;
+ANALOG_OUTPUT 	Days_To_Expiration;
+
+//m_SystemCuration
+STRING_OUTPUT  	_SKIP_, NTP_Server_URL;
+STRING_OUTPUT  	Time_Zone;
+
+//m_GeneralCuration
+STRING_OUTPUT Device_Language;
+
+
+//Create Object Instances
+
+Solstice   thisSolstice;
+
+//Global Variables
+string apiConfig[50];
+string apiClear[50];
+string apiDisconnectUsers[50];
+string apiReboot[50];
+string apiRestart[50];
+string apiResetKey[50];
+                       
+//Functions
+FUNCTION Init()
+{
+	thisSolstice.Initialize(Device_IP_Address, Device_Admin_Password);
+	//thisTimer.Interval = Poll_Interval * 1000;
+	//thisTimer.StopTimer();
+	
+	//print("%u s", Poll_Interval * 1000);
+
+	apiConfig 			= "/api/config";
+	apiClear  			= "/api/control/clear";
+	apiDisconnectUsers 	= "/api/control/boot";
+	apiRestart 			= "/api/control/restart";
+	apiReboot 			= "/api/control/reboot";
+	apiResetKey 		= "/api/control/resetkey";
+}    
+
+//Event Handlers        
+PUSH Manual_Refresh 
+{
+   	thisSolstice.SendRequest(apiConfig, "");
+}
+
+PUSH Enable_Polling 
+{
+	//thisTimer.ResetTimer(thisTimer.Interval, thisTimer.Interval);
+	thisSolstice.EnablePolling(Poll_Interval);
+}
+
+RELEASE Enable_Polling
+{
+	//thisTimer.StopTimer();
+	thisSolstice.DisablePolling();
+}
+
+PUSH Clear_Posts
+{
+	thisSolstice.SendRequest(apiClear, "");
+}
+ 
+PUSH Disconnect_Users
+{
+	thisSolstice.SendRequest(apiDisconnectUsers, "");
+}
+
+PUSH Reset_ScreenKey
+{
+	thisSolstice.SendRequest(apiResetKey, "");
+}
+
+PUSH Restart_Software
+{
+	thisSolstice.SendRequest(apiRestart, "");
+}
+
+PUSH Reboot_Device
+{
+	thisSolstice.SendRequest(apiReboot, "");
+}
+
+CHANGE Device_Name
+{
+	string nameCommand[255];
+	nameCommand = "{\"m_displayInformation\":{\"m_displayName\":\"" + Device_Name + "\"}}";
+	thisSolstice.AddItemToQueue(nameCommand);
+}
+
+PUSH Enable_Emergency_Message
+{
+	string emergencyMessage[255];
+	emergencyMessage = "{\"m_networkCuration\":{\"emergencyEnabled\":true}}";
+	thisSolstice.AddItemToQueue(emergencyMessage);
+}
+
+RELEASE Enable_Emergency_Message
+{
+	string emergencyMessage[255];
+	emergencyMessage = "{\"m_networkCuration\":{\"emergencyEnabled\":false}}";
+	thisSolstice.AddItemToQueue(emergencyMessage);
+}
+
+CHANGE Emergency_Message
+{
+	string emergencyMessage[255];
+	emergencyMessage = "{\"m_networkCuration\":{\"emergencyText\":\"" + Emergency_Message + "\"}}";
+	thisSolstice.AddItemToQueue(emergencyMessage);
+}
+
+EVENTHANDLER onDeviceUpdate(Solstice display, CustomEventArgs e)
+{
+	Device_Name_Fb  		     = display.m_displayInformation.m_displayName;
+	IP_Address			 		 = display.m_displayInformation.m_ipv4;
+	Hostname			 		 = display.m_displayInformation.m_hostName;
+	Port				 		 = display.m_displayInformation.m_port;
+	DHCP_Enabled         		 = display.m_networkCuration.ethernet.DHCP_Enabled;
+
+	Device_Language 	 		 = display.m_generalCuration.language;
+
+	Session_Key_Enabled	 		 = display.m_authenticationCuration.screenKeyIsEnabled;
+	Session_Key			 		 = display.m_authenticationCuration.sessionKey;
+	
+	WiFi_SSID			 		 = display.m_networkCuration.wifiConfig.ssid;
+	WiFi_Mode            		 = display.m_networkCuration.wifiConfig.security;
+	WiFi_Password        		 = display.m_networkCuration.wifiConfig.password;
+	WiFi_DHCP_Enabled    		 = display.m_networkCuration.wifiConfig.DHCP_Enabled;
+
+	AP_SSID              		 = display.m_networkCuration.apConfig.SSID;
+	AP_Password          		 = display.m_networkCuration.apConfig.PSK;
+
+ 	License_Status       		 = display.m_licenseCuration.licenseStatus;
+ 	Expiration_Date      		 = display.m_licenseCuration.expirationDate;
+ 	Days_To_Expiration   		 = display.m_licenseCuration.numDaysToExpiration;
+ 	Auto_DateTime        		 = display.m_systemCuration.automaticDateTime; 	
+	Time_Zone            		 = display.m_systemCuration.timeZone;	
+	
+	NTP_Server_URL       		 = display.m_systemCuration.ntpServer;
+
+	Emergency_Message_Fb 		 = display.m_networkCuration.emergencyText;
+	Emergency_Message_Enabled_Fb = display.m_networkCuration.emergencyIsEnabled;
+}
+
+/*
+EVENTHANDLER onTimerEvent(TimeEvent _sender, EventArgs _args)
+{
+	thisSolstice.SendRequest(apiConfig, "");
+	//print("Polling For Status");	
+}
+*/
+
+FUNCTION Main()
+{
+	RegisterEvent(thisSolstice, onUpdate,    onDeviceUpdate);
+	//RegisterEvent(thisTimer,    checkEvent,  onTimerEvent);
+	//RegisterEvent(thisSolstice, onError,  onSystemError);
+	waitForInitializationComplete();
+	Init();
+}

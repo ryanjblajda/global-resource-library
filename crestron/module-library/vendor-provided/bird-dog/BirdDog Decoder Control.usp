@@ -1,0 +1,220 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:    Richard Mullins
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "BirdDog Decoder 2.0"
+// #HINT ""
+// #DEFINE_CONSTANT
+#CATEGORY "19" // Camera
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+#HELP_PDF_FILE "BirdDog Crestron Module 2.0.pdf"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+#USER_SIMPLSHARP_LIBRARY "BirdDogDevice"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_,Enable, _SKIP_,GetList,RefreshList,ResetList;
+DIGITAL_INPUT _SKIP_,Restart, Reboot;
+DIGITAL_INPUT _SKIP_,SetEncode, SetDecode;
+ANALOG_INPUT _SKIP_,Selection,_SKIP_;
+STRING_INPUT _SKIP_,Search[255], NameSelect[255];
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT _SKIP_,_SKIP_,Enabled,_SKIP_;
+ANALOG_OUTPUT _SKIP_,_SKIP_,_SKIP_,_SKIP_,Selection_FB, ListLength;
+STRING_OUTPUT _SKIP_,CurrentName;
+STRING_OUTPUT _SKIP_,Names[500];
+
+BirdDogDevice Decoder;
+
+integer module_enabled;
+string InstanceName[20];
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER Control_Port;
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+STRING_PARAMETER IP_Address[32];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES Control_Port
+   propValidUnits = unitDecimal;
+   propDefaultValue = 8080d;
+   propShortDescription = "BirdDog Camera Control Port";
+#END_PARAMETER_PROPERTIES              
+
+#BEGIN_PARAMETER_PROPERTIES IP_Address
+   propValidUnits = unitString;
+   propDefaultValue = "192.168.1.100";
+   propShortDescription = "BirdDog Decoder IP Address";
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH enable
+{
+  trace("Enabling BirdDog Decoder module");
+  module_enabled= 1;
+  Enabled = 1;
+
+  Decoder.DecoderCommand(InstanceName, "connectTo");
+  Decoder.DecoderCommand(InstanceName, "List");
+}
+
+RELEASE enable
+{
+  trace("Disabling BirdDog Decoder module");
+  module_enabled = 0;
+  Enabled = 1;
+}
+
+PUSH GetList 
+{
+  Decoder.DecoderCommand(InstanceName, "List");
+}
+
+PUSH RefreshList 
+{
+  Decoder.DecoderCommand(InstanceName, "Refresh");
+}
+
+PUSH ResetList 
+{
+  Decoder.DecoderCommand(InstanceName, "Reset");
+}
+
+PUSH SetDecode 
+{
+  Decoder.SetMode(InstanceName, "decode");
+}
+
+PUSH SetEncode
+{
+  Decoder.SetMode(InstanceName, "encode");
+}
+
+
+PUSH Restart
+{
+  Decoder.DecoderCommand(InstanceName, "Restart");
+} 
+
+PUSH Reboot
+{
+  Decoder.DecoderCommand(InstanceName, "Reboot");
+}
+
+CHANGE Selection 
+{
+  if(Selection = 0) return;
+
+  trace("Device %u selected", selection);
+  Decoder.Select(InstanceName, Selection);
+  Selection_FB = Selection;
+}
+
+CHANGE Search 
+{
+  trace("Searching for %s", Search);
+  Decoder.Search(InstanceName, Search);
+}
+
+CHANGE NameSelect 
+{
+  trace("Switch directly to %s", NameSelect);
+  Decoder.NameSelect(InstanceName, NameSelect); 
+}
+
+EVENTHANDLER onCurrentSource(SourceEventArgs e)
+{
+  if(e.ID != InstanceName) return;
+
+  trace("[UpdateSource] %s", e.SourceName);
+  CurrentName = e.SourceName;
+  //if(key = "name") CurrentName = value;
+  //if(key = "address") CurrentIP = value;
+  //if(key = "source") CurrentLabel = value;
+}
+
+EVENTHANDLER onUpdateList(DeviceEventArgs e)
+{
+  if(e.ID != InstanceName) return;
+
+  trace("[Update List] idx: %u, name: %s", e.Index, e.SourceName);
+  Names[e.Index] = e.SourceName;
+}
+
+EVENTHANDLER onUpdateLength(LengthEventArgs e)
+{
+  if(e.ID != InstanceName) return;
+
+  trace("[Update List Length] len: %u", e.Length);
+  ListLength = e.Length;
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+  WaitForInitializationComplete();
+  InstanceName=GetSymbolInstanceName();
+                    
+  RegisterEvent(BirddogDecoder, UpdateSource, onCurrentSource);
+  RegisterEvent(BirddogDecoder, UpdateDeviceList, onUpdateList);
+  RegisterEvent(BirddogDecoder, UpdateListLength, onUpdateLength);
+
+  module_enabled = 0;
+  Decoder.init(IP_Address, Control_Port, 0);
+}
+
+
+

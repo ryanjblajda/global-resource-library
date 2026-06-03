@@ -1,0 +1,125 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+#SYMBOL_NAME "Analog Router v2"
+#HINT "Routes Analog Values to Outputs"
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#CATEGORY "46" "RBLAJDA" // Custom
+
+/* CONSTANTS */
+
+#DEFINE_CONSTANT MAXSTRINGS 255
+#DEFINE_CONSTANT MAXITEMS 30
+
+
+#HELP_BEGIN
+
+This performs the same principle as the string router, with analog variables
+
+INPUTS
+
+Input_[X]: an analog value we wish to be changed to the value at the associate index of Value_To_Pass[X]
+
+Value_To_Pass[X]: a analog that will propogate to Output_[X] when the value of Input_[X] is assocatied index of Value_To_Pass[X]
+
+OUTPUTS:
+
+Output_[X]: an analog value that will be changed based on the value of Input_[X]
+
+-----------------
+
+EXAMPLE
+
+Input_[1] = 1 | Output_[1] = 3
+Input_[2] = 2 | Output_[2] = 5
+____________________________
+
+Value_To_Pass[1] = 3
+Value_To_Pass[2] = 5                        
+#HELP_END
+
+
+/* INCLUDE LIBRARIES */
+
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/* INPUTS */
+ANALOG_INPUT Zero_Value;
+
+ANALOG_INPUT Input_[MAXITEMS];
+
+ANALOG_INPUT _SKIP_, _SKIP_;
+
+ANALOG_INPUT Value_To_Pass[MAXSTRINGS];
+
+/* OUTPUTS */
+ANALOG_OUTPUT _SKIP_;
+ 
+ANALOG_OUTPUT Output[MAXITEMS];
+
+/* VARIABLES */
+
+integer definedInputs;
+
+/* Event Handlers */
+
+CHANGE Input_ 
+{
+	integer _index;
+	integer _selected;
+	_index = getLastModifiedArrayIndex();
+	_selected = Input_[_index];
+
+	if(_selected <> 0)
+	{
+		if(isSignalDefined(Value_To_Pass[_selected]))
+		{	
+			Output[_index] = Value_To_Pass[_selected];
+		}
+	}
+	else 
+	{
+		Output[_index] = Zero_Value;
+	}
+    processLogic();
+}
+
+CHANGE Value_To_Pass
+{
+	integer i;
+	integer _changed;
+	_changed = getLastModifiedArrayIndex();
+
+	for(i = 1 to definedInputs)
+	{
+		if(_changed = Input_[i])
+		{
+			Output[i] = Value_To_Pass[_changed];
+		}
+		processLogic();
+	}
+}
+
+Function Main()
+{
+	integer i;
+	waitForInitializationComplete();
+		
+	//count the defined signals so we dont have to loop through the entire loop.
+	for(i = 1 to MAXITEMS)
+	{
+		if(isSignalDefined(Input_[i]) <> 0)
+		{
+			definedInputs = definedInputs + 1;
+		}
+		processLogic();
+	}
+}

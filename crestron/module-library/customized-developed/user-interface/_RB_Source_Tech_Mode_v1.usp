@@ -1,0 +1,82 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Item Visibility Filter - Tech Mode v1"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ci_MaxItems 32
+
+#HELP_BEGIN
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Show_All_Items;
+DIGITAL_INPUT Item_Defined[ci_MaxItems];
+DIGITAL_INPUT Item_Allowed[ci_MaxItems];
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT _SKIP_, Item_Visible[ci_MaxItems];
+
+/*** GLOBAL VARIABLES ***/
+INTEGER gi_ItemsDefined;
+
+/*** FUNCTIONS ***/
+FUNCTION Main() {
+	integer i;
+
+	for (i = ci_MaxItems to 1 step -1) {
+		if (IsSignalDefined(Item_Defined[i]) = ON) { break; }
+	}
+
+	gi_ItemsDefined = i;
+}
+
+/** EVENT HANDLERS **/
+CHANGE Show_All_Items {
+	integer i;
+
+	if (Show_All_Items = ON) {
+		//loop through all Items and show as needed
+		for (i = 1 to gi_ItemsDefined) {
+			// if the Item signal is defined, assign it
+			if(IsSignalDefined(Item_Defined[i]) = ON) {
+				//assign the value 
+				Item_Visible[i] = Item_Defined[i];				
+			}
+		} 
+	}
+	else {
+		//loop through all Items and show as needed
+		for (i = 1 to gi_ItemsDefined) {
+			// if the Item signal is allowed, assign it
+			if(IsSignalDefined(Item_Allowed[i]) = ON) {
+				//assign the value 
+				Item_Visible[i] = Item_Allowed[i];				
+			}
+		} 
+	}
+}
+
+CHANGE Item_Defined {
+	integer iChanged;
+	iChanged = GetLastModifiedArrayIndex();
+                                                                                     
+	//if show all Items is high, we want to make sure that any Item that is defined, is shown to the technician
+	if (Show_All_Items = ON) { Item_Visible[iChanged] = Item_Defined[iChanged]; }
+	//if show all Items is low, ignore this, and let any Item_allowed changes determine visibility
+}
+
+CHANGE Item_Allowed {
+	integer iChanged;
+	iChanged = GetLastModifiedArrayIndex();
+                                                                                     
+	//if show all Items is low, we want to make sure that any Item that is allowed, is shown to the basic user
+	if (Show_All_Items = OFF) { Item_Visible[iChanged] = Item_Allowed[iChanged]; }
+	//if show all Items is high, ignore this, and let any Item_define changes determine visibility, because technicians have access to all
+}

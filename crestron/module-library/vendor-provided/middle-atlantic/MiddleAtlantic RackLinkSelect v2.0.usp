@@ -1,0 +1,880 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: MiddleAtlantic RackLinkSelect v2.0
+System Number:
+Programmer: VR & JG
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#DEFINE_CONSTANT MAX_NAME_SIZE 50
+              
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "MiddleAtlantic RacklinkSelect v2.0"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+To be used with MiddleAtlantic RackLinkSelect v2.0.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+#USER_SIMPLSHARP_LIBRARY "MiddleAtlanticSelectSeriesLib"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_; 
+DIGITAL_INPUT CONNECT,DISCONNECT,DEBUG_ENABLE;
+DIGITAL_INPUT OUTLET_1_ON, OUTLET_1_OFF, OUTLET_1_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_2_ON, OUTLET_2_OFF, OUTLET_2_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_3_ON, OUTLET_3_OFF, OUTLET_3_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_4_ON, OUTLET_4_OFF, OUTLET_4_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_5_ON, OUTLET_5_OFF, OUTLET_5_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_6_ON, OUTLET_6_OFF, OUTLET_6_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_7_ON, OUTLET_7_OFF, OUTLET_7_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_8_ON, OUTLET_8_OFF, OUTLET_8_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_9_ON, OUTLET_9_OFF, OUTLET_9_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_10_ON, OUTLET_10_OFF, OUTLET_10_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_11_ON, OUTLET_11_OFF, OUTLET_11_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_12_ON, OUTLET_12_OFF, OUTLET_12_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_13_ON, OUTLET_13_OFF, OUTLET_13_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_14_ON, OUTLET_14_OFF, OUTLET_14_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_15_ON, OUTLET_15_OFF, OUTLET_15_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_16_ON, OUTLET_16_OFF, OUTLET_16_CYCLE,_SKIP_;
+
+DIGITAL_INPUT POWER_SEQ_UP, POWER_SEQ_DN,_SKIP_;
+
+DIGITAL_INPUT ROOM_OCCUPANCY_ON, ROOM_OCCUPANCY_OFF, _SKIP_;
+
+DIGITAL_INPUT REFRESH_LOG, _SKIP_;
+
+ANALOG_INPUT POWER_CYCLE_TIME, _SKIP_;
+ANALOG_INPUT POWER_SEQ_TIME, _SKIP_;
+
+ANALOG_INPUT _SKIP_, _SKIP_, _SKIP_;
+
+ANALOG_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+ANALOG_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+ANALOG_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+ANALOG_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_; 
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_,_SKIP_, _SKIP_, _SKIP_, _SKIP_ , _SKIP_; 
+                                 
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_; 
+
+STRING_INPUT OUTLET_1_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_2_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_3_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_4_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_5_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_6_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_7_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_8_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_9_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_10_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_11_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_12_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_13_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_14_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_15_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_16_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT _SKIP_;   
+
+STRING_INPUT _SKIP_, _SKIP_;                            
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_;
+DIGITAL_OUTPUT IS_COMMUNICATING_FB,IS_INITIALIZED_FB, _SKIP_;
+DIGITAL_OUTPUT OUTLET_1_ON_FB, OUTLET_1_OFF_FB, OUTLET_1_CONTROLLABLE_FB, OUTLET_1_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_2_ON_FB, OUTLET_2_OFF_FB, OUTLET_2_CONTROLLABLE_FB,OUTLET_2_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_3_ON_FB, OUTLET_3_OFF_FB, OUTLET_3_CONTROLLABLE_FB,OUTLET_3_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_4_ON_FB, OUTLET_4_OFF_FB, OUTLET_4_CONTROLLABLE_FB,OUTLET_4_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_5_ON_FB, OUTLET_5_OFF_FB, OUTLET_5_CONTROLLABLE_FB,OUTLET_5_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_6_ON_FB, OUTLET_6_OFF_FB, OUTLET_6_CONTROLLABLE_FB,OUTLET_6_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_7_ON_FB, OUTLET_7_OFF_FB, OUTLET_7_CONTROLLABLE_FB,OUTLET_7_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_8_ON_FB, OUTLET_8_OFF_FB, OUTLET_8_CONTROLLABLE_FB,OUTLET_8_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_9_ON_FB, OUTLET_9_OFF_FB, OUTLET_9_CONTROLLABLE_FB,OUTLET_9_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_10_ON_FB, OUTLET_10_OFF_FB, OUTLET_10_CONTROLLABLE_FB,OUTLET_10_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_11_ON_FB, OUTLET_11_OFF_FB, OUTLET_11_CONTROLLABLE_FB,OUTLET_11_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_12_ON_FB, OUTLET_12_OFF_FB, OUTLET_12_CONTROLLABLE_FB,OUTLET_12_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_13_ON_FB, OUTLET_13_OFF_FB, OUTLET_13_CONTROLLABLE_FB,OUTLET_13_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_14_ON_FB, OUTLET_14_OFF_FB, OUTLET_14_CONTROLLABLE_FB,OUTLET_14_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_15_ON_FB, OUTLET_15_OFF_FB, OUTLET_15_CONTROLLABLE_FB,OUTLET_15_PRESENT_FB;
+DIGITAL_OUTPUT OUTLET_16_ON_FB, OUTLET_16_OFF_FB, OUTLET_16_CONTROLLABLE_FB,OUTLET_16_PRESENT_FB;
+
+DIGITAL_OUTPUT POWER_SEQ_UP_FB, POWER_SEQ_DN_FB,_SKIP_;
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_;
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_;
+
+ANALOG_OUTPUT _SKIP_, _SKIP_;
+ANALOG_OUTPUT _SKIP_, _SKIP_;
+
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_;
+
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+
+STRING_OUTPUT _SKIP_;  
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+STRING_OUTPUT _SKIP_; 
+ STRING_OUTPUT _SKIP_;
+
+STRING_OUTPUT PI_PART_NUMBER$; 
+STRING_OUTPUT PI_RATING$; 
+STRING_OUTPUT PI_IP_ADDRESS$;
+STRING_OUTPUT PI_MAC_ADDRESS$; 
+STRING_OUTPUT _SKIP_; 
+
+STRING_OUTPUT OUTLET_1_NAME$; 
+STRING_OUTPUT OUTLET_2_NAME$; 
+STRING_OUTPUT OUTLET_3_NAME$; 
+STRING_OUTPUT OUTLET_4_NAME$; 
+STRING_OUTPUT OUTLET_5_NAME$; 
+STRING_OUTPUT OUTLET_6_NAME$; 
+STRING_OUTPUT OUTLET_7_NAME$; 
+STRING_OUTPUT OUTLET_8_NAME$; 
+STRING_OUTPUT OUTLET_9_NAME$; 
+STRING_OUTPUT OUTLET_10_NAME$; 
+STRING_OUTPUT OUTLET_11_NAME$; 
+STRING_OUTPUT OUTLET_12_NAME$; 
+STRING_OUTPUT OUTLET_13_NAME$; 
+STRING_OUTPUT OUTLET_14_NAME$; 
+STRING_OUTPUT OUTLET_15_NAME$; 
+STRING_OUTPUT OUTLET_16_NAME$; 
+STRING_OUTPUT _SKIP_;  
+
+STRING_OUTPUT CS_POWER_SEQ$, _SKIP_;
+                                 /*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+// TCP_CLIENT
+// TCP_SERVER
+// UDP_SOCKET
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER ConnectionType;
+STRING_PARAMETER IPAddress[15];
+STRING_PARAMETER Username[MAX_NAME_SIZE], Password[MAX_NAME_SIZE];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES IPAddress
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "0.0.0.0";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Username
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "user";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Password
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "engAdmin";
+#END_PARAMETER_PROPERTIES
+
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER Ready;
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+CommandProcessor RackLinkCommandProcessor;
+OutletModel outlet; 
+SequenceModel sequence;         
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/  
+
+EventHandler OnCommunicating ( CommandProcessor sender, DigEventArgs args )
+{
+	IS_COMMUNICATING_FB = args.Payload;
+}
+EventHandler OnInitialized ( CommandProcessor sender, DigEventArgs args )
+{
+	IS_INITIALIZED_FB = args.Payload;
+}
+EventHandler OnDebug ( CommandProcessor sender, SerEventArgs args )
+{
+	if(DEBUG_ENABLE)
+		TRACE("%s", args.Payload);
+}
+EventHandler OnReady ( CommandProcessor sender, EventArgs e )
+{
+	Ready = 1;
+
+	RackLinkCommandProcessor.SetPowerCycleTime(POWER_CYCLE_TIME);
+	RackLinkCommandProcessor.SetPowerSequenceTime(POWER_SEQ_TIME);
+
+	IF(Connect)
+		RackLinkCommandProcessor.Connect();
+}
+ 
+
+EventHandler OnProductPartNumber ( CommandProcessor sender, SerEventArgs args )
+{
+	PI_PART_NUMBER$ = args.Payload;
+}
+EventHandler OnProductRating ( CommandProcessor sender, SerEventArgs args )
+{
+	PI_RATING$ = args.Payload;
+}
+
+EventHandler OnProductIp ( CommandProcessor sender, SerEventArgs args )
+{
+	PI_IP_ADDRESS$ = args.Payload;
+}
+EventHandler OnProductMac ( CommandProcessor sender, SerEventArgs args )
+{
+	PI_MAC_ADDRESS$ = args.Payload;
+}
+
+EventHandler OnSequence ( CommandProcessor sender, SequenceEventArgs args )
+{
+	sequence = args.Payload;
+	POWER_SEQ_UP_FB = 0;
+	POWER_SEQ_DN_FB = 0;
+
+	POWER_SEQ_UP_FB = sequence.IsUp;
+	POWER_SEQ_DN_FB = sequence.IsDown;
+    CS_POWER_SEQ$ = sequence.Text;	
+}
+
+EventHandler OnOutletState ( CommandProcessor sender, OutletEventArgs args )
+{
+	INTEGER index, isOn, isOff, isControllable, isPresent;
+	STRING name[50];
+    
+	outlet = args.Payload;
+
+	index = outlet.Index;
+	isOn = outlet.IsOn;	
+	isOff = outlet.IsOff;
+	isControllable = outlet.Controllable;
+    isPresent = outlet.Exists;	
+	name = outlet.Name;   
+
+
+    IF(index = 1)
+	{
+    	OUTLET_1_ON_FB = isOn;
+    	OUTLET_1_OFF_FB = isOff;		
+		OUTLET_1_NAME$ = name;
+		OUTLET_1_PRESENT_FB = isPresent;
+		OUTLET_1_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 2)
+	{
+    	OUTLET_2_ON_FB = isOn;
+    	OUTLET_2_OFF_FB = isOff;
+		OUTLET_2_NAME$ = name;
+		OUTLET_2_PRESENT_FB = isPresent;
+		OUTLET_2_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 3)
+	{
+    	OUTLET_3_ON_FB = isOn;
+    	OUTLET_3_OFF_FB = isOff;
+		OUTLET_3_NAME$ = name;
+		OUTLET_3_PRESENT_FB = isPresent;
+		OUTLET_3_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 4)
+	{
+    	OUTLET_4_ON_FB = isOn;
+    	OUTLET_4_OFF_FB = isOff;
+		OUTLET_4_NAME$ = name;
+		OUTLET_4_PRESENT_FB = isPresent;
+        OUTLET_4_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 5)
+	{
+    	OUTLET_5_ON_FB = isOn;
+    	OUTLET_5_OFF_FB = isOff;
+		OUTLET_5_NAME$ = name;
+		OUTLET_5_PRESENT_FB = isPresent;
+        OUTLET_5_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 6)
+	{
+    	OUTLET_6_ON_FB = isOn;
+    	OUTLET_6_OFF_FB = isOff;
+		OUTLET_6_NAME$ = name;
+		OUTLET_6_PRESENT_FB = isPresent;
+        OUTLET_6_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 7)
+	{
+    	OUTLET_7_ON_FB = isOn;
+    	OUTLET_7_OFF_FB = isOff;
+		OUTLET_7_NAME$ = name;
+		OUTLET_7_PRESENT_FB = isPresent;
+        OUTLET_7_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 8)
+	{
+    	OUTLET_8_ON_FB = isOn;
+    	OUTLET_8_OFF_FB = isOff;
+		OUTLET_8_NAME$ = name;
+		OUTLET_8_PRESENT_FB = isPresent;
+        OUTLET_8_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 9)
+	{
+    	OUTLET_9_ON_FB = isOn;
+    	OUTLET_9_OFF_FB = isOff;
+		OUTLET_9_NAME$ = name;
+		OUTLET_9_PRESENT_FB = isPresent;
+        OUTLET_9_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 10)
+	{
+    	OUTLET_10_ON_FB = isOn;
+    	OUTLET_10_OFF_FB = isOff;
+		OUTLET_10_NAME$ = name;
+		OUTLET_10_PRESENT_FB = isPresent;
+		OUTLET_10_CONTROLLABLE_FB = isControllable;
+
+	}
+
+	ELSE IF(index = 11)
+	{
+    	OUTLET_11_ON_FB = isOn;
+    	OUTLET_11_OFF_FB = isOff;
+		OUTLET_11_NAME$ = name;
+		OUTLET_11_PRESENT_FB = isPresent;
+        OUTLET_11_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 12)
+	{
+    	OUTLET_12_ON_FB = isOn;
+    	OUTLET_12_OFF_FB = isOff;
+		OUTLET_12_NAME$ = name;
+		OUTLET_12_PRESENT_FB = isPresent;
+        OUTLET_12_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 13)
+	{
+    	OUTLET_13_ON_FB = isOn;
+    	OUTLET_13_OFF_FB = isOff;
+		OUTLET_13_NAME$ = name;
+		OUTLET_13_PRESENT_FB = isPresent;
+        OUTLET_13_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 14)
+	{
+    	OUTLET_14_ON_FB = isOn;
+    	OUTLET_14_OFF_FB = isOff;
+		OUTLET_14_NAME$ = name;
+		OUTLET_14_PRESENT_FB = isPresent;
+        OUTLET_14_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 15)
+	{
+    	OUTLET_15_ON_FB = isOn;
+    	OUTLET_15_OFF_FB = isOff;
+		OUTLET_15_NAME$ = name;
+		OUTLET_15_PRESENT_FB = isPresent;
+        OUTLET_15_CONTROLLABLE_FB = isControllable;
+	}
+
+	ELSE IF(index = 16)
+	{
+    	OUTLET_16_ON_FB = isOn;
+    	OUTLET_16_OFF_FB = isOff;
+		OUTLET_16_NAME$ = name;
+		OUTLET_16_PRESENT_FB = isPresent;
+        OUTLET_16_CONTROLLABLE_FB = isControllable;
+	}
+
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+////////////////////////////////////////////////////////////
+// CONNECT CONTROL
+////////////////////////////////////////////////////////////
+PUSH CONNECT
+{
+	IF(Ready)
+		RackLinkCommandProcessor.Connect();
+}
+
+PUSH DISCONNECT
+{
+	RackLinkCommandProcessor.Disconnect();
+}
+
+////////////////////////////////////////////////////////////
+// OUTLET CONTROL
+////////////////////////////////////////////////////////////
+PUSH OUTLET_1_ON
+{
+	RackLinkCommandProcessor.OutletOn(1);
+}
+
+PUSH OUTLET_1_OFF
+{
+	RackLinkCommandProcessor.OutletOff(1);
+}
+
+PUSH OUTLET_1_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(1);
+}
+PUSH OUTLET_2_ON
+{
+	RackLinkCommandProcessor.OutletOn(2);
+}
+
+PUSH OUTLET_2_OFF
+{
+	RackLinkCommandProcessor.OutletOff(2);
+}
+
+PUSH OUTLET_2_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(2);
+}
+
+PUSH OUTLET_3_ON
+{
+	RackLinkCommandProcessor.OutletOn(3);
+}
+
+PUSH OUTLET_3_OFF
+{
+	RackLinkCommandProcessor.OutletOff(3);
+}
+
+PUSH OUTLET_3_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(3);
+}
+
+PUSH OUTLET_4_ON
+{
+	RackLinkCommandProcessor.OutletOn(4);
+}
+
+PUSH OUTLET_4_OFF
+{
+	RackLinkCommandProcessor.OutletOff(4);
+}
+
+PUSH OUTLET_4_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(4);
+}
+
+PUSH OUTLET_5_ON
+{
+	RackLinkCommandProcessor.OutletOn(5);
+}
+
+PUSH OUTLET_5_OFF
+{
+	RackLinkCommandProcessor.OutletOff(5);
+}
+
+PUSH OUTLET_5_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(5);
+}
+
+PUSH OUTLET_6_ON
+{
+	RackLinkCommandProcessor.OutletOn(6);
+}
+
+PUSH OUTLET_6_OFF
+{
+	RackLinkCommandProcessor.OutletOff(6);
+}
+
+PUSH OUTLET_6_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(6);
+}
+
+PUSH OUTLET_7_ON
+{
+	RackLinkCommandProcessor.OutletOn(7);
+}
+
+PUSH OUTLET_7_OFF
+{
+	RackLinkCommandProcessor.OutletOff(7);
+}
+
+PUSH OUTLET_7_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(7);
+}
+
+PUSH OUTLET_8_ON
+{
+	RackLinkCommandProcessor.OutletOn(8);
+}
+
+PUSH OUTLET_8_OFF
+{
+	RackLinkCommandProcessor.OutletOff(8);
+}
+
+PUSH OUTLET_8_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(8);
+}
+
+PUSH OUTLET_9_ON
+{
+	RackLinkCommandProcessor.OutletOn(9);
+}
+
+PUSH OUTLET_9_OFF
+{
+	RackLinkCommandProcessor.OutletOff(9);
+}
+
+PUSH OUTLET_9_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(9);
+}
+
+PUSH OUTLET_10_ON
+{
+	RackLinkCommandProcessor.OutletOn(10);
+}
+
+PUSH OUTLET_10_OFF
+{
+	RackLinkCommandProcessor.OutletOff(10);
+}
+
+PUSH OUTLET_10_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(10);
+}
+
+PUSH OUTLET_11_ON
+{
+	RackLinkCommandProcessor.OutletOn(11);
+}
+
+PUSH OUTLET_11_OFF
+{
+	RackLinkCommandProcessor.OutletOff(11);
+}
+
+PUSH OUTLET_11_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(11);
+}
+
+PUSH OUTLET_12_ON
+{
+	RackLinkCommandProcessor.OutletOn(12);
+}
+
+PUSH OUTLET_12_OFF
+{
+	RackLinkCommandProcessor.OutletOff(12);
+}
+
+PUSH OUTLET_12_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(12);
+}
+
+PUSH OUTLET_13_ON
+{
+	RackLinkCommandProcessor.OutletOn(13);
+}
+
+PUSH OUTLET_13_OFF
+{
+	RackLinkCommandProcessor.OutletOff(13);
+}
+
+PUSH OUTLET_13_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(13);
+}
+
+PUSH OUTLET_14_ON
+{
+	RackLinkCommandProcessor.OutletOn(14);
+}
+
+PUSH OUTLET_14_OFF
+{
+	RackLinkCommandProcessor.OutletOff(14);
+}
+
+PUSH OUTLET_14_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(14);
+}
+
+PUSH OUTLET_15_ON
+{
+	RackLinkCommandProcessor.OutletOn(15);
+}
+
+PUSH OUTLET_15_OFF
+{
+	RackLinkCommandProcessor.OutletOff(15);
+}
+
+PUSH OUTLET_15_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(15);
+}
+
+PUSH OUTLET_16_ON
+{
+	RackLinkCommandProcessor.OutletOn(16);
+}
+
+PUSH OUTLET_16_OFF
+{
+	RackLinkCommandProcessor.OutletOff(16);
+}
+
+PUSH OUTLET_16_CYCLE
+{
+	RackLinkCommandProcessor.OutletCycle(16);
+}
+
+
+////////////////////////////////////////////////////////////
+// OUTLET NAME SETS
+////////////////////////////////////////////////////////////
+CHANGE OUTLET_1_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(1, OUTLET_1_NAME_SET$);
+}
+
+CHANGE OUTLET_2_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(2, OUTLET_2_NAME_SET$);
+}
+
+CHANGE OUTLET_3_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(3, OUTLET_3_NAME_SET$);
+}
+
+CHANGE OUTLET_4_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(4, OUTLET_4_NAME_SET$);
+}
+
+CHANGE OUTLET_5_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(5, OUTLET_5_NAME_SET$);
+}
+
+CHANGE OUTLET_6_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(6, OUTLET_6_NAME_SET$);
+}
+
+CHANGE OUTLET_7_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(7, OUTLET_7_NAME_SET$);
+}
+
+CHANGE OUTLET_8_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(8, OUTLET_8_NAME_SET$);
+}
+
+CHANGE OUTLET_9_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(9, OUTLET_9_NAME_SET$);
+}
+
+CHANGE OUTLET_10_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(10, OUTLET_10_NAME_SET$);
+}
+
+CHANGE OUTLET_11_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(11, OUTLET_11_NAME_SET$);
+}
+
+CHANGE OUTLET_12_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(12, OUTLET_12_NAME_SET$);
+}
+
+CHANGE OUTLET_13_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(13, OUTLET_13_NAME_SET$);
+}
+
+CHANGE OUTLET_14_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(14, OUTLET_14_NAME_SET$);
+}
+
+CHANGE OUTLET_15_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(15, OUTLET_15_NAME_SET$);
+}
+
+CHANGE OUTLET_16_NAME_SET$
+{
+	RackLinkCommandProcessor.OutletNameSet(16, OUTLET_16_NAME_SET$);
+}
+
+////////////////////////////////////////////////////////////
+// POWER SEQUENCE
+////////////////////////////////////////////////////////////
+PUSH POWER_SEQ_UP
+{
+	RackLinkCommandProcessor.PowerSequenceUp();
+}
+
+PUSH POWER_SEQ_DN
+{
+	RackLinkCommandProcessor.PowerSequenceDown();
+}
+
+
+
+THREADSAFE CHANGE POWER_CYCLE_TIME 
+{
+    RackLinkCommandProcessor.SetPowerCycleTime(POWER_CYCLE_TIME);
+}
+
+THREADSAFE CHANGE POWER_SEQ_TIME
+{
+    RackLinkCommandProcessor.SetPowerSequenceTime(POWER_SEQ_TIME);
+}
+
+
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	Ready = 0;
+
+	WaitForInitializationComplete();                      
+
+	REGISTEREVENT(RackLinkCommandProcessor, OnCommunicating, OnCommunicating);
+	REGISTEREVENT(RackLinkCommandProcessor, OnInitialized, OnInitialized);
+	REGISTEREVENT(RackLinkCommandProcessor, OnDebug, OnDebug);
+	REGISTEREVENT(RackLinkCommandProcessor, OnReady, OnReady);
+	REGISTEREVENT(RackLinkCommandProcessor, OnProductPartNumber, OnProductPartNumber);                                             
+	REGISTEREVENT(RackLinkCommandProcessor, OnProductRating, OnProductRating);
+	REGISTEREVENT(RackLinkCommandProcessor, OnProductIp, OnProductIp);
+	REGISTEREVENT(RackLinkCommandProcessor, OnProductMac, OnProductMac);
+	REGISTEREVENT(RackLinkCommandProcessor, OnOutletState, OnOutletState);
+	REGISTEREVENT(RackLinkCommandProcessor, OnSequence, OnSequence);
+
+
+	RackLinkCommandProcessor.Configure(ConnectionType, IPAddress, Username, Password);
+
+}
+           

@@ -1,0 +1,567 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:HSI
+System Name: 
+System Number:
+Programmer: MED
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+   #SYMBOL_NAME "PTZ Camera Processor3"
+// #HINT ""
+   #DEFINE_CONSTANT PTZ12X			1
+   #DEFINE_CONSTANT PTZ20X			2
+   #DEFINE_CONSTANT PTZ30X			3
+   #DEFINE_CONSTANT CAMERAS			3
+   #DEFINE_CONSTANT PANSPEEDS		3
+   #DEFINE_CONSTANT TZSPEEDS		3
+
+
+   #CATEGORY "19" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help line
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY "
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT CheckZoom, PTZ_12X, PTZ_20X, PTZ_30X;
+ANALOG_INPUT Address;
+STRING_INPUT	pan_speed_1[2], pan_speed_2[2], pan_speed_3[2], tilt_speed_1[2], tilt_speed_2[2], tilt_speed_3[2],
+							zoom_speed_1[2], zoom_speed_2[2];
+BUFFER_INPUT FromDevice$[250]; 
+
+DIGITAL_OUTPUT ZoomIn; 
+ANALOG_OUTPUT ZoomScale, pan_speed_1_out, pan_speed_2_out, pan_speed_3_out, 
+                         tilt_speed_1_out,tilt_speed_2_out, tilt_speed_3_out,
+                             zoom_in_speed_1_out, zoom_in_speed_2_out,
+							zoom_out_speed_1_out, zoom_out_speed_2_out;
+STRING_OUTPUT ToDevice$; 
+
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+// TCP_CLIENT
+// TCP_SERVER
+// UDP_SOCKET
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+// STRING_PARAMETER
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+/*
+STRUCTURE MyStruct1
+{
+};
+
+MyStruct1 struct;
+*/
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+  INTEGER ZoomWaiting, Semaphore, OutHeader, InHeader, iCamera, iPanSpeed[PANSPEEDS][CAMERAS],
+				iTiltSpeed[TZSPEEDS][CAMERAS], iZoomInSpeed[TZSPEEDS][CAMERAS],
+				iZoomOutSpeed[TZSPEEDS][CAMERAS];
+
+   STRING TempString$[100];
+
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+/*
+Function MyFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+}
+*/
+
+/*
+Integer_Function MyIntFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+
+    Return (0);
+}
+*/
+
+/*
+String_Function MyStrFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+
+    Return ("");
+}
+*/
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH CheckZoom
+	{
+	ZoomWaiting = 1;
+    ToDevice$ = chr(OutHeader) + "\x09\x04\x47\xFF";
+	}
+
+PUSH PTZ_12X
+{
+	if(iCamera <> PTZ12X)
+	{
+		iCamera = PTZ12X;
+		pan_speed_1_out = iPanSpeed[1][PTZ12X];	
+		pan_speed_2_out = iPanSpeed[2][PTZ12X];
+		pan_speed_3_out = iPanSpeed[3][PTZ12X];
+		tilt_speed_1_out = iTiltSpeed[1][PTZ12X];
+		tilt_speed_2_out = iTiltSpeed[2][PTZ12X];
+        tilt_speed_3_out = iTiltSpeed[3][PTZ12X];
+		zoom_in_speed_1_out = iZoomInSpeed[1][PTZ12X];
+		zoom_in_speed_2_out = iZoomInSpeed[2][PTZ12X];
+		zoom_out_speed_1_out = iZoomOutSpeed[1][PTZ12X];
+		zoom_out_speed_2_out = iZoomOutSpeed[2][PTZ12X];
+	}
+}
+
+PUSH PTZ_20X
+{
+	if(iCamera <> PTZ20X)
+	{
+		iCamera = PTZ20X;
+		pan_speed_1_out = iPanSpeed[1][PTZ20X];	
+		pan_speed_2_out = iPanSpeed[2][PTZ20X];
+		pan_speed_3_out = iPanSpeed[3][PTZ20X];
+		tilt_speed_1_out = iTiltSpeed[1][PTZ20X];
+		tilt_speed_2_out = iTiltSpeed[2][PTZ20X];
+        tilt_speed_3_out = iTiltSpeed[3][PTZ20X];
+		zoom_in_speed_1_out = iZoomInSpeed[1][PTZ20X];
+		zoom_in_speed_2_out = iZoomInSpeed[2][PTZ20X];
+		zoom_out_speed_1_out = iZoomOutSpeed[1][PTZ20X];
+		zoom_out_speed_2_out = iZoomOutSpeed[2][PTZ20X];
+	}
+}
+
+PUSH PTZ_30X
+{
+	if(iCamera <> PTZ30X)
+	{
+		iCamera = PTZ30X;
+		pan_speed_1_out = iPanSpeed[1][PTZ30X];	
+		pan_speed_2_out = iPanSpeed[2][PTZ30X];
+		pan_speed_3_out = iPanSpeed[3][PTZ30X];
+		tilt_speed_1_out = iTiltSpeed[1][PTZ30X];
+		tilt_speed_2_out = iTiltSpeed[2][PTZ30X];
+        tilt_speed_3_out = iTiltSpeed[3][PTZ30X];
+		zoom_in_speed_1_out = iZoomInSpeed[1][PTZ30X];
+		zoom_in_speed_2_out = iZoomInSpeed[2][PTZ30X];
+		zoom_out_speed_1_out = iZoomOutSpeed[1][PTZ30X];
+		zoom_out_speed_2_out = iZoomOutSpeed[2][PTZ30X];
+	}
+}
+
+CHANGE FromDevice$
+	{
+    if(Semaphore = 0)
+    	{
+    	Semaphore = 1;
+    	While(find("\xFF", FromDevice$) > 0)
+    		{
+    		TempString$ = Remove("\xFF", FromDevice$, 1);
+    		if((ZoomWaiting = 1) && (byte(Tempstring$, 1) = InHeader))
+    			{
+    			if(Byte(Tempstring$, 2) = 80)
+    			//if(left(TempString$, 2) = "\x90\x50")
+    				{
+    				ZoomWaiting = 0;
+    				ZoomScale = Byte(TempString$, 3) * 4096 + Byte(TempString$, 4) * 256 + Byte(TempString$, 5) * 16 + Byte(TempString$, 6);
+    				ZoomIn = 1;
+    				processlogic();
+    				ZoomIn = 0;
+    				}
+    			}
+    		}
+    	Semaphore = 0;
+    	}
+	}
+
+CHANGE Address
+	{
+	OutHeader = Address + 128;
+	InHeader = Address * 16 + 128;
+	}
+
+CHANGE pan_speed_1
+{
+	if((atoi(pan_speed_1) >= 0x01) && (atoi(pan_speed_1) <= 0x18))
+	{
+		iPanSpeed[1][PTZ12X] = atoi(pan_speed_1);
+		iPanSpeed[1][PTZ20X] = atoi(pan_speed_1);
+		iPanSpeed[1][PTZ30X] = atoi(pan_speed_1);
+	}
+	else
+	{
+		iPanSpeed[1][PTZ12X] = 0x5;
+		iPanSpeed[1][PTZ20X] = 0x5;
+		iPanSpeed[1][PTZ30X] = 0x0C;
+	}
+	if(iCamera = PTZ12X)
+	{
+		pan_speed_1_out = iPanSpeed[1][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		pan_speed_1_out = iPanSpeed[1][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		pan_speed_1_out = iPanSpeed[1][PTZ30X];
+	}
+}
+
+CHANGE pan_speed_2
+{
+	if((atoi(pan_speed_2) >= 0x01) && (atoi(pan_speed_2) <= 0x18))
+	{
+		iPanSpeed[2][PTZ12X] = atoi(pan_speed_2);
+		iPanSpeed[2][PTZ20X] = atoi(pan_speed_2);
+		iPanSpeed[2][PTZ30X] = atoi(pan_speed_2);
+	}
+	else
+	{
+		iPanSpeed[2][PTZ12X] = 0x0A;
+		iPanSpeed[2][PTZ20X] = 0x0A;
+		iPanSpeed[2][PTZ30X] = 0x0F;
+	}
+	if(iCamera = PTZ12X)
+	{
+		pan_speed_2_out = iPanSpeed[2][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		pan_speed_2_out = iPanSpeed[2][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		pan_speed_2_out = iPanSpeed[2][PTZ30X];
+	}
+}
+
+CHANGE pan_speed_3
+{
+	if((atoi(pan_speed_3) >= 0x01) && (atoi(pan_speed_3) <= 0x18))
+	{
+		iPanSpeed[3][PTZ12X] = atoi(pan_speed_3);
+		iPanSpeed[3][PTZ20X] = atoi(pan_speed_3);
+		iPanSpeed[3][PTZ30X] = atoi(pan_speed_3);
+	}
+	else
+	{
+		iPanSpeed[3][PTZ12X] = 0x12;
+		iPanSpeed[3][PTZ20X] = 0x12;
+		iPanSpeed[3][PTZ30X] = 0x12;
+	}
+	if(iCamera = PTZ12X)
+	{
+		pan_speed_3_out = iPanSpeed[3][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		pan_speed_3_out = iPanSpeed[3][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		pan_speed_3_out = iPanSpeed[3][PTZ30X];
+	}
+}
+
+CHANGE tilt_speed_1
+{
+	if((atoi(tilt_speed_1) >= 0x01) && (atoi(tilt_speed_1) <= 0x18))
+	{
+		if(atoi(tilt_speed_1) > 0x14)
+		{
+			iTiltSpeed[1][PTZ12X] = 0x0E;
+            iTiltSpeed[1][PTZ20X] = 0x0E;
+			iTiltSpeed[1][PTZ30X] = 0x0E;
+		}
+		else
+		{
+			iTiltSpeed[1][PTZ12X] = atoi(tilt_speed_1);
+            iTiltSpeed[1][PTZ30X] = atoi(tilt_speed_1);
+			iTiltSpeed[1][PTZ30X] = atoi(tilt_speed_1);
+		}
+		iTiltSpeed[1][PTZ20X] = atoi(tilt_speed_1);
+	}
+	else
+	{
+		iTiltSpeed[1][PTZ12X] = 0x03;
+		iTiltSpeed[1][PTZ20X] = 0x05;
+		iTiltSpeed[1][PTZ30X] = 0x07;
+	}
+	if(iCamera = PTZ12X)
+	{
+		tilt_speed_1_out = iTiltSpeed[1][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		tilt_speed_1_out = iTiltSpeed[1][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		tilt_speed_1_out = iTiltSpeed[1][PTZ30X];
+	}
+}
+
+CHANGE tilt_speed_2
+{
+	if((atoi(tilt_speed_2) >= 0x1) && (atoi(tilt_speed_2) <= 0x17))
+	{
+		if(atoi(tilt_speed_2) > 0x18)
+		{
+			iTiltSpeed[2][PTZ12X] = 0x0E;
+			iTiltSpeed[2][PTZ20X] = 0x0E;
+            iTiltSpeed[2][PTZ30X] = 0x0E;
+
+		}
+		else
+		{
+			iTiltSpeed[2][PTZ12X] = atoi(tilt_speed_2);
+			iTiltSpeed[2][PTZ30X] = atoi(tilt_speed_2);
+		}
+		iTiltSpeed[2][PTZ20X] = atoi(tilt_speed_2);
+	}
+	else
+	{
+		iTiltSpeed[2][PTZ12X] = 0x09;
+		iTiltSpeed[2][PTZ20X] = 0x09;
+		iTiltSpeed[2][PTZ30X] = 0x10;
+	}
+	if(iCamera = PTZ12X)
+	{
+		tilt_speed_2_out = iTiltSpeed[2][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		tilt_speed_2_out = iTiltSpeed[2][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		tilt_speed_2_out = iTiltSpeed[2][PTZ30X];
+	}
+}
+
+CHANGE tilt_speed_3
+{
+	if((atoi(tilt_speed_3) >= 0x1) && (atoi(tilt_speed_3) <= 0x18))
+	{
+		if(atoi(tilt_speed_3) > 0x18)
+		{
+			iTiltSpeed[2][PTZ12X] = 0x0E;
+            iTiltSpeed[2][PTZ20X] = 0x0E;
+			iTiltSpeed[2][PTZ30X] = 0x0E;
+		}
+		else
+		{
+			iTiltSpeed[2][PTZ12X] = atoi(tilt_speed_3);
+			iTiltSpeed[2][PTZ20X] = atoi(tilt_speed_3);
+            iTiltSpeed[2][PTZ30X] = atoi(tilt_speed_3);
+
+		}
+        iTiltSpeed[2][PTZ20X] = atoi(tilt_speed_3);
+	}
+	else
+	{
+		iTiltSpeed[2][PTZ12X] = 0x09;
+		iTiltSpeed[2][PTZ20X] = 0x09;
+		iTiltSpeed[2][PTZ30X] = 0x10;
+	}
+	if(iCamera = PTZ12X)
+	{
+		tilt_speed_3_out = iTiltSpeed[2][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		tilt_speed_3_out = iTiltSpeed[2][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		tilt_speed_3_out = iTiltSpeed[2][PTZ30X];
+	}
+}
+
+
+CHANGE zoom_speed_1
+{
+	if((atoi(zoom_speed_1) >= 0x00) && (atoi(zoom_speed_1) <= 0x07))
+	{
+		if(atoi(zoom_speed_1) > 0x02)
+		{
+			iZoomInSpeed[1][PTZ12X] = 0x02 + 0x20;
+			iZoomOutSpeed[1][PTZ12X] = 0x02 + 0x30;
+		}
+		else
+		{
+			iZoomInSpeed[1][PTZ12X] = atoi(zoom_speed_1) + 0x20;
+			iZoomOutSpeed[1][PTZ12X] = atoi(zoom_speed_1) + 0x30;
+		}
+		iZoomInSpeed[1][PTZ20X] = atoi(zoom_speed_1) + 0x20;
+		iZoomInSpeed[1][PTZ30X] = atoi(zoom_speed_1) + 0x20;
+		iZoomOutSpeed[1][PTZ20X] = atoi(zoom_speed_1) + 0x30;
+		iZoomOutSpeed[1][PTZ30X] = atoi(zoom_speed_1) + 0x30;
+	}
+	else
+	{
+		iZoomInSpeed[1][PTZ12X] = 0x02 + 0x20;
+		iZoomInSpeed[1][PTZ20X] = 0x02 + 0x20;
+		iZoomInSpeed[1][PTZ30X] = 0x04 + 0x20;
+		iZoomOutSpeed[1][PTZ12X] = 0x02 + 0x30;
+		iZoomOutSpeed[1][PTZ20X] = 0x02 + 0x30;
+		iZoomOutSpeed[1][PTZ30X] = 0x04 + 0x30;
+	}
+	if(iCamera = PTZ12X)
+	{
+		zoom_in_speed_1_out = iZoomInSpeed[1][PTZ12X];
+		zoom_out_speed_1_out = iZoomOutSpeed[1][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		zoom_in_speed_1_out = iZoomInSpeed[1][PTZ20X];
+		zoom_out_speed_1_out = iZoomOutSpeed[1][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		zoom_in_speed_1_out = iZoomInSpeed[1][PTZ30X];
+		zoom_out_speed_1_out = iZoomOutSpeed[1][PTZ30X];
+	}
+}
+
+CHANGE zoom_speed_2
+{
+	if((atoi(zoom_speed_2) >= 0x00) && (atoi(zoom_speed_2) <= 0x07))
+	{
+		if(atoi(zoom_speed_1) > 0x02)
+		{
+			iZoomInSpeed[2][PTZ12X] = 0x02 + 0x20;
+			iZoomOutSpeed[2][PTZ12X] = 0x02 + 0x30;
+		}
+		else
+		{
+			iZoomInSpeed[2][PTZ12X] = atoi(zoom_speed_2) + 0x20;
+			iZoomOutSpeed[2][PTZ12X] = atoi(zoom_speed_2) + 0x30;
+		}
+		iZoomInSpeed[2][PTZ20X] = atoi(zoom_speed_2) + 0x20;
+		iZoomInSpeed[2][PTZ30X] = atoi(zoom_speed_2) + 0x20;
+		iZoomOutSpeed[2][PTZ20X] = atoi(zoom_speed_2) + 0x30;
+		iZoomOutSpeed[2][PTZ30X] = atoi(zoom_speed_2) + 0x30;
+	}
+	else
+	{
+		iZoomInSpeed[2][PTZ12X] = 0x07 + 0x20;
+		iZoomInSpeed[2][PTZ20X] = 0x07 + 0x20;
+		iZoomInSpeed[2][PTZ30X] = 0x07 + 0x20;
+		iZoomOutSpeed[2][PTZ12X] = 0x07 + 0x30;
+		iZoomOutSpeed[2][PTZ20X] = 0x07 + 0x30;
+		iZoomOutSpeed[2][PTZ30X] = 0x07 + 0x30;
+	}
+	if(iCamera = PTZ12X)
+	{
+		zoom_in_speed_2_out = iZoomInSpeed[2][PTZ12X];
+		zoom_out_speed_2_out = iZoomOutSpeed[2][PTZ12X];
+	}
+	else if(iCamera = PTZ20X)
+	{
+		zoom_in_speed_2_out = iZoomInSpeed[2][PTZ20X];
+		zoom_out_speed_2_out = iZoomOutSpeed[2][PTZ20X];
+	}
+	else if(iCamera = PTZ30X)
+	{
+		zoom_in_speed_2_out = iZoomInSpeed[2][PTZ30X];
+		zoom_out_speed_2_out = iZoomOutSpeed[2][PTZ30X];
+	}
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+	{
+    ZoomWaiting = 0;
+    Semaphore = 0;
+    ZoomScale = 32767;
+    iCamera = PTZ12X;
+	}

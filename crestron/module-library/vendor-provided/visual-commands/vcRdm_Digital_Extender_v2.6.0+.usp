@@ -1,0 +1,102 @@
+#CATEGORY "46" "Visual Commands" // Custom
+#INCLUDEPATH "C:\Visual Commands\Visual Commands\VC-RDM\Crestron - Simpl#\Current\bin\Release"
+#USER_SIMPLSHARP_LIBRARY "VCRDMLib"
+
+#DEFINE_CONSTANT MAXPARAMS 20
+#DEFINE_CONSTANT MAXLENGTH 100
+
+DIGITAL_INPUT _Skip_, _Skip_, Parameter_Digital_To_RDM[MAXPARAMS];
+
+DIGITAL_OUTPUT _Skip_, _Skip_, Parameter_Digital_From_RDM_On_Pulse[MAXPARAMS], Parameter_Digital_From_RDM_Off_Pulse[MAXPARAMS];
+
+INTEGER_PARAMETER Slot;
+STRING_PARAMETER ID$[30];
+STRING_PARAMETER Digital_Attribute_Settings$[MAXPARAMS][100];
+
+DeviceStatusClass Device; 
+integer i, init_done;  
+string attrNameDigital[MAXPARAMS][MAXLENGTH];
+
+#BEGIN_PARAMETER_PROPERTIES Slot
+	propDefaultUnit = unitDecimal;
+   	propBounds = 1d ,50d;
+   	propDefaultValue = 1d;
+	propShortDescription = "Slot must match existing Room Slot";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES ID$
+	propDefaultValue = "ID";
+	propShortDescription = "ID must match existing device ID";    
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Digital_Attribute_Settings$
+	propDefaultValue = "Name|val0,val1|Control";
+	propShortDescription = "Name|val0,val1|Control";    
+#END_PARAMETER_PROPERTIES
+
+#DIGITAL_EXPAND InputsWithOutputs
+
+
+function InitialzieAttributes()
+{
+ 	for(i = 1 to MAXPARAMS)
+	{
+		if(len(Digital_Attribute_Settings$[i]) > 1 && Digital_Attribute_Settings$[i] != "Name|val0,val1|Control|Latched")
+		{
+			attrNameDigital[i] = Device.AddDigitalAttribute(Digital_Attribute_Settings$[i], Parameter_Digital_To_RDM[i]);		
+		}		 
+	}
+}
+
+
+CHANGE Parameter_Digital_To_RDM
+{
+ 	if(init_done)
+ 	{
+ 		Device.SetDigitalAttribute(attrNameDigital[getlastmodifiedarrayindex()], Parameter_Digital_To_RDM[getlastmodifiedarrayindex()]);		
+ 	}
+}
+
+
+EventHandler RDMEventFired(DeviceStatusClass o, RDMEventArgs e)
+{
+	integer k;
+	
+	for(k = 1 to MAXPARAMS)
+	{
+	 	if(e.Type = 0 && attrNameDigital[k] = e.Key)
+	 	{
+	 	 	if(e.Value = "0")
+ 	 			PULSE(25, Parameter_Digital_From_RDM_Off_Pulse[k]);
+ 	 		else
+ 	 			PULSE(25, Parameter_Digital_From_RDM_On_Pulse[k]);
+ 	 		break;
+	 	}
+	}
+}
+
+EventHandler RdmInitDeviceExtendersEventHandler(RDMEventArgs args)
+{
+  	if(init_done = 0 && MainClass.Initialized)
+  	{
+	  	//Get Device
+	  	if(MainClass.SetDevice(Device, ID$, Slot) = 1)
+	  	{	  	
+	  		init_done = 1;
+	  		InitialzieAttributes();
+	 		RegisterEvent(Device, RDMEvent, RDMEventFired);
+	 	}
+	 	else
+	 	{
+	 	 	GenerateUserWarning("vcRDM: Could not find device with id %s to extend its digital signals!", ID$);
+	 	}
+	}
+}
+
+function main()
+{
+ 	init_done = 0;
+ 	waitforinitializationcomplete();
+ 	delay(500);
+	RegisterEvent(MainClass, RdmInitDeviceExtendersEvent, RdmInitDeviceExtendersEventHandler); 	
+}

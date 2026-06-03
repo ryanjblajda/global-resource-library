@@ -1,0 +1,398 @@
+/*
+Dealer Name:
+System Name:Apple TV 4 v2.1
+System Number:
+Programmer:Eric Luckart 
+Comments:
+*/
+/*
+v1.1 - Moved to a direct socket.  needed the extra length for strings.
+		Added auto login.
+		Made SessionID nonvolatile.
+v1.2 - Changed arrow keys to use 1 command.
+		Added topmenu & contextmenu.
+v1.3 - Moved register to simpl+ because simpl# wasnt working.
+		Added Wakeup.
+		Fixed socket send not sending first commands when apple tv is asleep.
+v1.4 - Got module ready for simpl wrapper.
+		Removed all not needed stuff.
+		Fixed problem when the system would have the wrong sessionId and try to send
+		a command it would create a login loop.
+		Changed back to long commands on the arrow keys.  Apple TV versions 1 & 2 didnt
+		respond to the short commands.
+v1.5 - Started getting some fb from the apple tv.
+v1.6 - Removed fb. it needed S# to work.  I will probably add it again at a later date.
+		Worked on direction keys to get them to work better.
+4 v1.0 - Changed back to short commands on the arrow keys.  Apple TV 4 was doing some
+		crazy things with the long commands.  I didnt have time to test with other values.
+		Added 500 Bad Request login for Apple TV 4.
+4 v2.0 - ############# Repaired and Updated by Ryan Willden ###############
+		Changed 500 Bad Request to 400 Bad Request because of apple update.
+		Fixed issue with User-Agent in http packet because of apple update.
+4 v2.1 - Did some cleaning in S+.
+		Moved commads to simpl to make it easier to test.
+		Added more commads.
+*/
+
+#CATEGORY "0"  //Hidden 
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+
+
+
+
+/*******************************************************************************************
+									INPUTS
+*******************************************************************************************/
+Digital_Input	_SKIP_,
+				_SKIP_,
+				_SKIP_,
+				InUse,
+				_SKIP_,
+				StartPairing,
+				CancelPairing;
+				
+String_Input _skip_,
+				CtrlInt$[60],
+				ControlPromptEntry$[60];
+				
+/*******************************************************************************************
+									OUTPUTS
+*******************************************************************************************/
+Digital_Output	_SKIP_,
+				_SKIP_,
+				_SKIP_,
+				NeedsPairing,
+				PairingStarted,
+				PairingCanceled,
+				PairingFinished;
+Analog_Output 	_SKIP_,
+				ConnectionStatus;
+
+
+				
+nonvolatile string SessionId$[20];
+string 			CommandWaiting$[200],
+				Wake$[200],
+				IpHex$[4];
+integer 		PromptId,
+				Status,
+				CommandWaiting,
+				CommandWaitingType;
+
+STRING_PARAMETER 	AppleTvIpAddress$[15],
+					AppleTvMacAddress$[17],
+					CrestronIpAddress$[15];
+
+
+TCP_Client TcpClient[2000];		// Used for sending commands to apple tv
+UDP_Socket UdpSocket[2000],		// Used for sending pairing request
+           WakeUdpSocket[2000];	// Used for helping the apple tv wake from sleep
+TCP_Server TcpServer[2000];		// Used for finishing pairing request
+ 
+
+/*******************************************************************************************
+								Build Standard Commands
+*******************************************************************************************/
+string_function ControlPromptEntry(string function$)
+{
+	String temp$[500], command$[150];
+	integer length;
+	CommandWaiting$ = function$;
+	CommandWaitingType =1;
+	command$ = "cmcc\x00\x00\x00\x010cmbe\x00\x00\x00" + function$;
+	temp$ = "POST /ctrl-int/1/controlpromptentry?prompt-id=" + itoa(PromptId) + 
+		"&session-id=" + SessionId$ + " HTTP/1.1\x0D\x0A" +
+	"Host: " + AppleTvIpAddress$ + ":3689\x0D\x0A" +
+	"Accept-Language: en-us\x0D\x0A" +
+	"Viewer-Only-Client: 1\x0D\x0A" +
+	"User-Agent: Remote/1021\x0D\x0A" +
+	"Accept: */*\x0D\x0A" +
+	"Content-Type: application/x-www-form-urlencoded\x0D\x0A" +
+	"Connection: keep-alive\x0D\x0A" +
+	"Content-Length: " + itoa(len(Command$)) + "\x0D\x0A" +
+	"\x0D\x0A" + command$;
+	return(temp$);
+}
+
+string_function CtrlInt(string function$)
+{
+	String temp$[500];
+	integer length;
+	CommandWaiting$ = function$;
+	CommandWaitingType =2;
+	temp$ = "POST /ctrl-int/1/" + function$ + "prompt-id=" + itoa(PromptId) + 
+		"&session-id=" + SessionId$ + " HTTP/1.1\x0D\x0A" +
+	"Host: " + AppleTvIpAddress$ + ":3689\x0D\x0A" +
+	"Accept-Language: en-us\x0D\x0A" +
+	"Viewer-Only-Client: 1\x0D\x0A" +
+	"User-Agent: Remote/1021\x0D\x0A" +
+	"Accept: */*\x0D\x0A" +
+	"Content-Type: application/x-www-form-urlencoded\x0D\x0A" +
+	"Connection: keep-alive\x0D\x0A" +
+	"Content-Length: 0\x0D\x0A\x0D\x0A";
+	return(temp$);
+}
+
+/*******************************************************************************************
+								Build Login Command
+*******************************************************************************************/
+String_function loginf()
+{
+	string temp$[500];
+	temp$ = "GET /login?pairing-guid=0x0000000000000001&hasFP=1 HTTP/1.1\x0D\x0A" +
+	"Host: " + AppleTvIpAddress$ + ":3689\x0D\x0A" + 
+	"Connection: keep-alive\x0D\x0A" + 
+	"Accept: */*\x0D\x0A" + 
+	"User-Agent: Remote/1021\x0D\x0A" +
+	"Accept-Language: en-us\x0D\x0A" +
+	"Viewer-Only-Client: 1\x0D\x0A\x0D\x0A";
+	return(temp$);
+}
+
+
+/*******************************************************************************************
+								Sends commands to apple
+*******************************************************************************************/
+function socket(string send$)
+{
+	integer tempStatus;
+	if (Status != 2)
+	{
+		tempStatus = socketconnectclient(TcpClient, AppleTvIpAddress$, 3689, 0);
+		if (tempStatus < 0)
+			GenerateUserNotice("Apple TV did not connect");
+		else
+		{							// make the command available to socketstatus. For resend.
+			//CommandWaiting$ = right(send$, len(send$) - find("cmbe", send$)+3);	
+			CommandWaiting = 1;
+			wait(30000, SocketTimer)	// time connection.  disconnect if not used for 5min.
+			{
+				SocketDisconnectclient(TcpClient);
+			}
+		}
+	}
+	else
+	{
+		socketsend(TcpClient, send$);			
+		retimewait(30000, SocketTimer);				// new command. retime discconnet timer.
+	}
+	promptId = promptId + 1;
+	return;
+}
+
+/*******************************************************************************************
+								Command is waiting
+*******************************************************************************************/
+
+Function CommandWaitingFunction()
+{
+	if(CommandWaitingType = 1)
+		socket(ControlPromptEntry(CommandWaiting$));// rebuild commad just incase the session id changed
+	else
+		socket(CtrlInt(CommandWaiting$));// rebuild commad just incase the session id changed
+}
+
+
+
+socketstatus TcpClient
+{
+	Status = SocketGetStatus();
+	ConnectionStatus = Status;
+	if (Status = 2 && CommandWaiting = 1)
+	{
+		CommandWaiting = 0;
+    CommandWaitingFunction();
+	}
+}
+
+/*******************************************************************************************
+							Data comming in from apple
+*******************************************************************************************/
+socketreceive TcpClient
+{
+	string end$[20], mlid$[6], sessionIdIn$[10], hex$[10], junk$[2000];
+	integer i, b;
+	long_integer l;
+	while (len(TcpClient.SocketRxBuf))
+	{
+		if (find("\x0d\x0a\x0d\x0a",TcpClient.SocketRxBuf))
+		{
+			junk$ = remove("\x0d\x0a\x0d\x0a", TcpClient.SocketRxBuf);
+			//out$ = junk$;
+			if (find("HTTP/1.1 403 Forbidden", junk$))	// go login because most cases its not
+			{
+				CommandWaiting = 1;
+				socket(loginf());				// login after failed attempt of sending a command
+			}
+			if (find("HTTP/1.1 400 Bad Request", junk$))	// go login because most cases its not  *** This is for AppleTV 4
+			{
+				CommandWaiting = 1;
+				socket(loginf());				// login after failed attempt of sending a command
+			}
+			if (find("HTTP/1.1 503 Service Unavailable", junk$)) //Pairing needed
+			{
+				NeedsPairing = 1;
+				CommandWaiting = 0;
+			}
+		}
+		else
+		{		
+			//out$ = TcpClient.SocketRxBuf;
+			end$ = right(TcpClient.SocketRxBuf, 12);
+			clearbuffer(TcpClient.SocketRxBuf);
+			mlid$ = left(end$, 4);
+			if (mlid$ = "mlid")										// look for session id
+			{
+				sessionIdIn$ = right(end$, 4);
+				hex$ = "";
+		        i = 0;
+				for (i = 1 to len(sessionIdIn$))
+				{
+					b = byte(sessionIdIn$, i);
+					makestring(hex$, "%s%x",hex$,b);
+				}
+				l = hextol(hex$);
+				makestring(sessionId$, "%lu", l);
+				//sessionIdOut$ = sessionId$; 	// Used for testing for other commands.
+				promptId = 1;
+				if (CommandWaiting = 1)
+				{
+					CommandWaiting = 0;
+					CommandWaitingFunction();				// resend command after login
+				}
+			}
+		}
+	}
+}
+
+/*******************************************************************************************
+								Button Presses
+*******************************************************************************************/
+change ControlPromptEntry$
+{
+   socket(ControlPromptEntry(ControlPromptEntry$));
+}
+change CtrlInt$
+{
+   socket(CtrlInt(CtrlInt$));
+}
+
+push InUse
+{	
+	SocketUDP_Enable(WakeUdpSocket, "255.255.255.255", 9);
+	SocketSend(WakeUdpSocket, Wake$); 
+	SocketUDP_Disable(WakeUdpSocket);
+	wait(100)				// give the apple tv time to wake the connection.
+	{	
+		Socket(ControlPromptEntry("\x010cmbe\x00\x00\x00\x18touchUp&time=2&point=0,0")); //Send release command. 
+	}
+}
+
+/*******************************************************************************************
+									Pairing
+*******************************************************************************************/
+Push StartPairing
+{
+	string in$[300];
+	Pulse(20, PairingStarted);
+	SocketServerStartListen(TcpServer, "0.0.0.0", 12003);
+	SocketUDP_Enable(UdpSocket, "224.0.0.251", 5353);
+	in$ = "\x00\x00\x84\x00\x00\x00\x00\x04\x00\x00\x00\x03\x08\x43\x72\x65\x73\x74\x72\x6f\x6e\x0d\x5f\x74\x6f\x75\x63\x68\x2d\x72\x65\x6d\x6f\x74\x65\x04\x5f\x74\x63\x70\x05\x6c\x6f\x63\x61\x6c\x00\x00\x10\x80\x01\x00\x00\x11\x94\x00\x53\x03\x54\x58\x54\x15\x50\x61\x69\x72\x3d\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x31\x15\x74\x78\x74\x76\x65\x72\x73\x3d\x31\x22\x52\x65\x6d\x4e\x3d\x52\x65\x6d\x6f\x74\x65\x09\x44\x76\x54\x79\x3d\x69\x50\x6f\x64\x0a\x52\x65\x6d\x56\x3d\x31\x30\x30\x30\x30\x0d\x44\x76\x4e\x6d\x3d\x43\x72\x65\x73\x74\x72\x6f\x6e\x09\x5f\x73\x65\x72\x76\x69\x63\x65\x73\x07\x5f\x64\x6e\x73\x2d\x73\x64\x04\x5f\x75\x64\x70\xc0\x28\x00\x0c\x00\x01\x00\x00\x11\x94\x00\x02\xc0\x15\xc0\x15\x00\x0c\x00\x01\x00\x00";
+	in$ = in$ + "\x11\x94\x00\x02\xc0\x0c\xc0\x0c\x00\x21\x80\x01\x00\x00\x00\x78\x00\x11\x00\x00\x00\x00\x2e\xe3"; //\x11 length of name
+	in$ = in$ + "\x08\x43\x72\x65\x73\x74\x72\x6f\x6e\xc0\x28"; // name: lenth=\x08 Crestron & \xc0\x28 i have no clue.
+	in$ = in$ + "\xc0\xd1\x00\x01\x80\x01\x00\x00\x00\x78\x00\x04"; // \x04 length of IP.  should always be 04.
+	in$ = in$ + IpHex$;						// ip address of crestron in hex
+	in$ = in$ + "\xc0\xd1\x00\x2f\x80\x01\x00\x00\x00\x78\x00\x05\xc0\xd1\x00\x01\x40\xc0\x0c\x00\x2f\x80\x01\x00\x00\x11\x94\x00\x09\xc0\x0c\x00\x05\x00\x00\x80\x00\x40";
+	SocketSend(UdpSocket, in$);				// send command to get Crestron to show up under remotes
+	delay(100);								// wait 1sec
+	SocketSend(UdpSocket, in$);				// send command again to make sure it shows up
+	SocketUDP_Disable(UdpSocket);
+	clearbuffer(UdpSocket.SocketRxBuf);
+}
+Push CancelPairing
+{
+    string in$[100];
+	SocketUDP_Enable(UdpSocket, "224.0.0.251", 5353);
+	in$ = "\x00\x00\x84\x00\x00\x00\x00\x01\x00\x00\x00\x00\x0d\x5f\x74\x6f\x75\x63\x68\x2d\x72\x65\x6d\x6f\x74\x65\x04\x5f\x74\x63\x70\x05\x6c\x6f\x63\x61\x6c\x00\x00\x0c\x00\x01\x00\x00\x00\x00\x00\x0b\x08\x43\x72\x65\x73\x74\x72\x6f\x6e\xc0\x0c";
+	SocketSend(UdpSocket, in$);				// send command to disable Crestron from showing up
+	delay(100);								// wait 1sec
+	SocketSend(UdpSocket, in$);				// send command again
+	SocketUDP_Disable(UdpSocket);
+	clearbuffer(UdpSocket.SocketRxBuf);
+	SocketServerStopListen(TcpServer);
+	clearbuffer(TcpServer.SocketRxBuf);
+	pulse(20, PairingCanceled);
+}
+SocketConnect TcpServer						// this is for the pairing process
+{
+	string in$[100], ipaddress$[20], macaddress$[20], hex$[2];	 
+	in$ = "cmpg\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x01cmnm\x00\x00\x00\x08\x43restroncmty\x00\x00\x00\x04iPod"; // cmnm = name
+	makestring(hex$, "%c", len(in$));		// Get length of the string
+	in$ = "cmpa\x00\x00\x00" + hex$ + in$;
+	in$ = "HTTP/1.1 200 OK\n" + "Content-Length: " + itoa(len(in$)) + "\n\n" + in$;
+	SocketSend(TcpServer, in$);
+	delay(100);
+	SocketUDP_Enable(UdpSocket, "224.0.0.251", 5353);
+	in$ = "\x00\x00\x84\x00\x00\x00\x00\x01\x00\x00\x00\x00\x0d\x5f\x74\x6f\x75\x63\x68\x2d\x72\x65\x6d\x6f\x74\x65\x04\x5f\x74\x63\x70\x05\x6c\x6f\x63\x61\x6c\x00\x00\x0c\x00\x01\x00\x00\x00\x00\x00\x0b\x08\x43\x72\x65\x73\x74\x72\x6f\x6e\xc0\x0c";
+	SocketSend(UdpSocket, in$);				// send command to disable Crestron from showing up
+	delay(100);								// wait 1sec
+	SocketSend(UdpSocket, in$);				// send command again
+	SocketUDP_Disable(UdpSocket);
+	clearbuffer(UdpSocket.SocketRxBuf);
+	SocketServerStopListen(TcpServer);
+	clearbuffer(TcpServer.SocketRxBuf);
+	pulse(20, PairingFinished);
+	NeedsPairing = 0;
+}
+
+
+
+/*******************************************************************************************
+								All Statup Function
+*******************************************************************************************/
+function main()
+{
+	integer forI, hexI, locI;
+	string mac$[6], temp$[2], ip$[4], temp2$[15];
+	CommandWaiting = 0;
+	WaitForInitializationComplete();
+	
+/*******************************************************************************************
+			This section is used to create the wakeup string for the apple tv
+*******************************************************************************************/
+
+	mac$="";
+	locI=1;
+	for (forI = 1 to 6)
+	{
+		hexI = HexToI(mid(AppleTvMacAddress$,locI,2));
+    	if(hexI=0)
+			temp$ = "\x00";
+    	Else
+			makestring(temp$, "%c",hexI);
+    	locI = locI+3;
+    	mac$ = mac$ + temp$; 
+	}
+	Wake$ = "\xff\xff\xff\xff\xff\xff" + mac$+ mac$+ mac$+ mac$+ mac$+ mac$+ mac$+ mac$+ 
+		mac$+ mac$+ mac$+ mac$+ mac$+ mac$+ mac$+ mac$;
+
+/*******************************************************************************************
+	This section is used to convert crestrons ip address "192.168.1.150" to 4 hex
+	values to use in the pairing process
+*******************************************************************************************/
+
+	ip$ = "";
+	temp2$ = CrestronIpAddress$;
+	for (forI = 1 to 3)
+	{
+		hexI = atoi(remove(".",temp2$));
+		makestring(temp$, "%c",hexI);
+		ip$ = ip$ + temp$;
+	}
+	hexI = atoi(temp2$);
+	makestring(temp$, "%c",hexI);
+	IpHex$ = ip$ + temp$;
+}

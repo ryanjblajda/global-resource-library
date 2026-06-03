@@ -1,0 +1,155 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "String Prefix w. Alternate v2"
+#HINT "adds a prefix to a string, supports an alternate prefix"
+// #DEFINE_CONSTANT
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+
+#HELP_END
+
+//INPUTS
+DIGITAL_INPUT UseExternalPrefix;
+STRING_INPUT _SKIP_, Internal_Prefix[255], External_Prefix[255];
+STRING_INPUT _SKIP_, StringToPrefix[255][255];
+ 
+
+//OUTPUTS
+#OUTPUT_SHIFT 5
+STRING_OUTPUT StringWithPrefix[255];
+
+/* GLOBAL VARIABLES */
+
+integer giDefinedInputs;
+string  gsStringToPrefix[255][255];
+string  gsInternalPrefix[255], gsExternalPrefix[255];
+
+/*** Event Handlers ***/
+
+CHANGE UseExternalPrefix
+{
+	integer i;
+	for(i = 1 to giDefinedInputs) 
+	{
+		if(gsStringToPrefix[i] <> "") //if the internally stored string is not empty, update it
+		{
+			if(UseExternalPrefix = ON)
+			{
+				StringWithPrefix[i] = gsExternalPrefix + gsStringToPrefix[i];
+			}
+			else if(UseExternalPrefix = OFF)
+			{
+				StringWithPrefix[i] = gsInternalPrefix + gsStringToPrefix[i];
+			}
+		}
+		else //clear the output side if the internally stored string is empty
+		{
+			StringWithPrefix[i] = "";
+		}
+		processLogic();
+	}
+}
+
+CHANGE Internal_Prefix
+{
+	integer i;
+
+	//store the new Prefix, strings are transient
+	gsInternalPrefix = Internal_Prefix;
+    
+	//if we are supposed to use the internal Prefix
+	if(UseExternalPrefix = OFF)
+	{
+	//update all outputs defined
+		for(i = 1 to giDefinedInputs)
+		{
+			//if the string we stored in our internal array (the last time this string input changed), make new string
+			if(gsStringToPrefix[i] <> "")
+			{
+				StringWithPrefix[i] = gsInternalPrefix + gsStringToPrefix[i];
+			}
+		}
+	}		
+}
+
+CHANGE External_Prefix
+{
+	integer i;
+
+	//store the new Prefix, strings are transient
+	gsExternalPrefix = External_Prefix;
+    
+	//if we are supposed to use the internal Prefix
+	if(UseExternalPrefix = ON)
+	{
+	//update all outputs defined
+		for(i = 1 to giDefinedInputs)
+		{
+			//if the string we stored in our internal array (the last time this string input changed), make new string
+			if(gsStringToPrefix[i] <> "")
+			{
+				StringWithPrefix[i] = gsExternalPrefix + gsStringToPrefix[i];
+			}
+		}
+	}		
+} 
+
+CHANGE StringToPrefix {
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	
+	gsStringToPrefix[iChanged] = StringToPrefix[iChanged];
+
+	if(gsStringToPrefix[iChanged] <> "")
+	{
+		if(UseExternalPrefix = ON)
+		{
+			StringWithPrefix[iChanged] = gsExternalPrefix + gsStringToPrefix[iChanged];
+		}
+		else if(UseExternalPrefix = OFF)
+		{
+			StringWithPrefix[iChanged] = gsInternalPrefix + gsStringToPrefix[iChanged];
+		}
+	}
+}
+
+/*** Main() ***/
+Function Main() {
+	integer i;
+    WaitForInitializationComplete();
+
+	for(i = MAXITEMS to 1 step - 1)
+	{
+		if(isSignalDefined(stringToPrefix[i])) break;
+	}
+
+	giDefinedInputs = i;
+
+	#IF_DEFINED DEBUG
+		print("%s: definedInputs = %u", getSymbolInstanceName(), i);
+	#ENDIF
+}
+
+

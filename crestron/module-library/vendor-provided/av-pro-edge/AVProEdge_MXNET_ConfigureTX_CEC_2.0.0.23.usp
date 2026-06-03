@@ -1,0 +1,36 @@
+#define_constant MAX_OUTPUTS  200
+
+STRING_input CEC_HEX[MAX_OUTPUTS][MAX_OUTPUTS];
+
+string_output CONFIGURE_TX_CMD;
+
+string_function hexToHexString(string rawHex)
+{
+	string returnValue[255],newHex[2];
+	integer val,i;
+	
+	for(i = 1 to len(rawHex) step 1)
+	{
+		val = BYTE(rawHex,i);
+		
+		newHex = ITOHEX(val);
+		
+		if(LEN(newHex) < 2)
+		{
+			newHex = "0" + newHex;
+		}
+		
+		returnValue = returnValue + newHex;
+	}
+	return (returnValue);
+}
+
+threadsafe Change CEC_HEX
+{
+	integer i;
+	String cmd[256];
+	
+	i = getlastmodifiedarrayindex();
+	makestring( CMD, "config set device cec %s INPUT_ALIAS[%d];", hexToHexString(CEC_HEX[i]), i );
+	CONFIGURE_TX_CMD = cmd;
+}

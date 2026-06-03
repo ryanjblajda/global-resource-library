@@ -1,0 +1,1234 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: Surgex AxessElite Module
+System Number:
+Programmer: JJM
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+
+#DEFINE_CONSTANT MAX_NAME_SIZE 50
+#DEFINE_CONSTANT MAX_STRING_SIZE 1024
+#DEFINE_CONSTANT MAX_BUFFER_SIZE 1024
+#DEFINE_CONSTANT MAX_MSG_SIZE 100
+#DEFINE_CONSTANT MAX_OUTLETS 8
+
+#DEFINE_CONSTANT OS_ON 1
+#DEFINE_CONSTANT OS_OFF 0
+
+#DEFINE_CONSTANT MESSAGE_TIMEOUT 200
+
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+To be used with Surgex AxessElite Module v1.0.umc or Surgex AxessElite Module IP v1.0.umc modules only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_, _SKIP_;
+DIGITAL_INPUT Start_Communication, Stop_Communication, _SKIP_;
+DIGITAL_INPUT Outlet_01_On, Outlet_01_Off, Outlet_01_Cycle, _SKIP_;
+DIGITAL_INPUT Outlet_02_On, Outlet_02_Off, Outlet_02_Cycle, _SKIP_;
+DIGITAL_INPUT Outlet_03_On, Outlet_03_Off, Outlet_03_Cycle, _SKIP_;
+DIGITAL_INPUT Outlet_04_On, Outlet_04_Off, Outlet_04_Cycle, _SKIP_;
+DIGITAL_INPUT Outlet_05_On, Outlet_05_Off, Outlet_05_Cycle, _SKIP_;
+DIGITAL_INPUT Outlet_06_On, Outlet_06_Off, Outlet_06_Cycle, _SKIP_;
+DIGITAL_INPUT Outlet_07_On, Outlet_07_Off, Outlet_07_Cycle, _SKIP_;
+DIGITAL_INPUT Outlet_08_On, Outlet_08_Off, Outlet_08_Cycle, _SKIP_;
+
+ANALOG_INPUT Set_Outlet_Cycle_Time, _SKIP_; 
+
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+
+BUFFER_INPUT From_Device[MAX_BUFFER_SIZE]; 
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Is_Communicating, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_01_Is_On, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_02_Is_On, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_03_Is_On, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_04_Is_On, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_05_Is_On, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_06_Is_On, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_07_Is_On, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Outlet_08_Is_On, _SKIP_, _SKIP_, _SKIP_;
+
+ANALOG_OUTPUT Outlet_Cycle_Time, _SKIP_; 
+
+STRING_OUTPUT Line_Voltage_Text, Line_Power_Draw_Text, Line_Current_Draw_Text, Total_Energy_Used_Text, _SKIP_;    
+
+STRING_OUTPUT Outlet_01_Name_Text, Outlet_01_Current_Draw_Text, Outlet_01_Power_Draw_Text, Outlet_01_Energy_Used_Text, _SKIP_; 
+STRING_OUTPUT Outlet_02_Name_Text, Outlet_02_Current_Draw_Text, Outlet_02_Power_Draw_Text, Outlet_02_Energy_Used_Text, _SKIP_; 
+STRING_OUTPUT Outlet_03_Name_Text, Outlet_03_Current_Draw_Text, Outlet_03_Power_Draw_Text, Outlet_03_Energy_Used_Text, _SKIP_; 
+STRING_OUTPUT Outlet_04_Name_Text, Outlet_04_Current_Draw_Text, Outlet_04_Power_Draw_Text, Outlet_04_Energy_Used_Text, _SKIP_; 
+STRING_OUTPUT Outlet_05_Name_Text, Outlet_05_Current_Draw_Text, Outlet_05_Power_Draw_Text, Outlet_05_Energy_Used_Text, _SKIP_; 
+STRING_OUTPUT Outlet_06_Name_Text, Outlet_06_Current_Draw_Text, Outlet_06_Power_Draw_Text, Outlet_06_Energy_Used_Text, _SKIP_; 
+STRING_OUTPUT Outlet_07_Name_Text, Outlet_07_Current_Draw_Text, Outlet_07_Power_Draw_Text, Outlet_07_Energy_Used_Text, _SKIP_; 
+STRING_OUTPUT Outlet_08_Name_Text, Outlet_08_Current_Draw_Text, Outlet_08_Power_Draw_Text, Outlet_08_Energy_Used_Text, _SKIP_; 
+
+STRING_OUTPUT To_Device; 
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+STRING_PARAMETER User_Name[MAX_NAME_SIZE];
+STRING_PARAMETER User_Password[MAX_NAME_SIZE];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES User_Name
+	propValidUnits = unitString;
+	propDefaultUnit = unitString;
+	propDefaultValue = "admin";
+	propShortDescription = "Telnet/RS232 USER NAME";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES User_Password
+	propValidUnits = unitString;
+	propDefaultUnit = unitString;
+	propDefaultValue = "admin";
+	propShortDescription = "Telnet/RS232 PASSWORD";
+#END_PARAMETER_PROPERTIES
+
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+STRUCTURE _SYSTEM
+{
+	STRING sLineVoltage[MAX_NAME_SIZE];
+	STRING sLineCurrent[MAX_NAME_SIZE];
+	STRING sLinePower[MAX_NAME_SIZE];
+	STRING sTotalEnergyUsed[MAX_NAME_SIZE];
+	INTEGER nCycleTime;
+};
+
+_SYSTEM system;
+
+STRUCTURE _OUTLET
+{
+	STRING sName[MAX_NAME_SIZE];
+	STRING sCurrentDraw[MAX_NAME_SIZE];
+	STRING sPowerDraw[MAX_NAME_SIZE];
+	STRING sEnergyUsed[MAX_NAME_SIZE];
+
+	INTEGER nState;
+};
+
+_OUTLET outlets[MAX_OUTLETS];
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+STRING sMsg[MAX_BUFFER_SIZE];
+STRING sParsedMsg[MAX_MSG_SIZE];
+STRING queue[MAX_STRING_SIZE];
+
+STRING parsingMode[100];
+                            
+INTEGER isInitialized;
+INTEGER isPolling;
+INTEGER isQueueing;
+INTEGER isParsing;
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+                    
+////////////////////////////////////////////////////////////
+// GENERAL FUNCTIONS
+////////////////////////////////////////////////////////////
+String_Function trim(STRING str)
+{
+	STRING response[MAX_STRING_SIZE];
+
+	response = str;
+
+	WHILE (LEFT(response, 1) = " ")
+		response = MID(response, 2, LEN(response) - 1);
+
+	WHILE (RIGHT(response, 1) = " ")
+		response = LEFT(response, LEN(response) - 1);
+
+	return (response);
+}
+
+Integer_Function stringTokenizer(STRING tokenList[], STRING stringMsg, STRING delimiter)
+{
+	INTEGER nStartLocation;
+	INTEGER nFoundLocation;
+	INTEGER item;
+	INTEGER clearItem;
+	STRING token[100];
+
+	item = 0;
+
+	nStartLocation = 1;
+
+	WHILE (TRUE)
+	{
+		nFoundLocation = FIND(delimiter, stringMsg, nStartLocation);
+
+		IF (nFoundLocation = 0)
+			break;
+
+		token = MID(stringMsg, nStartLocation, nFoundLocation - nStartLocation);
+
+		if (LEN(token) > 0)
+		{
+			if (item + 1 > GetNumArrayRows(tokenList))
+				break;
+
+			item = item + 1;
+
+			tokenList[item] = token;
+		}
+
+		nStartLocation = nFoundLocation + LEN(delimiter);	
+	}
+
+	IF (nStartLocation <= LEN(stringMsg) && (item + 1 <= GetNumArrayRows(tokenList)))
+	{
+		item = item + 1;
+
+		tokenList[item] = MID(stringMsg, nStartLocation, (LEN(stringMsg) - nStartLocation) + 1);
+	}
+
+	FOR (clearItem = item + 1 to GetNumArrayRows(tokenList))
+		tokenList[clearItem] = "";
+                                                       
+	return (item);
+}
+
+////////////////////////////////////////////////////////////
+// UPDATE SIGNALS FUNCTIONS
+////////////////////////////////////////////////////////////
+Function updateOutletState(INTEGER nOutlet, _OUTLET info)
+{
+	SWITCH (nOutlet)
+	{
+		CASE (01):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_01_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_01_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_01_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_01_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_01_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+		CASE (02):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_02_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_02_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_02_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_02_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_02_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+		CASE (03):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_03_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_03_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_03_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_03_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_03_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+		CASE (04):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_04_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_04_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_04_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_04_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_04_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+		CASE (05):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_05_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_05_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_05_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_05_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_05_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+		CASE (06):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_06_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_06_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_06_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_06_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_06_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+		CASE (07):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_07_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_07_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_07_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_07_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_07_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+		CASE (08):
+		{
+			if (outlets[nOutlet].nState != info.nState)
+			{
+				outlets[nOutlet].nState = info.nState;
+
+				Outlet_08_Is_On = (info.nState = OS_ON);
+			}
+
+			if (outlets[nOutlet].sName != info.sName)
+			{
+				outlets[nOutlet].sName = info.sName;
+
+				Outlet_08_Name_Text = info.sName;
+			}
+
+			if (outlets[nOutlet].sCurrentDraw != info.sCurrentDraw)
+			{
+				outlets[nOutlet].sCurrentDraw = info.sCurrentDraw;
+
+				Outlet_08_Current_Draw_Text = info.sCurrentDraw;
+			}
+
+			if (outlets[nOutlet].sPowerDraw != info.sPowerDraw)
+			{
+				outlets[nOutlet].sPowerDraw = info.sPowerDraw;
+
+				Outlet_08_Power_Draw_Text = info.sPowerDraw;
+			}
+
+			if (outlets[nOutlet].sEnergyUsed != info.sEnergyUsed)
+			{
+				outlets[nOutlet].sEnergyUsed = info.sEnergyUsed;
+
+				Outlet_08_Energy_Used_Text = info.sEnergyUsed;
+			}
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+// PARSING FUNCTIONS
+////////////////////////////////////////////////////////////
+Function parseSystemData(STRING msg)
+{
+	STRING statusTokens[10][100];
+    STRING token[100];
+	INTEGER statusTokenCount;
+	INTEGER value;
+
+	statusTokenCount = stringTokenizer(statusTokens, msg, ":");
+
+	IF (statusTokenCount = 2)
+	{
+		IF (statusTokens[1] = "Line Voltage")
+		{
+			token = statusTokens[2];
+
+			statusTokenCount = stringTokenizer(statusTokens, token, " ");
+
+			IF (statusTokenCount > 0)
+			{
+				token = statusTokens[1];
+
+				IF (system.sLineVoltage != token)
+				{
+					system.sLineVoltage = token;
+
+					Line_Voltage_Text = token;
+				}
+			}
+		}
+		ELSE IF (statusTokens[1] = "Total Current")
+		{
+			token = statusTokens[2];
+
+			statusTokenCount = stringTokenizer(statusTokens, token, " ");
+
+			IF (statusTokenCount > 0)
+			{
+				token = statusTokens[1];
+
+				IF (system.sLineCurrent != token)
+				{
+					system.sLineCurrent = token;
+
+					Line_Current_Draw_Text = token;
+				}
+			}
+		}
+		ELSE IF (statusTokens[1] = "Line power")
+		{
+			token = statusTokens[2];
+
+			statusTokenCount = stringTokenizer(statusTokens, token, " ");
+
+			IF (statusTokenCount > 0)
+			{
+				token = statusTokens[1];
+
+				IF (system.sLinePower != token)
+				{
+					system.sLinePower = token;
+
+					Line_Power_Draw_Text = token;
+				}
+			}
+		}
+		ELSE IF (statusTokens[1] = "Energy Used")
+		{
+			token = statusTokens[2];
+
+			statusTokenCount = stringTokenizer(statusTokens, token, " ");
+
+			IF (statusTokenCount > 0)
+			{
+				token = statusTokens[1];
+
+				IF (system.sTotalEnergyUsed != token)
+				{
+					system.sTotalEnergyUsed = token;
+
+					Total_Energy_Used_Text = token;
+				}
+			}
+		}
+		ELSE IF (statusTokens[1] = "Reboot Time")
+		{
+			token = statusTokens[2];
+
+			statusTokenCount = stringTokenizer(statusTokens, token, " ");
+
+			IF (statusTokenCount > 0)
+			{
+				value = atoi(statusTokens[1]);
+                                                    
+				IF (system.nCycleTime != value)
+				{
+					system.nCycleTime = value;
+
+					Outlet_Cycle_Time = system.nCycleTime;
+				}
+			}
+		}
+	}
+}
+
+Function parseOutletData(STRING msg, INTEGER outlet)
+{
+	STRING statusTokens[10][100];
+	STRING token[100];
+	INTEGER statusTokenCount;
+	INTEGER tokensRemaining;
+	INTEGER currentToken;
+	_OUTLET info;
+
+	IF (outlet > 0 && outlet <= MAX_OUTLETS)
+	{
+		statusTokenCount = stringTokenizer(statusTokens, msg, " ");
+
+		FOR (currentToken = 1 to statusTokenCount)
+		{
+			if (statusTokens[currentToken] = "On" || statusTokens[currentToken] = "Off")
+			{
+				statusTokenCount = currentToken + 3;
+				break;
+            }
+		}
+
+		FOR (currentToken = 1 to statusTokenCount)
+		{
+			token = statusTokens[currentToken];
+
+			tokensRemaining = statusTokenCount - currentToken;
+
+			SWITCH (tokensRemaining)
+			{
+				CASE (0): // ENERGY USED
+				{
+					info.sEnergyUsed = token;
+				}
+				CASE (1): // POWER DRAW
+				{
+					IF (RIGHT(token, 1) = "w")
+						token = LEFT(token, LEN(token) - 1);
+
+					info.sPowerDraw = token;
+				}
+				CASE (2): // CURRENT DRAW
+				{
+					IF (RIGHT(token, 1) = "a")
+						token = LEFT(token, LEN(token) - 1);
+
+					info.sCurrentDraw = token;
+				}
+				CASE (3): // STATE
+				{
+					IF (RIGHT(info.sName, 1) = " ")
+						info.sName = LEFT(info.sName, LEN(info.sName) - 1);
+
+					if (token = "On")
+						info.nState = OS_ON;
+					if (token = "Off")
+						info.nState = OS_OFF;
+				}
+				DEFAULT: // NAME
+				{
+					MakeString(info.sName,"%s%s ", info.sName, token);
+				}
+			}
+		}
+		
+		updateOutletState(outlet, info);
+	}
+}	
+
+
+////////////////////////////////////////////////////////////
+// QUEUE FUNCTIONS
+////////////////////////////////////////////////////////////
+
+// deQueue: Do Not Use Directly ////////////////////////////
+String_Function deQueue()
+{
+	STRING response[MAX_MSG_SIZE];
+
+	IF (FIND("\x0d", queue, 1) > 0) 
+		response = REMOVE("\x0d", queue, 1);
+
+	RETURN (response);
+}
+
+// queueing: Do Not Use Directly ///////////////////////////
+Function queueing()
+{
+	IF (LEN(queue) > 0)
+	{
+		MakeString(To_Device, "%s", deQueue());
+
+		WAIT (MESSAGE_TIMEOUT, NoResponse)
+		{
+			Is_Communicating = FALSE;
+
+			queueing();
+		}
+	}
+	ELSE
+	{
+		isQueueing = FALSE;
+	}
+}
+
+// clearQueue: Do Not Use Directly /////////////////////////
+Function clearQueue()
+{
+	queue = "";
+}
+               
+// startQueue: Do not use Directly /////////////////////////             
+Function startQueue()
+{
+	IF (isQueueing = FALSE)
+	{
+		isQueueing = TRUE;
+
+		queueing();
+	}
+}
+
+// cancelQueue: use this to cancel queue /////////////////// 
+Function cancelQueue()
+{
+	clearQueue();
+
+	CANCELWAIT(NoResponse);
+
+	isQueueing = FALSE;
+}
+
+// validResponse: use this to progress the queue ///////////
+Function validResponse()
+{
+	Is_Communicating = TRUE;
+
+	CANCELWAIT(NoResponse);
+
+	queueing();
+}
+
+// enQueue: Use this to start the queue ////////////////////
+Function enQueue(STRING msg)
+{
+	// dont allow multiple of the same set commands into the queue.
+	IF (FIND("set", msg, 1) > 0 && FIND(msg, queue, 1) > 0)
+		return;
+
+	IF (FIND("\x0d", msg, 1) > 0)
+		MakeString(queue,"%s%s",queue, msg);
+	ELSE
+		MakeString(queue,"%s%s\x0d",queue, msg);
+
+	startQueue();
+}
+
+////////////////////////////////////////////////////////////
+// POLL FUNCTIONS
+////////////////////////////////////////////////////////////
+
+// poll: Do not use Directly ///////////////////////////////
+Function poll()
+{
+	enQueue("get all");
+
+	WAIT (1000, polling)
+	{
+		 poll();
+	}	
+}
+
+// cancelPoll: Use this to cancel polling //////////////////
+Function cancelPoll()
+{
+	CANCELWAIT(polling);
+
+	isPolling = FALSE;
+}
+
+// startPoll: Use this to start polling ////////////////////
+Function startPoll()
+{
+	IF (isPolling = FALSE)
+	{
+		isPolling = TRUE;
+
+		poll();
+	}
+}
+
+////////////////////////////////////////////////////////////
+// Resonse to a set command takes about 1500ms, need to set feedback temp.
+////////////////////////////////////////////////////////////
+Function tempOutletState(INTEGER nOutlet, INTEGER state)
+{
+	RETIMEWAIT(1000, polling);
+
+	SWITCH (nOutlet)
+	{
+		CASE (1):
+			Outlet_01_Is_On = (state = OS_ON);
+		CASE (2):
+			Outlet_02_Is_On = (state = OS_ON);
+		CASE (3):
+			Outlet_03_Is_On = (state = OS_ON);
+		CASE (4):
+			Outlet_04_Is_On = (state = OS_ON);
+		CASE (5):
+			Outlet_05_Is_On = (state = OS_ON);
+		CASE (6):
+			Outlet_06_Is_On = (state = OS_ON);
+		CASE (7):
+			Outlet_07_Is_On = (state = OS_ON);
+		CASE (8):
+			Outlet_08_Is_On = (state = OS_ON);
+	}
+}
+   
+////////////////////////////////////////////////////////////
+// setup variables etc...
+////////////////////////////////////////////////////////////
+Function initializeModule()
+{
+	INTEGER outlet;
+
+	isInitialized = FALSE;
+
+	FOR (outlet = 1 to MAX_OUTLETS)
+	{
+		outlets[outlet].sName = "";
+		outlets[outlet].sCurrentDraw = "";
+		outlets[outlet].sPowerDraw = "";
+		outlets[outlet].sEnergyUsed = "";
+		outlets[outlet].nState = OS_OFF;
+	}
+
+	system.sLineVoltage = "";
+	system.sLineCurrent = "";
+	system.sLinePower = "";
+	system.sTotalEnergyUsed = "";
+	system.nCycleTime = 0;
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH Start_Communication
+{
+	cancelPoll();
+                           
+	cancelQueue();
+
+	CLEARBUFFER(From_Device);
+
+	initializeModule();
+                                   
+	// Do Echo
+	MakeString(To_Device,"\xff\xfd\x01");
+                          
+	// may need a little help to get started with rs232.
+	MakeString(To_Device,"\x0d");
+}
+
+PUSH Stop_Communication
+{	
+	cancelPoll();
+
+	cancelQueue();
+
+	CLEARBUFFER(From_Device);
+
+	initializeModule();
+}
+                 
+PUSH Outlet_01_On
+{
+	enQueue("set outlet 1 on");
+	
+	tempOutletState(1, OS_ON);
+}
+
+PUSH Outlet_01_Off
+{
+	enQueue("set outlet 1 off");
+
+	tempOutletState(1, OS_OFF);
+}
+
+PUSH Outlet_01_Cycle
+{
+	enQueue("set outlet 1 reboot");
+	enQueue("get all");
+}
+
+PUSH Outlet_02_On
+{
+	enQueue("set outlet 2 on");
+
+	tempOutletState(2, OS_ON);
+}
+
+PUSH Outlet_02_Off
+{
+	enQueue("set outlet 2 off");
+
+	tempOutletState(2, OS_OFF);
+}
+
+PUSH Outlet_02_Cycle
+{
+	enQueue("set outlet 2 reboot");
+	enQueue("get all");
+}
+
+PUSH Outlet_03_On
+{
+	enQueue("set outlet 3 on");
+
+	tempOutletState(3, OS_ON);
+}
+
+PUSH Outlet_03_Off
+{
+	enQueue("set outlet 3 off");
+
+	tempOutletState(3, OS_OFF);
+}
+
+PUSH Outlet_03_Cycle
+{
+	enQueue("set outlet 3 reboot");
+	enQueue("get all");
+}
+
+PUSH Outlet_04_On
+{
+	enQueue("set outlet 4 on");
+
+	tempOutletState(4, OS_ON);
+}
+
+PUSH Outlet_04_Off
+{
+	enQueue("set outlet 4 off");
+
+	tempOutletState(4, OS_OFF);
+}
+
+PUSH Outlet_04_Cycle
+{
+	enQueue("set outlet 4 reboot");
+	enQueue("get all");
+}
+
+PUSH Outlet_05_On
+{
+	enQueue("set outlet 5 on");
+
+	tempOutletState(5, OS_ON);
+}
+
+PUSH Outlet_05_Off
+{
+	enQueue("set outlet 5 off");
+
+	tempOutletState(5, OS_OFF);
+}
+
+PUSH Outlet_05_Cycle
+{
+	enQueue("set outlet 5 reboot");
+	enQueue("get all");
+}
+
+PUSH Outlet_06_On
+{
+	enQueue("set outlet 6 on");
+
+	tempOutletState(6, OS_ON);
+}
+
+PUSH Outlet_06_Off
+{
+	enQueue("set outlet 6 off");
+
+	tempOutletState(6, OS_OFF);
+}
+
+PUSH Outlet_06_Cycle
+{
+	enQueue("set outlet 6 reboot");
+	enQueue("get all");
+}
+
+PUSH Outlet_07_On
+{
+	enQueue("set outlet 7 on");
+
+	tempOutletState(7, OS_ON);
+}
+
+PUSH Outlet_07_Off
+{
+	enQueue("set outlet 7 off");
+
+	tempOutletState(7, OS_OFF);
+}
+
+PUSH Outlet_07_Cycle
+{
+	enQueue("set outlet 7 reboot");
+	enQueue("get all");
+}
+
+PUSH Outlet_08_On
+{
+	enQueue("set outlet 8 on");
+
+	tempOutletState(8, OS_ON);
+}
+
+PUSH Outlet_08_Off
+{
+	enQueue("set outlet 8 off");
+
+	tempOutletState(8, OS_OFF);
+}
+
+PUSH Outlet_08_Cycle
+{
+	enQueue("set outlet 8 reboot");
+	enQueue("get all");
+}
+
+CHANGE Set_Outlet_Cycle_Time
+{
+	STRING cycleMsg[MAX_MSG_SIZE];
+
+	IF (Set_Outlet_Cycle_Time > 0 && Set_Outlet_Cycle_Time <= 99)
+	{	
+		MakeString(cycleMsg,"set reboot %d", Set_Outlet_Cycle_Time); 
+
+		enQueue(cycleMsg);
+
+		enQueue("get all");
+	}
+}
+
+CHANGE From_Device
+{ 
+	STRING sTrash[MAX_MSG_SIZE];
+	INTEGER nOutlet;
+
+	// Will Echo
+	IF (FIND("\xff\xfb\x01", From_Device, 1) > 0)
+	{
+		// Do Echo
+		MakeString(To_Device,"\xff\xfd\x01");
+
+		CLEARBUFFER(From_Device);
+	
+		isInitialized = FALSE;
+	}
+
+	IF (isParsing = FALSE)
+	{
+     	isParsing = TRUE;
+
+		WHILE (TRUE)
+		{
+			sMsg = GATHER(">", From_Device, 1);
+
+			IF (FIND("User>", sMsg, 1) > 0)
+			{
+				MakeString(To_Device, "%s\x0d",User_Name);
+		
+				CLEARBUFFER(From_Device);
+		
+				isInitialized = FALSE;
+			}
+			ELSE IF (FIND("Password>", sMsg, 1) > 0)
+			{
+				MakeString(To_Device, "%s\x0d", User_Password);
+		
+				CLEARBUFFER(From_Device);
+		
+				isInitialized = FALSE;
+			}
+			ELSE IF (LEN(sMsg) > 0)
+			{
+				IF (FIND("get all", sMsg, 1) > 0)
+				{
+					WHILE (FIND("\x0d\x0a",sMsg, 1) > 0)
+					{
+						sParsedMsg = REMOVE("\x0d\x0a",sMsg, 1);
+
+						sParsedMsg = LEFT(sParsedMsg, LEN(sParsedMsg) - 2);
+						
+						IF (FIND("System", sParsedMsg, 1) > 0)
+						{
+							parsingMode = "System";
+						}
+						ELSE IF (FIND("Outlets", sParsedMsg, 1) > 0)
+						{
+							parsingMode = "Outlets";
+							nOutlet = 0;
+						}
+						ELSE IF (FIND("\x0a", sParsedMsg, 1) = 1)
+						{
+							parsingMode = "";
+						}
+						ELSE
+						{
+							IF (parsingMode = "Outlets")
+							{
+								nOutlet = nOutlet + 1;
+								parseOutletData(sParsedMsg, nOutlet);
+							}
+							ELSE IF (parsingMode = "System")
+							{
+								parseSystemData(sParsedMsg);
+							}
+						}			
+					}
+
+					isInitialized = TRUE;
+				}
+				ELSE IF (isInitialized = FALSE)
+				{
+					startPoll();
+				}
+
+				validResponse();
+			}
+		}	
+
+		isParsing = FALSE;
+	}
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    WaitForInitializationComplete();
+
+	isParsing = FALSE;
+	isPolling = FALSE;
+	isQueueing = FALSE;
+
+	initializeModule();
+}

@@ -1,0 +1,183 @@
+/*
+Dealer Name: Crestron
+System Name:
+System Number: V1
+Programmer: JMG
+Comments:
+*/
+//Compiler dBectives
+//#HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+//INCLUDES
+
+#CATEGORY "0" //Hidden
+
+#USER_SIMPLSHARP_LIBRARY "QsysControlV4_2"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Initialize_Named_Control,Enable_Poll,Trigger,Verify_Value[2,2];
+
+String_Input String_In[500];
+
+Analog_Input Dir_Value_In,Rel_Value_In,Rel_Value_In_Ramp,dB_Value_In,dB_Value_In_Ramp,Snapshot_Save,Snapshot_Recall;
+
+// BUFFER_INPUT 
+STRING_OUTPUT String_Out_FB;
+
+
+DIGITAL_OUTPUT Error;
+
+ANALOG_OUTPUT Dir_Value_Out,Rel_Value_Out,dB_Value_Out;
+// ANALOG_OUTPUT 
+
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER Core_ID;			//Used to Identify what Core in program.
+STRING_PARAMETER NamedControl[500];
+INTEGER_PARAMETER Ramp_Time;
+
+#Begin_Parameter_Properties Ramp_Time
+
+PropValidUnits = UnitDecimal|UnitTime;
+
+#End_Parameter_Properties
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER giID;		//Core ID
+STRING gsNamedControl[500];		//Core Host
+
+QSYSNamedControl myNamedControl;
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+EventHandler NamedControlEvent ( QSYSNamedControlEvent sender, QSYSNamedControlChangeArgs e )
+{
+ 	Rel_Value_Out = e.relValue;
+	dB_Value_Out = e.dBValue;
+	String_Out_FB = e.sValue;
+	Dir_Value_Out = e.dirValue;
+
+}
+
+Release Verify_Value									//Ensures Last Values gets sent.
+{
+	integer i;
+	if(Initialize_Named_Control)
+	{
+		
+		i = getlastmodifiedarrayindex();
+		Switch(i)
+		{
+     		case(1):
+				{
+                 	myNamedControl._RelValue = Rel_Value_In;
+				}
+			case(2):
+				{
+                 	myNamedControl._dbValue = dB_Value_In;
+				}
+		}
+	} 	
+}
+
+PUSH Initialize_Named_Control 
+{
+	myNamedControl.RampTime = Ramp_Time;
+ 	myNamedControl.AddNamedControl(gsNamedControl,giID);
+	RegisterEvent(myNamedControl,OnNamedControlEvent,NamedControlEvent);
+    
+	delay(5);
+
+	if(Enable_Poll)
+	{
+      myNamedControl._Poll = Enable_Poll;
+
+	}	  
+}
+
+threadsafe Change Rel_Value_In
+{
+	if(Initialize_Named_Control)
+ 		myNamedControl._RelValue = Rel_Value_In;				//Send Relative Position
+}
+threadsafe Change Rel_Value_In_Ramp
+{
+	if(Initialize_Named_Control)
+ 		myNamedControl._RelValueRamp = Rel_Value_In_Ramp;		//Send Relative Position With Ramp
+}
+threadsafe Change dB_Value_In
+{
+	if(Initialize_Named_Control)
+	 	myNamedControl._dbValue = dB_Value_In;					//Send Relative Position
+}
+threadsafe Change dB_Value_In_Ramp
+{
+	if(Initialize_Named_Control)
+		myNamedControl._dbValueRamp = dB_Value_In_Ramp;		//Send Relative Position With Ramp
+}
+threadsafe Change String_In
+{
+	if(Initialize_Named_Control)
+		myNamedControl._StringValue = String_In;				//Set String Value
+}
+threadsafe Change Dir_Value_In
+{
+ 		myNamedControl._dirValue = Dir_Value_In;
+}
+threadsafe Change Snapshot_Save
+{
+ 	myNamedControl.SnapShotSave(Snapshot_Save);
+}
+threadsafe Change Snapshot_Recall
+{
+ 	myNamedControl.SnapShotLoad(Snapshot_Recall);
+}
+
+
+change Enable_Poll
+{
+
+ 	myNamedControl._Poll = Enable_Poll;
+}
+Push Trigger
+{
+ 	myNamedControl.TriggerBtn();
+}
+
+
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    
+
+    WaitForInitializationComplete();
+	giID = Core_ID;
+	gsNamedControl = NamedControl;
+	
+	//RegisterCoreEvents and Delegates
+   	//RegisterEvent(myNamedControl,OnNamedControlEvent,NamedControlEvent);
+
+}
+

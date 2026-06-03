@@ -1,0 +1,90 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "Extron Link Processor"
+#HINT ""
+#CATEGORY "46" "RBLAJDA_EXTRON" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+
+/**INPUTS**/
+DIGITAL_INPUT _SKIP_, Get_Link_Status, _SKIP_;
+BUFFER_INPUT rx[255];
+STRING_PARAMETER Password[100];
+
+/**OUTPUTS**/
+DIGITAL_OUTPUT _SKIP_, Logged_In, Link_Detected[48];
+STRING_OUTPUT tx;
+
+/**PARAMETERS**/
+
+/**GLOBAL VARIABLES**/
+STRING gsGetLinkStatus[25];
+
+/**FUNCTIONS**/
+FUNCTION MAIN()
+{
+	gsGetLinkStatus = "0LS";
+}
+
+PUSH Get_Link_Status
+{
+	tx = "\x1B3CV\x0D";
+	tx = gsGetLinkStatus;
+}
+
+CHANGE rx
+{
+	integer i, _input, result, pwrequest, login;
+	string data[255];
+
+	while(find("\x0D\x0A", rx) <> OFF)
+	{
+		data = Gather("\x0D\x0A", rx);
+
+		pwrequest = find("password:", lower(data));
+		login = find("login", lower(data));
+		
+		if(login <> OFF) { Logged_In = ON; }
+		
+		if(pwRequest <> OFF) { Logged_In = OFF; makeString(tx, "%s\x0D", Password); }
+		
+		if(find("frq00*", lower(data)) <> OFF)
+		{
+			//print("INPUTS: %s", mid(data, 7, len(data) - 8));
+			
+			for(i = 7 to len(data) - 2)
+			{		
+				_input = i - 6;
+				result = atoi(mid(data, i, 1));
+				//print("Input %d is %d", _input, result);
+				Link_Detected[_input] = result;
+			}
+		}
+	}
+}

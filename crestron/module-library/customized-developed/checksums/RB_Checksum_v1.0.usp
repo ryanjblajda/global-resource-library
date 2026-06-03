@@ -1,0 +1,68 @@
+/*
+Programmer: RB
+*/
+
+/** Compiler Directives **/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Samsung Additive Byte Checksum Generator"
+#HINT "Takes Analog Inputs and Creates A Serial String with Checksum"
+#CATEGORY "46" "RBLAJDA_PROCESSOR"
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+//#DEFINE_CONSTANT DEBUG 1
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+
+ANALOG_INPUT Byte_[MAXITEMS];
+ANALOG_OUTPUT Checksum_Byte;
+DIGITAL_OUTPUT Checksum_Finished;
+                                
+INTEGER giDefinedInputs;
+
+CHANGE Byte_ {
+	integer checkSum, i;
+	checkSum = 0;
+	for(i = 1 to giDefinedInputs) {
+		if(isSignalDefined(Byte_[i])) 
+		{
+			#IF_DEFINED DEBUG
+				print("Byte_[%u] = %u", i, Byte_[i]);
+			#ENDIF
+			checkSum = checkSum + Byte_[i];
+		}
+		processLogic();
+	}
+	Checksum_Byte = checkSum;
+
+	#IF_DEFINED DEBUG
+		print("Checksum Byte = %u", Checksum_Byte);
+	#ENDIF
+
+	pulse(1, Checksum_Finished);
+}
+
+
+Function Main()
+{
+	integer i;
+	waitForInitializationComplete();
+	for(i = MAXITEMS to 1 step -1)
+	{
+		if(1 = isSignalDefined(Byte_[i]))
+		{
+			break;	
+		}
+		processLogic();
+	}
+
+	giDefinedInputs = i;
+}
+
+

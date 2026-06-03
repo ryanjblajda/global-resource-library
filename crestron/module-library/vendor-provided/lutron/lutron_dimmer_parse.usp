@@ -1,0 +1,148 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:  JGM
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#SYMBOL_NAME "LUTRON_DIMMER_PARSE"
+// #HINT ""
+
+#DEFINE_CONSTANT BUF_SIZ 50
+#define_constant TERMINATOR "\x0D"
+
+#CATEGORY "6" //LIGHTING
+// #DEFAULT_VOLATILE
+#DEFAULT_NONVOLATILE
+/*
+#HELP_BEGIN
+	Yeah, right.
+#HELP_END
+*/
+
+// I/O
+BUFFER_INPUT LUTRON_RX$[BUF_SIZ];
+
+ANALOG_INPUT MAIN_UNIT;
+
+ANALOG_OUTPUT ZONE_I[8];
+
+// vars
+INTEGER I, R, tempInt, main_unit_low;
+
+INTEGER zone_hi[8], zone_lo[8];
+
+INTEGER zone_int[8];
+
+STRING RX$[BUF_SIZ], ZONE_VAL[8][3], tempString[5], tempChar[2], trash$[buf_siz], MAIN_UNIT$[1];
+
+// event
+CHANGE LUTRON_RX$
+{
+
+	do
+	{
+		RX$ = remove(TERMINATOR, LUTRON_RX$);
+		if(len(LUTRON_RX$) > 0)
+		{
+
+		R = FIND("~:zi ", RX$);
+
+		if(r <> 0)
+		{
+			trash$ = remove("~:zi ", RX$);	//this rx is a dimmer response
+			tempInt = getc(RX$);				//this is the main unit number
+			main_unit_low = HIGH(MAIN_UNIT);		//use upper eight bits instead of lower
+
+        	//print("buffer =  %s\n", RX$);
+
+			if (tempInt = main_unit_low)	//this is our main unit's dimmer response,
+			{								// so do our thing.
+
+				tempInt = getc(RX$);	//get rid of leading space
+								
+                for(i = 0 to 7)
+				{
+				zone_hi[i] = getc(RX$); //this is actually hex-ascii
+				zone_lo[i] =getc(RX$);
+				if (zone_lo[i] = 0x20)	//value was single char and this is a space
+					switch (zone_hi[i]) //from hex-ascii to real number
+					{
+							case (0x41):
+								{zone_int[i]=10;}
+							case (0x42):
+								{zone_int[i]=11;}
+							case (0x43):
+								{zone_int[i]=12;}
+							case (0x44):
+								{zone_int[i]=13;}
+							case (0x45):
+								{zone_int[i]=14;}
+							case (0x46):
+								{zone_int[i]=15;}
+							default:
+								{zone_int[i] = zone_hi[i] - 0x30;}	
+ 					}//end switch				
+				else
+				{
+    				switch(zone_hi[i])
+					{
+							case (0x41):
+								{zone_int[i]=10;}
+							case (0x42):
+								{zone_int[i]=11;}
+							case (0x43):
+								{zone_int[i]=12;}
+							case (0x44):
+								{zone_int[i]=13;}
+							case (0x45):
+								{zone_int[i]=14;}
+							case (0x46):
+								{zone_int[i]=15;}
+							default:
+								{zone_int[i] = zone_hi[i] - 0x30;}
+					}//end switch
+
+					switch(zone_lo[i])
+					{
+							case (0x41):
+								{zone_int[i] = (zone_int[i]*0x10) + 10;}
+							case (0x42):
+								{zone_int[i] = (zone_int[i]*0x10) + 11;}
+							case (0x43):
+								{zone_int[i] = (zone_int[i]*0x10) + 12;}
+							case (0x44):
+								{zone_int[i] = (zone_int[i]*0x10) + 13;}
+							case (0x45):
+								{zone_int[i] = (zone_int[i]*0x10) + 14;}
+							case (0x46):
+								{zone_int[i] = (zone_int[i]*0x10) + 15;}
+							default:
+								{zone_int[i] = (zone_int[i]*0x10) + zone_lo[i] - 0x30;}
+					}//end switch
+				
+                 	tempInt = getc(RX$);	//pull the next space out
+                }
+                
+				zone_i[i+1] = (zone_int[i] * 99) / 127; //scale the intensity to percent
+
+				//print("zone_int[%u] = %u\n", i, zone_int[i]);
+				//print("zone_i[%u] = %u\n", i, zone_i[i+1]);                
+
+				}//end for
+
+         	}//end if tempInt
+
+    	}//end if r<>0
+
+		}//end if len()
+	} until (len(RX$) = 0 || len(LUTRON_RX$) = 0);
+}//end CHANGE

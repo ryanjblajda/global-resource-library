@@ -1,0 +1,1764 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  Panasonic AW-HE50,120 Ini Camera Data Check
+*******************************************************************************************/
+/*
+Dealer Name:cam_data_chk
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+#default_volatile
+#enable_stack_checking
+
+// INPUT
+
+buffer_input cam_rx$[255];
+
+digital_input IP;					// bit
+digital_input RS422;				// bit
+
+digital_input get_status;
+digital_input cam_stop_flg_in;			// 1:Wait trg
+
+digital_input r_gain_btn;			// bit
+digital_input b_gain_btn;			// bit
+digital_input r_ped_btn;			// bit
+digital_input b_ped_btn;			// bit
+digital_input day_night_btn;		// bit
+//digital_input cam_data_chk_end;	// bit
+//digital_input ;	// bit
+
+ANALOG_INPUT  R_Gain_data_in;		// 
+ANALOG_INPUT  B_Gain_data_in;		// 
+ANALOG_INPUT  R_Ped_data_in;		// 
+ANALOG_INPUT  B_Ped_data_in;		//
+
+string_input  cam_type$[255];		//Cam Type
+//	HE50
+//	HE50v2
+//	HE120
+ 
+// OUTPUT
+
+string_output cam_tx$;
+
+digital_output Focus_Auto_Set;	// bit
+digital_output Brightness_Auto;	// bit
+digital_output Day_Night_Mode;	// bit
+analog_output  Brightness_Data;	// 
+analog_output  R_Gain_data;		// 
+analog_output  B_Gain_data;		// 
+analog_output  R_Ped_data;		// 
+analog_output  B_Ped_data;		//
+ 
+
+string_output t$;
+analog_output debug;	// bit
+digital_output get_status_busy;				// bit
+//analog_output debug2;	// bit
+
+// GLOBAL VARIABLES //////////
+
+string temp$[255];		// work space
+string temp1$[255];		// work space
+string cam_type1$[255];		//Cam Type
+
+integer s;				// step
+integer stop_ok;		// stop ok
+integer data1;
+integer Day_Night_Mode_Data;
+long_integer data2;
+
+integer Send_OK;
+
+
+// FUNCTIONS /////////////////
+Function data_chk()
+{
+
+//ini
+
+//****************************************************************//
+//**************************   IP   ******************************//
+//****************************************************************//
+	if (IP)
+	{
+		if(s = 1)
+		{
+		    s = 2;
+		}
+		//Forcus_Auto chk send
+		else if (s = 2)
+		{
+			cam_tx$="GET /cgi-bin/aw_ptz?cmd=#D1&res=1 HTTP/1.0\n\n";
+
+		    wait (13,ResendIP1)
+			{
+				if(s = 2){cam_tx$="GET /cgi-bin/aw_ptz?cmd=#D1&res=1 HTTP/1.0\n\n";}
+			}
+			wait (600,chk_time_outIP)
+			{
+				get_status_busy = 0;	//deta chk stop
+				s = 1;
+			}
+		}
+		//Brightness_Auto chk
+		else if(s = 3)
+		{
+	    	cam_tx$="GET /cgi-bin/aw_ptz?cmd=#D3&res=1 HTTP/1.0\n\n";
+	    	wait(13,ResendIP2)
+			{
+				if(s = 3){cam_tx$="GET /cgi-bin/aw_ptz?cmd=#D3&res=1 HTTP/1.0\n\n";}
+			}
+		}
+		//Brightness_data chk
+		else if(s = 4)
+		{
+	    	cam_tx$="GET /cgi-bin/aw_ptz?cmd=#GI&res=1 HTTP/1.0\n\n";
+	    	wait (13,ResendIP3)
+			{
+				if (s = 4){cam_tx$="GET /cgi-bin/aw_ptz?cmd=#GI&res=1 HTTP/1.0\n\n";}
+			}
+		}
+		//Day Night Mode chk
+		else if (s = 5)
+		{
+	    	cam_tx$="GET /cgi-bin/aw_ptz?cmd=#D6&res=1 HTTP/1.0\n\n";
+	    	wait (13,ResendIP31)
+			{
+				if (s = 5){cam_tx$="GET /cgi-bin/aw_ptz?cmd=#D6&res=1 HTTP/1.0\n\n";}
+			}
+		}
+		//R Gain data chk
+		else if (s = 6)
+		{
+			if (1 <= find("HE120",cam_type1$))
+			{
+		    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+		    	wait (13,ResendIP4)
+				{
+					if (s = 6){cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";}
+				}
+			}
+			else if (find("HE50v2",cam_type1$))
+			{
+		    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+		    	wait (13,ResendIP41)
+				{
+					if (s = 6){cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";}
+				}
+			}
+			else if (find("HE50",cam_type1$))
+			{
+ 		    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+		    	wait (13,ResendIP42)
+				{
+					if (s = 6){cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";}
+				}
+			}
+		}
+		//B Gain data chk
+		else if(s = 7)
+		{
+			if (find("HE120",cam_type1$))
+			{
+		    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+		    	wait (13,ResendIP5)
+				{
+					if (s = 7){cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";}
+				}
+			}
+			else if (find("HE50v2",cam_type1$))
+			{
+		   		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+		    	wait (13,ResendIP51)
+				{
+					if (s = 7){cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";}
+				}
+			}
+			else if (find("HE50",cam_type1$))
+			{
+ 		    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+		    	wait (13,ResendIP52)
+				{
+					if (s = 7){cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";}
+				}			}
+		}
+		//R Ped data chk
+		else if (s = 8)
+		{
+	    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+	    	wait (13,ResendIP6)
+			{
+				if (s = 8){cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";}
+			}
+		}
+		//B Ped data chk
+		else if (s = 9)
+		{
+	    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+	    	wait (13,ResendIP7)
+			{
+				if (s = 9){cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";}
+			}
+		}
+		else if (s = 10)
+		{
+	    	get_status_busy = 0;	//deta chk stop
+		}
+		else
+		{
+			get_status_busy = 0;	//deta chk stop
+	    	s = 1;
+		}
+	}
+	if (RS422)
+	{
+		if(s = 1)
+		{
+		    s = 2;
+		}
+		//Forcus_Auto chk send
+		else if(s = 2)
+		{
+	    	cam_tx$="#D1\x0d";
+	    	wait (13,Resend1)
+			{
+				if(s = 2){cam_tx$="#D1\x0d";}
+			}
+			wait (600,chk_time_out)
+			{
+				get_status_busy = 0;	//deta chk stop
+				s = 1;
+			}
+
+		}
+		//Brightness_Auto chk
+		else if(s = 3)
+		{
+	    	cam_tx$="#D3\x0d";
+	    	wait(13,Resend2)
+			{
+				if(s = 3){cam_tx$="#D3\x0d";}
+			}
+		}
+		//Brightness_data chk
+		else if (s = 4)
+		{
+	    	cam_tx$="#GI\x0d";
+	    	wait (13,Resend3)
+			{
+				if (s = 4){cam_tx$="#GI\x0d";}
+			}
+		}
+		// Day Night MOde chk
+		else if (s = 5)
+		{
+	    	cam_tx$="#D6\x0d";
+	    	wait (13,Resend31)
+			{
+				if (s = 5){cam_tx$="#D6\x0d";}
+			}
+		}
+		//R Gain data chk
+		else if (s = 6)
+		{
+			if (find("HE120",cam_type1$))
+			{
+		    	cam_tx$="\x02QRI\x03";
+		    	wait (13,Resend4)
+				{
+					if (s = 6){cam_tx$="\x02QRI\x03";}
+				}
+			}
+			else if (find("HE50v2",cam_type1$))
+			{
+		    	cam_tx$="\x02QGR\x03";
+		    	wait (13,Resend41)
+				{
+					if (s = 6){cam_tx$="\x02QGR\x03";}
+				}
+			}
+			else if (find("HE50v2",cam_type1$))
+			{
+		    	cam_tx$="\x02QGR\x03";
+		    	wait (13,Resend42)
+				{
+					if (s = 6){cam_tx$="\x02QGR\x03";}
+				}
+			}
+		}
+		//B Gain data chk
+		else if (s = 7)
+		{
+			if (find("HE120",cam_type1$))
+			{
+		    	cam_tx$="\x02QBI\x03";
+		    	wait (13,Resend5)
+				{
+					if (s = 7){cam_tx$="\x02QBI\x03";}
+				}
+			}
+			else if (find("HE50v2",cam_type1$))
+			{
+		    	cam_tx$="\x02QGB\x03";
+		    	wait (13,Resend51)
+				{
+					if (s = 7){cam_tx$="\x02QGB\x03";}
+				}
+			}
+			else if (find("HE50v2",cam_type1$))
+			{
+		    	cam_tx$="\x02QGB\x03";
+		    	wait (13,Resend52)
+				{
+					if (s = 7){cam_tx$="\x02QGB\x03";}
+				}
+			}
+
+		}
+		//R Ped data chk
+		else if (s = 8)
+		{
+	    	cam_tx$="\x02QRP\x03";
+	    	wait (13,Resend6)
+			{
+				if (s = 8){cam_tx$="\x02QRP\x03";}
+			}
+		}
+		//B Ped data chk
+		else if (s = 9)
+		{
+	    	cam_tx$="\x02QBP\x03";
+	    	wait (13,Resend7)
+			{
+				if (s = 9){cam_tx$="\x02QBP\x03";}
+			}
+		}
+		else if(s = 10)
+		{
+	    	get_status_busy = 0;	//deta chk stop
+		}
+		else
+		{
+			get_status_busy = 0;	//deta chk stop
+	    	s = 1;
+		}
+	}
+	
+	if (get_status_busy = 0)
+	{
+		CancelWait(chk_time_out);
+	}
+}
+
+// FUNCTIONS /////////////////
+Function ResendWaitCancell()
+{
+	CancelWait(ResendIP1);
+	CancelWait(ResendIP2);
+	CancelWait(ResendIP3);
+	CancelWait(ResendIP31);
+	CancelWait(ResendIP4);
+	CancelWait(ResendIP41);
+	CancelWait(ResendIP42);
+	CancelWait(ResendIP5);
+	CancelWait(ResendIP51);
+	CancelWait(ResendIP52);
+	CancelWait(ResendIP6);
+	CancelWait(ResendIP7);
+	CancelWait(Resend1);
+	CancelWait(Resend2);
+	CancelWait(Resend3);
+	CancelWait(Resend31);
+	CancelWait(Resend4);
+	CancelWait(Resend41);
+	CancelWait(Resend42);
+	CancelWait(Resend5);
+	CancelWait(Resend51);
+	CancelWait(Resend52);
+	CancelWait(Resend6);
+	CancelWait(Resend7);
+}
+// EVENT /////////////////////
+
+push get_status
+{
+
+	if(get_status_busy = 0)
+	{
+		//Kousin Tuuchi kaisi
+		//cam_tx$="GET /cgi-bin/event?connect=start&my_port=31004&uid=50 HTTP/1.0\n\n";
+		delay(10);
+		s = 2;
+		get_status_busy = 1;	//deta chk 4s
+		data_chk();
+	}
+	
+}
+
+// 12.12.17 Day Night Mode in
+push day_night_btn
+{
+	
+	if (IP)
+	{
+		if (day_night_mode = 0)	// Day Mode --> Night Mode
+		{
+			if (find("HE60",cam_type$))
+			{
+				cam_tx$ = "GET /cgi-bin/aw_ptz?cmd=#D61&res=1 HTTP/1.0\n\n";
+			}
+		} 
+		if (day_night_mode = 1)	// Night Mode --> Day Mode
+		{
+			if (find("HE60",cam_type$))
+			{
+				cam_tx$ = "GET /cgi-bin/aw_ptz?cmd=#D60&res=1 HTTP/1.0\n\n";
+			}
+		} 
+	}
+	if (RS422)
+	{
+		if (day_night_mode = 0)	// Day Mode --> Night Mode
+		{
+			if (find("HE60",cam_type$))
+			{
+				cam_tx$ = "#D61\x0d";
+			}
+		} 
+		if (day_night_mode = 1)	// Night Mode --> Day Mode
+		{
+			if (find("HE60",cam_type$))
+			{
+				cam_tx$ = "#D60\x0d";
+			}
+		} 
+	}
+}
+
+//Pictuer Setting
+ReLease r_gain_btn
+{
+	if (((get_status_busy = 0) && (Send_OK)))
+	{
+		Send_OK = 0;
+		delay(5);
+		data1 = R_Gain_data_in;
+
+		IF(data1 < 4){data1 = 0;}
+		IF(data1 > 296){data1 = 300;}
+
+		IF((1 <= Find("HE120",cam_type1$)))
+		{
+			// sonomama
+		}
+		ELSE IF((1 <= Find("HE50v2",cam_type1$)))
+		{
+   			data1 = data1 / 5;
+		}
+		ELSE IF((1 <= Find("HE50",cam_type1$)))
+		{
+   			data1 = data1 / 5;
+		}
+
+		debug = data1;
+
+		temp1$ = ITOHEX(data1);
+	
+		IF(IP)
+		{
+			IF(data1 >= 256)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORI:%03s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					//makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORG:%03s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					//makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORG:%03s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+			}
+			ELSE IF(data1 >= 16)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORI:0%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORG:%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORG:%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+			}
+			ELSE 
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORI:00%01s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORG:0%01s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORG:0%01s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+			}
+		}
+		IF(RS422)
+		{
+			IF(data1 >= 256)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORI:%03s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORG:%03s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORG:%03s\x03",temp1$);
+				}
+			}
+			ELSE IF(data1 >= 16)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORI:0%02s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORG:%02s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORG:%02s\x03",temp1$);
+				}
+			}
+			ELSE 
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORI:00%01s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORG:0%01s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02ORG:0%01s\x03",temp1$);
+				}
+			}			
+		}
+		delay(50);
+		Send_OK = 1;		
+	}
+}
+
+ReLease b_gain_btn
+{
+	if (((get_status_busy = 0) && (Send_OK)))
+	{
+		Send_OK = 0;
+		delay(5);
+		data1 = B_Gain_data_in;
+		IF(data1 < 4){data1 = 0;}
+		IF(data1 > 296){data1 = 300;}
+
+		IF((1 <= Find("HE120",cam_type1$)))
+		{
+			// sonomama
+		}
+		ELSE IF((1 <= Find("HE50v2",cam_type1$)))
+		{
+   			data1 = data1 / 5;
+		}
+		ELSE IF((1 <= Find("HE50",cam_type1$)))
+		{
+   			data1 = data1 / 5;
+		}
+
+		debug = data1;
+
+		temp1$ = ITOHEX(data1);
+		
+		IF(IP)
+		{
+			IF(data1 >= 256)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBI:%03s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					//makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OGB:%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					//makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OGB:%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+			}
+			ELSE IF(data1 >= 16)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBI:0%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBG:%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBG:%02s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+			}
+			ELSE 
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBI:00%01s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBG:0%01s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBG:0%01s&res=1 HTTP/1.0\n\n",temp1$);
+				}
+			}
+		}
+		IF(RS422)
+		{
+			IF(data1 >= 256)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBI:%03s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBG:%03s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBG:%03s\x03",temp1$);
+				}
+			}
+			ELSE IF(data1 >= 16)
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBI:0%02s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBG:%02s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBG:%02s\x03",temp1$);
+				}
+			}
+			ELSE 
+			{
+				IF(1 <= Find("HE120",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBI:00%01s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50v2",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBG:0%01s\x03",temp1$);
+				}
+				ELSE IF(1 <= Find("HE50",cam_type1$))
+				{
+					makestring(cam_tx$,"\x02OBG:0%01s\x03",temp1$);
+				}
+			}			
+		}
+		delay(50);
+		Send_OK = 1;		
+	}
+}
+
+ReLease r_ped_btn
+{
+	IF(((get_status_busy = 0) && (Send_OK)))
+	{
+		Send_OK = 0;
+		delay(5);
+		data1 = R_Ped_data_in;
+		debug = data1;
+		IF(data1 < 4){data1 = 0;}
+		IF(data1 > 296){data1 = 300;}
+
+		temp1$ = ITOHEX(data1);
+	
+		IF(IP)
+		{
+			IF(data1 >= 256)
+			{
+				makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORP:%03s&res=1 HTTP/1.0\n\n",temp1$);
+			}
+			ELSE IF(data1 >= 16)
+			{
+				makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORP:0%02s&res=1 HTTP/1.0\n\n",temp1$);
+			}
+			ELSE 
+			{
+				makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=ORP:00%01s&res=1 HTTP/1.0\n\n",temp1$);
+			}
+		}
+		IF(RS422)
+		{
+			IF(data1 >= 256)
+			{
+				makestring(cam_tx$,"\x02ORP:%03s\x03",temp1$);
+			}
+			ELSE IF(data1 >= 16)
+			{
+				makestring(cam_tx$,"\x02ORP:0%02s\x03",temp1$);
+			}
+			ELSE 
+			{
+				makestring(cam_tx$,"\x02ORP:00%01s\x03",temp1$);
+			}
+		}
+		delay(50);
+		Send_OK = 1;		
+	}
+}
+
+ReLease b_ped_btn
+{
+	IF(((get_status_busy = 0) && (Send_OK)))
+	{
+		Send_OK = 0;
+		delay(5);
+		data1 = B_Ped_data_in;
+		debug = data1;
+		IF(data1 < 4){data1 = 0;}
+		IF(data1 > 296){data1 = 300;}
+
+		temp1$ = ITOHEX(data1);
+	
+		IF(IP)
+		{
+			IF(data1 >= 256)
+			{
+				makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBP:%03s&res=1 HTTP/1.0\n\n",temp1$);
+			}
+			ELSE IF(data1 >= 16)
+			{
+				makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBP:0%02s&res=1 HTTP/1.0\n\n",temp1$);
+			}
+			ELSE 
+			{
+				makestring(cam_tx$,"GET /cgi-bin/aw_cam?cmd=OBP:00%01s&res=1 HTTP/1.0\n\n",temp1$);
+			}
+		}
+		IF(RS422)
+		{
+			IF(data1 >= 256)
+			{
+				makestring(cam_tx$,"\x02OBP:%03s\x03",temp1$);
+			}
+			ELSE IF(data1 >= 16)
+			{
+				makestring(cam_tx$,"\x02OBP:0%02s\x03",temp1$);
+			}
+			ELSE 
+			{
+				makestring(cam_tx$,"\x02OBP:00%01s\x03",temp1$);
+			}
+		}
+		delay(50);
+		Send_OK = 1;		
+	}
+}
+
+change cam_rx$
+{
+	temp$ = cam_rx$;
+	clearbuffer(cam_rx$);
+	
+//****************************************************************//
+//**************************   IP   ******************************//
+//****************************************************************//
+		if (IP)
+		{
+			if(get_status_busy)
+			{
+		                                
+				if(right(temp$,3) = "d10")	// AutoFocus OFF
+				{
+					Focus_Auto_Set = 0;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();		//100ms
+				}
+				if(right(temp$,3) = "d11")	// AutoFocus ON
+				{
+					Focus_Auto_Set = 1;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(right(temp$,3) = "d30")	// Brightness_Auto OFF
+				{
+					Brightness_Auto = 0;
+					s = s + 1;
+					// Not Sapport Day Night Mode
+					IF(0 = Find("HE60",cam_type$)){s = s + 1;}
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(right(temp$,3) = "d31")	// Brightness_Auto ON
+				{
+					Brightness_Auto = 1;
+					s = s + 1;
+					// Not Sapport Day Night Mode
+					IF(0 = Find("HE60",cam_type$)){s = s + 1;}
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "d60")	// Day_Night Mode Day
+				{
+					Day_Night_Mode_Data = 0;
+					Day_Night_Mode = 0;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "d61")	// Day_Night Mode Night
+				{
+					Day_Night_Mode_Data = 1;
+					Day_Night_Mode = 1;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,2) = "gi")	// Brightness_data 555h->FFFh
+				{
+					temp1$ = remove("gi",temp$);	// gi**** -> ****
+							
+					temp$ = left(temp$,3);		// ***1 -> ***
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		 
+			        Brightness_Data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "ORI")	// R Gain data 000h->12Ch
+				{
+					temp1$ = remove("ORI:",temp$);	// ORI:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        R_Gain_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "OBI")	// R Gain data 000h->12Ch
+				{
+					temp1$ = remove("OBI:",temp$);	// OBI:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        B_Gain_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+
+				if(left(temp$,3) = "OGR")	// R Gain data 000h->3Ch
+				{
+					temp1$ = remove("OGR:",temp$);	// OGR:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 60);
+			        R_Gain_data = data1;	
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+	
+				if(left(temp$,3) = "OGB")	// R Gain data 000h->3Ch
+				{
+					temp1$ = remove("OGB:",temp$);	// OGB:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 60);
+			        B_Gain_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "ORP")	// R Ped data 000h->12Ch
+				{
+					temp1$ = remove("ORP:",temp$);	// ORI:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        R_Ped_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "OBP")	// R Ped data 000h->12Ch
+				{
+					temp1$ = remove("OBP:",temp$);	// OBP:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        B_Ped_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(1 <= Find("ER1",temp$))	// Mitaiou
+				{
+	
+					if(1 <= Find("QRP",temp$))	// R Ped data 0
+					{
+				   		data1 = 32768;
+				        R_Ped_data = data1;
+				
+						s = s + 1;
+						ResendWaitCancell();
+						delay(10);
+						data_chk();
+					}
+					else if(1 <= Find("QBP",temp$))	// B Ped data 0
+					{
+				
+				   		data1 = 32768;
+				        B_Ped_data = data1;
+	
+						s = s + 1;
+						ResendWaitCancell();
+						delay(10);
+						data_chk();
+					}
+					else
+					{
+				       	get_status_busy = 0;	//deta chk stop
+					}
+				}
+				if(1 <= Find("ER2",temp$))	// Mitaiou
+				{
+			       	get_status_busy = 0;	//deta chk stop
+					ResendWaitCancell();
+				}
+				if(1 <= Find("rER",temp$))	// Mitaiou
+				{
+			       	//chk_flg_out = 0;	//deta chk stop
+				}
+				if(left(temp$,1) = "\x06")	// 
+				{
+			       	get_status_busy = 0;	//deta chk stop
+				}
+			}
+	
+//TP Control Now
+			if(get_status_busy = 0)
+			{
+
+				debug = 0;
+				if(right(temp$,3) = "d10")	// AutoFocus OFF
+				{
+					Focus_Auto_Set = 0;
+				}
+				if(right(temp$,3) = "d11")	// AutoFocus ON
+				{
+					Focus_Auto_Set = 1;
+				}
+				if(right(temp$,3) = "d30")	// Brightness_Auto OFF
+				{
+					Brightness_Auto = 0;
+				}
+				if(right(temp$,3) = "d31")	// Brightness_Auto ON
+				{
+					Brightness_Auto = 1;
+				}
+				if(left(temp$,3) = "d60")	// Day_Night Mode Day
+				{
+					Day_Night_Mode_Data = 0;
+					Day_Night_Mode = 0;
+				}
+				if(left(temp$,3) = "d61")	// Day_Night Mode Night
+				{
+					Day_Night_Mode_Data = 1;
+					Day_Night_Mode = 1;
+				}
+
+				IF(1 <= Find("OWS",temp$))	// 
+				{
+					IF(1 <= Find("ER3:",temp$))	// 
+					{
+						debug = 61;
+						IF(1 <= Find("HE120",cam_type1$))
+						{
+							debug = 62;
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+						}
+						ELSE IF(1 <= Find("HE50v2",cam_type1$))
+						{
+							debug = 63;
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+						}
+						ELSE IF(1 <= Find("HE50",cam_type1$))
+						{
+							debug = 64;
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+						}
+					}
+					ELSE IF(1 <= Find("ER2:",temp$))	// 
+					{
+						debug = 65;
+						WAIT(100,OWS_RETRY_TIMER_IP2)
+						{
+							//cam_tx$ = "GET /cgi-bin/aw_cam?cmd=OWS&res=1 HTTP/1.0\n\n";
+						}				
+					}
+					ELSE 
+					{
+						debug = 66;
+					    //R_Gain_data = 32768;
+					    //B_Gain_data = 32768;
+						IF(1 <= Find("HE120",cam_type1$))
+						{
+							CANCELWAIT(OWS_RETRY_TIMER_IP2);
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+						}
+						ELSE IF(1 <= Find("HE50v2",cam_type1$))
+						{
+							CANCELWAIT(OWS_RETRY_TIMER_IP2);
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+						}
+						ELSE IF(1 <= Find("HE50",cam_type1$))
+						{
+							CANCELWAIT(OWS_RETRY_TIMER_IP2);
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+						}
+					}
+				}
+
+				IF(1 <= Find("200 OK \x22d61\x22",temp$))	// 
+				{
+					Day_Night_Mode_Data = 1;
+					Day_Night_Mode = 1;
+				}
+				IF(1 <= Find("200 OK \x22d60\x22",temp$))	// 
+				{
+					Day_Night_Mode_Data = 0;
+					Day_Night_Mode = 0;
+				}
+
+				IF(1 <= Find("400 Bad Request",temp$))	// 
+				{
+					IF(1 <= Find("HE120",cam_type1$))
+					{
+						delay(1);
+					    cam_tx$="GET /cgi-bin/aw_cam?cmd=QRI&res=1 HTTP/1.0\n\n";
+						delay(13);
+				    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBI&res=1 HTTP/1.0\n\n";
+						delay(13);
+					    cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+						delay(13);
+				    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+					}
+					ELSE IF(1 <= Find("HE50v2",cam_type1$))
+					{
+						delay(1);
+					    cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+						delay(13);
+				    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+						delay(13);
+					    cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+						delay(13);
+				    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+					}
+					ELSE IF(1 <= Find("HE50",cam_type1$))
+					{
+						delay(1);
+					    cam_tx$="GET /cgi-bin/aw_cam?cmd=QGR&res=1 HTTP/1.0\n\n";
+						delay(13);
+				    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QGB&res=1 HTTP/1.0\n\n";
+						delay(13);
+					    cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+						delay(13);
+				    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+					}
+				}
+				IF(1 <= Find("OAS",temp$))	// 
+				{
+					IF(1 <= Find("ER3:",temp$))	// 
+					{
+						IF(1 <= Find("HE120",cam_type1$))
+						{
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+						}
+						ELSE IF(1 <= Find("HE50v2",cam_type1$))
+						{
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+						}
+						ELSE IF(1 <= Find("HE50",cam_type1$))
+						{
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+						}
+		
+					}
+					ELSE IF(1 <= Find("ER2:",temp$))	// 
+					{
+						WAIT(100,OAS_RETRY_TIMER_IP2)
+						{
+							//cam_tx$ = "GET /cgi-bin/aw_cam?cmd=OWS&res=1 HTTP/1.0\n\n";
+						}				
+					}
+					ELSE 
+					{
+						IF(1 <= Find("HE120",cam_type1$))
+						{
+							CANCELWAIT(OAS_RETRY_TIMER_IP2);				
+							delay(15);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+							//delay(13);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+							//CANCELWAIT(OAS_RETRY_TIMER_IP1);				
+							//delay(500);
+							//cam_tx$ = "GET /cgi-bin/event?connect=stop&my_port=31000&uid=50 HTTP/1.0\n\n";				
+						}
+						ELSE IF(1 <= Find("HE50v2",cam_type1$))
+						{
+							CANCELWAIT(OAS_RETRY_TIMER_IP2);				
+							delay(15);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+						}
+						ELSE IF(1 <= Find("HE50",cam_type1$))
+						{
+							CANCELWAIT(OAS_RETRY_TIMER_IP2);				
+							delay(15);
+					    	cam_tx$="GET /cgi-bin/aw_cam?cmd=QRP&res=1 HTTP/1.0\n\n";
+							delay(20);
+				    		cam_tx$="GET /cgi-bin/aw_cam?cmd=QBP&res=1 HTTP/1.0\n\n";
+						}
+					}
+				}
+
+				if(1 <= Find("zS50",temp$))	// Mitaiou
+				{
+					stop_ok = 1;
+				}
+				if(temp$ = "pTS5050")	// 
+				{
+					stop_ok = 1;
+				}
+	
+	
+	
+				if(left(temp$,3) = "ORI")	// R Gain data 000h->12Ch
+				{
+					debug = 51;
+					temp1$ = remove("ORI:",temp$);	// ORI:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        R_Gain_data = data1;	
+				}
+				if(left(temp$,3) = "OBI")	// R Gain data 000h->12Ch
+				{
+					debug = 52;
+					temp1$ = remove("OBI:",temp$);	// OBI:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        B_Gain_data = data1;
+				}
+				if(left(temp$,3) = "OGR")	// R Gain data 000h->3Ch
+				{
+					debug = 53;
+					temp1$ = remove("OGR:",temp$);	// OGR:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 60);
+			        R_Gain_data = data1;	
+				}
+	
+				if(left(temp$,3) = "OGB")	// R Gain data 000h->3Ch
+				{
+					debug = 54;
+					temp1$ = remove("OGB:",temp$);	// OGB:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 60);
+			        B_Gain_data = data1;
+				}
+				if(left(temp$,3) = "ORP")	// R Ped data 000h->12Ch
+				{
+					debug = 55;
+					temp1$ = remove("ORP:",temp$);	// ORI:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        R_Ped_data = data1;
+				}
+				if(left(temp$,3) = "OBP")	// R Ped data 000h->12Ch
+				{
+					debug = 56;
+					temp1$ = remove("OBP:",temp$);	// OBP:**** -> ****
+							
+					t$ = temp$;
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 300);
+			        B_Ped_data = data1;
+				}			
+
+				if(1 <= Find("ER1",temp$))	// Mitaiou
+				{
+			       	get_status_busy = 0;	//deta chk stop
+					ResendWaitCancell();
+	
+					if(1 <= Find("QRP",temp$))	// R Ped data 0
+					{
+				   		data1 = 32768;
+				        R_Ped_data = data1;
+					}
+					if(1 <= Find("QBP",temp$))	// B Ped data 0
+					{
+				
+				   		data1 = 32768;
+				        B_Ped_data = data1;
+					}
+				}
+				if(1 <= Find("ER2",temp$))	// Mitaiou
+				{
+			       	get_status_busy = 0;	//deta chk stop
+					ResendWaitCancell();
+				}
+				if(left(temp$,1) = "\x06")	// 
+				{
+			       	get_status_busy = 0;	//deta chk stop
+				}
+			}
+		}
+//****************************************************************//
+//****************************************************************//
+//************************** RS422 *******************************//
+//****************************************************************//
+//****************************************************************//
+
+//TP Control Now RS422
+		if (RS422)
+		{
+	//Camera Change Now
+			if(get_status_busy)
+			{
+			                                
+				if(left(temp$,3) = "d10")	// AutoFocus OFF
+				{
+					Focus_Auto_Set = 0;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();		//100ms
+				}
+				if(left(temp$,3) = "d11")	// AutoFocus ON
+				{
+					Focus_Auto_Set = 1;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "d30")	// Brightness_Auto OFF
+				{
+					Brightness_Auto = 0;
+					s = s + 1;
+					// Not Sapport Day Night Mode
+					//IF(0 = Find("HE60",cam_type$)){s = s + 1;PRINT("HE601");}
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "d31")	// Brightness_Auto ON
+				{
+					Brightness_Auto = 1;
+					s = s + 1;
+					// Not Sapport Day Night Mode
+					//IF(0 = Find("HE60",cam_type$)){s = s + 1;PRINT("HE602");}
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "d60")	// Day_Night Mode Day
+				{
+					Day_Night_Mode_Data = 0;
+					Day_Night_Mode = 0;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,3) = "d61")	// Day_Night Mode Night
+				{
+					Day_Night_Mode_Data = 1;
+					Day_Night_Mode = 1;
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(left(temp$,2) = "gi")	// Brightness_data 555h->FFFh
+				{
+					temp1$ = remove("gi",temp$);	// gi**** -> ****
+							
+					temp$ = left(temp$,3);		// ***1 -> ***
+			
+			   		data1 = HexToI(Left(temp$,3));
+			        Brightness_Data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(1 <= Find("ORI:",temp$))	// R Gain data 000h->12Ch
+				{
+					temp1$ = remove("ORI:",temp$);	// ORI:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);
+			        R_Gain_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(1 <= Find("OBI:",temp$))	// R Gain data 000h->12Ch
+				{
+					temp1$ = remove("OBI:",temp$);	// OBI:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);
+			        B_Gain_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(1 <= Find("ORP:",temp$))	// R Ped data 000h->12Ch
+				{
+					temp1$ = remove("ORP:",temp$);	// ORI:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);
+			        R_Ped_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+
+				if(1 <= Find("OGR:",temp$))	// R Gain data 000h->3Ch
+				{
+					temp1$ = remove("OGR:",temp$);	// OGR:**** -> ****
+							
+					t$ = temp$;
+					temp$ = left(temp$,2);		// OGR:1E -> 1E
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 60);
+			        R_Gain_data = data1;	
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(1 <= Find("OGB:",temp$))	// R Gain data 000h->3Ch
+				{
+					temp1$ = remove("OGB:",temp$);	// OGB:**** -> ****
+							
+					t$ = temp$;
+					temp$ = left(temp$,2);		// OGR:1E -> 1E
+			
+			   		data1 = HexToI(temp$);
+			   		data1 = data1 * (65535 / 60);
+			        B_Gain_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(1 <= Find("OBP:",temp$))	// R Ped data 000h->12Ch
+				{
+					temp1$ = remove("OBP:",temp$);	// OBP:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);
+			        B_Ped_data = data1;
+			
+					s = s + 1;
+					ResendWaitCancell();
+					delay(10);
+					data_chk();
+				}
+				if(1 <= Find("ER1",temp$))	// Mitaiou
+				{
+	
+					if(1 <= Find("QRP",temp$))	// R Ped data 0
+					{
+				   		data1 = 32768;
+				        R_Ped_data = data1;
+	
+						s = s + 1;
+						ResendWaitCancell();
+						delay(10);
+						data_chk();
+					}
+					else if(1 <= Find("QBP",temp$))	// B Ped data 0
+					{
+				
+				   		data1 = 32768;
+				        B_Ped_data = data1;
+	
+						s = s + 1;
+						ResendWaitCancell();
+						delay(10);
+						data_chk();
+					}
+					else
+					{
+				       	get_status_busy = 0;	//deta chk stop
+					}
+				}
+				if(1 <= Find("ER2",temp$))	// Mitaiou
+				{
+			       	get_status_busy = 0;	//deta chk stop
+					ResendWaitCancell();
+				}
+			}
+		
+	//TP Control Now
+			if(get_status_busy = 0){
+	
+				if(left(temp$,3) = "d10")	// AutoFocus OFF
+				{
+					Focus_Auto_Set = 0;
+				}
+				if(left(temp$,3) = "d11")	// AutoFocus ON
+				{
+					Focus_Auto_Set = 1;
+				}
+				if(left(temp$,3) = "d30")	// Brightness_Auto OFF
+				{
+					Brightness_Auto = 0;
+				}
+				if(left(temp$,3) = "d31")	// Brightness_Auto ON
+				{
+					Brightness_Auto = 1;
+				}
+				if(left(temp$,3) = "d60")	// Day_Night Mode Day
+				{
+					Day_Night_Mode_Data = 0;
+					Day_Night_Mode = 0;
+				}
+				if(left(temp$,3) = "d61")	// Day_Night Mode Night
+				{
+					Day_Night_Mode_Data = 1;
+					Day_Night_Mode = 1;
+				}
+	
+					debug = 1;
+				IF(1 <= Find("OAS",temp$))	// 
+				{
+					debug = 12;
+					IF(1 <= Find("ER3:",temp$))	// 
+					{
+			    		cam_tx$="\x02QRP\x03";
+						delay(13);
+			    		cam_tx$="\x02QBP\x03";
+					}
+					ELSE
+					{
+						debug = 13;
+						R_Ped_data = 32768;
+					    B_Ped_data = 32768;				
+					}
+				}
+	
+				IF(1 <= Find("OWS",temp$))	// 
+				{
+					debug = 22;
+					IF(1 <= Find("ER3:",temp$))	// 
+					{
+			    		cam_tx$="\x02QRI\x03";
+						delay(13);
+			    		cam_tx$="\x02QBI\x03";
+					}
+					ELSE
+					{
+						debug = 23;
+						R_Gain_data = 32768;
+					    B_Gain_data = 32768;				
+					}
+				}
+	
+				if(1 <= Find("ORI:",temp$))	// R Gain data 000h->12Ch
+				{
+					debug = 31;
+					temp1$ = remove("ORI:",temp$);	// ORI:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);	
+				}
+				if(1 <= Find("OBI:",temp$))	// B Gain data 000h->12Ch
+				{
+					debug = 32;
+					temp1$ = remove("OBI:",temp$);	// OBI:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);
+				}
+				if(1 <= Find("ORP:",temp$))	// R Ped data 000h->12Ch
+				{
+					debug = 33;
+					temp1$ = remove("ORP:",temp$);	// ORI:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);
+				}
+				if(1 <= Find("OBP:",temp$))	// B Ped data 000h->12Ch
+				{
+					debug = 34;
+					temp1$ = remove("OBP:",temp$);	// OBP:**** -> ****
+			
+			   		data1 = HexToI(Left(temp$,3));
+			   		data1 = data1 * (65535 / 300);
+				}
+	
+	
+	
+				if(1 <= Find("zS50",temp$))	// Mitaiou
+				{
+					stop_ok = 1;
+				}
+				if(temp$ = "pTS5050")	// 
+				{
+					stop_ok = 1;
+				}
+		
+				if(1 <= Find("ER1",temp$))	// Mitaiou
+				{
+			       	get_status_busy = 0;	//deta chk stop
+					ResendWaitCancell();
+	
+					if(1 <= Find("QRP",temp$))	// R Ped data 0
+					{
+				   		data1 = 32768;
+				        R_Ped_data = data1;
+					}
+					if(1 <= Find("QBP",temp$))	// B Ped data 0
+					{
+				
+				   		data1 = 32768;
+				        B_Ped_data = data1;
+					}
+				}
+				if(1 <= Find("ER2",temp$))	// Mitaiou
+				{
+			       	get_status_busy = 0;	//deta chk stop
+					ResendWaitCancell();
+				}
+			}
+		}
+		IF(get_status_busy = 0)
+		{
+			CancelWait(chk_time_outIP);
+			CancelWait(chk_time_out);
+		}
+}
+
+CHANGE cam_stop_flg_in
+{
+		IF(IP)
+		{
+			stop_ok = 0;
+			WAIT (15,cam_stop_timer1)
+			{cam_tx$="GET /cgi-bin/aw_ptz?cmd=#PTS5050&res=1 HTTP/1.0\n\n";}
+			WAIT (15,cam_stop_timer2)
+			{cam_tx$="GET /cgi-bin/aw_ptz?cmd=#PTS5050&res=1 HTTP/1.0\n\n";}
+		}
+		IF(RS422)
+		{
+			stop_ok = 0;
+			WAIT (15,cam_stop_timer3)
+			{cam_tx$="#PTS5050\x0d";}
+			WAIT (15,cam_stop_timer4)
+			{cam_tx$="#PTS5050\x0d";}
+		}
+		
+	if(stop_ok)
+	{
+		CancelWait( cam_stop_timer1 ); // 
+		CancelWait( cam_stop_timer2 ); // 
+		CancelWait( cam_stop_timer3 ); // 
+		CancelWait( cam_stop_timer4 ); // 
+	} 
+
+}
+
+CHANGE cam_type$
+{
+	IF(1 <= Find("HE50v2",cam_type$))
+	{
+    	 cam_type1$ = cam_type$;
+	}
+	ELSE IF(1 <= Find("HE50",cam_type$))
+	{
+    	 cam_type1$ = cam_type$;
+	}
+	ELSE IF(1 <= Find("HE60",cam_type$))
+	{
+    	 cam_type1$ = "HE50v2";
+	}
+	ELSE IF(1 <= Find("HE120",cam_type$))
+	{
+    	 cam_type1$ = "HE120";
+	}
+	ELSE
+	{
+    	 cam_type1$ = "HE50v2";
+	}
+
+}
+
+// MAIN //////////////////////
+function main()
+{
+	WaitForInitializationComplete();
+	
+	Send_OK = 1;
+	get_status_busy = 0;
+	s = 1;
+
+
+}
+

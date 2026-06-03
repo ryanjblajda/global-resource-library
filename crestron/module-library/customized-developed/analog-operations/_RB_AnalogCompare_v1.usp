@@ -1,0 +1,111 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Multiple Analog Compare (Basic Sieve)"
+#HINT "compares multiple analog values against one test value"
+#CATEGORY "46" "RBLAJDA" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+//#DEFINE_CONSTANT DEBUG  0
+#DEFINE_CONSTANT c_Max 255
+#HELP_BEGIN
+
+INPUTS:
+ValueToCompare: A value we want to compare all our Input_[X] values against. Depending on the use case this value may not change. 
+Input_[X]: a value we wish to compare against ValueToCompare to see if it matches. This value will change based on a certain state, such as DM Output Fb Corrected
+
+OUTPUTS:
+Match[X]:A digital signal that will go high if ValueToCompare = Input[X]
+TotalCount: A count of the total amount of matching values. Havent experienced a use case for this... but its there just in case. 
+
+Use Cases: 
+- show a user which displays are currently displaying the source they have selected.
+- check if a display has an active source and do something if it does.
+
+#HELP_END
+
+
+//INPUTS
+
+ANALOG_INPUT  ValueToCompare;
+ANALOG_INPUT  Input_[c_Max];
+
+//OUTPUTS
+#OUTPUT_SHIFT 1
+DIGITAL_OUTPUT Match[c_Max];
+ANALOG_OUTPUT TotalCount;
+
+//VARIABLES
+
+integer definedInputs;
+
+//FUNCTIONS
+
+INTEGER_FUNCTION compareValues(integer _comparevalue, integer _changedinput)
+{
+	//return a 1 if the values are equal, basically boolean.
+	integer _result;
+	
+	_result = Off;
+	
+	if(_comparevalue = _changedinput)
+	{
+		_result = On;
+	}
+	
+	return(_result);
+}
+
+//EVENT HANDLERS
+
+CHANGE ValueToCompare
+{
+	integer i;
+	
+	for(i = 1 to definedInputs)
+	{
+		Match[i] = compareValues(ValueToCompare, Input_[i]);
+		processLogic();
+	}
+}
+
+CHANGE Input_
+{
+	integer _index;
+
+	_index = getLastModifiedArrayIndex();
+
+	Match[_index] = compareValues(ValueToCompare, Input_[_index]);
+}
+
+FUNCTION Main()
+{
+	integer i;
+
+	waitForInitializationComplete();
+		
+	//count the defined signals so we dont have to loop through the entire loop.
+	for(i = 1 to c_Max)
+	{
+		if(isSignalDefined(Input_[i]) <> 0)
+		{
+			definedInputs = definedInputs + 1;
+		}
+		processLogic();
+	}
+	TotalCount = definedInputs;
+    
+	//compare all our values
+	for(i = 1 to definedInputs)
+	{
+		Match[i] = compareValues(ValueToCompare, Input_[i]);
+		processLogic();
+	}
+}

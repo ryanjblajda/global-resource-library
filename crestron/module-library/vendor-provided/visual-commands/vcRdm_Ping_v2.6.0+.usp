@@ -1,0 +1,82 @@
+#CATEGORY "46" "Visual Commands" // Custom
+#INCLUDEPATH "C:\Visual Commands\Visual Commands\VC-RDM\Crestron - Simpl#\Current\bin\Release"
+#USER_SIMPLSHARP_LIBRARY "VCRDMLib"
+
+#DEFINE_CONSTANT MAXDEVICES 20 
+
+#HELP_BEGIN
+	SlotIdGroupName in the format slot|devid|group|name which will be parsed into the correct room, group and name
+	Address$ - IP or Hostname to ping
+#HELP_END
+
+
+STRING_Input Address$[MAXDEVICES][30];
+DIGITAL_OUTPUT Device_Online_Fb[MAXDEVICES];
+
+STRING_PARAMETER SlotIdGroupName[MAXDEVICES][40];
+
+#BEGIN_PARAMETER_PROPERTIES SlotIdGroupName
+	propDefaultValue = "1|ID|Group|DeviceName";
+	propShortDescription = "Slot|ID|Group|DeviceName";    
+#END_PARAMETER_PROPERTIES  
+  
+  
+integer initialized_fb;
+DeviceStatusClass Device[MAXDEVICES];
+
+function Initialize()
+{
+	integer i;	
+	
+	if(MainClass.Initialized && initialized_fb = 0)
+	{
+	  	for(i = 1 to MAXDEVICES)
+	  	{
+	  	 	if(IsParameterDefined(SlotIdGroupName[i]) && len(SlotIdGroupName[i]) > 7 && IsSignalDefined(Address$[i]) && len(Address$[i]) > 0)
+	  	 	{
+	  	 	 	Device[i].Name = MainClass.SplitString(SlotIdGroupName[i], "|", 3);
+ 				Device[i].ID = "Ping-Device " + MainClass.SplitString(SlotIdGroupName[i], "|", 1);
+			 	Device[i].Group = MainClass.SplitString(SlotIdGroupName[i], "|", 2);
+			 	Device[i].PingDeviceSetIP(Address$[i]);
+			 	MainClass.AddDevice(atoi(MainClass.SplitString(SlotIdGroupName[i], "|", 0)), Device[i]);
+	  	 	}
+	  	}
+	  	initialized_fb = 1;
+	}	
+}
+
+EventHandler RdmInitDevicesEventHandler(RDMEventArgs args)
+{
+  	Initialize();
+}
+
+EventHandler RdmUpdatePingEventHandler(RDMEventArgs args)
+{
+ 	integer i;
+		
+	if(initialized_fb = 1)
+	{
+	  	for(i = 1 to MAXDEVICES)
+	  	{
+	  	 	if(IsSignalDefined(Device_Online_Fb[i]))
+	  	 	{
+	  	 		Device_Online_Fb[i] = Device[i].Online; 	
+	  	 	}
+	  	}	  	
+	} 	
+}
+
+CHANGE Address$
+{
+ 	if(initialized_fb = 1)
+ 		Device[getlastmodifiedarrayindex()].PingDeviceSetIP(Address$[getlastmodifiedarrayindex()]);
+}
+
+function main()
+{
+ 	initialized_fb = 0;
+ 	waitforinitializationcomplete(); 	
+ 	delay(500);
+ 	RegisterEvent(MainClass, RdmInitDevicesEvent, RdmInitDevicesEventHandler);
+ 	RegisterEvent(MainClass, RdmUpdatePingEvent, RdmUpdatePingEventHandler);
+}

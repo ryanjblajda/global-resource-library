@@ -1,0 +1,53 @@
+   /*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Extron Volume Command Parser"
+#HINT "mainly for use with Extron DMP Devices"
+#CATEGORY "46" "RBLAJDA_EXTRON" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciCommandLength 256 
+
+ANALOG_INPUT _SKIP_, _SKIP_, Volume_Level_To_Translate;
+STRING_OUTPUT _SKIP_, _SKIP_, Volume_Command;
+
+STRING_PARAMETER Command_Prefix[ciCommandLength], Command_Suffix[ciCommandLength];
+
+#BEGIN_PARAMETER_PROPERTIES Command_Prefix, Command_Suffix
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "";
+#END_PARAMETER_PROPERTIES
+
+CHANGE Volume_Level_To_Translate
+{
+	integer volume, negative;
+	signed_integer signed_vol;
+	volume = abs(Volume_Level_To_Translate);
+    negative = OFF;
+	signed_vol = Volume_Level_To_Translate;
+
+	if(signed_vol < 0) negative = on;
+
+	print("%d: negative", negative);
+
+	if(negative = ON)
+	{
+		makestring(Volume_Command, "%s-%s%s", Command_Prefix, itoa(volume), Command_Suffix);
+	}
+	else
+	{
+		makestring(Volume_Command, "%s%s%s", Command_Prefix, itoa(volume), Command_Suffix);		
+	}
+}

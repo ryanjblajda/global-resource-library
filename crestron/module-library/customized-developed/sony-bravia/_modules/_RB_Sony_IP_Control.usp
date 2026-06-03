@@ -1,0 +1,240 @@
+/*
+Programmer: RBLAJDA
+*/
+
+/***Compiler Directives***/
+#SYMBOL_NAME "Sony Bravia REST & IRCC IP Control"
+#HINT "uses HTTP web requests to control Sony Displays"
+#CATEGORY "46" "RBLAJDA-C#" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+
+general notes
+	you must enable SIMPL IP control, and control with the preshared key on the display, and match said preshared key to what is used in the program. 
+	to open a specific app, install it on the display, then go to the app store and get the path shown i.e. appspace.app.com.appspace.app.MainActivity, 	
+	you must add this < com.sony.dtv.com. > as a prefix to the path, and then send that into the app_url_to_open
+
+parameters
+	Poll_Time: time in seconds that you want to poll the display for status
+
+inputs
+	debug - prints out debug info
+	poll_enable - enables polling every Poll_Time seconds [drive this from something useful...not a 1]
+
+	power_on: pulse to power on display
+	power_off: pulse to power off display
+	power_toggle: pulse to toggle power based on current feedback status
+
+	volume_up: pulse to raise volume level
+	volume_down: pulse to lower volume level
+	volume_mute_toggle: pulse to toggle mute based on current feedback status
+	volume_mute_on: pulse to turn on volume mute
+	volume_mute_off: pulse to turn off volume mute
+
+	picture_mute_toggle: pulse to toggle mute based on current feedback status
+	picture_mute_on: pulse to turn on picture mute
+	picture_mute_off: pulse to turn off picture mute
+
+	volume_level: set volume level from 0-65535
+	
+	input_select: set to the input you desire
+		1 = hdmi 1, 2 = hdmi 2, 3 = hdmi 4, 4 = hdmi 4
+		5 = component 1, 6 = component 2, 7 = component 3, 8 = component 4
+		9 = scart 1, 10 = scart 2, 11 = scart 3, 12 = scart 4
+		note: not all input are available on all tvs
+
+    transport_action: this emulates the remote
+		1 = up, 2 = down, 3 = left, 4 = right, 5 = select, 6 = home, 7 = options, 8 = back, 9 = play, 10 = pause
+	
+	app_url_to_open: see the general notes above, but this is the url of an app installed on the display you want to open
+
+	ip_address: the ip address of the display you want to control, pull it from a config file or hardcode it, its up to you
+
+	preshared_key: this must match the pre-shared key set on the display for certain features to work, just like the ip_address, pull it from a config file, or hard-code it....up to you.
+
+outputs
+	power_on_fb: display power is on when high
+	volume_mute_fb: volume is muted when high
+	picture_mute_fb: picture is muted when high
+	volume_level_fb: the volume level of the device from 0-65535, yes i scaled it for you because im not a heathen.
+	input_selected_fb: the live status, values match input select 
+		[no feedback for whether an app is open..unfortunately API doesnt give you that]
+
+#HELP_END
+
+/** SIMPL# **/
+#USER_SIMPLSHARP_LIBRARY "SonyLiteControl"
+
+/** PARAMS **/
+INTEGER_PARAMETER Poll_Time;
+
+#BEGIN_PARAMETER_PROPERTIES Poll_Time
+   propValidUnits 	= unitTime;
+   propDefaultUnit 	= unitTime;
+   propBounds		= 1s , 30s ;
+   propDefaultValue = 5s;
+   propShortDescription= "how often the module should poll for pertinent status info";
+#END_PARAMETER_PROPERTIES
+
+/** INPUTS**/
+DIGITAL_INPUT _SKIP_, Debug, Poll_Enable, _SKIP_, Power_Toggle, Power_On, Power_Off;
+DIGITAL_INPUT _SKIP_, Volume_Up, Volume_Down, Volume_Mute_Toggle, Volume_Mute_On, Volume_Mute_Off;
+ANALOG_INPUT  _SKIP_, Volume_Level;
+ANALOG_INPUT  _SKIP_, Input_Select;
+ANALOG_INPUT  _SKIP_, Transport_Action;
+DIGITAL_INPUT _SKIP_, Picture_Mute_Toggle, Picture_Mute_On, Picture_Mute_Off;
+STRING_INPUT  _SKIP_, App_URL_To_Open[1024], _SKIP_, IP_Address[254], Preshared_Key[6];
+
+/** OUTPUTS **/
+#OUTPUT_SHIFT 4
+DIGITAL_OUTPUT Power_On_Fb;
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Volume_Mute_Fb;
+ANALOG_OUTPUT  _SKIP_, _SKIP_, _SKIP_, Volume_Level_Fb;
+ANALOG_OUTPUT  _SKIP_, Input_Selected_Fb;
+DIGITAL_OUTPUT _SKIP_, Picture_Mute_Fb; 
+
+/** GLOBAL VARIABLES **/
+SonyDisplay thisDisplay;
+
+/** FUNCTIONS **/
+FUNCTION MAIN()
+{
+	thisDisplay.PollInterval = Poll_Time;
+
+	RegisterEvent(thisDisplay, PowerState, OnPowerStatus);
+	RegisterEvent(thisDisplay, MuteState, OnMuteStatus);
+	RegisterEvent(thisDisplay, VolumeState, OnVolumeStatus);
+	RegisterEvent(thisDisplay, InputState, OnInputStatus);
+	RegisterEvent(thisDisplay, PictureMuteState, OnPictureMuteStatus);
+}
+
+EVENTHANDLER OnInputStatus(SonyDisplay sender, AnalogDigitalPayloadArgs args)
+{
+	if(Input_Selected_Fb <> args.Payload) Input_Selected_Fb = args.Payload;
+}
+
+EVENTHANDLER OnPowerStatus(SonyDisplay sender, AnalogDigitalPayloadArgs args)
+{
+	Power_On_Fb = args.Payload;
+}
+
+EVENTHANDLER OnMuteStatus(SonyDisplay sender, AnalogDigitalPayloadArgs args)
+{
+	Volume_Mute_Fb = args.Payload;
+}
+
+EVENTHANDLER OnPictureMuteStatus(SonyDisplay sender, AnalogDigitalPayloadArgs args)
+{
+	Picture_Mute_Fb = args.Payload;
+}
+
+EVENTHANDLER OnVolumeStatus(SonyDisplay sender, AnalogDigitalPayloadArgs args)
+{
+	if(args.Payload <> Volume_Level_Fb) Volume_Level_Fb = args.Payload;
+}
+
+/** EVENTS **/
+CHANGE Debug
+{
+	thisDisplay.EnableDebug(Debug);
+}
+
+CHANGE Transport_Action
+{
+	thisDisplay.SendTransportCommand(Transport_Action);
+}
+
+CHANGE IP_Address
+{
+	thisDisplay.IPAddress = IP_Address;
+}
+
+CHANGE Preshared_Key
+{
+	thisDisplay.PSK = Preshared_Key;
+}
+
+CHANGE App_URL_To_Open
+{
+	thisDisplay.SetActiveApp(App_URL_To_Open);	
+}
+
+CHANGE Poll_Enable
+{
+	thisDisplay.Poll(Poll_Enable);
+}
+
+CHANGE Volume_Level
+{
+	thisDisplay.SetVolume(Volume_Level);
+}
+
+CHANGE Input_Select
+{
+	thisDisplay.SetInput(Input_Select);
+}
+
+PUSH Power_Toggle
+{
+	thisDisplay.TogglePower();
+}
+
+PUSH Power_On
+{
+	thisDisplay.SetPowerState(ON);
+}
+
+PUSH Power_Off
+{
+	thisDisplay.SetPowerState(OFF);
+}
+
+PUSH Volume_Up
+{
+	thisDisplay.VolumeNudge(1);
+}
+ 
+PUSH Volume_Down
+{
+	thisDisplay.VolumeNudge(2);
+}
+
+RELEASE Volume_Down, Volume_Up
+{
+	thisDisplay.StopVolumeNudge();
+}
+
+PUSH Volume_Mute_Toggle
+{
+	 thisDisplay.ToggleMute();
+}
+
+PUSH Volume_Mute_On
+{
+	thisDisplay.SetMute(ON);
+}
+
+PUSH Volume_Mute_Off
+{
+	thisDisplay.SetMute(OFF);
+}
+
+PUSH Picture_Mute_On
+{
+	thisDisplay.SetPictureMute(ON);
+}
+
+PUSH Picture_Mute_Off
+{
+	thisDisplay.SetPictureMute(OFF);
+}
+
+PUSH Picture_Mute_Toggle
+{
+	if (Picture_Mute_Fb = ON) thisDisplay.SetPictureMute(OFF);
+	else thisDisplay.SetPictureMute(ON);
+}

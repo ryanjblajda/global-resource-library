@@ -1,0 +1,259 @@
+/*
+Dealer Name:Crestron Electronics
+System Name:
+System Number:
+Programmer:EDB
+Comments:
+*/
+
+/*Compiler Directives*/
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*Include Libraries*/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS*/
+DIGITAL_INPUT Brightness_Dig, Contrast_Dig, Color_Dig, Tint_Dig, Sharpness_Dig, Volume_Dig, Bass_Dig, Treble_Dig;
+ANALOG_INPUT Volume, Brightness, Contrast, Color, Tint, Sharpness, Bass, Treble, Balance; 
+//STRING_INPUT  
+BUFFER_INPUT From_NEC_PA600X[200]; 
+
+// DIGITAL_OUTPUT 
+ANALOG_OUTPUT Lamp_Hours, Brightness_Value, Contrast_Value, Color_Value, Tint_Value, Sharpness_Value, Volume_Value, Bass_Value, Treble_Value;
+STRING_OUTPUT To_NEC_PA600X;
+
+/*Global Variables*/
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+/*
+Integer_Function MyIntFunction1()
+{
+    Return (0);
+}
+*/
+
+/*
+String_Function MyStrFunction1()
+{
+    Return ("");
+}
+*/
+
+/*Event Handlers*/
+/*
+PUSH input
+{
+}
+*/
+
+/*
+RELEASE input
+{
+}
+*/
+CHANGE From_NEC_PA600X
+{
+		STRING Trash[200];
+		INTEGER Data[4], i;
+
+		
+		
+
+		IF(FIND("\x23\x8C\x01\x10\x10", From_NEC_PA600X) > 0)
+		{
+      		Trash = Remove("\x23\x8C\x01\x10\x10", From_NEC_PA600X);
+			TRACE("From_NEC_PA600X = %s", From_NEC_PA600X);
+			FOR(i = 1 to 4)
+			{
+            	Data[i] = Byte(From_NEC_PA600X, i);
+				TRACE("Data[%u] = %u", i, Data[i]);
+			}
+			
+			Lamp_Hours = (((Data[4] * 0x1000000) + (Data[3] * 0x10000) + (Data[2] * 0x100) + Data[1]) / 3600);
+			CLEARBUFFER(From_NEC_PA600X);  	
+		}
+		Else If(Find("\x23\x04\x01\x10\x0D", From_NEC_PA600X))
+		{
+        	Trash = Remove("\x23\x04\x01\x10\x0D", From_NEC_PA600X);
+            Trash = RemoveByLength(7, From_NEC_PA600X);
+
+			Data[1] = Byte(From_NEC_PA600X, 1);
+			Data[2] = Byte(From_NEC_PA600X, 2);
+            TRACE("Data = %u %u", Data[1], Data[2]);
+            //Brightness_Dig, Contrast_Dig, Color_Dig, Tint_Dig, Sharpness_Dig, Volume_Dig, Bass_Dig, Treble_Dig;
+			
+			If(Brightness_Dig)
+				Brightness_Value = (Data[2] * 0x100) + Data[1];				
+			Else If(Contrast_Dig)
+                Contrast_Value = (Data[2] * 0x100) + Data[1]; 
+			Else If(Color_Dig)
+                Color_Value = (Data[2] * 0x100) + Data[1];
+			Else If(Tint_Dig)
+                Tint_Value = (Data[2] * 0x100) + Data[1];
+			Else If(Sharpness_Dig)
+                Sharpness_Value = (Data[2] * 0x100) + Data[1];
+			Else If(Volume_Dig)
+                Volume_Value = (Data[2] * 0x100) + Data[1];
+			Else If(Bass_Dig)
+                Bass_Value = (Data[2] * 0x100) + Data[1];
+			Else If(Treble_Dig)
+				Treble_Value = (Data[2] * 0x100) + Data[1];
+			
+			
+		}
+}
+
+CHANGE Volume
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Volume / 0x100;
+	Data[2] = Volume MOD 0x100;
+	CheckSum = (0x1D + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x05\x00\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+  
+CHANGE Brightness
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Brightness / 0x100;
+	Data[2] = Brightness MOD 0x100;
+	CheckSum = (0x117 + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x00\xFF\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+CHANGE Contrast
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Contrast / 0x100;
+	Data[2] = Contrast MOD 0x100;
+	CheckSum = (0x118 + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x01\xFF\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+CHANGE Color
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Color / 0x100;
+	Data[2] = Color MOD 0x100;
+	CheckSum = (0x119 + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x02\xFF\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+CHANGE Tint
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Tint / 0x100;
+	Data[2] = Tint MOD 0x100;
+	CheckSum = (0x11A + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x03\xFF\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+CHANGE Sharpness
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Sharpness / 0x100;
+	Data[2] = Sharpness MOD 0x100;
+	CheckSum = (0x11B + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x04\xFF\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+CHANGE Bass
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Bass / 0x100;
+	Data[2] = Bass MOD 0x100;
+	CheckSum = (0x1E + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x05\x01\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+CHANGE Treble
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Treble / 0x100;
+	Data[2] = Treble MOD 0x100;
+	CheckSum = (0x1F + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x05\x02\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+CHANGE Balance
+{
+	INTEGER Data[2], CheckSum;
+	Data[1] = Balance / 0x100;
+	Data[2] = Balance MOD 0x100;
+	CheckSum = (0x20 + Data[1] + Data[2]) MOD 0x100;
+
+	MAKESTRING(To_NEC_PA600X, "\x03\x10\x00\x00\x05\x05\x03\x00%c%c%c", Data[2], Data[1], CheckSum);
+}
+
+/*
+EVENT
+{
+}
+*/
+
+/*
+SOCKETCONNECT
+{
+}
+*/
+
+/*
+SOCKETDISCONNECT
+{
+}
+*/
+
+/*
+SOCKETRECEIVE
+{
+}
+*/
+
+/*
+SOCKETSTATUS
+{
+}
+*/
+
+/*Main()*/
+/*
+Function Main()
+{
+    // WaitForInitializationComplete();
+ }
+*/
+

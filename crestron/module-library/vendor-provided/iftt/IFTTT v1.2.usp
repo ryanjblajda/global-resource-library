@@ -1,0 +1,137 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+*******************************************************************************************/
+/*
+Dealer Name:	
+System Name:	
+System Number:
+Programmer:		JMB
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#SYMBOL_NAME "IFTTT v1.2"
+#HINT "IFTTT Communications Interface"
+#CATEGORY "32" 
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+//#ENABLE_TRACE
+//#PRINT_TO_TRACE
+
+#DEFINE_CONSTANT	DEBUG				0
+
+#HELP_PDF_FILE "Module IFTTT v1.2 Help.pdf"
+
+/*******************************************************************************************
+  Include Libraries
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "IFTTT"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+*******************************************************************************************/
+
+DIGITAL_INPUT		_SKIP_, _SKIP_, Send;
+STRING_INPUT		_SKIP_, IFTTT_Event_In$[50];
+STRING_INPUT		_SKIP_, Data1_In$[255];
+STRING_INPUT		_SKIP_, Data2_In$[255];
+STRING_INPUT		_SKIP_, Data3_In$[255];
+
+STRING_OUTPUT		_SKIP_, _SKIP_, _SKIP_, _SKIP_, IFTTT_Event_Out$;
+STRING_OUTPUT		_SKIP_, Data1_Out$;
+STRING_OUTPUT		_SKIP_, Data2_Out$;
+STRING_OUTPUT		_SKIP_, Data3_Out$;
+STRING_OUTPUT		_SKIP_, Data4_Out$;
+STRING_OUTPUT		_SKIP_, Data5_Out$;
+STRING_OUTPUT		_SKIP_, Data6_Out$;
+STRING_OUTPUT		_SKIP_, Data7_Out$;
+STRING_OUTPUT		_SKIP_, Data8_Out$;
+STRING_OUTPUT		_SKIP_, Data9_Out$;
+STRING_OUTPUT		_SKIP_, Data10_Out$;
+
+/*******************************************************************************************
+  Parameters
+*******************************************************************************************/
+
+STRING_PARAMETER	key[50];
+INTEGER_PARAMETER	port;
+
+/*******************************************************************************************
+  Parameter Properties
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES key
+	propValidUnits = unitString;
+	propShortDescription = "IFTTT Key";
+	#BEGIN_PROP_FULL_DESCRIPTION  "IFTTT Key"  #END_PROP_FULL_DESCRIPTION
+#END_PARAMETER_PROPERTIES 
+
+#BEGIN_PARAMETER_PROPERTIES port
+	propValidUnits = unitDecimal;
+	propShortDescription = "Port for communication from IFTTT";
+	#BEGIN_PROP_FULL_DESCRIPTION  "Port for communication from IFTTT"  #END_PROP_FULL_DESCRIPTION
+	#BEGIN_PROP_NOTES "Port for communication from IFTTT"  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Global Variables
+*******************************************************************************************/
+
+IFTTT_Send 		to_ifttt;
+IFTTT_Receive	from_ifttt;
+
+/*******************************************************************************************
+  Functions
+*******************************************************************************************/
+callback function callback_function(string IFTTT_Event, string data1, string data2, string data3, string data4, 
+	string data5, string data6, string data7, string data8, string data9, string data10)
+{
+	Data1_Out$ = data1;
+	Data2_Out$ = data2;
+	Data3_Out$ = data3;
+	Data4_Out$ = data4;
+	Data5_Out$ = data5;
+	Data6_Out$ = data6;
+	Data7_Out$ = data7;
+	Data8_Out$ = data8;
+	Data9_Out$ = data9;
+	Data10_Out$ = data10;
+	IFTTT_Event_Out$ = IFTTT_Event;	
+	IFTTT_Event_Out$ = "IFTTT_CLEAR";	
+}
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+
+THREADSAFE PUSH Send
+{
+	to_ifttt.Send_Message(key, IFTTT_Event_In$, Data1_In$, Data2_In$, Data3_In$);
+} 
+
+/*******************************************************************************************
+  Main()
+*******************************************************************************************/
+Function Main()
+{
+	WaitForInitializationComplete(); 
+
+	IFTTT_Event_Out$ = "IFTTT_CLEAR";	
+ 	Data1_Out$ = "";
+	Data2_Out$ = "";
+	Data3_Out$ = "";
+	Data4_Out$ = "";
+	Data5_Out$ = "";
+	Data6_Out$ = "";
+	Data7_Out$ = "";
+	Data8_Out$ = "";
+	Data9_Out$ = "";
+	Data10_Out$ = "";
+	
+	// Register function to be called from S# when message received
+	RegisterDelegate(from_ifttt, callback_fn, callback_function);
+	
+	from_ifttt.Initialize(Port);
+}

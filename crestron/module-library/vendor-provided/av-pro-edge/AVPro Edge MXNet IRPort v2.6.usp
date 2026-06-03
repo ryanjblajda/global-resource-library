@@ -1,0 +1,140 @@
+/*******************************************************************************************
+  INFORMATION
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: AVPro Edge MXNet IRPort v2.6
+Programmer:  VNG
+Version:     2.5
+*/
+
+/*******************************************************************************************
+  COMPILER DIRECTIVES
+*******************************************************************************************/
+
+#SYMBOL_NAME "AVPro Edge MXNet IRPort v2.6"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+/*******************************************************************************************
+  CONSTANTS
+*******************************************************************************************/
+
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT MAX_STRING 100
+#DEFINE_CONSTANT MAX_BUFFER 65534
+#DEFINE_CONSTANT MAX_COMMANDS 10
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE 0
+
+#HELP_BEGIN
+To be used with AVPro Edge MXNet IRPort v2.6.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  INCLUDE LIBRARIES
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "AVProEdgeMXNetLib2"
+
+/*******************************************************************************************
+  MODULE I/O
+*******************************************************************************************/
+
+// --------------------- INPUTS
+
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			  _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+          	  IrSend, 
+          	  CommandSend[MAX_COMMANDS];
+
+STRING_INPUT  IrTx[MAX_BUFFER];
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			  _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+				IsOnline;
+				
+/*******************************************************************************************
+  PARAMETERS
+*******************************************************************************************/
+
+INTEGER_PARAMETER CommandProcessorID;
+INTEGER_PARAMETER DeviceType;
+INTEGER_PARAMETER MatrixIndex;
+STRING_PARAMETER CommandString[MAX_COMMANDS][MAX_STRING];
+
+/*******************************************************************************************
+  PARAMETER PROPERTIES
+*******************************************************************************************/
+
+/*******************************************************************************************
+  GLOBAL VARIABLES
+*******************************************************************************************/
+
+// --------------------- SIMPL# Classes
+
+IrPortComponent irPort;   
+
+/*******************************************************************************************
+  FUNCTIONS
+*******************************************************************************************/
+
+ // --------------------- SIMPL# EVENT HANDLERS
+
+EventHandler OnOnline ( BasicComponent sender, DigEventArgs args )
+{
+	IsOnline = args.Payload;
+}
+
+/*******************************************************************************************
+  EVENT HANDLERS
+*******************************************************************************************/
+
+// --------------------- IR TX
+
+THREADSAFE PUSH IrSend
+{
+  irPort.SendCommand(IrTx);
+}
+
+// --------------------- COMMANDS
+
+THREADSAFE PUSH CommandSend
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  IF (index > 0 && index <= MAX_COMMANDS && CommandString[index] != NULL_STRING)
+	irPort.SendCommand(CommandString[index]);  
+}
+
+/*******************************************************************************************
+  MAIN
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  WAITFORINITIALIZATIONCOMPLETE();
+  IsOnline = FALSE;
+  
+  REGISTEREVENT(irPort, OnOnline, OnOnline);
+	
+  irPort.Configure(CommandProcessorID, DeviceType, MatrixIndex);
+}

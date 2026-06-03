@@ -1,0 +1,111 @@
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+  
+#USER_SIMPLSHARP_LIBRARY "Roku SSHarp"
+
+DIGITAL_INPUT query;
+STRING_INPUT ipAddress$[15];
+ANALOG_INPUT appSelValue;
+DIGITAL_INPUT keyPress[16];
+
+ANALOG_OUTPUT numItems;
+STRING_OUTPUT 
+	appIcon$[255],
+	appName$[255,255];
+
+INTEGER keyValue;
+
+Roku myRoku;
+
+CALLBACK FUNCTION CallbackEventHandler(STRING appIcon, STRING appName, INTEGER i, INTEGER v)
+{
+	appIcon$[i+1] = appIcon;
+	appName$[i+1] = appName;
+	numItems = v;		
+}
+
+
+THREADSAFE PUSH query
+{	
+	myRoku.GetApps(ipAddress$);
+}
+
+THREADSAFE CHANGE appSelValue
+{
+	myRoku.SetApp(ipAddress$, appSelValue);
+}
+
+THREADSAFE CHANGE ipAddress$
+{
+	myRoku.GetApps(ipAddress$);
+}
+
+THREADSAFE PUSH keyPress
+{
+	keyValue = getlastmodifiedarrayindex();
+
+	SWITCH(keyValue){
+		CASE(1):{
+			myRoku.Key(ipAddress$, "keypress/Home");}
+		CASE(2):{
+			myRoku.Key(ipAddress$, "keydown/Rev");}
+		CASE(3):{
+			myRoku.Key(ipAddress$, "keydown/Fwd");}
+		CASE(4):{
+			myRoku.Key(ipAddress$, "keypress/Play");}
+		CASE(5):{
+			myRoku.Key(ipAddress$, "keypress/Select");}
+		CASE(6):{
+			myRoku.Key(ipAddress$, "keydown/Left");}
+		CASE(7):{
+			myRoku.Key(ipAddress$, "keydown/Right");}
+		CASE(8):{
+			myRoku.Key(ipAddress$, "keydown/Down");}
+		CASE(9):{
+			myRoku.Key(ipAddress$, "keydown/Up");}
+		CASE(10):{
+			myRoku.Key(ipAddress$, "keypress/Back");}
+		CASE(11):{
+			myRoku.Key(ipAddress$, "keypress/InstantReplay");}
+		CASE(12):{
+			myRoku.Key(ipAddress$, "keypress/Info");}
+		CASE(13):{
+			myRoku.Key(ipAddress$, "keypress/Backspace");}
+		CASE(14):{
+			myRoku.Key(ipAddress$, "keypress/Search");}
+		CASE(15):{
+			myRoku.Key(ipAddress$, "keypress/Enter");}
+		CASE(16):{
+			myRoku.Key(ipAddress$, "keypress/Power");}
+	}				
+}
+
+THREADSAFE RELEASE keyPress
+{
+	keyValue = getlastmodifiedarrayindex();
+
+	SWITCH(keyValue){
+		CASE(2):{
+			myRoku.Key(ipAddress$, "keyup/Rev");}
+		CASE(3):{
+			myRoku.Key(ipAddress$, "keyup/Fwd");}
+		CASE(6):{
+			myRoku.Key(ipAddress$, "keyup/Left");}
+		CASE(7):{
+			myRoku.Key(ipAddress$, "keyup/Right");}
+		CASE(8):{
+			myRoku.Key(ipAddress$, "keyup/Down");}
+		CASE(9):{
+			myRoku.Key(ipAddress$, "keyup/Up");}
+	}			
+}
+
+
+FUNCTION Main()
+{
+	WaitForInitializationComplete();
+	REGISTERDELEGATE(myRoku, CallbackEvent, CallbackEventHandler);
+}
+
+

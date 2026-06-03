@@ -1,0 +1,81 @@
+#define_constant MAX_OUTPUTS  200
+#define_constant MAX_INPUTS  200
+
+
+buffer_input RX[10000];
+
+analog_input OUTPUT[MAX_OUTPUTS];
+string_output TX;
+analog_output  OUTPUT_STATUS[MAX_OUTPUTS];
+
+CMutex buffer_mutex;
+
+
+
+threadsafe change OUTPUT
+{
+	integer i;
+	String cmd[256];
+	
+	i = getlastmodifiedarrayindex();
+	makestring(cmd, "SW %d=%d;", i, OUTPUT[i] );
+	TX = cmd;
+}
+
+THREADSAFE change RX
+{                                                                  
+	string sO[4], cmd[100], sOutputs[100];
+	integer iInput, iOutput;
+	
+	buffer_mutex.WaitForMutex();
+	while(len(RX) > 5 && find( ";", RX, 1 ) > 0)
+	{
+		cmd = gather( ";", RX );
+		cmd = left( cmd, len( cmd ) -1 ); //remove ;
+		
+		if (len(cmd) > 4 && find( "SW ", cmd, 1 ) > 0)
+		{
+			sOutputs = remove( "SW ", cmd );
+			sOutputs = remove( "=", cmd );
+			iInput = atoi( cmd );
+			sOutputs = left( sOutputs, len( sOutputs ) -1 ); //remove =
+			
+			while(len(sOutputs) > 0 && find( ",", sOutputs, 1 ) > 0)
+			{
+				sO = remove(",", sOutputs, 1); 
+				sO = left( sO, len( sO ) -1 ); //remove ,
+				iOutput = atoi( sO );
+				if (iOutput <= MAX_OUTPUTS)
+				{
+
+					if(OUTPUT_STATUS[iOutput] != iInput)
+					{
+						OUTPUT_STATUS[iOutput] = iInput;
+					}
+				}
+				else
+				{
+					Print( "%d is not a support output\n", iOutput );
+				}
+
+			}
+			
+			sO = sOutputs;
+			iOutput = atoi( sO );
+			if (iOutput <= MAX_OUTPUTS)
+			{
+				if(OUTPUT_STATUS[iOutput] != iInput)
+				{
+					OUTPUT_STATUS[iOutput] = iInput;
+				}
+			}
+			else
+			{
+				Print( "%d is not a support output\n", iOutput );
+			}
+
+		}
+	}
+	buffer_mutex.ReleaseMutex();		
+}
+

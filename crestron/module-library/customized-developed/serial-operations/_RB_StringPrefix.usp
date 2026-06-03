@@ -1,0 +1,176 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "String Prefix w. Alternate v1 (DONT USE)"
+#HINT "adds a prefix to a string, supports an alternate prefix"
+// #DEFINE_CONSTANT
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+//#DEFINE_CONSTANT DEBUG 1
+#DEFINE_CONSTANT ci_MaxLength 255
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+a module for inserting a string prefix on an adjustable array of input strings, and also allows for an alternate string to replace the main prefix.
+(this module is mainly meant for adding a prefix (the processor IP) to serial source icon strings, and then replacing that string when a device is not 
+on the local network (replacing it with a dynamic dns hostname, http://mycrestron.com or similar)
+
+
+Inputs
+
+useExternalPrefix: when this signal goes high, stringPrefix_External will replace stringPrefix_Internal on all outputString signals.
+
+	NOTE: when this signal goes low, all strings will revert to the Internal prefix
+
+stringPrefix_Internal: the main string (processor IP address) to prefix all stringToPrefix strings with.
+
+stringPrefix_External: the secondary (dyndns hostname) to prefix all stringToPrefix strings with whenever the useExternalPrefix signal goes high.
+
+stringToPrefix: an array of strings to prefix, usually icon paths on the processor to be prefixed with an IP address or hostname
+
+Outputs
+
+outputString: an array of strings with the prefix added into it. 
+	
+#HELP_END
+
+
+DIGITAL_INPUT UseExternalPrefix;
+
+STRING_INPUT _SKIP_, Internal_Prefix[ci_MaxLength], External_Prefix[ci_MaxLength];
+ 
+STRING_INPUT _SKIP_, StringToPrefix[ci_MaxLength][ci_MaxLength];
+
+STRING_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, StringWithPrefix[ci_MaxLength];
+
+/* GLOBAL VARIABLES */
+
+integer giDefinedInputs;
+string  gsInternalPrefix[ci_MaxLength], gsExternalPrefix[ci_MaxLength];
+string  StringsToPrefix[ci_MaxLength][ci_MaxLength];
+
+/* FUNCTIONS */
+
+string_function AddPrefix(string _string, string _prefix) 
+{
+	string functionResult[255];		
+	functionResult = _prefix + _string;	
+	return(functionResult);
+}
+
+
+/*** Event Handlers ***/
+
+CHANGE UseExternalPrefix
+{
+	integer i;
+
+	for(i = 1 to giDefinedInputs) 
+	{
+		if(isSignalDefined(stringToPrefix[i]) && stringToPrefix[i] <> "") 
+		{
+			if(useExternalPrefix = ON)
+			{
+				StringWithPrefix[i] = AddPrefix(StringsToPrefix[i], gsExternalPrefix);
+			}
+			else if(useExternalPrefix = OFF) 
+			{
+				StringWithPrefix[i] = AddPrefix(StringsToPrefix[i], gsInternalPrefix);
+			}
+		}
+		processLogic();
+	}
+}
+
+CHANGE Internal_Prefix, External_Prefix 
+{
+	integer i, iInternalChanged, iExternalChanged;
+	
+	if(Internal_Prefix <> gsInternalPrefix)
+	{
+		gsInternalPrefix = Internal_Prefix;
+		iInternalChanged = ON;
+	}
+
+	if(External_Prefix <> gsExternalPrefix)
+	{
+		gsExternalPrefix = External_Prefix;
+		iExternalChanged = ON;
+	}
+
+	if(UseExternalPrefix = ON && iExternalChanged)
+	{
+		iExternalChanged = OFF;
+		for(i = 1 to giDefinedInputs)
+		{
+			StringWithPrefix[i] = AddPrefix(StringsToPrefix[i], gsExternalPrefix);			
+		}
+	}
+	else if(UseExternalPrefix = OFF && iInternalChanged)
+	{
+		iInternalChanged = OFF;
+		for(i = 1 to giDefinedInputs)
+		{
+			StringWithPrefix[i] = AddPrefix(StringsToPrefix[i], gsInternalPrefix);			
+		}
+	}
+}
+
+CHANGE StringToPrefix 
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+
+	StringsToPrefix[iChanged] = StringToPrefix[iChanged];
+
+	if(isSignalDefined(stringToPrefix[iChanged]) && stringToPrefix[iChanged] <> "") 
+	{
+		if(useExternalPrefix = ON)
+		{
+			StringWithPrefix[iChanged] = AddPrefix(StringsToPrefix[iChanged], gsExternalPrefix);
+		}
+		else if(useExternalPrefix = OFF) 
+		{
+			StringWithPrefix[iChanged] = AddPrefix(StringsToPrefix[iChanged], gsInternalPrefix);
+		}
+	}
+	else
+	{
+		StringWithPrefix[iChanged] = "";
+	}	 
+}
+
+/*** Main() ***/
+Function Main() 
+{
+	integer i;
+    WaitForInitializationComplete();
+
+	for(i = ci_MaxLength to 1 step - 1)
+	{
+		if(isSignalDefined(stringToPrefix[i])) break;
+	}
+
+	giDefinedInputs = i;
+
+	#IF_DEFINED DEBUG
+		print("%s: definedInputs = %u", getSymbolInstanceName(), i);
+	#ENDIF
+}

@@ -1,0 +1,362 @@
+/***********************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+***********************************************************************************/
+/*
+Dealer Name:		Crestron Electronics
+System Name:
+System Number:
+Programmer:			PAC
+Comments:
+*/
+
+/***********************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+***********************************************************************************/
+#SYMBOL_NAME "Advanced Send E-Mail Driver"
+// #HINT ""
+#DEFINE_CONSTANT	ciMAXFROMCHARS		242
+#DEFINE_CONSTANT	ciMAXUSERCHARS		254
+#DEFINE_CONSTANT	ciMAXSERVERCHARS	40
+#DEFINE_CONSTANT	ciMAXCHARS				255
+
+#CATEGORY "0"
+// #DEFAULT_VOLATILE
+#DEFAULT_NONVOLATILE
+
+#HELP_BEGIN
+	For use inside the Send E-Mail module only. This is a 2-Series only module.
+#HELP_END
+
+
+/***********************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+***********************************************************************************/
+DIGITAL_INPUT	clear_fields,	//clear the text from the editable fields
+							edit_to,			//routes the text$ input to the to field while high
+							edit_cc,			//routes the text$ input to the cc field while high
+							edit_subject,	//routes the text$ input to the subject field while high
+							edit_message,	//routes the text$ input to the message field while high
+							send;					//sends the message if required(*) fields are not null
+ANALOG_INPUT 	port_number;
+STRING_INPUT	from$[ciMAXFROMCHARS],					//email address of sender*
+							server$[ciMAXSERVERCHARS],			//address of mail server*
+							user_name$[ciMAXUSERCHARS],			//user login name
+							user_password$[ciMAXUSERCHARS],	//user login password
+							to$[ciMAXCHARS],								//email recipient list*
+							cc$[ciMAXCHARS],								//email carbon copy recipinet list
+							subject$[ciMAXCHARS],						//subject of email
+							message$[ciMAXCHARS],						//body of email message
+							text$[ciMAXCHARS];							//Text in from a keyboard
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT	success,			//message sent successfully
+								part_success,	//message sent but an error ocurred
+								failure;			//message not sent
+ANALOG_OUTPUT	error_number;		//integer indicating the error number if failure is
+															//high, error number is negative
+STRING_OUTPUT	to_fb$, cc_fb$, subject_fb$, message_fb$, error_text$, text_fb$;
+
+/***********************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+***********************************************************************************/
+SIGNED_INTEGER	iError, iPortNumber;
+STRING	sFrom[ciMAXFROMCHARS], sServer[ciMAXSERVERCHARS], sName[ciMAXUSERCHARS],
+				sPassword[ciMAXUSERCHARS], sTo[ciMAXCHARS], sCC[ciMAXCHARS],
+				sSubject[ciMAXCHARS], sMessage[ciMAXCHARS], sTemp[ciMAXCHARS];
+
+/***********************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+***********************************************************************************/
+PUSH clear_fields	//Clears the To:, cc:, subject: and Message: fields.
+{
+	sTo = "";
+	sCC = "";
+	sSubject = "";
+	sMessage = "";
+	to_fb$ = sTo;
+	cc_fb$ = sCC;
+	subject_fb$ = sSubject;
+	message_fb$ = sMessage;
+}
+
+//sends the current to text to the to$ output and to the keyboard
+PUSH edit_to
+{
+	to_fb$ = sTo;
+	text_fb$ = sTo;
+}
+
+//sends the current cc text to the cc$ output and to the keyboard
+PUSH edit_cc
+{
+	cc_fb$ = sCC;
+	text_fb$ = sCC;
+}
+
+//sends the current subject text to the subject$ output and to the keyboard
+PUSH edit_subject
+{
+	subject_fb$ = sSubject;
+	text_fb$ = sSubject;
+}
+
+//sends the current message text to the message$ output and to the keyboard
+PUSH edit_message
+{
+	message_fb$ = sMessage;
+	text_fb$ = sMessage;
+}
+
+//sends the email message if the server, from and to fields are populated
+PUSH send
+{
+	if((len(sServer) > 0) && (len(sFrom) > 0) && (len(sTo) > 0))
+	{
+		part_success = 0;	//clear the status output
+		success = 0;
+		failure = 0;
+		error_text$ = "Sending e-mail. Please wait.....";
+		error_number = 1000;
+		//send the meesage
+		iError = sendmailAdvance(sServer,
+											iPortNumber,
+											sName,
+											sPassword,
+											sFrom,
+											sTo,
+											sCC,
+											sSubject,
+											sMessage,
+											0,
+											"");
+		//check the error code
+		if(iError S>= 0)	//positive error codes
+		{
+			cswitch(iError)
+			{
+				case(0):	//message sent
+				{
+					part_success = 0;
+					failure = 0;
+					success = 1;
+					error_text$ = "Mail sent successfully.";
+					break;
+				}
+				case(3):	//to recipient list error
+				{
+					success = 0;
+					failure = 0;
+					part_success = 1;
+					error_text$ = "Message sent with an error in the To: list.";
+					break;
+				}
+				case(4):	//cc recipient list error
+				{
+					success = 0;
+					failure = 0;
+					part_success = 1;
+					error_text$ = "Message sent with an error in the CC: list.";
+					break;
+				}
+				case(5):	//data error
+				{
+					success = 0;
+					failure = 0;
+					part_success = 1;
+					error_text$ = "Message sent with an error sending the message body.";
+					break;
+				}
+				default:	//any other error with a positive number not covered 
+				{
+					success = 0;
+					failure = 0;
+					part_success = 1;
+					error_text$ = "Unknown Error.";
+					break;
+				}
+			}
+		}
+		else	//negative error codes
+		{
+			iError = -iError;//make the error positive
+			cswitch(iError)
+			{
+				case(1):	//required field is null
+				{
+					success = 0;
+					part_success = 0;
+					failure = 0;
+					error_text$ = "Message not sent, error in Server, From: or To: field.";
+					break;
+				}
+				case(3):	//no connection to mail server
+				{
+					success = 0;
+					part_success = 0;
+					failure = 1;
+					error_text$ = "Message not sent, error connceting to mail server.";
+					break;
+				}
+				case(4):	//lost connection while sending the message
+				{
+					success = 0;
+					part_success = 0;
+					failure = 1;
+					error_text$ = "Message not sent, error sending the message.";
+					break;
+				}
+				case(6):	//internal error while processing the send
+				{
+					success = 0;
+					part_success = 0;
+					failure = 1;
+					error_text$ = "Message not sent, error preparing to send the message.";
+					break;
+				}
+				case(7):	//internal memory error
+				{
+					success = 0;
+					part_success = 0;
+					failure = 1;
+					error_text$ = "Message not sent, error buffering the message.";
+					break;
+				}
+				case(8):	//could not login to the mail server
+				{
+					success = 0;
+					part_success = 0;
+					failure = 1;
+					error_text$ = "Message not sent, error logging in to the server.";
+					break;
+				}
+				case(9):	//authentication login not supported
+				{
+					success = 0;
+					part_success = 0;
+					failure = 1;
+					error_text$ = "Message not sent, server does not support Authentication login.";
+					break;
+				}
+				default:	//any other error with a negative number not covered
+				{
+					success = 0;
+					part_success = 0;
+					failure = 1;
+					error_text$ = "Message not sent, unknown error.";
+					break;
+				}
+			}
+		}
+		error_number = iError;
+	}
+}
+
+//store the from text
+CHANGE from$
+{
+	sFrom = left(from$, ciMAXFROMCHARS);
+}
+
+//store the server text
+CHANGE server$
+{
+	sServer = left(server$, ciMAXSERVERCHARS);
+}
+
+//store the server port
+CHANGE port_number
+{
+	iPortNumber = port_number;
+}
+
+//store the user login name text
+CHANGE user_name$
+{
+	sName = left(user_name$, ciMAXUSERCHARS);
+}
+
+//store the user login password text
+CHANGE user_password$
+{
+	sPassword = left(user_password$, ciMAXUSERCHARS);
+}
+
+//store the to text
+CHANGE to$
+{
+	sTo = left(to$, ciMAXCHARS);
+	to_fb$ = sTo;
+}
+
+//store the cc text
+CHANGE cc$
+{
+	sCC = left(cc$, ciMAXCHARS);
+	cc_fb$ = sCC;
+}
+
+//store the subject text
+CHANGE subject$
+{
+	sSubject = left(subject$, ciMAXCHARS);
+	subject_fb$ = sSubject;
+}
+
+//store the message text
+CHANGE message$
+{
+	sMessage = left(message$, ciMAXCHARS);
+	message_fb$ = sMessage;
+}
+
+//route the text to the proper field
+CHANGE text$
+{
+	sTemp = text$;
+	if(edit_to = 1)						//send to the to field
+	{
+		sTo = sTemp;
+		to_fb$ = sTo;
+	}
+	else if(edit_cc = 1)			//send to the cc field
+	{
+		sCC = sTemp;
+		cc_fb$ = sCC;
+	}
+	else if(edit_subject = 1)	//send to the subject field
+	{
+		sSubject = sTemp;
+		subject_fb$ = sSubject;
+	}
+	else if(edit_message = 1)	//send to the message field
+	{
+		sMessage = sTemp;
+		message_fb$ = sMessage;
+	}
+}
+
+/***********************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+***********************************************************************************/
+Function Main()
+{
+	sFrom = "";
+	sServer = "";
+	sName = "";
+	sPassword = "";
+	sTo = "";
+	sCC = "";
+	sSubject = "";
+	sMessage = "";
+	iError = 0;
+	iPortNumber = 0;
+	error_text$ = "";
+	error_number = 1000;
+}

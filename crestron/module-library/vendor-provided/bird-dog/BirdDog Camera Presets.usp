@@ -1,0 +1,604 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:     Richard Mullins
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "BirdDog Camera Presets"
+// #HINT ""
+// #DEFINE_CONSTANT
+#CATEGORY "19" // Camera
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+#USER_SIMPLSHARP_LIBRARY "BirdDogDevice"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_,_SKIP_,Enable;
+DIGITAL_INPUT _SKIP_,PanTilt_Up,PanTilt_Down,PanTilt_Left,PanTilt_Right;
+DIGITAL_INPUT PanTilt_UpLeft,PanTilt_UpRight,PanTilt_DownLeft,PanTilt_DownRight,PanTilt_Stop;
+DIGITAL_INPUT _SKIP_,Zoom_Tele,Zoom_Wide,Zoom_Stop;
+DIGITAL_INPUT _SKIP_,Focus_Auto,Focus_Manual;
+DIGITAL_INPUT _SKIP_,Menu_On,Menu_Off;
+DIGITAL_INPUT _SKIP_,Freed_On,Freed_Off;
+DIGITAL_INPUT _SKIP_,Reset_Image,_SKIP_,High_Resolution_On,High_Resolution_Off;
+DIGITAL_INPUT _SKIP_,Video_Enhancement_On,Video_Enhancement_Off;
+DIGITAL_INPUT _SKIP_,Exposure_Compensation_On, Exposure_Compensation_Off;
+DIGITAL_INPUT Slow_Shutter_On,Slow_Shutter_Off;
+DIGITAL_INPUT _SKIP_,Brightness_Low,Brightness_Med,Brightness_High;
+DIGITAL_INPUT _SKIP_,High_Sensitivity_On, High_Sensitivity_Off;
+DIGITAL_INPUT _SKIP_,Preset_Save,Preset_Load;
+
+ANALOG_INPUT Preset;
+ANALOG_INPUT _SKIP_,Blue_Gain,Blue_Hue,Cyan_Gain,Cyan_Hue,Green_Gain,Green_Hue;
+ANALOG_INPUT Magenta_Gain,Magenta_Hue,Red_Gain,Red_Hue,Yellow_Gain,Yellow_Hue;
+ANALOG_INPUT _SKIP_,Color_Gain,Hue_Phase,Gamma_Offset;
+ANALOG_INPUT _SKIP_,Brightness_Level,Brightness_Compensation;
+ANALOG_INPUT _SKIP_,Exposure_Mode,Exposure_Compensation_Level,Auto_Exposure_Response,Exposure_Brightness;
+ANALOG_INPUT _SKIP_,Slow_Shutter_Limit,Gain_Level,Gain_Limit,Iris_Level,Shutter_Speed;
+
+STRING_INPUT _SKIP_,Dynamic_IP[32],Freed_IP[32];
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT _SKIP_,_SKIP_,_SKIP_,Enabled;
+ANALOG_OUTPUT Preset_FB;
+// STRING_OUTPUT 
+
+BirdDogDevice Camera;
+
+integer module_enabled;
+string InstanceName[32];
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER Control_Port, PTZ_Port;
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+STRING_PARAMETER IP_Address[32];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES Control_Port
+   propValidUnits = unitDecimal;
+   propDefaultValue = 8080d;
+   propShortDescription = "BirdDog Camera Control Port";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES PTZ_Port
+   propValidUnits = unitDecimal;
+   propDefaultValue = 7691d;
+   propShortDescription = "BirdDog Camera PTZ Port";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES IP_Address
+   propValidUnits = unitString;
+   propDefaultValue = "192.168.1.100";
+   propShortDescription = "BirdDog Camera IP Address";
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+function init()
+{
+  //RegisterDelegate(Camera, UpdateCamera, UpdateState);
+  Camera.init(IP_Address, Control_Port, PTZ_Port);
+}
+
+function SendStop() 
+{
+  Wait(15)
+  {
+	  Camera.PanTilt(InstanceName, "stop");
+  } 
+}
+
+function SendZoomStop() 
+{
+  Wait(15)
+  {
+    Camera.PTZZoom(InstanceName, "stop");
+  } 
+}
+
+
+
+
+callback function UpdateState(integer ModulePreset)
+{
+  trace("Current Preset is %u", ModulePreset);
+  Preset_FB = ModulePreset;
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH enable
+{
+  trace("Enabling BirdDog Camera Preset module");
+  module_enabled= 1;
+  Enabled = 1;
+}
+
+
+RELEASE enable
+{
+  trace("Disabling BirdDog Camera Preset module");
+  module_enabled = 0;
+  Enabled = 1;
+}
+
+ 
+//
+// Pan/Tilt Commands
+//
+
+PUSH PanTilt_Up 
+{
+  Camera.PanTilt(InstanceName, "up");
+}
+ 
+RELEASE PanTilt_Up 
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_Down 
+{
+  Camera.PanTilt(InstanceName, "down");
+}
+
+RELEASE PanTilt_Down
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_Left 
+{
+  Camera.PanTilt(InstanceName, "left");
+}
+
+RELEASE PanTilt_Left
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_Right 
+{
+  Camera.PanTilt(InstanceName, "right");
+}
+
+RELEASE PanTilt_Right
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_UpLeft 
+{
+  Camera.PanTilt(InstanceName, "upleft");
+}
+
+RELEASE PanTilt_UpLeft 
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_UpRight 
+{
+  Camera.PanTilt(InstanceName, "upright");
+}
+
+RELEASE PanTilt_UpRight
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_DownLeft 
+{
+  Camera.PanTilt(InstanceName, "downleft");
+}
+
+RELEASE PanTilt_DownLeft
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_DownRight 
+{
+  Camera.PanTilt(InstanceName, "downright");
+}
+
+RELEASE PanTilt_DownRight
+{
+  SendStop();
+}
+
+
+PUSH PanTilt_Stop 
+{
+  Camera.PanTilt(InstanceName, "stop");
+}
+
+PUSH Zoom_Tele 
+{
+  Camera.PTZZoom(InstanceName, "tele");
+}
+
+RELEASE Zoom_Tele
+{
+  SendZoomStop();
+}
+
+
+PUSH Zoom_Wide 
+{
+  Camera.PTZZoom(InstanceName, "wide");
+}
+
+RELEASE Zoom_Wide
+{
+  SendZoomStop();
+}
+
+PUSH Zoom_Stop 
+{
+  SendZoomStop();
+}
+
+PUSH Focus_Auto 
+{
+ Camera.PTZFocus(InstanceName, "Auto");
+}
+
+PUSH Focus_Manual 
+{
+  Camera.PTZFocus(InstanceName, "Manual");
+}
+
+PUSH Menu_On 
+{
+  Camera.PTZMenu(InstanceName, "On");
+}
+
+PUSH Menu_Off 
+{
+  Camera.PTZMenu(InstanceName, "Off");
+}
+
+PUSH Freed_On 
+{
+  Camera.PTZFreed(InstanceName, "On");
+}
+
+PUSH Freed_Off 
+{
+  Camera.PTZFreed(InstanceName, "Off");
+}
+
+PUSH Reset_Image 
+{
+  Camera.PTZReset(InstanceName);
+}
+  
+
+//
+// Advanced Commands
+//
+
+PUSH High_Resolution_On
+{
+  Camera.AdvancedHighResolution(InstanceName, "On");
+}
+
+PUSH High_Resolution_Off
+{
+  Camera.AdvancedHighResolution(InstanceName, "Off");
+}
+
+PUSH Video_Enhancement_On 
+{
+  Camera.AdvancedVideoEnhancement(InstanceName, "On");
+}
+
+PUSH Video_Enhancement_Off
+{
+  Camera.AdvancedVideoEnhancement(InstanceName, "Off");
+}
+
+PUSH Brightness_Low 
+{
+  Camera.Advanced(InstanceName, "CompLevel", 1);
+}
+
+PUSH Brightness_Med 
+{
+  Camera.Advanced(InstanceName, "CompLevel", 2);
+}
+
+PUSH Brightness_High 
+{
+  Camera.Advanced(InstanceName, "CompLevel", 3);
+}
+
+//
+// Exposure Commands
+//
+
+PUSH High_Sensitivity_On 
+{
+  Camera.ExposureHighSensitivity(InstanceName, "On");  
+}
+
+PUSH High_Sensitivity_Off 
+{
+  Camera.ExposureHighSensitivity(InstanceName, "Off");  
+}
+
+PUSH Slow_Shutter_On 
+{
+  Camera.ExposureSlowShutter(InstanceName, "On");  
+}
+
+PUSH Slow_Shutter_Off
+{
+  Camera.ExposureSlowShutter(InstanceName, "Off");
+}
+
+PUSH Exposure_Compensation_On 
+{
+  Camera.ExposureCompensation(InstanceName, "On");
+}
+
+PUSH Exposure_Compensation_Off 
+{
+  Camera.ExposureCompensation(InstanceName, "Off");
+}
+
+//
+// Presets
+//
+
+PUSH Preset_Save 
+{ 
+  Camera.SavePreset(preset);
+}
+
+PUSH Preset_Load 
+{
+  Camera.RecallPreset(preset);
+}
+
+//
+// ColorMatrix
+//
+
+CHANGE Blue_Gain
+{
+  Camera.ColorMatrix(InstanceName, "BlueGain", Blue_Gain);
+}
+
+CHANGE Blue_Hue 
+{
+  Camera.ColorMatrix(InstanceName, "BlueHue", Blue_Hue);
+}
+
+CHANGE Cyan_Gain 
+{
+  Camera.ColorMatrix(InstanceName, "CyanGain", Cyan_Gain);
+}
+
+CHANGE Cyan_Hue 
+{
+  Camera.ColorMatrix(InstanceName, "CyanHue", Cyan_Hue);
+}
+CHANGE Green_Gain 
+{
+  Camera.ColorMatrix(InstanceName, "GreenGain", Green_Gain);
+}
+
+CHANGE Green_Hue 
+{
+  Camera.ColorMatrix(InstanceName, "GreenHue", Green_Hue);
+}
+
+CHANGE Magenta_Gain 
+{
+  Camera.ColorMatrix(InstanceName, "MagentaGain", Magenta_Gain);
+}
+
+CHANGE Magenta_Hue 
+{
+  Camera.ColorMatrix(InstanceName, "MagentaHue", Magenta_Hue);
+}
+
+CHANGE Red_Gain 
+{
+  Camera.ColorMatrix(InstanceName, "RedGain", Red_Gain);
+}
+
+CHANGE Red_Hue 
+{
+  Camera.ColorMatrix(InstanceName, "RedHue", Red_Hue);
+}
+
+CHANGE Yellow_Gain 
+{
+  Camera.ColorMatrix(InstanceName, "YellowGain", Yellow_Gain);
+}
+
+CHANGE Yellow_Hue 
+{
+  Camera.ColorMatrix(InstanceName, "YellowHue", Yellow_Hue);
+}
+
+CHANGE Color_Gain 
+{
+  Camera.ColorGain(InstanceName, Color_Gain);
+}
+
+CHANGE Hue_Phase 
+{
+  Camera.HuePhase(InstanceName, Hue_Phase);
+}
+
+//
+// Advanced
+//
+
+CHANGE Gamma_Offset 
+{
+  Camera.Advanced(InstanceName, "GammaOffset", Gamma_Offset);
+}
+
+CHANGE Brightness_Level 
+{
+  Camera.Advanced(InstanceName, "CompLevel", Brightness_Level); 
+}
+
+CHANGE Brightness_Compensation 
+{
+  Camera.Advanced(InstanceName, "Brightness", Brightness_Compensation);
+}
+
+//
+// Exposure 
+//
+
+CHANGE Exposure_Mode 
+{
+  Camera.ExposureMode(InstanceName, Exposure_Mode);
+}
+
+CHANGE Exposure_Compensation_Level 
+{
+  Camera.ExposureCompensationLevel(InstanceName, Exposure_Compensation_Level);
+}
+
+CHANGE Auto_Exposure_Response 
+{
+  Camera.ExposureCompensationResponse(InstanceName, Auto_Exposure_Response);   
+}
+
+CHANGE Exposure_Brightness 
+{
+  Camera.ExposureBrightness(InstanceName, Exposure_Brightness);   
+}
+
+CHANGE Slow_Shutter_Limit 
+{
+  Camera.ExposureSlowShutterLimit(InstanceName, Slow_Shutter_Limit);
+}
+
+CHANGE Gain_Level 
+{
+  Camera.ExposureGainLevel(InstanceName, Gain_Level);
+}
+
+CHANGE Gain_Limit 
+{
+  Camera.ExposureGainLimit(InstanceName, Gain_Limit);
+}
+
+CHANGE Iris_Level 
+{
+  Camera.ExposureIrisLevel(InstanceName, Iris_Level);
+}
+
+CHANGE Shutter_Speed
+{
+  Camera.ExposureShutterSpeed(InstanceName, Shutter_Speed);
+}
+
+
+//
+// String Functions
+//  
+
+CHANGE Dynamic_IP 
+{
+  if(Dynamic_IP <> "") {
+    Camera.init(Dynamic_IP, Control_Port, PTZ_Port);
+  } else {
+    Camera.init(IP_Address, Control_Port, PTZ_Port);
+  } 
+}
+
+CHANGE Freed_IP 
+{
+  if(Freed_IP <> "") {
+    Camera.init(Freed_IP, Control_Port, PTZ_Port);
+  } else {
+    Camera.init(IP_Address, Control_Port, PTZ_Port);
+  } 
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+  WaitForInitializationComplete();
+  InstanceName = GetSymbolInstanceName();
+  module_enabled = 0;
+  
+
+  init();
+}
+
+                    

@@ -1,0 +1,155 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Control Concepts, Inc.
+System Name:
+System Number:
+Programmer: JJM
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+To be used with BSS BLU Generic Control Module v1.4.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+#USER_SIMPLSHARP_LIBRARY "BSSCommLIB"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_,_SKIP_,_SKIP_;
+DIGITAL_INPUT SetValue;
+ANALOG_INPUT Value_High, Value_Low;              
+DIGITAL_OUTPUT _SKIP_,_SKIP_,_SKIP_,_SKIP_;
+DIGITAL_OUTPUT _SKIP_;
+ANALOG_OUTPUT Value_High_FB, Value_Low_FB;
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER CommandProcessorID;
+INTEGER_PARAMETER VirtualDevice;
+INTEGER_PARAMETER StateVariable;
+STRING_PARAMETER ObjectID[3];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES CommandProcessorID
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 1d , 10d;
+   propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES VirtualDevice
+   propValidUnits = unitHex;
+   propDefaultUnit = unitHex;
+   propBounds = 0x0 , 0x3;
+   propDefaultValue = 0x3;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES StateVariable
+   propValidUnits = unitHex;
+   propDefaultUnit = unitHex;
+   propBounds = 0x0 , 0xffff;
+   propDefaultValue = 0x0;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES ObjectID
+   propValidUnits = unitString;
+   propDefaultUnit = unitString; 
+   propDefaultValue = "\x00\x00\x00";
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+GenericComponent component;
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+callback function OnUpdate(SIGNED_LONG_INTEGER Value)
+{
+	Value_High_FB = ((Value >> 16) & 0xffff);
+	Value_Low_FB = (Value & 0xffff);
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+THREADSAFE PUSH SetValue
+{
+	LONG_INTEGER Value;
+
+	Value = ((Value_High << 16) | Value_Low);
+
+	component.Set(Value);
+}
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    WaitForInitializationComplete();
+	RegisterDelegate(component, OnUpdate, OnUpdate); 
+
+	component.RegisterComponent(CommandProcessorID);
+	component.Configure(ObjectID, StateVariable, VirtualDevice);
+}
+
+

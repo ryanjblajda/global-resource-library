@@ -1,0 +1,77 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "Christie Display Control Processor - Basic"
+#HINT "controls christie display"
+#CATEGORY "46" "RBLAJDA_PROCESSOR" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#DEFINE_CONSTANT csPowerOnAck		"ALL:PON=A"
+#DEFINE_CONSTANT csPowerOffAck 		"ALL:POF=A"
+#DEFINE_CONSTANT csSourceResponse 	"ALL:SH"
+#DEFINE_CONSTANT csPowerOnCmd       "PON"
+#DEFINE_CONSTANT csPowerOffCmd      "POF"
+#DEFINE_CONSTANT csSourceCmd        "SH"
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+
+/**INPUTS**/
+DIGITAL_INPUT Power_On, Power_Off;
+ANALOG_INPUT Input_Selection;
+
+/**OUTPUTS**/
+STRING_OUTPUT  tx;
+
+/**PARAMETERS**/
+
+/**GLOBAL VARIABLES**/
+STRING gsSetCommand[25], gsGetCommand[25], gsSetCommandWithParams[25];
+
+/**FUNCTIONS**/
+FUNCTION MAIN()
+{
+	gsSetCommand = "K:ALL%s";
+	gsGetCommand = "K:ALL%s?";
+	gsSetCommandWithParams = "K:ALL%s%d";
+}
+
+PUSH Power_On
+{
+	makestring(tx, "K:ALL%s.", csPowerOnCmd);
+}
+
+PUSH Power_Off
+{
+	makestring(tx, "K:ALL%s.", csPowerOffCmd);
+}
+
+CHANGE Input_Selection
+{
+	integer actual_input;
+	actual_input = Input_Selection - 1;
+	makestring(tx, "K:ALL%s%d.", csSourceCmd, actual_input);
+}

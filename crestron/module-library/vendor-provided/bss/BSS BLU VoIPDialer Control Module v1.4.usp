@@ -1,0 +1,386 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Control Concepts, Inc.
+System Name
+System Number:
+Programmer: JJM
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#DEFINE_CONSTANT MAX_SPEEDDIALS 16
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+To be used with BSS BLU VoIPDialer Control Module v1.4.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+#USER_SIMPLSHARP_LIBRARY "BSSCommLIB"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_, _SKIP_;
+DIGITAL_INPUT Key_0, Key_1, Key_2, Key_3, Key_4, Key_5, Key_6, Key_7, Key_8, Key_9, Key_Pound, Key_Star, Key_Comma, Backspace, Clear, _SKIP_;
+DIGITAL_INPUT Hangup, Dial_Pickup, Redial, Hold, Reject, AutoAnswerToggle, SilentRingingToggle, _SKIP_;
+       
+DIGITAL_INPUT StoreKeypadText_as_Speeddial[MAX_SPEEDDIALS],_SKIP_;
+DIGITAL_INPUT Recall_Speeddial[MAX_SPEEDDIALS],_SKIP_;
+DIGITAL_INPUT StoreNameText_to_Speeddial[MAX_SPEEDDIALS],_SKIP_;
+       
+ANALOG_INPUT AutoAnswerRingCount, _SKIP_;
+STRING_INPUT NameText$[32], _SKIP_, _SKIP_;
+       
+DIGITAL_OUTPUT _SKIP_,_SKIP_, _SKIP_;
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT Is_OffHook_FB, Is_Ringing_FB, Is_AutoAnswer_FB, Is_OnHold_FB, LineStatus_FB, Is_SilentRinging_FB, _SKIP_, _SKIP_;
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_;
+
+ANALOG_OUTPUT AutoAnswerRingCount_FB, _SKIP_;
+
+STRING_OUTPUT Keypad_Text$, CallID_Text$, _SKIP_;
+STRING_OUTPUT PhoneNum_Speeddial$[MAX_SPEEDDIALS], _SKIP_;
+STRING_OUTPUT Name_Speeddial$[MAX_SPEEDDIALS];
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER CommandProcessorID;
+INTEGER_PARAMETER Line;
+STRING_PARAMETER ObjectID[3];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES CommandProcessorID
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 1d , 10d;
+   propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Line
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 1d , 2d;
+   propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES ObjectID
+   propValidUnits = unitString;
+   propDefaultUnit = unitString; 
+   propDefaultValue = "\x00\x00\x00";
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+VoIPDialerComponent component;
+VoIPKeypadKeys keypadKey;
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+callback Function OnRingingChange(Integer State)
+{
+	Is_Ringing_FB = State;
+}
+
+callback Function OnAutoAnswerChange(Integer State)
+{
+	Is_AutoAnswer_FB = State;
+}
+
+callback Function OnAutoAnswerRingCountChange(Integer RingCount)
+{
+	AutoAnswerRingCount_FB = RingCount;
+}
+
+callback Function OnHookStatusChange(Integer State)
+{
+	Is_OffHook_FB = State;
+}
+
+callback Function OnHoldStatusChange(Integer State)
+{
+	Is_OnHold_FB = State;
+}
+
+callback Function OnLineStatusChange(Integer State)
+{
+	LineStatus_FB = State;
+}
+
+callback Function OnRingTypeChange(Integer State)
+{
+	Is_SilentRinging_FB = (State = 0);
+}
+
+callback Function OnKeypadTextChange(String KeypadText)
+{
+	Keypad_Text$ = KeypadText;
+}
+
+callback Function OnCallerIDTextChange(String CallerID)
+{
+	CallID_Text$ = CallerID;
+}
+
+callback Function OnSpeeddialEntryChange(Integer Index, String PhoneNumber, String Name)
+{
+	IF (Index > 0 && Index <= MAX_SPEEDDIALS)
+	{
+		PhoneNum_Speeddial$[Index] = PhoneNumber;
+
+		IF (Name = "")
+			MakeString(Name_Speeddial$[Index],"SPD %d", Index);
+
+		ELSE
+			Name_Speeddial$[Index] = Name;
+	}
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+THREADSAFE PUSH Key_0
+{
+	keypadKey = VoIPKeypadKeys.Key_0;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_1
+{
+	keypadKey = VoIPKeypadKeys.Key_1;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_2
+{
+	keypadKey = VoIPKeypadKeys.Key_2;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_3
+{
+	keypadKey = VoIPKeypadKeys.Key_3;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_4
+{
+	keypadKey = VoIPKeypadKeys.Key_4;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_5
+{
+	keypadKey = VoIPKeypadKeys.Key_5;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_6
+{
+	keypadKey = VoIPKeypadKeys.Key_6;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_7
+{
+	keypadKey = VoIPKeypadKeys.Key_7;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_8
+{
+	keypadKey = VoIPKeypadKeys.Key_8;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_9
+{
+	keypadKey = VoIPKeypadKeys.Key_9;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_Pound
+{
+	keypadKey = VoIPKeypadKeys.Key_Pound;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_Star
+{
+	keypadKey = VoIPKeypadKeys.Key_Star;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Key_Comma
+{
+	keypadKey = VoIPKeypadKeys.Key_Comma;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Reject
+{
+	keypadKey = VoIPKeypadKeys.Key_Reject;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Backspace
+{
+	keypadKey = VoIPKeypadKeys.Key_Delete;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Clear
+{
+	keypadKey = VoIPKeypadKeys.Key_Clear;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Dial_Pickup
+{
+	IF (Is_OffHook_FB = FALSE)
+	{
+		keypadKey = VoIPKeypadKeys.Key_PickupHangUp;
+		component.Keypad(keypadKey);
+	}
+}
+
+THREADSAFE PUSH Hangup
+{
+	IF (Is_OffHook_FB = TRUE)
+	{
+		keypadKey = VoIPKeypadKeys.Key_PickupHangUp;
+		component.Keypad(keypadKey);
+	}
+}
+
+THREADSAFE PUSH Redial
+{
+	keypadKey = VoIPKeypadKeys.Key_Redial;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH Hold
+{
+	keypadKey = VoIPKeypadKeys.Key_Hold;
+	component.Keypad(keypadKey);
+}
+
+THREADSAFE PUSH AutoAnswerToggle
+{
+	IF (Is_AutoAnswer_FB)
+		component.AutoAnswerEnable(FALSE);
+	ELSE
+		component.AutoAnswerEnable(TRUE);
+}
+
+THREADSAFE CHANGE AutoAnswerRingCount
+{
+	component.AutoAnswerRingCount(AutoAnswerRingCount);
+	DELAY(30);
+}
+
+THREADSAFE PUSH SilentRingingToggle
+{
+	IF (Is_SilentRinging_FB)
+		component.SilentRingingEnable(TRUE);
+	ELSE
+		component.SilentRingingEnable(FALSE);
+}
+
+THREADSAFE PUSH StoreKeypadText_as_Speeddial
+{
+	component.StoreSpeeddial(GetLastModifiedArrayIndex());
+}
+
+THREADSAFE PUSH Recall_Speeddial
+{
+	component.RecallSpeeddial(GetLastModifiedArrayIndex());
+}
+
+THREADSAFE PUSH StoreNameText_to_Speeddial
+{
+	component.StoreSpeeddialName(GetLastModifiedArrayIndex(), NameText$);
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    WaitForInitializationComplete();
+	RegisterDelegate(component, OnRingingChange, OnRingingChange); 
+	RegisterDelegate(component, OnAutoAnswerChange, OnAutoAnswerChange); 
+	RegisterDelegate(component, OnAutoAnswerRingCountChange, OnAutoAnswerRingCountChange); 
+	RegisterDelegate(component, OnHookStatusChange, OnHookStatusChange); 
+	RegisterDelegate(component, OnHoldStatusChange, OnHoldStatusChange); 
+	RegisterDelegate(component, OnLineStatusChange, OnLineStatusChange); 
+	RegisterDelegate(component, OnRingTypeChange, OnRingTypeChange); 
+	RegisterDelegate(component, OnKeypadTextChange, OnKeypadTextChange); 
+	RegisterDelegate(component, OnCallerIDTextChange, OnCallerIDTextChange); 
+	RegisterDelegate(component, OnSpeeddialEntryChange, OnSpeeddialEntryChange); 
+
+	component.RegisterComponent(CommandProcessorID);
+	component.Configure(ObjectID, Line);
+}
+
+

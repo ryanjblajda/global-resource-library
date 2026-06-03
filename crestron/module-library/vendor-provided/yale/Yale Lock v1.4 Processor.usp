@@ -1,0 +1,1040 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Crestron Electronics
+System Name: Yale Lock
+System Number:
+Programmer: LP
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Yale Lock v1.4 Processor"
+// #HINT ""
+#DEFINE_CONSTANT	ciEvent		0x01
+#DEFINE_CONSTANT	ciCommand	0x02
+#DEFINE_CONSTANT	ciLocked	0xFF
+#DEFINE_CONSTANT	ciUnlocked	0x00
+#DEFINE_CONSTANT	ciNull		0x00
+#DEFINE_CONSTANT	ciMaxUserNumbers	20
+
+//#CATEGORY "0" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_NONVOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+To be used with the Yale Lock v1.4.umc module only.
+Not to be used as a stand alone module.
+#HELP_END
+
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Lock;
+DIGITAL_INPUT Unlock;
+DIGITAL_INPUT Selected_User_Delete;
+DIGITAL_INPUT Get_Configuration;
+DIGITAL_INPUT Get_Battery_Level;
+DIGITAL_INPUT Get_Product_Info;
+DIGITAL_INPUT Set_Relock_Time_Up;
+DIGITAL_INPUT Set_Relock_Time_Down;
+DIGITAL_INPUT Set_Wrong_Code_Limit_Up;
+DIGITAL_INPUT Set_Wrong_Code_Limit_Down;
+DIGITAL_INPUT Set_Shut_Down_Time_Up;
+DIGITAL_INPUT Set_Shut_Down_Time_Down;
+DIGITAL_INPUT Send_Parameters_Update;
+DIGITAL_INPUT Selected_User_Enable;
+DIGITAL_INPUT Selected_User_Disable;
+DIGITAL_INPUT Clear_User_Settings;
+STRING_INPUT To_Module_User_Number[3];
+STRING_INPUT To_Module_User_PIN[8];
+STRING_INPUT To_Module_User_Name[50];
+DIGITAL_INPUT To_Module_Set_User_PIN;
+DIGITAL_INPUT To_Module_User_Delete;
+DIGITAL_INPUT Set_Silent_Mode[3];
+DIGITAL_INPUT Set_Auto_Relock_Mode[2];
+DIGITAL_INPUT Set_Language[3];
+DIGITAL_INPUT Set_Operating_Mode[3];
+DIGITAL_INPUT Set_One_Touch_Locking_Mode[2];
+DIGITAL_INPUT Set_Privacy_Mode_Button_Mode[2];
+DIGITAL_INPUT Set_Inside_Cover_LED_Mode[2];
+ANALOG_INPUT Set_Relock_Time_In;
+ANALOG_INPUT Set_Wrong_Code_Limit_In;
+ANALOG_INPUT Set_Shut_Down_Time_In;
+STRING_INPUT From_Lock[100]; 
+STRING_INPUT User_Number_Text_In[30];
+STRING_INPUT User_Name_Text_In[30];
+STRING_INPUT User_PIN_Text_In[30];
+
+
+
+DIGITAL_OUTPUT Is_Unlocked;
+DIGITAL_OUTPUT Is_Locked;
+STRING_OUTPUT Battery_Level_Text;
+ANALOG_OUTPUT Battery_Level_Val;
+ANALOG_OUTPUT Locked_Reason_Val;
+ANALOG_OUTPUT Locked_Slot_Num_Val;
+ANALOG_OUTPUT Unlocked_Reason_Val;
+ANALOG_OUTPUT Unlocked_Slot_Num_Val;
+ANALOG_OUTPUT Silent_Mode_Status;
+ANALOG_OUTPUT Auto_Relock_Status;
+STRING_OUTPUT Auto_Relock_Time_Text;
+STRING_OUTPUT Wrong_Code_Limit_Text;
+ANALOG_OUTPUT Language_Status;
+STRING_OUTPUT Shut_Down_Time_Text;
+ANALOG_OUTPUT Operating_Mode_Status;
+ANALOG_OUTPUT Loop_Test_Mode_Status;
+ANALOG_OUTPUT One_Touch_Locking_Status;
+ANALOG_OUTPUT Privacy_Mode_Button_Status;
+ANALOG_OUTPUT Inside_Cover_LED_Status;
+STRING_OUTPUT Lock_Product_ID_Text;
+STRING_OUTPUT Lock_Firmware_Version_Text;
+
+DIGITAL_OUTPUT Master_PIN_Code_Was_Changed;
+
+DIGITAL_OUTPUT Showing_PIN;
+DIGITAL_OUTPUT Hiding_PIN;
+ANALOG_OUTPUT Alarm_Status;
+STRING_OUTPUT Slot_Num_Text;
+STRING_OUTPUT PIN_Text;
+STRING_OUTPUT Lock_Event_Text;
+STRING_OUTPUT User_Event_Text;
+STRING_OUTPUT Alarm_Event_Text;
+STRING_OUTPUT Lock_Type_Text;
+DIGITAL_OUTPUT Parameter_Changed;
+STRING_OUTPUT Current_Status_Text;
+STRING_OUTPUT Alarm_Status_Text;
+STRING_OUTPUT To_Lock;
+DIGITAL_OUTPUT Parameter_Report;
+DIGITAL_OUTPUT Lock_Status_Updated;
+STRING_OUTPUT User_Number_Text_Out;
+STRING_OUTPUT User_Name_Text_Out;
+STRING_OUTPUT User_PIN_Text_Out;
+DIGITAL_OUTPUT User_Is_Enabled;
+DIGITAL_OUTPUT User_Is_Disabled;
+
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+
+INTEGER iPacket, iEvent, iParameter, iSlot_Enable, iParameterFlag[13], iParameterValue[13], iSlotNumEnDis, iLockStatus;
+INTEGER Auto_Relock_Time_Val, Wrong_Code_Limit_Val, Shut_Down_Time_Value, iLockType, iProcessFromLock, iDelay;
+INTEGER iUserNumberIn;
+INTEGER iSlotNumVal, iSlotNumStatus;
+INTEGER iAddedSlotNumVal;
+INTEGER iDeletedSlotNumVal;
+INTEGER IReportSlotNumVal;
+INTEGER iAlarmSlotNumVal;
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING	sParameters[33], sStringToSend[33], sSlotNum[3], sPIN[8], sPINSend[8], sSetParameterData[23], sTrash[53], sPINText[8], sLockProductID[8], sSlotNumHold[3];
+STRING	sSlotNumManage[3], sPINManage[8], sPINSendManage[8];
+STRING	sUserNameManage[50], sUserName[250][20];
+
+
+STRING_PARAMETER Lock_Name[50];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+Function Update_PIN_Text()
+{
+	STRING sPINTemp[8];
+	INTEGER a;
+	if(Showing_PIN)
+		PIN_Text = sPIN;
+    else
+	{
+		clearbuffer(sPINTemp);
+		for (a = 1 to len(sPIN))
+		{
+			sPINTemp = sPINTemp + "*";
+		}
+		PIN_Text = sPINTemp;
+	}
+}
+
+Function LockEvent(INTEGER iLockStatus, INTEGER iLockCause, INTEGER iLockSlotNum)
+{
+	STRING sTextToSend[50];
+
+	Lock_Status_Updated = 1;
+	Lock_Status_Updated = 0;
+
+	clearbuffer(sTextToSend);
+
+	if(iLockStatus = 1)
+	{
+		makestring(sTextToSend, "Locked");
+		Current_Status_Text = "Locked";
+	}
+	else if(iLockStatus = 0)
+	{
+		makestring(sTextToSend, "Unlocked");
+		Current_Status_Text = "Unlocked";
+	}
+
+
+	if(iLockCause <> 0)		// if a lock event, not an RF update from lock
+	{
+		if(iLockCause = 1)
+			makestring(sTextToSend, "%s remotely", sTextToSend);
+		else if(iLockCause = 2)
+			makestring(sTextToSend, "%s by key or thumbturn", sTextToSend);
+		else if(iLockCause = 3)
+			makestring(sTextToSend, "%s by schedule", sTextToSend);
+		else if(iLockCause = 4)
+		{
+			if(len(sUserName[iLockSlotNum]))
+				makestring(sTextToSend, "%s by %s", sTextToSend, sUserName[iLockSlotNum]);
+			else
+				makestring(sTextToSend, "%s by User ID %d", sTextToSend, iLockSlotNum);
+		}
+		else if(iLockCause = 5)
+			makestring(sTextToSend, "%s by one-touch", sTextToSend);
+		else if(iLockCause = 6)
+			makestring(sTextToSend, "%s by auto-relock", sTextToSend);
+
+		Lock_Event_Text = Lock_Name + ": " + sTextToSend;
+	}
+}
+
+
+Function UserEvent(INTEGER iType, INTEGER iSlotValue, INTEGER iStatus, STRING sPINCode)
+{
+	STRING sTextToSend[50];
+	INTEGER a;
+	
+	clearbuffer(sTextToSend);
+	if(len(sUserName[iSlotValue]))
+	makestring(sTextToSend, "%s", sUserName[iSlotValue]);
+   	else
+	makestring(sTextToSend, "User %d", iSlotValue);
+
+	if(iType = 2)
+		makestring(sTextToSend, "%s settings were cleared", sTextToSend);
+	if(iType = 4)
+		makestring(sTextToSend, "%s PIN fail - duplicate PIN", sTextToSend);		
+
+	if(iStatus = 0x01)
+		makestring(sTextToSend, "%s is enabled", sTextToSend);
+	else if(iStatus = 0x03)
+		makestring(sTextToSend, "%s is disabled", sTextToSend);
+
+	if((iType <> 4) && (iType <> 2))	// if not an add fail duplicate PIN and not a deleted user
+	{
+		clearbuffer(sPINText);
+		if(sPINCode <> "\x00\x00\x00\x00\x00\x00\x00\x00")	// if PIN exists
+		{
+			for(a = 1 to 8)
+			{
+				if(byte(sPINCode, 1) = 0x00)	// if PIN is less than 8 characters
+					break;
+				else
+					makestring(sPINText, "%s%s", sPINText, chr(getc(sPINCode)));
+			}
+		}
+		else // PIN does not exist
+			makestring(sTextToSend, "%s no PIN assigned", sTextToSend);
+
+		if(iSlotValue = iUserNumberIn)
+		{
+			User_Number_Text_Out = itoa(iSlotValue);
+			if(len(sUserName[iSlotValue]))
+				User_Name_Text_Out = sUserName[iSlotValue];
+			else
+				User_Name_Text_Out = "User ID " + itoa(iSlotValue);
+			if(len(sPINText))
+				User_PIN_Text_Out = sPINText;
+			else
+				User_PIN_Text_Out = "None Assigned";
+			if(iStatus = 1)
+			{
+				User_Is_Disabled = 0;
+				User_Is_Enabled = 1;
+			}
+			else if(iStatus = 3)
+			{
+				User_Is_Enabled = 0;
+				User_Is_Disabled = 1;
+			}
+		}
+	}
+	User_Event_Text = Lock_Name + ": " + sTextToSend;
+}
+
+Function AlarmEvent(INTEGER iType)
+{
+	STRING sTextToSend[50];
+
+
+	if(iType = 0x00)
+	{
+		Alarm_Status_Text = "Alarm Cleared";
+		makestring(sTextToSend, "");
+	}	
+	else
+	{
+		Alarm_Status_Text = "Alarm Notice";
+
+		if(iType = 0x09)
+			makestring(sTextToSend, "Deadbolt jammed");
+		if(iType = 0x30)
+			makestring(sTextToSend, "Lock reset to factory defaults");
+		if(iType = 0x80)
+			makestring(sTextToSend, "RF module power cycled");
+		if(iType = 0xA2)
+			makestring(sTextToSend, "Keypad attempt limit reached");
+		if(iType = 0xA3)
+			makestring(sTextToSend, "Outside cover removed");
+		if(iType = 0xA7)
+			makestring(sTextToSend, "Low battery");
+		if(iType = 0xA8)
+			makestring(sTextToSend, "Critical battery");
+		if(iType = 0xA9)
+			makestring(sTextToSend, "Battery too low to operate lock");
+		Alarm_Event_Text =  Lock_Name + ": " + sTextToSend;
+	}
+}
+
+Function ValueIncrement()
+{
+	iDelay = 25;
+	wait(300, Increment1)
+		iDelay = 10;
+	wait(600, Increment2)
+		iDelay = 1;
+}
+
+Function CancelValueIncrement()
+{
+	cancelwait(Increment1);
+	cancelwait(Increment2);
+}
+
+Function GetUserNumberStatus(INTEGER iNumber)
+{
+	makestring(sStringToSend, "%s\x00\x00\x15\x01%s", chr(ciCommand), chr(iNumber));
+	To_Lock = sStringToSend;
+}
+
+Function SetPIN(STRING sPIN)
+{
+	INTEGER a;
+	STRING sPINFormatted[8];
+
+	clearbuffer(sPINFormatted);
+	for(a = 1 to (8 - len(sPIN)))
+	{
+		makestring(sPINFormatted, "%s%s", sPINFormatted, "\x00");
+	}
+	makestring(sPINFormatted, "%s%s", sPIN, sPINFormatted); 
+	makestring(sStringToSend, "%s\x00\x00\x12\x0A%s\x01%s", chr(ciCommand), chr(iUserNumberIn), sPINFormatted);
+	To_Lock = sStringToSend;
+}
+
+Function DeleteUser(INTEGER iNumber)
+{
+	makestring(sStringToSend, "%s\x00\x00\x13\x01%s", chr(ciCommand), chr(iNumber));
+	To_Lock = sStringToSend;
+}
+
+Function EnableUser(INTEGER iNumber)
+{
+	makestring(sStringToSend, "%s\x00\x00\x16\x02%s\x01", chr(ciCommand), chr(iNumber));
+	To_Lock = sStringToSend;
+}
+
+Function DisableUser(INTEGER iNumber)
+{
+	makestring(sStringToSend, "%s\x00\x00\x16\x02%s\x03", chr(ciCommand), chr(iNumber));
+	To_Lock = sStringToSend;
+}
+
+
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+CHANGE From_Lock
+{
+	INTEGER a;
+
+	if(iProcessFromLock = 0)
+	{
+		iProcessFromLock = 1;
+	
+		iPacket = byte(From_Lock, 1);				// packet type
+		if(iPacket = ciEvent)
+		{
+			iPacket = byte(From_Lock, 2);			// status
+			if(iPacket = 0xFF)
+			{
+				Is_Unlocked = 0;
+				Is_Locked = 1;
+				iLockStatus = 1;
+				Unlocked_Reason_Val = 0;
+				LockEvent(iLockStatus, 0, 0);
+			}
+			else if(iPacket = 0x00)
+			{
+				Is_Locked = 0;
+				Is_Unlocked = 1;
+				iLockStatus = 0;
+				Locked_Reason_Val = 0;
+				LockEvent(iLockStatus, 0, 0);
+
+			}
+			else
+			{
+				Is_Locked = 0;
+				Is_Unlocked = 1;
+				iLockStatus = 0;
+				LockEvent(iLockStatus, 0, 0);		
+
+			}
+			Battery_Level_Val = byte(From_Lock, 3);	// battery level
+			Battery_Level_Text = itoa(byte(From_Lock, 3)) + "%";	// battery level
+			iEvent = byte(From_Lock, 4);			// event
+			iPacket = byte(From_Lock, 5);			// data length
+			sParameters = mid(From_Lock, 6, iPacket);		// parameters
+			sTrash = removebylength(iPacket + 5, From_Lock);
+			if(iEvent = 0x01)						// lock event
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				Is_Unlocked = 0;
+				Is_Locked = 1;
+				iLockStatus = 1;
+				Locked_Reason_Val = byte(sParameters, 1);
+				if(Locked_Reason_Val = 4)
+					Locked_Slot_Num_Val = byte(sParameters, 2);
+				else
+					Locked_Slot_Num_Val = 0;
+				LockEvent(iLockStatus, Locked_Reason_Val, Locked_Slot_Num_Val);
+			}
+			else if(iEvent = 0x02)					// unlock event
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				Is_Locked = 0;
+				Is_Unlocked = 1;
+				iLockStatus = 0;
+				Unlocked_Reason_Val = byte(sParameters, 1);
+				if(Unlocked_Reason_Val = 4)
+					Unlocked_Slot_Num_Val = byte(sParameters, 2);
+				else
+					Unlocked_Slot_Num_Val = 0;
+				LockEvent(iLockStatus, Unlocked_Reason_Val, Unlocked_Slot_Num_Val);
+			}
+			else if(iEvent = 0x19)					// report config parameters
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				Parameter_Changed = 0;	
+				Parameter_Report = 1;
+				Parameter_Report = 0;
+				while(len(sParameters))
+				{
+					iParameter = getc(sParameters);
+					cswitch(iParameter)
+					{
+						case(0x01):
+						{
+							Silent_Mode_Status = getc(sParameters);
+							break;
+						}
+						case(0x02):
+						{
+							Auto_Relock_Status = getc(sParameters);
+							break;
+						}
+						case(0x03):
+						{
+							Auto_Relock_Time_Val = getc(sParameters);
+							Auto_Relock_Time_Text = itoa(Auto_Relock_Time_Val) + "s";
+							break;
+						}
+						case(0x04):
+						{
+							Wrong_Code_Limit_Val = getc(sParameters);
+							Wrong_Code_Limit_Text = itoa(Wrong_Code_Limit_Val);
+							break;
+						}
+						case(0x05):
+						{
+							Language_Status = getc(sParameters);
+							break;
+						}
+						case(0x07):
+						{
+							Shut_Down_Time_Value = getc(sParameters);
+							Shut_Down_Time_Text = itoa(Shut_Down_Time_Value) + "s";
+							break;
+						}
+						case(0x08):
+						{
+							Operating_Mode_Status = getc(sParameters);
+							break;
+						}
+						case(0x0A):
+						{
+							Loop_Test_Mode_Status = getc(sParameters);
+							break;
+						}
+						case(0x0B):
+						{
+							One_Touch_Locking_Status = getc(sParameters);
+							break;
+						}
+						case(0x0C):
+						{
+							Privacy_Mode_Button_Status = getc(sParameters);
+							break;
+						}
+						case(0x0D):
+						{
+							Inside_Cover_LED_Status = getc(sParameters);
+							break;
+						}
+						default:
+						{
+                         	sTrash = removebylength(1, sParameters);	// not using this parameter, remove associated data
+						}
+					}
+				}
+			}
+			else if(iEvent = 0x1B)				// report product info
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				iLockType = getc(sParameters);
+				switch(iLockType)
+				{
+					case(0x01):
+						Lock_Type_Text = "Cap touch lever";
+					case(0x02):
+						Lock_Type_Text = "Cap touch deadbolt";
+					case(0x03):
+						Lock_Type_Text = "Keypad lever";
+					case(0x04):
+						Lock_Type_Text = "Keypad deadbolt";
+				}
+				sLockProductID = removebylength(4, sParameters);	// lock product ID, 4 bytes hex
+				for(a = 1 to 4)
+					makestring(sLockProductID, "%s%s", sLockProductID, itohex(getc(sLockProductID)));		// lock product ID, 8 bytes ASCII
+				Lock_Product_ID_Text = sLockProductID;
+				makestring(Lock_Firmware_Version_Text, "%d.%d", byte(sParameters, 1) / 16, byte(sParameters, 1) mod 16);
+			}
+			else if(iEvent = 0x41)				// user added
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				iAddedSlotNumVal = getc(sParameters);
+				iSlotNumStatus = getc(sParameters);
+				UserEvent(1, iAddedSlotNumVal, iSlotNumStatus, sParameters);
+			}
+			else if(iEvent = 0x42)				// user deleted
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				iDeletedSlotNumVal = getc(sParameters);
+				UserEvent(2, iDeletedSlotNumVal, 0, "");
+			}
+			else if(iEvent = 0x43)				// report user status and PIN
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				iSlotNumVal = getc(sParameters);;
+				IReportSlotNumVal = iSlotNumVal;
+				iSlotNumStatus = getc(sParameters);
+				UserEvent(3, IReportSlotNumVal, iSlotNumStatus, sParameters);
+			}
+			else if(iEvent = 0x44)				// master pin code changed
+			{
+				Master_PIN_Code_Was_Changed = 1;
+				Lock_Event_Text = "Master PIN has been changed";
+			}
+			else if(iEvent = 0x81)				// alarm
+			{
+				Master_PIN_Code_Was_Changed = 0;
+				Alarm_Status = getc(sParameters);
+				if(Alarm_Status = 0x71)			// user add fail - already exists
+				{
+					iAlarmSlotNumVal = getc(sParameters);
+					UserEvent(4, iAlarmSlotNumVal, 0, "");
+				}
+				else	
+					AlarmEvent(Alarm_Status); 
+				Locked_Reason_Val = 0;
+				Unlocked_Reason_Val = 0;
+			}
+		}
+		iProcessFromLock = 0;
+	}
+} 
+
+PUSH Lock
+{
+	makestring(sStringToSend, "%s\x00\x00\x01\x00", chr(ciCommand));
+	To_Lock = sStringToSend;
+}
+
+PUSH Unlock
+{
+	makestring(sStringToSend, "%s\x00\x00\x02\x00", chr(ciCommand));
+	To_Lock = sStringToSend;
+}
+
+CHANGE To_Module_User_Number	// user ID from module to auto-assign user ID properties
+{
+	sSlotNumManage = To_Module_User_Number;
+}
+
+CHANGE To_Module_User_Name		// user name from module to auto-assign user ID properties
+{
+	sUserNameManage = To_Module_User_Name;
+}
+
+CHANGE To_Module_User_PIN		// user PIN from module to auto-assign user ID properties
+{
+	INTEGER a;
+	sPINManage = To_Module_User_PIN;
+	clearbuffer(sPINSendManage);
+	for(a = 1 to (8 - len(sPINManage)))
+	{
+		makestring(sPINSendManage, "%s%s", sPINSendManage, "\x00");
+	}
+	makestring(sPINSendManage, "%s%s", sPINManage, sPINSendManage); 
+}
+
+PUSH To_Module_Set_User_PIN		// set user PIN from module to auto-assign user ID properties
+{
+	if(atoi(sSlotNumManage) > 0 && atoi(sSlotNumManage) < 251 && len(sPINManage) > 3)	
+	{
+		makestring(sStringToSend, "%s\x00\x00\x12\x0A%s\x01%s", chr(ciCommand), chr(atoi(sSlotNumManage)), sPINSendManage);
+		To_Lock = sStringToSend;
+		sUserName[atoi(sSlotNumManage)] = sUserNameManage;
+	}
+}
+
+PUSH To_Module_User_Delete		// delete user from module to clear out user ID properties
+{
+	if(atoi(sSlotNumManage) > 0 && atoi(sSlotNumManage) < 251)
+	{
+		makestring(sStringToSend, "%s\x00\x00\x13\x01%s", chr(ciCommand), chr(atoi(sSlotNumManage)));
+		To_Lock = sStringToSend;
+		clearbuffer(sUserName[atoi(sSlotNumManage)]);
+	}
+}
+
+PUSH Get_Configuration	// get the lock's parameters (volume, auto-relock, etc.)
+{
+	makestring(sStringToSend, "%s\x00\x00\x19\x00", chr(ciCommand));
+	To_Lock = sStringToSend;
+}
+
+PUSH Get_Battery_Level	// get the lock's battery level, will also clear alarm if latched high
+{
+	makestring(sStringToSend, "%s\x00\x00\x1A\x00", chr(ciCommand));
+	To_Lock = sStringToSend;
+}
+
+PUSH Get_Product_Info	// get the lock's product information (lock type, firmware, etc.)
+{
+	makestring(sStringToSend, "%s\x00\x00\x1B\x00", chr(ciCommand));
+	To_Lock = sStringToSend;
+}
+
+PUSH Set_Silent_Mode
+{
+	iParameterFlag[1] = 1;
+	Silent_Mode_Status = getlastmodifiedarrayindex();
+	iParameterValue[1] = Silent_Mode_Status;
+	Parameter_Changed = 1;
+}
+		
+PUSH Set_Auto_Relock_Mode
+{
+	iParameterFlag[2] = 1;
+	switch(getlastmodifiedarrayindex())
+	{
+		case(1):
+			Auto_Relock_Status  = 0xFF;
+		case(2):
+			Auto_Relock_Status  = 0x00;
+	}
+	iParameterValue[2] = Auto_Relock_Status ;
+	Parameter_Changed = 1;
+}
+		
+THREADSAFE PUSH Set_Relock_Time_Up
+{
+	iParameterFlag[3] = 1;
+	Parameter_Changed = 1;
+	CancelValueIncrement();
+	ValueIncrement();	
+	while(Set_Relock_Time_Up)
+	{
+		if(Auto_Relock_Time_Val > 255)
+			Auto_Relock_Time_Val = 255;
+		else if(Auto_Relock_Time_Val < 255)
+			Auto_Relock_Time_Val = Auto_Relock_Time_Val + 1;
+		Auto_Relock_Time_Text = itoa(Auto_Relock_Time_Val) + "s";
+		delay(iDelay);
+	}
+	iParameterValue[3] = Auto_Relock_Time_Val;
+}
+
+THREADSAFE PUSH Set_Relock_Time_Down
+{
+	iParameterFlag[3] = 1;
+	Parameter_Changed = 1;
+	CancelValueIncrement();
+	ValueIncrement();	
+	while(Set_Relock_Time_Down)
+	{
+		if(Auto_Relock_Time_Val < 5)
+			Auto_Relock_Time_Val = 5;
+		else if(Auto_Relock_Time_Val > 5)
+			Auto_Relock_Time_Val = Auto_Relock_Time_Val - 1;
+		Auto_Relock_Time_Text = itoa(Auto_Relock_Time_Val) + "s";
+		delay(iDelay);
+	}
+	iParameterValue[3] = Auto_Relock_Time_Val;
+}
+
+CHANGE Set_Relock_Time_In
+{
+	iParameterFlag[3] = 1;
+	Parameter_Changed = 1;
+	Auto_Relock_Time_Val = Set_Relock_Time_In;
+	Auto_Relock_Time_Text = itoa(Auto_Relock_Time_Val) + "s";
+	iParameterValue[3] = Auto_Relock_Time_Val;
+}
+
+THREADSAFE PUSH Set_Wrong_Code_Limit_Up
+{
+	iParameterFlag[4] = 1;
+	while(Set_Wrong_Code_Limit_Up)
+	{
+		if(Wrong_Code_Limit_Val > 7)
+			Wrong_Code_Limit_Val = 7;
+		else if(Wrong_Code_Limit_Val < 7)
+			Wrong_Code_Limit_Val = Wrong_Code_Limit_Val + 1;
+		Wrong_Code_Limit_Text = itoa(Wrong_Code_Limit_Val);
+		delay(20);
+	}	
+	iParameterValue[4] = Wrong_Code_Limit_Val;
+	Parameter_Changed = 1;
+}
+
+THREADSAFE PUSH Set_Wrong_Code_Limit_Down
+{
+	iParameterFlag[4] = 1;
+	Parameter_Changed = 1;
+	while(Set_Wrong_Code_Limit_Down)
+	{
+		if(Wrong_Code_Limit_Val < 1)
+			Wrong_Code_Limit_Val = 1;
+		else if(Wrong_Code_Limit_Val > 1)
+			Wrong_Code_Limit_Val = Wrong_Code_Limit_Val - 1;
+		Wrong_Code_Limit_Text = itoa(Wrong_Code_Limit_Val);
+		delay(20);
+	}
+	iParameterValue[4] = Wrong_Code_Limit_Val;
+}
+
+CHANGE Set_Wrong_Code_Limit_In
+{
+
+	iParameterFlag[4] = 1;
+	Parameter_Changed = 1;
+	Wrong_Code_Limit_Val = Set_Wrong_Code_Limit_In;
+	Wrong_Code_Limit_Text = itoa(Wrong_Code_Limit_Val);
+	iParameterValue[4] = Wrong_Code_Limit_Val;
+}
+
+PUSH Set_Language
+{
+	iParameterFlag[5] = 1;
+	Language_Status = getlastmodifiedarrayindex();
+	iParameterValue[5] = Language_Status;
+	Parameter_Changed = 1;
+}
+
+THREADSAFE PUSH Set_Shut_Down_Time_Up
+{
+	iParameterFlag[7] = 1;
+	Parameter_Changed = 1;
+	CancelValueIncrement();
+	ValueIncrement();	
+	while(Set_Shut_Down_Time_Up)
+	{
+		if(Shut_Down_Time_Value > 255)
+			Shut_Down_Time_Value = 255;
+		else if(Shut_Down_Time_Value < 255)
+			Shut_Down_Time_Value = Shut_Down_Time_Value + 1;
+		Shut_Down_Time_Text = itoa(Shut_Down_Time_Value) + "s";
+		delay(iDelay);
+	}
+	iParameterValue[7] = Shut_Down_Time_Value;
+}
+
+THREADSAFE PUSH Set_Shut_Down_Time_Down
+{
+	iParameterFlag[7] = 1;
+	Parameter_Changed = 1;
+	CancelValueIncrement();
+	ValueIncrement();	
+	while(Set_Shut_Down_Time_Down)
+	{
+		if(Shut_Down_Time_Value < 1)
+			Shut_Down_Time_Value = 1;
+		else if(Shut_Down_Time_Value > 1)
+			Shut_Down_Time_Value = Shut_Down_Time_Value - 1;
+		Shut_Down_Time_Text = itoa(Shut_Down_Time_Value) + "s";
+		delay(iDelay);
+	}
+	iParameterValue[7] = Shut_Down_Time_Value;
+}
+
+CHANGE Set_Shut_Down_Time_In
+{
+	iParameterFlag[7] = 1;
+	Parameter_Changed = 1;
+	Shut_Down_Time_Value = Set_Shut_Down_Time_In;
+	Shut_Down_Time_Text = itoa(Shut_Down_Time_Value) + "s";
+	iParameterValue[7] = Shut_Down_Time_Value;
+}
+
+PUSH Set_Operating_Mode
+{
+	iParameterFlag[8] = 1;
+	switch(getlastmodifiedarrayindex())
+	{
+		case(1):
+			Operating_Mode_Status = 0x00;
+		case(2):
+			Operating_Mode_Status = 0x01;
+		case(3):
+			Operating_Mode_Status = 0x02;
+		case(4):
+			Operating_Mode_Status = 0x03;
+	}
+	iParameterValue[8] = Operating_Mode_Status;
+	Parameter_Changed = 1;
+}
+
+PUSH Set_One_Touch_Locking_Mode
+{
+	iParameterFlag[11] = 1;
+	switch(getlastmodifiedarrayindex())
+	{
+		case(1):
+			One_Touch_Locking_Status  = 0xFF;
+		case(2):
+			One_Touch_Locking_Status  = 0x00;
+	}
+	iParameterValue[11] = One_Touch_Locking_Status;
+	Parameter_Changed = 1;
+}
+		
+PUSH Set_Privacy_Mode_Button_Mode
+{
+	iParameterFlag[12] = 1;
+	switch(getlastmodifiedarrayindex())
+	{
+		case(1):
+			Privacy_Mode_Button_Status  = 0xFF;
+		case(2):
+			Privacy_Mode_Button_Status  = 0x00;
+	}
+	iParameterValue[12] = Privacy_Mode_Button_Status;
+	Parameter_Changed = 1;
+}
+		
+PUSH Set_Inside_Cover_LED_Mode
+{
+	iParameterFlag[13] = 1;
+	switch(getlastmodifiedarrayindex())
+	{
+		case(1):
+			Inside_Cover_LED_Status  = 0xFF;
+		case(2):
+			Inside_Cover_LED_Status  = 0x00;
+	}
+	iParameterValue[13] = Inside_Cover_LED_Status;
+	Parameter_Changed = 1;
+}
+		
+
+
+PUSH Send_Parameters_Update
+{
+	INTEGER a;
+
+	clearbuffer(sSetParameterData);
+	if(Parameter_Changed = 1)
+	{
+		for(a = 1 to 13)
+		{
+			if(iParameterFlag[a])		// if a parameter was adjusted, add to the command below
+				makestring(sSetParameterData, "%s%s%s", sSetParameterData, chr(a), chr(iParameterValue[a]));
+			iParameterFlag[a] = 0;
+		}
+
+		makestring(sStringToSend, "%s\x00\x00\x18%s%s", chr(ciCommand), chr(len(sSetParameterData)), sSetParameterData);
+		To_Lock = sStringToSend;
+		Parameter_Changed = 0;
+	}
+}
+
+
+CHANGE User_Number_Text_In		// user ID text from keyboard
+{
+	INTEGER a;
+	INTEGER iInvalid;
+	iInvalid = 0;
+	for(a = 1 to len(User_Number_Text_In))
+	{
+		if(byte(User_Number_Text_In, a) < 48 || byte(User_Number_Text_In, a) > 57)  // if not a complete number
+		{
+			iInvalid = 1;
+			break;
+		}
+	}
+	if(iInvalid = 1)
+	{
+		User_Event_Text = "PIN must be a number";
+	}
+	else if(atoi(User_Number_Text_In) > 0 && atoi(User_Number_Text_In) <= ciMaxUserNumbers)
+	{
+		iUserNumberIn = atoi(User_Number_Text_In);
+		GetUserNumberStatus(iUserNumberIn);
+	}
+	else
+		User_Event_Text = "Please select a User ID between 1 and " + itoa(ciMaxUserNumbers);
+}
+
+CHANGE User_Name_Text_In
+{
+	if(iUserNumberIn <> 0)
+	{
+		sUserName[iUserNumberIn] = User_Name_Text_In;
+		GetUserNumberStatus(iUserNumberIn);
+	}
+}
+
+CHANGE User_PIN_Text_In
+{
+	INTEGER iInvalid;
+	INTEGER a;
+
+	if(iUserNumberIn <> 0)
+	{
+		iInvalid = 0;
+		for(a = 1 to len(User_PIN_Text_In))
+		{
+			if(byte(User_PIN_Text_In, a) < 48 || byte(User_PIN_Text_In, a) > 57)
+			{
+				iInvalid = 1;
+				break;
+			}
+		}
+		if(len(User_PIN_Text_In) > 8 || len(User_PIN_Text_In) < 4)
+			iInvalid = 1;
+		if(iInvalid = 1)
+			User_Event_Text = "PIN must have 4-8 digits";
+		else
+		{
+			SetPIN(User_Pin_Text_In);
+		}
+	}
+}
+
+PUSH Selected_User_Delete
+{
+	if(iUserNumberIn <> 0)
+	{
+		clearbuffer(sUserName[iUserNumberIn]);
+		DeleteUser(iUserNumberIn);
+		GetUserNumberStatus(iUserNumberIn);
+	}
+}
+
+PUSH Selected_User_Enable
+{
+	if(iUserNumberIn <> 0)
+	{
+		EnableUser(iUserNumberIn);
+		GetUserNumberStatus(iUserNumberIn);
+	}
+}
+
+PUSH Selected_User_Disable
+{
+	if(iUserNumberIn <> 0)
+	{
+		DisableUser(iUserNumberIn);
+		GetUserNumberStatus(iUserNumberIn);
+	}
+}
+
+PUSH Clear_User_Settings
+{
+	iUserNumberIn = 0;
+	User_Number_Text_Out = "";
+	User_Name_Text_Out = "";
+	User_PIN_Text_Out = "";
+	User_Is_Disabled = 0;
+	User_Is_Enabled = 0;
+}
+                                                 
+
+
+		
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	iProcessFromLock = 0;
+}
+
+
+

@@ -1,0 +1,87 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Serial Compare Via String Input v1 - Not Case Sensitive"
+#HINT "Checks If Multiple Strings Match Another Input String"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#DEFINE_CONSTANT MAXARRAYITEMS 256
+#DEFINE_CONSTANT MAXIGNORE 5
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+#HELP_END
+
+STRING_INPUT   StringToReference[MAXITEMS];
+STRING_INPUT   StringToCheck[MAXITEMS][MAXITEMS];
+
+ANALOG_OUTPUT  StringMatchAtIndex; 
+DIGITAL_OUTPUT _SKIP_, StringIsMatch[MAXITEMS];
+
+/* FUNCTIONS */
+
+/* GLOBAL VARIABLES */
+STRING gsReference[MAXITEMS];
+STRING gsStringsToCheck[MAXARRAYITEMS][MAXITEMS];
+
+/* EVENT HANDLERS */
+
+CHANGE StringToCheck 
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+    SetArray(StringIsMatch, OFF);
+
+	if (StringToCheck[iChanged] <> "") {
+		gsStringsToCheck[iChanged] = StringToCheck[iChanged];
+	
+		if(lower(gsReference) = lower(gsStringsToCheck[iChanged])) 
+		{
+			StringIsMatch[iChanged] = ON;
+			StringMatchAtIndex = iChanged;
+		}		
+		else { StringIsMatch[iChanged] = OFF; }
+	}
+	else { StringMatchAtIndex = 0; }
+}
+
+CHANGE StringToReference
+{
+	integer i;
+	
+	gsReference = StringToReference;
+
+	SetArray(StringIsMatch, OFF);
+
+	if (gsReference <> "") {
+		for(i = 1 to MAXITEMS)
+		{
+			if(lower(gsReference) = lower(gsStringsToCheck[i])) 
+			{
+				StringIsMatch[i] = ON;
+				StringMatchAtIndex = i;
+			}	
+			else StringIsMatch[i] = OFF;
+		}
+	}
+	else { StringMatchAtIndex = 0; }
+}

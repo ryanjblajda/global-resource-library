@@ -1,0 +1,469 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:  Richard Mullins
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "BirdDog Encoder Setup"
+// #HINT ""
+// #DEFINE_CONSTANT
+#CATEGORY "19" // Camera
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+#USER_SIMPLSHARP_LIBRARY "BirdDogDevice"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_,_SKIP_,Enable,_SKIP_,StreamOn,StreamOff,BandwidthManual,BandwidthNDI,NDIGroup_Enable,NDIGroup_Disable;
+DIGITAL_INPUT _SKIP_, NDIAudioMain,NDIAudioAnalog, NDIAudioMute,_SKIP_,BirdDogScreenSaver, BlackScreenSaver, CaptureScreenSaver;
+DIGITAL_INPUT _SKIP_,LoopTally_Enable,LoopTally_Disable,Tally_On,Tally_Off,Tally_VideoMode;
+DIGITAL_INPUT _SKIP_,VideoCSC_NoCSC, VideoCSC_RGB, VideoCSC_YVU, VideoCSC_YUV444, VideoCSC_YVU444,_SKIP_,Update;
+ANALOG_INPUT _SKIP_,VideoSampleRate, ColorDepth,BandwidthSelect;
+STRING_INPUT _SKIP_,VideoFormat[256],StreamName[256],NDIGroupName[256];
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT _SKIP_,_SKIP_,_SKIP_,Enable_FB,_SKIP_,StreamOn_FB,StreamOff_FB;
+DIGITAL_OUTPUT BandwidthManual_FB,BandwidthNDI_FB,NDIGroup_FB;
+DIGITAL_OUTPUT _SKIP_, NDIAudioMain_FB,NDIAudioAnalog_FB, NDIAudioMute_FB;
+DIGITAL_OUTPUT _SKIP_,BirdDogScreenSaver_FB, BlackScreenSaver_FB,CaptureScreenSaver_FB;
+DIGITAL_OUTPUT _SKIP_,LoopTally_FB,Tally_On_FB,Tally_Off_FB,Tally_VideoMode_FB;
+DIGITAL_OUTPUT _SKIP_,VideoCSC_NoCSC_FB, VideoCSC_RGB_FB,VideoCSC_YVU_FB,VideoCSC_YUV444_FB,VideoCSC_YVU444_FB;
+ANALOG_OUTPUT _SKIP_,Update_FB,_SKIP_,VideoSampleRate_FB, ColorDepth_FB,BandwidthSelect_FB;
+STRING_OUTPUT _SKIP_,VideoFormat_FB,StreamName_FB,NDIGroupName_FB;
+
+// ANALOG_OUTPUT 
+// STRING_OUTPUT 
+
+BirdDogDevice Encoder;
+
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER AutoUpdate,Control_Port;
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+STRING_PARAMETER IP_Address[32];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES AutoUpdate
+   propValidUnits = unitDecimal;
+   propDefaultValue = 1d;
+   propList = { 0d , "Off" } , { 1d , "On" };
+   propShortDescription = "Choose whether to use Update input (On) or Update on change (Off)";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Control_Port
+   propValidUnits = unitDecimal;
+   propDefaultValue = 8080d;
+   propShortDescription = "BirdDog Camera Control Port";
+#END_PARAMETER_PROPERTIES
+   
+
+#BEGIN_PARAMETER_PROPERTIES IP_Address
+   propValidUnits = unitString;
+   propDefaultValue = "192.168.1.100";
+   propShortDescription = "BirdDog Decoder IP Address";
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING InstanceName[32];
+STRING CurrentBandwidth[16],CurrentCSC[8],CurrentNDIAudio[32],CurrentScreensaver[16],CurrentTally[16];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+function init()
+{
+  //RegisterDelegate(Camera, UpdateCamera, UpdateState);
+  Encoder.init(IP_Address, Control_Port, 0);
+  Encoder.EncoderInit();
+  Encoder.GetEncoderData(InstanceName);
+}
+
+function UpdateBandwidthMode(string mode)
+{
+  trace("UpdateBandwidthMode: %s (Current: %s)", mode, mode);
+  if(mode = CurrentBandwidth) return;
+
+  trace("Clearing Bandwidth mode");
+  BandwidthManual_FB = 0;
+  BandwidthNDI_FB = 0;
+       
+  trace("Setting Bandwidth mode: %s", mode);
+  if(mode = "Manual") BandwidthManual_FB = 1;
+  if(mode = "NDIManaged") BandwidthNDI_FB = 1;
+
+  CurrentBandwidth = mode;
+}
+
+function UpdateColorDepth(string depth)
+{
+  if(depth = "8bit") ColorDepth_FB = 8;
+  if(depth = "10bit") ColorDepth_FB = 10;
+  if(depth = "12bit") ColorDepth_FB = 12;
+}
+
+function UpdateNDIAudio(string NDIaudio)
+{
+  trace("NDIAudio: %s", NDIaudio);
+  if(NDIaudio = CurrentNDIAudio) return;
+  
+  NDIAudioMain_FB = 0;
+  NDIAudioAnalog_FB = 0;
+  NDIAudioMute_FB = 0;
+
+  if(NDIaudio = "NDIAudioMain") NDIAudioMain_FB = 1;
+  if(NDIaudio = "NDIAudioAnalog") NDIAudioAnalog_FB = 1;
+  if(NDIaudio = "NDIAudioMute") NDIAudioMute_FB = 1;
+
+  CurrentNDIAudio = NDIaudio;
+}
+
+function UpdateScreensaver(string screensaver) 
+{
+  if(screensaver = CurrentScreensaver) return;
+   
+  BirdDogScreenSaver_FB = 0;
+  BlackScreenSaver_FB = 0;
+  CaptureScreenSaver_FB = 0;
+
+  if(screensaver = "BirdDogSS") BirdDogScreenSaver_FB = 1;
+  if(screensaver = "BlackSS") BlackScreenSaver_FB = 1;                                  
+  if(screensaver = "CaptureSS") CaptureScreenSaver_FB = 1;
+
+  CurrentScreensaver = screensaver;  
+}
+
+function UpdateTallyMode(string tally)
+{
+  if(tally = CurrentTally) return;
+
+  Tally_On_FB = 0;
+  Tally_Off_FB = 0;
+  Tally_VideoMode_FB = 0;
+
+  if(tally = "TallyOn") Tally_On_FB = 1;
+  if(tally = "TallyOff") Tally_Off_FB = 1;
+  if(tally = "VideoMode") Tally_VideoMode_FB = 1;
+
+  CurrentTally = tally;
+}
+                                                                         
+function UpdateCSC(string CSC) 
+{
+  if(CSC = CurrentCSC) return;
+
+  VideoCSC_NoCSC_FB = 0;
+  VideoCSC_RGB_FB = 0;
+  VideoCSC_YVU_FB = 0;
+  VideoCSC_YUV444_FB = 0;
+  VideoCSC_YVU444_FB = 0;
+                                     
+  if(CSC = "NoCSC") VideoCSC_NoCSC_FB = 1;
+  if(CSC = "RGB") VideoCSC_RGB_FB = 1;
+  if(CSC = "YVU") VideoCSC_YVU_FB = 1;
+  if(CSC = "YUV444") VideoCSC_YUV444_FB = 1;
+  if(CSC = "YVU444") VideoCSC_YVU444_FB = 1;
+
+  CurrentCSC = CSC;
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH Enable 
+{
+  Enable_FB = 1;
+  init();
+}
+
+RELEASE Enable 
+{
+  Enable_FB = 0;
+}
+
+PUSH Update
+{
+  Encoder.EncoderUpdate();
+}
+
+PUSH StreamOn
+{
+  Encoder.SetString("StreamToNetwork", "On");
+}
+ 
+PUSH StreamOff
+{
+  Encoder.SetString("StreamToNetwork", "Off");
+}
+
+PUSH BandwidthManual
+{
+  Encoder.SetString("BandwidthMode", "Manual");  
+}
+
+PUSH BandwidthNDI
+{
+  Encoder.SetString("BandwidthMode", "NDIManaged");  
+}
+
+PUSH NDIGroup_Enable
+{
+  Encoder.SetString("NDIGroup", "NDIGroupEn");  
+}
+
+PUSH NDIGroup_Disable
+{
+  Encoder.SetString("NDIGroup", "NDIGroupDis");  
+}
+
+//
+// NDI Audio
+//
+
+PUSH NDIAudioMain
+{
+  Encoder.SetString("NDIAudio", "NDIAudioMain");
+}
+
+PUSH NDIAudioAnalog
+{
+  Encoder.SetString("NDIAudio", "NDIAudioAnalog");
+}
+
+PUSH NDIAudioMute
+{
+  Encoder.SetString("NDIAudio", "NDIAudioMute");
+}
+
+//
+// ScreenSaver
+//     
+
+PUSH BirdDogScreenSaver 
+{
+  Encoder.SetString("ScreenSaver", "BirdDogSS");
+}
+
+PUSH BlackScreenSaver 
+{   
+  Encoder.SetString("ScreenSaverMode", "BlackSS");
+}
+
+PUSH CaptureScreenSaver
+{
+  Encoder.SetString("ScreenSaverMode", "CaptureSS");
+}
+
+//
+// Loop Tally
+//
+   
+
+PUSH LoopTally_Enable
+{
+  Encoder.SetString("LoopTally", "LoopTallyEn");
+}
+
+PUSH LoopTally_Disable
+{
+  Encoder.SetString("LoopTally", "LoopTallyDis");
+}
+
+PUSH Tally_On
+{
+  Encoder.SetString("TallyMode", "TallyOn");
+}
+
+PUSH Tally_Off
+{
+  Encoder.SetString("TallyMode", "TallyOff");
+}
+
+PUSH Tally_VideoMode
+{
+  Encoder.SetString("TallyMode", "VideoMode");
+}
+
+//
+// VideoMode SCS
+//
+PUSH VideoCSC_NoCSC
+{
+  Encoder.SetString("VideoCSC", "NoCSC");
+}
+
+PUSH VideoCSC_RGB
+{
+  Encoder.SetString("VideoCSC", "RGB");
+}
+
+PUSH VideoCSC_YVU
+{   
+  Encoder.SetString("VideoCSC", "YVU");
+}
+
+PUSH VideoCSC_YUV444
+{
+  Encoder.SetString("VideoCSC", "YUV444");
+}
+
+PUSH VideoCSC_YVU444
+{
+  Encoder.SetString("VideoCSC", "YVU444");
+}
+
+RELEASE StreamOn,StreamOff,BandwidthManual,BandwidthNDI,NDIGroup_Enable,NDIGroup_Disable,
+NDIAudioMain,NDIAudioAnalog, NDIAudioMute,BirdDogScreenSaver, BlackScreenSaver,
+CaptureScreenSaver,LoopTally_Enable,LoopTally_Disable,Tally_On,Tally_Off,Tally_VideoMode,
+VideoCSC_NoCSC, VideoCSC_RGB, VideoCSC_YVU, VideoCSC_YUV444, VideoCSC_YVU444
+{
+  Encoder.EncoderUpdate();
+}
+
+//
+// Analog Inputs
+//
+
+CHANGE VideoSampleRate
+{
+  Encoder.SetInt("VideoSampleRate", VideoSampleRate);
+}
+
+CHANGE ColorDepth
+{
+  if(ColorDepth <> 8 || ColorDepth <> 10 || ColorDepth <> 12) 
+  {
+    trace("ColorDepth value is out of range. Needs to be 8, 10 or 12");
+    return;
+  }
+  cswitch(ColorDepth) 
+  {
+    case(8):
+      Encoder.SetString("ColorDepth", "8bit");    
+    case(10):
+      Encoder.SetString("ColorDepth", "10bit");    
+    case(12):
+      Encoder.SetString("ColorDepth", "12bit");    
+  }
+}
+
+CHANGE BandwidthSelect
+{
+  if(BandwidthSelect < 60 || BandwidthSelect < 360) 
+  {
+    trace("Bandwidth Select value is out of range. Needs to be between 60 and 360");
+    return;
+  }
+  Encoder.SetInt("BandwidthSelect", BandwidthSelect);
+}
+
+//
+// String Inputs
+//
+
+CHANGE VideoFormat
+{
+  Encoder.SetString("VideoFormat", VideoFormat);
+}
+
+CHANGE StreamName
+{
+  Encoder.SetString("StreamName", StreamName);
+}
+
+CHANGE NDIGroupName
+{
+  Encoder.SetString("NDIGroupName", NDIGroupName);
+}
+
+EVENTHANDLER onUpdateEncoder(EncoderEventArgs e) 
+{
+  StreamOn_FB = e.StreamToNetwork;
+  LoopTally_FB = e.LoopTally;
+  VideoSampleRate_FB = e.VideoSampleRate;
+  BandwidthSelect_FB = e.BandwidthSelect;
+  NDIGroup_FB = e.NDIGroup;
+
+  UpdateBandwidthMode(e.BandwidthMode);
+  UpdateColorDepth(e.ColorBitDepth);
+  UpdateNDIAudio(e.NDIAudio);
+  UpdateScreensaver(e.ScreenSaverMode);
+  UpdateTallyMode(e.TallyMode);
+  UpdateCSC(e.VideoCSC);
+  
+
+  makestring(VideoFormat_FB, "%s", e.VideoFormat);
+  makestring(StreamName_FB, "%s", e.StreamName);
+  makestring(NDIGroupName_FB, "%s", e.NDIGroupName);
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+  WaitForInitializationComplete();
+  InstanceName=GetSymbolInstanceName();
+
+  RegisterEvent(BirddogEncoder, UpdateEncoder, onUpdateEncoder);
+}
+

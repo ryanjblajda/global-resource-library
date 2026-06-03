@@ -1,0 +1,56 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+#SYMBOL_NAME "smart display volume handler"
+#HINT ""
+#CATEGORY "46" "RBLAJDA_PROCESSOR" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+
+//#DEFINE_CONSTANT DEBUG 1
+
+STRING_INPUT rx[255];
+ANALOG_OUTPUT volume_int;
+STRING_OUTPUT volume_string;
+
+CHANGE rx {
+	string volumeString[3];
+
+	if(find("volume", rx) <> 0 && find("=", rx) <> 0) { //if we found the volume response & the = sign try getting a volume string
+		volumeString = mid(rx, find("=", rx) + 1, len(rx));
+		#IF_DEFINED DEBUG
+			PRINT("%s", volumeString);
+		#ENDIF
+		
+		#IF_SERIES3 
+        	try {
+				volume_int = atoi(volumeString);
+			}
+			catch {
+				print("error converting string to int");
+			}
+		#ENDIF
+		#IF_SERIES4
+            try {
+				volume_int = atoi(volumeString);
+			}
+			catch {
+				print("error converting string to int");
+			}
+		#ENDIF
+		#IF_SERIES2
+			volume_int = atoi(volumeString);
+		#ENDIF
+		volume_string = volumeString;
+	}
+}

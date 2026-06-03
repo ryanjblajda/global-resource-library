@@ -1,0 +1,77 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "String Remove"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#ANALOG_SERIAL_EXPAND INPUTSWITHOUTPUTS
+#DEFINE_CONSTANT ARRAYMAX 10
+
+#HELP_BEGIN
+#HELP_END
+
+/*** INPUTS ***/
+STRING_INPUT String_To_Remove[32], String_To_Affect[ARRAYMAX][32];
+/*** OUTPUTS ***/
+STRING_OUTPUT _SKIP_, Result[ARRAYMAX];
+/*** PARAMETERS ***/
+/*** GLOBAL VARIABLES ***/
+STRING gsToAffect[ARRAYMAX][32];
+STRING gsToRemove[32];
+/*** FUNCTIONS ***/
+STRING_FUNCTION RemoveString(STRING target, STRING pattern)
+{
+	integer startPos;
+	string beginning[16];
+	string end[16];
+	string result[32];
+	startPos = find(pattern, target);
+	if (startPos > 0)
+	{
+		beginning = left(target, startPos - 1);
+		if ((startPos - 1) + len(pattern) < len(target)) {
+			end = mid(target, startPos + len(pattern), len(target));
+		}
+		
+		if (len(beginning) > 0) result = beginning;
+		if (len(end) > 0) result = result + end;
+	}
+	else {
+		result = target;
+	}
+    //print("start: %d, beginning: %s, end: %s, result: %s, target: %s, pattern: %s\r\n", startPos, beginning, end, result, target, pattern);
+	return (result);
+}
+/*** EVENT HANDLERS ***/
+CHANGE String_To_Affect
+{
+	INTEGER changed;
+	changed = getLastModifiedArrayIndex();
+	gsToAffect[changed] = String_To_Affect[changed];
+
+	Result[changed] = RemoveString(gsToAffect[changed], gsToRemove);
+}
+
+CHANGE String_To_Remove
+{
+	integer i;
+	gsToRemove = String_To_Remove;
+	for (i = 1 to ARRAYMAX) 
+	{
+		Result[i] = RemoveString(gsToAffect[i], gsToRemove);
+	}
+}
+
+
+/*** Main() ***/
+Function Main()
+{
+	waitForInitializationComplete();
+}

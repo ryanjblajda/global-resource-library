@@ -1,0 +1,87 @@
+#CATEGORY "46" "Visual Commands" // Custom
+#USER_SIMPLSHARP_LIBRARY "VisualCommandsSharp"
+
+// ----- COMPILER DIRECTIVES ----- 
+//#DEFINE_CONSTANT cHTTP	5
+// ----- LIBRARIES -----
+
+
+// ----- I/O -----
+DIGITAL_INPUT Enable_FB;
+STRING_INPUT IP_Address$[254];
+STRING_INPUT PortNumber$[5];
+STRING_INPUT From_Module$[254];
+
+DIGITAL_OUTPUT Connected_Fb;
+STRING_OUTPUT To_Module$;
+ANALOG_OUTPUT Connection_Status;
+
+// ----- STRUCTURES -----
+  
+  
+// ----- GLOBAL VARIABLES -----
+TcpClientClass client;
+integer active;
+ 
+// ----- FUNCTIONS -----
+
+EventHandler OnlineEventHandler(TcpClientClass o, OnlineEventArgs e)
+{
+ 	if(e.IsConnected)
+ 	{
+ 	  	Connection_Status = 2;
+ 	  	Connected_Fb = 1;
+ 	}
+ 	else
+ 	{
+ 	 	Connection_Status = 0;
+ 	 	Connected_Fb = 0;
+ 	}
+}
+
+EventHandler OnReceiveDataHandler(TcpClientClass o, DataEventArgs e)
+{
+ 	To_Module$ = e.Data;
+}
+
+Function Connect()
+{
+ 	if(!active && Enable_FB && len(IP_Address$) > 0 && len(PortNumber$) > 0)
+ 	{
+ 	  	active = 1;
+ 	  	client.Initialize(IP_Address$, atoi(PortNumber$));
+ 	  	client.Connect();
+ 	}
+}
+
+CHANGE From_Module$
+{
+ 	client.Send(From_Module$);
+}
+
+
+PUSH Enable_FB
+{
+ 	Connect();
+}
+RELEASE Enable_FB
+{
+  	active = 0;
+  	client.Disconnect();
+}
+
+CHANGE IP_Address$, PortNumber$
+{
+ 	Connect();
+}
+
+
+function Main()
+{
+ 	active = 0;
+ 	waitforinitializationcomplete();
+ 	
+ 	delay(500);
+ 	RegisterEvent(client, OnlineEvent, OnlineEventHandler); 
+ 	RegisterEvent(client, OnReceiveData, OnReceiveDataHandler);
+}

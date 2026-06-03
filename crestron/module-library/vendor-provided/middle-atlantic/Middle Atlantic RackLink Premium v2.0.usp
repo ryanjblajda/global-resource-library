@@ -1,0 +1,852 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name:
+System Number:
+Programmer: DGG
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+
+#SYMBOL_NAME "Middle Atlantic RackLink Premium v2.0"
+#CATEGORY "46" "Middle Atlantic"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+// MAX STUFF
+#DEFINE_CONSTANT MAX_STRING_LENGTH 255
+#DEFINE_CONSTANT MAX_OUTLETS 16
+#DEFINE_CONSTANT MAX_DRY_CONTACTS 16
+#DEFINE_CONSTANT MAX_LOG_ENTRIES 10
+
+// VALUE RESET
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE	 0
+
+// OTHER STUFF
+#DEFINE_CONSTANT TRUE  1
+#DEFINE_CONSTANT FALSE 0
+
+#HELP_BEGIN
+To be used with Middle Atlantic RackLink Premium v1.0.umc module only. Not to be used as a stand-alone module. 
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "MiddleAtlanticRackLinkPremium"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+
+// INPUTS 
+
+DIGITAL_INPUT  Reinitialize, Enable_Debug, Enable_Polling_PDU, Enable_Polling_Outlets_State, Enable_Polling_Outlets_Info, 
+               Enable_Polling_Dry_Contacts, Select_All_Outlets, Clear_All_Outlets, Select_All_Dry_Contacts, Clear_All_Dry_Contacts, 
+               Refresh_Log, Clear_Log, Log_Page_Top, Log_Page_Up, Log_Page_Down, Log_Page_Bottom, Outlets_Power_On_Selected, 
+               Outlets_Power_Off_Selected, Outlets_Power_Cycle_Selected, Dry_Contacts_Power_On_Selected, Dry_Contacts_Power_Off_Selected,
+               Dry_Contacts_Power_Cycle_Selected;
+
+STRING_INPUT   IPAddress[MAX_STRING_LENGTH], Username[MAX_STRING_LENGTH], Password[MAX_STRING_LENGTH];
+
+DIGITAL_INPUT  Select_Outlet[MAX_OUTLETS], Outlet_Power_On[MAX_OUTLETS], Outlet_Power_Off[MAX_OUTLETS], 
+               Outlet_Power_Cycle[MAX_OUTLETS], Select_Dry_Contact[MAX_DRY_CONTACTS], Dry_Contact_Power_On[MAX_DRY_CONTACTS], 
+               Dry_Contact_Power_Off[MAX_DRY_CONTACTS], Dry_Contact_Power_Cycle[MAX_DRY_CONTACTS];
+
+// OUTPUTS
+
+DIGITAL_OUTPUT Is_Communicating_FB, Is_Initialized_FB, Polling_PDU_FB, Polling_Outlets_State_FB, Polling_Outlets_Info_FB, Polling_Dry_Contacts_FB;
+
+ANALOG_OUTPUT  Outlet_Count_FB, Dry_Contact_Count_FB, Log_Entry_Count_FB, Log_Current_Page_FB, Log_Total_Pages_FB;
+
+STRING_OUTPUT  PDU_Part_Number_FB, PDU_IP_Address_FB, PDU_MAC_Address_FB, PDU_Rating_Voltage_FB, PDU_Rating_Current_FB,
+               PDU_Rating_Frequency_FB, PDU_Rating_Power_FB, PDU_Current_RMS_Voltage_FB, PDU_Current_RMS_Load_FB,
+               PDU_Current_Temperature_FB, PDU_Current_Wattage_FB, PDU_Current_Power_Factor_FB, PDU_Threshold_Voltage_Low_FB,
+               PDU_Threshold_Voltage_High_FB, PDU_Threshold_Current_Low_FB, PDU_Threshold_Current_High_FB,
+               PDU_Threshold_Temperature_Low_FB, PDU_Threshold_Temperature_High_FB;
+
+DIGITAL_OUTPUT Outlet_Is_Selected_FB[MAX_OUTLETS], Outlet_State_FB[MAX_OUTLETS], Dry_Contact_Is_Selected_FB[MAX_DRY_CONTACTS],
+               Dry_Contact_State_FB[MAX_DRY_CONTACTS];
+
+STRING_OUTPUT  Outlet_Name_FB[MAX_OUTLETS], Outlet_Current_RMS_Voltage_FB[MAX_OUTLETS], Outlet_Current_RMS_Load_FB[MAX_OUTLETS],
+               Outlet_Current_Wattage_FB[MAX_OUTLETS], Outlet_Current_Power_Factor_FB[MAX_OUTLETS], Dry_Contact_Name_FB[MAX_DRY_CONTACTS],
+               Log_Entry_Number_FB[MAX_LOG_ENTRIES], Log_Entry_Category_FB[MAX_LOG_ENTRIES], Log_Entry_Date_FB[MAX_LOG_ENTRIES],
+               Log_Entry_Time_FB[MAX_LOG_ENTRIES], Log_Entry_Message_FB[MAX_LOG_ENTRIES];
+
+/*******************************************************************************************
+  Parameters
+*******************************************************************************************/
+
+INTEGER_PARAMETER Command_Processor;
+//STRING_PARAMETER  IP_Address[MAX_STRING_LENGTH], Username[MAX_STRING_LENGTH], Password[MAX_STRING_LENGTH];
+INTEGER_PARAMETER Log_Entries_Per_Page;
+
+/*******************************************************************************************
+  Global Variables
+*******************************************************************************************/
+
+RackLinkPremium device;       
+
+// CURRENT STATE TRACKING
+// THIS PREVENTS UNNECESSARY SIGNALS IN DEBUGGER BY ONLY SHOWING SIGNALS IF THEY CHANGE
+// MORE CODE INVOLVED BUT MAKES FOR CLEANER DEBUGGING
+
+INTEGER outletCount, dryContactCount, logEntryCount, logCurrentPage, logTotalPages;
+
+STRING  g_IPAddress[MAX_STRING_LENGTH], g_Username[MAX_STRING_LENGTH], g_Password[MAX_STRING_LENGTH];
+
+STRING  pduPartNumber[MAX_STRING_LENGTH], pduIPAddress[MAX_STRING_LENGTH], pduMACAddress[MAX_STRING_LENGTH], 
+        pduRatingVoltage[MAX_STRING_LENGTH], pduRatingCurrent[MAX_STRING_LENGTH], pduRatingFrequency[MAX_STRING_LENGTH], 
+        pduRatingPower[MAX_STRING_LENGTH], pduCurrentRMSVoltage[MAX_STRING_LENGTH], pduCurrentRMSLoad[MAX_STRING_LENGTH],
+        pduCurrentTemperature[MAX_STRING_LENGTH], pduCurrentWattage[MAX_STRING_LENGTH], pduCurrentPowerFactor[MAX_STRING_LENGTH], 
+        pduThresholdVoltageLow[MAX_STRING_LENGTH], pduThresholdVoltageHigh[MAX_STRING_LENGTH], pduThresholdCurrentLow[MAX_STRING_LENGTH], 
+        pduThresholdCurrentHigh[MAX_STRING_LENGTH], pduThresholdTemperatureLow[MAX_STRING_LENGTH], pduThresholdTemperatureHigh[MAX_STRING_LENGTH];
+
+STRING  outletName[MAX_OUTLETS][MAX_STRING_LENGTH], outletCurrentRMSVoltage[MAX_OUTLETS][MAX_STRING_LENGTH], 
+        outletCurrentRMSLoad[MAX_OUTLETS][MAX_STRING_LENGTH], outletCurrentWattage[MAX_OUTLETS][MAX_STRING_LENGTH], 
+        outletCurrentPowerFactor[MAX_OUTLETS][MAX_STRING_LENGTH], dryContactName[MAX_DRY_CONTACTS][MAX_STRING_LENGTH],
+        logEntryNumber[MAX_LOG_ENTRIES][MAX_STRING_LENGTH], logEntryCategory[MAX_LOG_ENTRIES][MAX_STRING_LENGTH], 
+        logEntryDate[MAX_LOG_ENTRIES][MAX_STRING_LENGTH], logEntryTime[MAX_LOG_ENTRIES][MAX_STRING_LENGTH], 
+        logEntryMessage[MAX_LOG_ENTRIES][MAX_STRING_LENGTH];
+
+/*******************************************************************************************
+  Functions
+*******************************************************************************************/
+
+////////////////////////////////////////////////////////////////////////////////////////////
+//	GENERAL
+////////////////////////////////////////////////////////////////////////////////////////////
+FUNCTION Configure()
+{
+	print("%s -- %s @ %s", g_Username, g_Password, g_IPAddress);
+  	device.Configure(Command_Processor, g_IPAddress, g_Username, g_Password, Log_Entries_Per_Page);
+}
+
+FUNCTION ResetAllInfo()
+{
+  INTEGER i;
+
+  // RESET DIGITALS
+  Is_Communicating_FB = FALSE;
+  Is_Initialized_FB = FALSE;
+
+  FOR (i = 1 to MAX_OUTLETS)
+  {
+    Outlet_Is_Selected_FB[i] = FALSE;
+    Outlet_State_FB[i] = FALSE;
+  }
+
+  FOR (i = 1 to MAX_DRY_CONTACTS)
+  {
+    Dry_Contact_Is_Selected_FB[i] = FALSE;
+    Dry_Contact_State_FB[i] = FALSE;
+  }
+
+  // RESET ANALOGS
+  Outlet_Count_FB = NULL_VALUE;
+  Dry_Contact_Count_FB = NULL_VALUE;
+  Log_Entry_Count_FB = NULL_VALUE;
+  Log_Current_Page_FB = NULL_VALUE;
+  Log_Total_Pages_FB = NULL_VALUE;
+
+  outletCount = NULL_VALUE;
+  dryContactCount = NULL_VALUE;
+  logEntryCount = NULL_VALUE;
+  logCurrentPage = NULL_VALUE;
+  logTotalPages = NULL_VALUE;
+
+  // RESET SERIALS
+  PDU_Part_Number_FB = NULL_STRING;
+  PDU_IP_Address_FB = NULL_STRING;
+  PDU_MAC_Address_FB = NULL_STRING;
+  PDU_Rating_Voltage_FB = NULL_STRING;
+  PDU_Rating_Current_FB = NULL_STRING;
+  PDU_Rating_Frequency_FB = NULL_STRING;
+  PDU_Rating_Power_FB = NULL_STRING;
+  PDU_Current_RMS_Voltage_FB = NULL_STRING;
+  PDU_Current_RMS_Load_FB = NULL_STRING;
+  PDU_Current_Temperature_FB = NULL_STRING;
+  PDU_Current_Wattage_FB = NULL_STRING;
+  PDU_Current_Power_Factor_FB = NULL_STRING;
+  PDU_Threshold_Voltage_Low_FB = NULL_STRING;
+  PDU_Threshold_Voltage_High_FB = NULL_STRING;
+  PDU_Threshold_Current_Low_FB = NULL_STRING;
+  PDU_Threshold_Current_High_FB = NULL_STRING;
+  PDU_Threshold_Temperature_Low_FB = NULL_STRING;
+  PDU_Threshold_Temperature_High_FB = NULL_STRING;
+  
+  pduPartNumber = NULL_STRING;
+  pduIPAddress = NULL_STRING;
+  pduMACAddress = NULL_STRING;
+  pduRatingVoltage = NULL_STRING;
+  pduRatingCurrent = NULL_STRING;
+  pduRatingFrequency = NULL_STRING;
+  pduRatingPower = NULL_STRING;
+  pduCurrentRMSVoltage = NULL_STRING;
+  pduCurrentRMSLoad = NULL_STRING;
+  pduCurrentTemperature = NULL_STRING;
+  pduCurrentWattage = NULL_STRING;
+  pduCurrentPowerFactor = NULL_STRING;
+  pduThresholdVoltageLow = NULL_STRING;
+  pduThresholdVoltageHigh = NULL_STRING;
+  pduThresholdCurrentLow = NULL_STRING;
+  pduThresholdCurrentHigh = NULL_STRING;
+  pduThresholdTemperatureLow = NULL_STRING;
+  pduThresholdTemperatureHigh = NULL_STRING;
+
+  FOR (i = 1 to MAX_OUTLETS)
+  {
+    Outlet_Name_FB[i] = NULL_STRING;
+    Outlet_Current_RMS_Voltage_FB[i] = NULL_STRING;
+    Outlet_Current_RMS_Load_FB[i] = NULL_STRING;
+    Outlet_Current_Wattage_FB[i] = NULL_STRING;
+    Outlet_Current_Power_Factor_FB[i] = NULL_STRING;
+    
+    outletName[i] = NULL_STRING;
+    outletCurrentRMSVoltage[i] = NULL_STRING;
+    outletCurrentRMSLoad[i] = NULL_STRING;
+    outletCurrentWattage[i] = NULL_STRING;
+    outletCurrentPowerFactor[i] = NULL_STRING;
+  }
+
+  FOR (i = 1 to MAX_DRY_CONTACTS)
+  {
+    Dry_Contact_Name_FB[i] = NULL_STRING;
+    dryContactName[i] = NULL_STRING;
+  }
+
+  FOR (i = 1 to MAX_LOG_ENTRIES)
+  {
+    Log_Entry_Number_FB[i] = NULL_STRING;
+    Log_Entry_Category_FB[i] = NULL_STRING;
+    Log_Entry_Date_FB[i] = NULL_STRING;
+    Log_Entry_Time_FB[i] = NULL_STRING;
+    Log_Entry_Message_FB[i] = NULL_STRING;
+    
+    logEntryNumber[i] = NULL_STRING;
+    logEntryCategory[i] = NULL_STRING;
+    logEntryDate[i] = NULL_STRING;
+    logEntryTime[i] = NULL_STRING;
+    logEntryMessage[i] = NULL_STRING;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+//	SIMPL# EVENTS
+////////////////////////////////////////////////////////////////////////////////////////////
+
+EVENTHANDLER OnDebug(RackLinkPremium sender, StringEventArgs args)
+{
+  IF (sender.GetProcessorID() = Command_Processor)
+    TRACE("%s", args.payload);
+}
+
+EVENTHANDLER OnCommunicatingChange(RackLinkPremium sender, IntegerEventArgs args)
+{
+  IF (sender.GetProcessorID() = Command_Processor)
+    Is_Communicating_FB = args.payload;
+}
+
+EVENTHANDLER OnInitializedChange(RackLinkPremium sender, IntegerEventArgs args)
+{
+  IF (sender.GetProcessorID() = Command_Processor)
+    Is_Initialized_FB = args.payload;
+}
+
+EVENTHANDLER OnPduInfoChange(RackLinkPremium sender, PduInfoEventArgs args)
+{
+  STRING partNumber[MAX_STRING_LENGTH], ipAddress[MAX_STRING_LENGTH], macAddress[MAX_STRING_LENGTH],
+         ratingVoltage[MAX_STRING_LENGTH], ratingCurrent[MAX_STRING_LENGTH], ratingFrequency[MAX_STRING_LENGTH],
+         ratingPower[MAX_STRING_LENGTH], currentRMSVoltage[MAX_STRING_LENGTH], currentRMSLoad[MAX_STRING_LENGTH], 
+         currentWattage[MAX_STRING_LENGTH], currentPowerFactor[MAX_STRING_LENGTH], thresholdVoltageLow[MAX_STRING_LENGTH], 
+         thresholdVoltageHigh[MAX_STRING_LENGTH], thresholdCurrentLow[MAX_STRING_LENGTH], thresholdCurrentHigh[MAX_STRING_LENGTH];
+  
+  IF (sender.GetProcessorID() = Command_Processor)
+  {
+	partNumber = args.payload.GetModel();
+	ipAddress = args.payload.GetIPAddress();
+	macAddress = args.payload.GetMACAddress();
+	ratingVoltage = args.payload.GetRatingVoltage();
+    ratingCurrent = args.payload.GetRatingCurrent();
+	ratingFrequency = args.payload.GetRatingFrequency();
+    ratingPower = args.payload.GetRatingPower();  
+    currentRMSVoltage = args.payload.GetCurrentRmsVoltage(); 
+    currentRMSLoad = args.payload.GetCurrentRmsLoad(); 
+    currentWattage = args.payload.GetCurrentWattage(); 
+    currentPowerFactor = args.payload.GetCurrentPowerFactor(); 
+    thresholdVoltageLow = args.payload.GetThresholdVoltageLow();
+    thresholdVoltageHigh = args.payload.GetThresholdVoltageHigh();
+    thresholdCurrentLow = args.payload.GetThresholdCurrentLow();
+    thresholdCurrentHigh = args.payload.GetThresholdCurrentHigh();
+           
+	IF (partNumber != pduPartNumber)
+	{
+	  PDU_Part_Number_FB = partNumber;
+	  pduPartNumber = partNumber;
+	}
+	  
+	IF (ipAddress != pduIPAddress)
+	{
+	  PDU_IP_Address_FB = ipAddress;
+	  pduIPAddress = ipAddress;
+	}
+    
+    IF (macAddress != pduMACAddress)
+	{
+	  PDU_MAC_Address_FB = macAddress;
+	  pduMACAddress = macAddress;
+	}
+    
+    IF (ratingVoltage != pduRatingVoltage)
+	{
+	  PDU_Rating_Voltage_FB = ratingVoltage;
+	  pduRatingVoltage = ratingVoltage;
+	}
+    
+    IF (ratingCurrent != pduRatingCurrent)
+	{
+	  PDU_Rating_Current_FB = ratingCurrent;
+	  pduRatingCurrent = ratingCurrent;
+	}
+    
+    IF (ratingFrequency != pduRatingFrequency)
+	{
+	  PDU_Rating_Frequency_FB = ratingFrequency;
+	  pduRatingFrequency = ratingFrequency;
+	}
+    
+    IF (ratingPower != pduRatingPower)
+	{
+	  PDU_Rating_Power_FB = ratingPower;
+	  pduRatingPower = ratingPower;
+	} 
+    
+    IF (currentRMSVoltage != pduCurrentRMSVoltage)
+	{
+	  PDU_Current_RMS_Voltage_FB = currentRMSVoltage;
+	  pduCurrentRMSVoltage = currentRMSVoltage;
+	}
+    
+    IF (currentRMSLoad != pduCurrentRMSLoad)
+	{
+	  PDU_Current_RMS_Load_FB = currentRMSLoad;
+	  pduCurrentRMSLoad = currentRMSLoad;
+	}
+    
+    IF (currentWattage != pduCurrentWattage)
+	{
+	  PDU_Current_Wattage_FB = currentWattage;
+	  pduCurrentWattage = currentWattage;
+	}
+    
+    IF (currentPowerFactor != pduCurrentPowerFactor)
+	{
+	  PDU_Current_Power_Factor_FB = currentPowerFactor;
+	  pduCurrentPowerFactor = currentPowerFactor;
+	} 
+    
+    IF (thresholdVoltageLow != pduThresholdVoltageLow)
+	{
+	  PDU_Threshold_Voltage_Low_FB = thresholdVoltageLow;
+	  pduThresholdVoltageLow = thresholdVoltageLow;
+	}
+    
+    IF (thresholdVoltageHigh != pduThresholdVoltageHigh)
+	{
+	  PDU_Threshold_Voltage_High_FB = thresholdVoltageHigh;
+	  pduThresholdVoltageHigh = thresholdVoltageHigh;
+	}
+    
+    IF (thresholdCurrentLow != pduThresholdCurrentLow)
+	{
+	  PDU_Threshold_Current_Low_FB = thresholdCurrentLow;
+	  pduThresholdCurrentLow = thresholdCurrentLow;
+	}
+    
+    IF (thresholdCurrentHigh != pduThresholdCurrentHigh)
+	{
+	  PDU_Threshold_Current_High_FB = thresholdCurrentHigh;
+	  pduThresholdCurrentHigh = thresholdCurrentHigh;
+	}
+  }
+} 
+
+EVENTHANDLER OnTemperatureInfoChange(RackLinkPremium sender, TemperatureInfoEventArgs args)
+{
+  STRING currentTemperature[MAX_STRING_LENGTH], thresholdTemperatureLow[MAX_STRING_LENGTH], 
+         thresholdTemperatureHigh[MAX_STRING_LENGTH];
+  
+  IF (sender.GetProcessorID() = Command_Processor)
+  {
+	currentTemperature = args.payload.GetValue();
+	thresholdTemperatureLow = args.payload.GetThresholdLow();
+	thresholdTemperatureHigh = args.payload.GetThresholdHigh();
+           
+	IF (currentTemperature != pduCurrentTemperature)
+	{
+	  PDU_Current_Temperature_FB = currentTemperature;
+	  pduCurrentTemperature = currentTemperature;
+	}
+	  
+	IF (thresholdTemperatureLow != pduThresholdTemperatureLow)
+	{
+	  PDU_Threshold_Temperature_Low_FB = thresholdTemperatureLow;
+	  pduThresholdTemperatureLow = thresholdTemperatureLow;
+	}
+    
+    IF (thresholdTemperatureHigh != pduThresholdTemperatureHigh)
+	{
+	  PDU_Threshold_Temperature_High_FB = thresholdTemperatureHigh;
+	  pduThresholdTemperatureHigh = thresholdTemperatureHigh;
+	}
+  }
+}
+
+EVENTHANDLER OnOutletsListChange(RackLinkPremium sender, OutletsListEventArgs args)
+{
+  INTEGER i, count;
+  STRING _name[MAX_STRING_LENGTH], currentRMSVoltage[MAX_STRING_LENGTH], currentRMSLoad[MAX_STRING_LENGTH], 
+         currentWattage[MAX_STRING_LENGTH], currentPowerFactor[MAX_STRING_LENGTH];
+  
+  IF (sender.GetProcessorID() = Command_Processor)
+  {
+    count = args.payload.GetCount();
+    
+    IF (count != outletCount)
+	{
+	  Outlet_Count_FB = count;
+	  outletCount = count;
+	}
+    
+    FOR (i = 1 to MAX_OUTLETS)
+    {
+      Outlet_Is_Selected_FB[i] = (args.payload.GetSelected(i) = TRUE);
+      Outlet_State_FB[i] = (args.payload.GetState(i) = TRUE);
+      
+      _name = args.payload.GetLabel(i);
+      currentRMSVoltage = args.payload.GetCurrentRmsVoltage(i);
+      currentRMSLoad = args.payload.GetCurrentRmsLoad(i);
+      currentWattage = args.payload.GetCurrentWattage(i);
+      currentPowerFactor = args.payload.GetCurrentPowerFactor(i);      
+      
+      IF (_name != outletName[i])
+      {
+		Outlet_Name_FB[i] = _name;
+		outletName[i] = _name;
+	  }
+      
+      IF (currentRMSVoltage != outletCurrentRMSVoltage[i])
+      {
+		Outlet_Current_RMS_Voltage_FB[i] = currentRMSVoltage;
+		outletCurrentRMSVoltage[i] = currentRMSVoltage;
+	  }
+      
+      IF (currentRMSLoad != outletCurrentRMSLoad[i])
+      {
+		Outlet_Current_RMS_Load_FB[i] = currentRMSLoad;
+		outletCurrentRMSLoad[i] = currentRMSLoad;
+	  }
+      
+      IF (currentWattage != outletCurrentWattage[i])
+      {
+		Outlet_Current_Wattage_FB[i] = currentWattage;
+		outletCurrentWattage[i] = currentWattage;
+	  }
+      
+      IF (currentPowerFactor != outletCurrentPowerFactor[i])
+      {
+		Outlet_Current_Power_Factor_FB[i] = currentPowerFactor;
+		outletCurrentPowerFactor[i] = currentPowerFactor;
+	  }  
+    }
+  }
+}
+
+EVENTHANDLER OnDryContactsListChange(RackLinkPremium sender, DryContactsListEventArgs args)
+{
+  INTEGER i, count;
+  STRING _name[MAX_STRING_LENGTH];
+  
+  IF (sender.GetProcessorID() = Command_Processor)
+  {
+    count = args.payload.GetCount();
+    
+    IF (count != dryContactCount)
+	{
+	  Dry_Contact_Count_FB = count;
+	  dryContactCount = count;
+	}
+    
+    FOR (i = 1 to MAX_DRY_CONTACTS)
+    {
+      Dry_Contact_Is_Selected_FB[i] = (args.payload.GetSelected(i) = TRUE);
+      Dry_Contact_State_FB[i] = (args.payload.GetState(i) = TRUE);
+      
+      _name = args.payload.GetLabel(i);      
+      
+      IF (_name != dryContactName[i])
+      {
+		Dry_Contact_Name_FB[i] = _name;
+		dryContactName[i] = _name;
+	  } 
+    }
+  }
+}
+
+EVENTHANDLER OnLogEntriesListChange(RackLinkPremium sender, LogEntriesListEventArgs args)
+{
+  INTEGER i, totalEntries, currentPage, totalPages;
+  STRING id[MAX_STRING_LENGTH], _date[MAX_STRING_LENGTH], _time[MAX_STRING_LENGTH],
+         category[MAX_STRING_LENGTH], message[MAX_STRING_LENGTH];
+
+  IF (sender.GetProcessorID() = Command_Processor)
+  {
+    totalEntries = args.payload.GetCount();
+    currentPage = args.payload.GetCurrentPage();
+    totalPages = args.payload.GetTotalPages();
+    
+    IF (totalEntries != logEntryCount)
+    {
+      Log_Entry_Count_FB = totalEntries;
+      logEntryCount = totalEntries;
+    }
+    
+    IF (currentPage != logCurrentPage)
+    {
+      Log_Current_Page_FB = currentPage;
+      logCurrentPage = currentPage;
+    }
+    
+    IF (totalPages != logTotalPages)
+    {
+      Log_Total_Pages_FB = totalPages;
+      logTotalPages = totalPages;
+    }
+                
+    FOR (i = 1 to MAX_LOG_ENTRIES)
+    {
+      id = args.payload.GetID(i);
+      _date = args.payload.GetDate(i); 
+      _time = args.payload.GetTime(i);
+      category = args.payload.GetCategory(i);
+      message = args.payload.GetMessage(i);
+      
+      IF (id != logEntryNumber[i]) 
+      {
+        Log_Entry_Number_FB[i] = id;
+        logEntryNumber[i] = id;
+      } 
+      
+      IF (_date != logEntryDate[i]) 
+      {
+        Log_Entry_Date_FB[i] = _date;
+        logEntryDate[i] = _date;
+      }
+      
+      IF (_time != logEntryTime[i]) 
+      {
+        Log_Entry_Time_FB[i] = _time;
+        logEntryTime[i] = _time;
+      }
+      
+      IF (category != logEntryCategory[i]) 
+      {
+        Log_Entry_Category_FB[i] = category;
+        logEntryCategory[i] = category;
+      }
+      
+      IF (message != logEntryMessage[i]) 
+      {
+        Log_Entry_Message_FB[i] = message;
+        logEntryMessage[i] = message;
+      }
+    }
+  }  
+}
+     
+EVENTHANDLER OnPollStateChange(RackLinkPremium sender, PollStateEventArgs args)
+{
+  IF (sender.GetProcessorID() = Command_Processor)   
+  {
+      Polling_PDU_FB = (args.payload.GetPdu() = TRUE);
+      Polling_Outlets_State_FB = (args.payload.GetOutletsState() = TRUE);
+      Polling_Outlets_Info_FB = (args.payload.GetOutletsInfo() = TRUE);
+      Polling_Dry_Contacts_FB = (args.payload.GetDryContacts() = TRUE);    
+  }
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+// GENERAL
+
+THREADSAFE PUSH Reinitialize
+{
+  device.Reinitialize();
+}
+
+THREADSAFE CHANGE Username 
+{
+	g_Username = Username;
+	if (g_Username <> "" && g_Password <> "" && g_IPAddress <> "") { Configure(); }
+}
+
+THREADSAFE CHANGE Password
+{
+	g_Password = Password;
+	if (g_Username <> "" && g_Password <> "" && g_IPAddress <> "") { Configure(); }
+}
+
+THREADSAFE CHANGE IPAddress 
+{
+	g_IPAddress = IPAddress;
+	if (g_Username <> "" && g_Password <> "" && g_IPAddress <> "") { Configure(); }
+}
+
+THREADSAFE PUSH Enable_Debug
+{
+  device.SetDebug(TRUE);
+}
+
+THREADSAFE RELEASE Enable_Debug
+{
+  device.SetDebug(FALSE);
+}
+
+THREADSAFE PUSH Enable_Polling_PDU
+{
+  device.SetPollingPdu(TRUE);
+}
+
+THREADSAFE RELEASE Enable_Polling_PDU
+{
+  device.SetPollingPdu(FALSE);
+}
+
+THREADSAFE PUSH Enable_Polling_Outlets_State
+{
+  device.SetPollingOutletsState(TRUE);
+}
+
+THREADSAFE RELEASE Enable_Polling_Outlets_State
+{
+  device.SetPollingOutletsState(FALSE);
+}
+
+THREADSAFE PUSH Enable_Polling_Outlets_Info
+{
+  device.SetPollingOutletsInfo(TRUE);
+}
+
+THREADSAFE RELEASE Enable_Polling_Outlets_Info
+{
+  device.SetPollingOutletsInfo(FALSE);
+}
+
+THREADSAFE PUSH Enable_Polling_Dry_Contacts
+{
+  device.SetPollingDryContacts(TRUE);
+}
+
+THREADSAFE RELEASE Enable_Polling_Dry_Contacts
+{
+  device.SetPollingDryContacts(FALSE);
+}
+
+// OUTLETS
+
+THREADSAFE PUSH Select_Outlet
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.ToggleOutletSelect(i);
+}
+
+THREADSAFE PUSH Select_All_Outlets
+{
+  device.SelectAllOutlets();
+}
+
+THREADSAFE PUSH Clear_All_Outlets
+{
+  device.ClearAllOutlets();
+}
+
+THREADSAFE PUSH Outlet_Power_On
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.OutletPowerOn(i);
+}
+
+THREADSAFE PUSH Outlet_Power_Off
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.OutletPowerOff(i);
+}
+
+THREADSAFE PUSH Outlet_Power_Cycle
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.OutletPowerCycle(i);
+}
+
+THREADSAFE PUSH Outlets_Power_On_Selected
+{
+  device.OutletPowerOnSelected();
+}
+
+THREADSAFE PUSH Outlets_Power_Off_Selected
+{
+  device.OutletPowerOffSelected();
+}
+
+THREADSAFE PUSH Outlets_Power_Cycle_Selected
+{
+  device.OutletPowerCycleSelected();
+}
+
+// DRY CONTACTS
+
+THREADSAFE PUSH Select_Dry_Contact
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.ToggleDryContactSelect(i);
+}
+
+THREADSAFE PUSH Select_All_Dry_Contacts
+{
+  device.SelectAllDryContacts();
+}
+
+THREADSAFE PUSH Clear_All_Dry_Contacts
+{
+  device.ClearAllDryContacts();
+}
+
+THREADSAFE PUSH Dry_Contact_Power_On
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.DryContactPowerOn(i);
+}
+
+THREADSAFE PUSH Dry_Contact_Power_Off
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.DryContactPowerOff(i);
+}
+
+THREADSAFE PUSH Dry_Contact_Power_Cycle
+{
+  INTEGER i;
+  i = GETLASTMODIFIEDARRAYINDEX();
+
+  device.DryContactPowerCycle(i);
+}
+
+THREADSAFE PUSH Dry_Contacts_Power_On_Selected
+{
+  device.DryContactPowerOnSelected();
+}
+
+THREADSAFE PUSH Dry_Contacts_Power_Off_Selected
+{
+  device.DryContactPowerOffSelected();
+}
+
+THREADSAFE PUSH Dry_Contacts_Power_Cycle_Selected
+{
+  device.DryContactPowerCycleSelected();
+}
+
+// LOG
+
+THREADSAFE PUSH Refresh_Log
+{
+  device.RefreshLog();
+}
+
+THREADSAFE PUSH Clear_Log
+{
+  device.ClearLog();
+}
+
+THREADSAFE PUSH Log_Page_Top
+{
+  device.LogPageTop();
+}
+
+THREADSAFE PUSH Log_Page_Up
+{
+  device.LogPageUp();
+}
+
+THREADSAFE PUSH Log_Page_Down
+{
+  device.LogPageDown();
+}
+
+THREADSAFE PUSH Log_Page_Bottom
+{
+  device.LogPageBottom();
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  WAITFORINITIALIZATIONCOMPLETE();
+  ResetAllInfo();
+
+  REGISTEREVENT(device, OnDebug, OnDebug);
+  REGISTEREVENT(device, OnCommunicatingChange, OnCommunicatingChange);
+  REGISTEREVENT(device, OnInitializedChange, OnInitializedChange);
+  REGISTEREVENT(device, OnPduInfoChange, OnPduInfoChange);  
+  REGISTEREVENT(device, OnTemperatureInfoChange, OnTemperatureInfoChange);                                          
+  REGISTEREVENT(device, OnOutletsListChange, OnOutletsListChange);
+  REGISTEREVENT(device, OnDryContactsListChange, OnDryContactsListChange);
+  REGISTEREVENT(device, OnLogEntriesListChange, OnLogEntriesListChange);
+  REGISTEREVENT(device, OnPollStateChange, OnPollStateChange);
+  
+  //DELAY(500);
+}

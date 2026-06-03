@@ -1,0 +1,73 @@
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=ArchiveManifest
+  RelVrs=4.14.20
+  IsProgram=1
+  TopLevelProgram=Panasonic_PTZ_Camera_Series-HE-UE-UB-HR_Demo_V1.00.smw
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=Panasonic_PTZ_Camera_Series-HE-UE-UB-HR_Demo_V1.00.smw
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=Panasonic_PTZ_Camera_Series-HE-UE-UB-HR_Demo_V1.00.sig
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=Panasonic_PTZ_Camera_Series-HE-UE-UB-HR_Demo_V1.00.lpz
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=Panasonic_PTZ_Camera_Series-HE-UE-UB-HR_Demo_V1.00.smft
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=Panasonic_PTZ_Camera_Series-HE-UE-UB-HR_Demo_V1.00.lpz.hash
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=Panasonic_PTZ_Camera_Series-HE-UE-UB-HR.umc
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=focus_speed.ush
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=cam_server_v2.ush
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=cam_data_chk_v2.ush
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=brightness_set.ush
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=zoom_speed.ush
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=pan_tilt_move.ush
+  Scope=1
+[END]
+[BEGIN]
+  ObjTp=ArchiveItem
+  File=Panasonic PTZ Camera Series-HE-UE-UB-HR Help.pdf
+  Scope=1
+  Module=pan_tilt_move.ush
+[END]

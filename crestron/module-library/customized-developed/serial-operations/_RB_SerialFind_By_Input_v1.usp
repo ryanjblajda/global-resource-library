@@ -1,0 +1,88 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Serial Find Via String Input v1 - Not Case Sensitive"
+#HINT "search a list of strings to find an input string"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#DEFINE_CONSTANT MAXARRAYITEMS 256
+#DEFINE_CONSTANT MAXIGNORE 5
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+#HELP_END
+
+STRING_INPUT   StringToFind[MAXITEMS];
+STRING_INPUT   StringToCheck[MAXITEMS][MAXITEMS];
+
+ANALOG_OUTPUT  StringMatchAtIndex; 
+DIGITAL_OUTPUT _SKIP_, iContainStringToFind[MAXITEMS];
+
+/* FUNCTIONS */
+
+/* GLOBAL VARIABLES */
+STRING gsReference[MAXITEMS];
+STRING gsStringsToCheck[MAXARRAYITEMS][MAXITEMS];
+
+/* EVENT HANDLERS */
+
+CHANGE StringToCheck 
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	gsStringsToCheck[iChanged] = StringToCheck[iChanged];
+
+	if(0 <> find(lower(StringToFind), lower(StringToCheck[iChanged])))
+	{
+		iContainStringToFind[iChanged] = ON;
+		StringMatchAtIndex = iChanged;
+	}		
+	else iContainStringToFind[iChanged] = OFF;
+}
+
+CHANGE StringToFind
+{
+	integer i;
+	
+	gsReference = StringToFind;
+
+	if(gsReference = "")
+	{		
+		for(i = 1 to MAXITEMS)
+		{
+			//show all cause search string empty
+			iContainStringToFind[i] = ON;
+		}
+	}
+	else
+	{
+		for(i = 1 to MAXITEMS)
+		{
+			if(0 <> find(lower(gsReference), lower(StringToCheck[i]))) 
+			{
+				iContainStringToFind[i] = ON;
+				StringMatchAtIndex = i;
+			}	
+			else iContainStringToFind[i] = OFF;
+		}
+	}
+}

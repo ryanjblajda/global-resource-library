@@ -1,0 +1,81 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+#SYMBOL_NAME "MultiMode Button Icon Handler"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciMaxEndpoints 32
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+
+/**INPUTS**/
+DIGITAL_INPUT Button_Active_Fb[ciMaxEndpoints];
+ANALOG_INPUT Button_Inactive_Mode[ciMaxEndpoints];
+ANALOG_INPUT Button_Active_Mode[ciMaxEndpoints];
+
+/**OUTPUTS**/
+ANALOG_OUTPUT Button_Mode_Fb[ciMaxEndpoints];
+
+/**GLOBAL VARIABLES**/
+INTEGER giDefinedInputs;
+
+/** PARAMETERS **/
+
+/**FUNCTIONS**/
+FUNCTION Main() {
+	integer i;
+	for(i = ciMaxEndpoints to 1 step -1) {
+    	if(isSignalDefined(Button_Active_Fb[i]) = ON) {
+			giDefinedInputs = i;
+			break;
+		}
+	}
+}
+
+/**EVENT HANDLERS**/
+CHANGE Button_Active_Fb {
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	
+	//when the active fb changes, make sure to pass the appropriate mode integer to the output
+	if(Button_Active_Fb[iChanged] = ON) Button_Mode_Fb[iChanged] = Button_Active_Mode[iChanged];
+	else Button_Mode_Fb[iChanged] = Button_Inactive_Mode[iChanged];
+}
+
+CHANGE Button_Inactive_Mode {
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	//if the desired mode changes, make sure the associated button mode output matches, if its in the OFF state
+	if(Button_Active_Fb[iChanged] = OFF) Button_Mode_Fb[iChanged] = Button_Inactive_Mode[iChanged];
+}
+
+CHANGE Button_Active_Mode {
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	//if the desired mode changes, make sure the associated button mode output matches, if its in the ON state
+	if(Button_Active_Fb[iChanged] = ON) Button_Mode_Fb[iChanged] = Button_Inactive_Mode[iChanged];
+}

@@ -1,0 +1,627 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:   PD3 Custom Services
+System Name:   GC-100
+System Number: v1.1
+Programmer:    PD3 Custom Services           
+               Certified Crestron Programmer     
+               C.A.I.P. (Crestron Authorized Independent Programmer)
+Comments:      Module is writen for Global Cache
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#SYMBOL_NAME "GC-100 v1.2"
+#HINT "INTERFACE TO GC-100 I/O Modules"
+// #DEFINE_CONSTANT
+#CATEGORY "32" 
+// #DEFAULT_VOLATILE
+#DEFAULT_NONVOLATILE
+#ENABLE_STACK_CHECKING
+
+#HELP_BEGIN
+Global Cache GC-100 (ver 1.0)
+ 
+The GC-100 module is not supported on X-series control systems.
+
+            Signals/Parameter
+·   Digital inputs: <Get_config_p>
+                    <Version_p> 
+                    <Poll_p> 
+                    <Relay [1]…[3[> 
+                    <StopIR[1]…[6]> 
+·   Analog input    <Model#>
+                    <Module_poll#>
+·   Serial input:   <GC_100_RX$>
+                    <IR_Port$[1]…[6]>
+
+
+·   Digital output: <State>
+                    <Relay_FB[1]…[3]>
+                    <Digital_In_FB[1]…[6]>
+·   Serial output:  <GC_100_TX$>
+                    <Response$>
+                    <Version$>
+·   Analog output:  <Error#>
+                    <Module#>
+                    <Connector#>
+                    <ID_sent#>
+                    <ID_returned#>
+ 
+Description
+
+The GC-100 sofware module provides a versitile interface 
+between a Global Cache GC-100 Models 6, 12, and 18  via 
+TCP/IP Ethernet channels.   This sofware module is based 
+on the Application Program Interface described in "GC-100 
+API Specification Version 1.0".  The sofware module provides 
+IR outputs, relay outputs, and digital inputs, and error 
+handling.
+  
+(NOTE: Serial I/O to the same GC-100 hardware unit is not 
+handled directly by this software module, but is sent 
+through separate Crestron TCP/IP client symbols as described 
+below.)
+  
+Each GC-100 software module is paired with one Crestron 
+TCP/IP client symbol to provide communications between the 
+Crestron controller and the GC-100 hardware.  Each TCP/IP 
+Client must be assigned the IP address of the GC_100 hardware; 
+the IP Table of the control system should list this IP address 
+together with the IP ID of the TCP/IP Client.  The service port 
+numbers of the GC_100 hardware should be entered in the <Port> 
+parameter of each symbol. The port number is assigned as follows
+
+GC-100 software module                      4998
+First Serial I/O port (All models)          4999
+Second Serial I/O port (model 12 and 18)    5000
+
+For more information on the TCP/IP Client Symbol reference the 
+Crestron help documentation.
+
+Detailed parameter description:
+
+The GC-100 module provides an interface at a number of levels.  
+At the highest (or simplest) level, relays can be activated, 
+digital inputs can be monitored, and IR sequences can be 
+transmitted by using just three sets of signals (parameters).  
+The number of I/O devices depends upon the GC-100 model (6, 12, or 18):
+
+<Relay[1]…[3]> will pulse or hold relays 1,2 or three respectively.
+
+<Digital_In_FB[1]…[6]> reflect the state of digital inputs 1 through 6.
+
+<IR-Port[1]…[6]> will transmit IR pulses as described by the character 
+string send to each input, as described in the Global Cache GC-100 API 
+Specs, starting with the carrier frequency parameter.  Module and 
+connector (connector address), and ID parameters are provided 
+internally by the GC-100 module symbol.  The GC-100 module must be 
+initialized with an analog value of 6, 12, or 18 to correspond to the 
+GC-100 hardware module via <Model#> before using for the first time.  
+The GC-100 software module is connected to the corresponding TCP/IP 
+Client symbol using <GC_100_TX$> to transmit commands to the hardware 
+and <GC_100_RX$> to receive responses from the hardware.
+
+At the next level, relay feedback can be monitored using <Relay_FB[1]…[6]>.
+Digital input feedback for each hardware module can be polled by 
+initializing the analog value of the input port with <Module_poll#> 
+and pulsing <Poll_P>.  To create special IR sequences as described 
+in the API, IR pulse trains can be stopped with the corresponding 
+<StopIR_p[1]…[6]>.
+
+At the lowest level, more specific details of the interface can be 
+controlled and sensed.  <Get_config_p> will result in a response 
+from the hardware describing the hardware configuration (response 
+decoding not implemented in software module version 1.0)
+  
+<Version_p> will result in the version of specific hardware modules 
+as specified by <Module_poll#> sent out from the software module via 
+<Version$>.  
+
+<State> provides an immediate feedback of the last output action.  
+For example, if one of the relay signals is activated, <State> 
+will be asserted until the next output selection.  Connection address 
+values are available through <Module#> and <Connector#>.   For each 
+IR pulse string sent, a unique ID address is created <ID_sent#>and 
+added to the pulse string.  When the IR transmission is complete, 
+the corresponding ID is  provided through <ID_returned#>. 
+ 
+Specific API response text strings will appear on <Response$> according 
+to the table:
+
+<Response$>		Meaning
+
+state			automatic response from relay or digital in
+statechange		unrequested response from relay or digital in
+completeir		IR pulse of <ID_return#> sequence has finished
+devicechange	power-on indications of hardware changes
+unknowncommand	Command error with secondary error in <ID return#>
+serialoverflow	Connection broken locally
+version			response to <version_p> at <Module_poll#>
+
+<Response$> can be connected to a Crestron Serial I/O symbol for 
+further processing.  Alternately, <Error#> can be connected to a 
+Crestron Analog Equate symbol to convert to individual digital 
+signals according to the table:
+
+<Error#>	    Meaning
+   0	        Normal, no error
+   1	        Unknown command
+   2	        devicechange at power up
+   3	        serial overflow at <Module#>
+   4	        bad response string
+   5	        <module_poll#> not compatible with hardware model
+   6	        <Model#> not implemented
+   7	        <StopIR_p> not compatible with hardware model
+   8	        <Relay> not compatible with hardware model
+   9	        <IR_out$> not compatible with hardware model
+
+Serial I/O to and from the GC-100 hardware is implemented using one 
+additional Crestron TCP/IP Client module per Serial I/O port.  
+Transmission parameters are set as per the API Specification 
+using the hardware web site.  Only the error parameter of 
+'serialoverflow' is provided through the GC-100 software module.
+
+#HELP_END
+
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional librarys as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+ 
+STRING_INPUT GC_100_RX$[100];
+
+DIGITAL_INPUT Get_config_p, Version_p, Poll_p;
+
+ANALOG_INPUT Model#, Module_poll#;
+
+DIGITAL_INPUT Relay[3], StopIR_p[6];
+
+STRING_INPUT IR_Out$[6][2048];
+
+STRING_OUTPUT GC_100_TX$, Response$, Version$;
+
+ANALOG_OUTPUT Error#, Module#, Connector#, ID_sent#, ID_returned#;
+
+DIGITAL_OUTPUT State, Relay_FB[3], Digital_In_FB[6];
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+// STRUCTURE MyStruct1
+// {
+// };
+
+// MyStruct1 struct;
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER input, Module, Connector, ID, iCmdLen, x;
+STRING Temp$[2048], CR$[1], Colon$[1], Comma$[1], Temp_response$[100];
+STRING  Target$[100], Address$[6], Module$[3], Connector$[3], Command$[20], Param$[3]; 
+        
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+/*
+Function MyFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+}
+*/
+
+/*
+Integer_Function MyIntFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+
+    Return (0);
+}
+*/
+
+/*
+String_Function MyStrFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+
+    Return ("");
+}
+*/
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Get_config_p
+{
+	GC_100_TX$ = "getdevices" + CR$;
+}
+
+PUSH Version_p
+{
+	Error# = 0;
+
+	IF(Model# = 6)
+	{
+		IF(Module_Poll# > 3)
+		{
+         	Error# = 5;
+		}
+	}
+	ELSE
+	{
+     	IF(Module_Poll# < 1 || Module_Poll# > 5)
+		{
+			Error# = 5;
+		}
+	}
+	IF(Error# = 0)
+	{
+		GC_100_TX$ = "version" + "," + itoa(module_poll#) + CR$;
+	}
+}
+
+PUSH Poll_p
+{
+	Error# = 0;
+
+	IF(Model# = 6)
+	{
+		Module = 2;
+		Connector = Module_poll#;
+	}
+	ELSE IF(Model# > 6)
+	{
+		Module = 4 + (Module_poll#-1)/3 ;
+		Connector = Module_poll# UMOD 3;
+		IF(Connector = 0)
+		{
+			Connector = 3;
+		}
+	}
+	ELSE
+	{
+		Error# = 6;
+	}
+	IF(Error# = 0)
+	{
+	 	GC_100_TX$ = "getstate" + "," + itoa(Module) + ":" + itoa(Connector) + CR$;
+	}
+}
+
+PUSH StopIR_p
+{
+	input = getlastmodifiedarrayindex();
+	IF(Model# = 6)
+	{
+		Module = 2;
+	}
+	ELSE IF(Model# > 6)
+	{
+		Module = 4 + (input-1)/3 ;
+	}
+	ELSE
+	{
+		Error# = 7;
+	}
+	Connector = input UMOD 3;
+	IF(Connector = 0)
+	{
+		Connector = 3;
+	}
+	GC_100_TX$ = "stopir," + itoa(Module) + ":" + itoa(Connector) + CR$;		
+}
+
+PUSH Relay
+{
+    IF(Model# > 6)
+	{
+		input = getlastmodifiedarrayindex();
+		Module = 3;
+		Connector = input;
+    	Temp$ = "setstate,"+itoa(Module)+":"+itoa(Connector)+",1"+CR$;
+		GC_100_TX$ = Temp$;
+	}
+	ELSE
+	{
+		ERROR# = 8;
+	}
+}
+
+RELEASE Relay
+{
+
+    IF(Model# > 6)
+	{
+	    input = getlastmodifiedarrayindex();
+		Module = 3;
+		Connector = input;
+	    Temp$ = "setstate,"+itoa(Module)+":"+itoa(Connector)+",0"+CR$;
+		GC_100_TX$ = Temp$; 
+	}
+	ELSE
+	{
+		ERROR# = 8;
+	}
+}
+
+
+CHANGE IR_Out$
+{
+	input = getlastmodifiedarrayindex();
+	IF(Model# = 6)
+	{
+		Module = 2;
+	}
+	ELSE IF(Model# > 6)
+	{
+		IF (input > 3)
+		{
+			Module = 5;
+		}
+		ELSE
+		{
+			Module = 4;
+		}
+	}
+	ELSE
+	{
+		Error# = 9;
+	}
+	Connector = input UMOD 3;
+	IF(Connector = 0)
+	{
+		Connector = 3;
+	}
+
+	IF(Error#=0)
+	{
+		Temp$ = "sendir," + itoa(Module) + ":" + itoa(Connector) + "," + itoa(ID);		
+        iCmdLen = len(IR_OUT$[input]);
+		IF (iCmdLen < 225) 
+		{
+			GC_100_TX$ = Temp$  + "," + IR_Out$[input] + CR$;
+		} ELSE {
+			
+			FOR (x = 0 to iCmdLen STEP 225)
+			{
+				ProcessLogic();
+             	IF (x = 1)
+				{
+					GC_100_TX$ = Temp$ + "," + mid(IR_Out$[input],x,225);
+				} ELSE 
+				{
+             		GC_100_TX$ = mid(IR_Out$[input], x, 225); 
+             	}
+			}
+			GC_100_TX$ = CR$;
+			ProcessLogic();			
+		}	
+
+		ID_sent# = ID;
+		ID = ID + 1;
+		IF(ID = 65534)
+		{
+			ID = 0;
+		}
+	}
+}
+
+CHANGE GC_100_RX$
+{
+// Response parameters: m = module, c = connector, s = state, id = IR ID, \r = Car Return
+
+	Temp_response$ = Temp_response$ + GC_100_RX$;
+	Target$ = " ";
+	While(Len(Target$))
+	{
+	    Error#     = 0;
+		State      = 0;
+		Connector# = 0;
+		Module#    = 0;
+		Command$   = "";
+		Response$  = "";
+		Address$   = "";
+		Module$    = "";
+		Connector$ = "";
+		Param$	   = "";
+		Target$ = remove(CR$,Temp_response$);
+		IF(Len(Target$))
+		{
+			Command$ = remove(Comma$,Target$);
+			IF(len(Command$)=0)  // no comma
+			{
+				IF(Find("unknowncommand",Target$,1))	//unknowncommand |id|\r
+				{
+					Error# = 1;			// unknown command
+					ID_returned# = atoi(mid(Target$,16,len(Target$) - 16));
+				}
+				ELSE IF(Find("devicechange",Target$,1))	//devicechange\r
+				{
+					Error# = 2;			// device changed on powerup
+				}
+				ELSE
+				{
+					Error# = 4;			// bad return string
+				}
+			}
+			ELSE	// comma present
+			{
+				Address$ = remove(Comma$,Target$);
+
+				IF(Len(Address$)=0)  // no second comma present
+				{
+					IF(Find("serialoverflow",Command$))	//serialoverflow,m\r
+					{
+						Error# = 3;		// serial overflow on module m
+						Module$ = remove(CR$,Target$);
+						Module# = atoi(left(Module$,len(Module$)-1));
+						Command$ = "";
+					}
+					Else
+					{
+						Error# = 4;		// bad return string
+					}
+				}
+				ELSE 	//second comma present
+				{
+					Module$ = remove(Colon$,Address$);
+					Response$ = left(Command$,len(Command$)-1);
+					IF(len(Module$)=0)  // no colon present
+					{
+						IF(Find("version",Command$,1))		//version,m,xxxxxxxx\r
+						{
+							Module# = atoi(left(Address$,len(Address$)-1));
+							Version$ = left(Target$,len(Target$)-1);						}
+						ELSE
+						{
+							Error# = 4;		// bad return string
+							Response$ = "";
+						}
+					}
+					ELSE  // colon present
+					{
+						Module# = atoi(left(Module$,len(Module$)-1));
+						Connector# = atoi(left(Address$,len(Address$)));
+                        Param$ = remove(CR$,Target$);
+						IF(Find("state,",Command$,1))		//state,m:c,s\r
+						{
+                        	State = atoi(left(Param$,len(Param$)-1));
+							IF(Model# = 6)
+							{
+                            	IF(Module# = 2)
+								{
+                             		input = connector#;
+									Digital_in_FB[input] = atoi(left(Param$,len(Param$)-1));
+								}  
+							}
+							ELSE IF(Model# > 6)
+							{
+                                IF(Module# = 3)
+								{
+                                	input = connector#;
+									Relay_FB[input] = atoi(left(Param$,len(Param$)-1));
+								}
+								ELSE IF(Module# > 3)
+								{
+									input = (Module#-4)*3 + connector#;
+									Digital_in_FB[input] = atoi(left(Param$,len(Param$)-1));
+								}
+								
+							}
+						}
+						ELSE IF(Find("device,",Command$,1))		//device,m:c,s\r
+						{
+                        	State = atoi(left(Param$,len(Param$)-1));
+						}
+						ELSE IF(Find("statechange",Command$,1))	//statechange,m:c,s\r
+						{
+                        	State = atoi(left(Param$,len(Param$)-1));
+							IF(Model# = 6)
+							{
+                            	IF(Module# = 2)
+								{
+                             		input = connector#;
+									Digital_in_FB[input] = atoi(left(Param$,len(Param$)-1));
+								}  
+							}
+							ELSE IF(Model# > 6)
+							{
+                                IF(Module# = 3)
+								{
+                                	input = connector#;
+									Relay_FB[input] = atoi(left(Param$,len(Param$)-1));
+								}
+								ELSE IF(Module# > 3)
+								{
+									input = (Module#-4)*3 + connector#;
+									Digital_in_FB[input] = atoi(left(Param$,len(Param$)-1));
+								}
+								
+							}
+						}
+						ELSE IF(Find("completeir",Command$,1))	//completeir,m:c,id\r
+						{
+							ID_returned# = atoi(left(Param$,len(Param$)-1));
+						}
+						ELSE
+						{
+							Error# = 4;		// bad return string
+							Response$ = "";
+						}
+					}
+				}
+			}
+		}
+	}
+/*    Targetx$ = Target$;
+	Commandx$ = Command$;
+	Addressx$ = Address$;
+	Modulex$ = Module$;
+	Connectorx$ = Connector$;
+	Paramx$ = Param$;
+*/	
+}
+/*
+EVENT
+{
+    // TODO:  Add code here
+}
+*/
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    // Initialize declared global and local variables/arrays as needed.
+
+	CR$ = CHR(0x0D);
+	Comma$ = ",";
+	Colon$ = ":";
+	ID = 0;
+
+	WaitForInitializationComplete();
+
+    // If you are reading any Input or Output variables, uncomment
+    //   the WaitForInitializationComplete statement above and read
+    //   them afterwards.  Input/Output variables will not have
+    //   their correct values set until after the logic processor
+    //   runs and propagates the values to them.
+}
+
+

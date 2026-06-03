@@ -1,0 +1,201 @@
+#define_constant MAX_INPUTS  200
+
+digital_input set_1080P_2CH[MAX_INPUTS];
+digital_input set_1080P_6CH[MAX_INPUTS];  
+
+digital_input set_1080P_3D_2CH[MAX_INPUTS];
+digital_input set_1080P_3D_6CH[MAX_INPUTS];
+
+digital_input set_4k30HZ_3D_2CH[MAX_INPUTS];
+digital_input set_4k30HZ_3D_6CH[MAX_INPUTS];
+digital_input set_4k30HZ_3D_8CH[MAX_INPUTS];
+
+digital_input set_1080P_2CH_HDR[MAX_INPUTS];
+digital_input set_1080P_6CH_HDR[MAX_INPUTS];
+
+digital_input set_1080P_3D_2CH_HDR[MAX_INPUTS];
+digital_input set_1080P_3D_6CH_HDR[MAX_INPUTS];
+
+digital_input set_4k30HZ_3D_2CH_HDR[MAX_INPUTS];
+digital_input set_4k30HZ_3D_6CH_HDR[MAX_INPUTS];
+digital_input set_4k30HZ_3D_8CH_HDR[MAX_INPUTS];
+
+digital_input set_1920X1200_2D_2CH_HDR[MAX_INPUTS];
+digital_input set_USER_EDID[MAX_INPUTS];
+
+
+string_output CONFIGURE_TX_CMD;
+         
+
+push set_1080P_2CH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 0 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_1080P_6CH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 1 INPUT_ALIAS[%d] auto;" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+
+push set_1080P_3D_2CH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 2 INPUT_ALIAS[%d] auto;" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_1080P_3D_6CH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 3 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+
+push set_4k30HZ_3D_2CH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 4 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_4k30HZ_3D_6CH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 5 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_4k30HZ_3D_8CH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 6 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+
+push set_1080P_2CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 7 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_1080P_6CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 8 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+
+push set_1080P_3D_2CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 9 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_1080P_3D_6CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 10 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+
+push set_4k30HZ_3D_2CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 11 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_4k30HZ_3D_6CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 12 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_4k30HZ_3D_8CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 13 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+
+push set_1920X1200_2D_2CH_HDR
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 14 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push set_USER_EDID
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device edid 15 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+
+
+
+
+         
+

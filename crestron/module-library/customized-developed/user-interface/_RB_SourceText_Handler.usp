@@ -1,0 +1,93 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+#SYMBOL_NAME "Interface Source & Help Text Handler"
+#HINT "variant of string router, specific to source selection routing."
+#CATEGORY "46" "RBLAJDA" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciMaxSources 17
+#DEFINE_CONSTANT ciBufferSize 1024
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+
+/**INPUTS**/
+DIGITAL_INPUT Room_Power_Off;
+ANALOG_INPUT  Selected_Source;
+STRING_INPUT  _SKIP_, _SKIP_, _SKIP_, No_Source_Selected_Message[ciBufferSize], No_Source_Selected_Help_Text[ciBufferSize];
+STRING_INPUT  Source_Name[ciMaxSources][ciBufferSize], Source_HelpText[ciMaxSources][ciBufferSize];
+
+/**OUTPUTS**/
+#OUTPUT_SHIFT 1
+ANALOG_OUTPUT Selected_Source_Out;
+STRING_OUTPUT _SKIP_, Selected_Source_Name, Selected_Source_HelpText;
+
+/**GLOBAL VARIABLES**/
+STRING gsSourceName[ciMaxSources][ciBufferSize];
+STRING   gsHelpText[ciMaxSources][ciBufferSize];
+
+/**FUNCTIONS**/
+
+/**EVENT HANDLERS**/
+PUSH Room_Power_Off
+{
+	Selected_Source_Out = 0;
+	Selected_Source_Name = gsSourceName[0];
+	Selected_Source_HelpText = gsHelpText[0];
+
+}
+
+CHANGE Selected_Source
+{
+	Selected_Source_Name = gsSourceName[Selected_Source];
+	Selected_Source_HelpText = gsHelpText[Selected_Source];
+	Selected_Source_Out = Selected_Source;
+}
+
+CHANGE No_Source_Selected_Message
+{
+	gsSourceName[0] = No_Source_Selected_Message;
+	if(Selected_Source = 0) Selected_Source_Name = gsSourceName[0];	
+}
+
+CHANGE No_Source_Selected_Help_Text
+{
+	gsHelpText[0] = No_Source_Selected_Help_Text;
+	if(Selected_Source = 0) Selected_Source_HelpText = gsHelpText[0];
+}
+
+CHANGE Source_Name
+{
+	INTEGER iChanged;
+	iChanged = getLastModifiedArrayIndex();	
+	gsSourceName[iChanged] = Source_Name[iChanged];
+}
+
+CHANGE Source_HelpText
+{
+	INTEGER iChanged;
+	iChanged = getLastModifiedArrayIndex();	
+	gsHelpText[iChanged] = Source_HelpText[iChanged];
+}

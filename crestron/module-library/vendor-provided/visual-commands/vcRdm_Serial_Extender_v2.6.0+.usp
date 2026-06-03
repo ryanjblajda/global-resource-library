@@ -1,0 +1,100 @@
+#CATEGORY "46" "Visual Commands" // Custom
+#INCLUDEPATH "C:\Visual Commands\Visual Commands\VC-RDM\Crestron - Simpl#\Current\bin\Release"
+#USER_SIMPLSHARP_LIBRARY "VCRDMLib"
+
+#DEFINE_CONSTANT MAXPARAMS 50
+#DEFINE_CONSTANT MAXLENGTH 200
+
+STRING_INPUT _Skip_, _Skip_, Parameter_Serial_To_RDM$[MAXPARAMS][MAXLENGTH]; 
+
+STRING_OUTPUT _Skip_, _Skip_, Parameter_Serial_From_RDM$[MAXPARAMS];
+     
+INTEGER_PARAMETER Slot;     
+STRING_PARAMETER ID$[30];
+STRING_PARAMETER Serial_Attribute_Settings$[MAXPARAMS][100];
+
+DeviceStatusClass Device; 
+integer i, init_done;  
+string attrNameSerial[MAXPARAMS][MAXLENGTH];
+
+#BEGIN_PARAMETER_PROPERTIES Slot
+	propDefaultUnit = unitDecimal;
+   	propBounds = 1d ,50d;
+   	propDefaultValue = 1d;
+	propShortDescription = "Slot must match existing Room Slot";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES ID$
+	propDefaultValue = "ID";
+	propShortDescription = "ID must match existing device ID";    
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Serial_Attribute_Settings$
+	propDefaultValue = "Name|Control|label1,label2,etc|EnforceLabels";
+	propShortDescription = "Name|Control|label1,label2,etc|EnforceLabels";    
+#END_PARAMETER_PROPERTIES
+
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+
+function InitialzieAttributes()
+{
+ 	for(i = 1 to MAXPARAMS)
+	{
+		if(len(Serial_Attribute_Settings$[i]) > 1 && Serial_Attribute_Settings$[i] != "Name|Control|label1,label2,etc|EnforceLabels")
+		{
+			attrNameSerial[i] = Device.AddSerialAttribute(Serial_Attribute_Settings$[i], Parameter_Serial_To_RDM$[i]);		
+		}
+	}
+}
+
+
+CHANGE Parameter_Serial_To_RDM$
+{
+ 	if(init_done)
+ 	{
+ 		Device.SetSerialAttribute(attrNameSerial[getlastmodifiedarrayindex()], Parameter_Serial_To_RDM$[getlastmodifiedarrayindex()]);		
+ 	}
+}
+
+
+EventHandler RDMEventFired(DeviceStatusClass o, RDMEventArgs e)
+{
+	integer k;
+	
+	for(k = 1 to MAXPARAMS)
+	{
+	 	if(e.Type = 1 && attrNameSerial[k] = e.Key)
+	 	{
+	 	 	Parameter_Serial_From_RDM$[k] = e.Value;
+ 	 		break;
+	 	}
+	}
+}
+
+EventHandler RdmInitDeviceExtendersEventHandler(RDMEventArgs args)
+{
+  	if(init_done = 0 && MainClass.Initialized)
+  	{
+	  	//Get Device
+	  	if(MainClass.SetDevice(Device, ID$, Slot) = 1)
+	  	{	  	
+	  		init_done = 1;
+	  		InitialzieAttributes();
+	 		RegisterEvent(Device, RDMEvent, RDMEventFired);
+	 	}
+	 	else
+	 	{
+	 	 	GenerateUserWarning("vcRDM: Could not find device with id %s to extend its serial signals!", ID$);
+	 	}
+	}
+}
+
+
+function main()
+{
+ 	init_done = 0;
+ 	waitforinitializationcomplete();
+ 	delay(500);
+	RegisterEvent(MainClass, RdmInitDeviceExtendersEvent, RdmInitDeviceExtendersEventHandler); 	
+}

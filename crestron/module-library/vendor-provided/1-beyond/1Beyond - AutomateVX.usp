@@ -1,0 +1,502 @@
+
+/*******************************************************************************************
+  SIMPL+ Module Information
+*******************************************************************************************/
+/*
+Dealer Name: 1Beyond
+Programmer: Mike B
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#SYMBOL_NAME "1Beyond - AutomateVX"
+#CATEGORY "46" "Lecture Capture" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT Num_Presets 10
+#DEFINE_CONSTANT UserName_Length 25
+#DEFINE_CONSTANT Password_Length 25
+#DEFINE_CONSTANT IPA_Length 100
+#DEFINE_CONSTANT LayoutCount 6
+#DEFINE_CONSTANT RoomConfigCount 4
+#DEFINE_CONSTANT CameraCount 8
+
+#DIGITAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+   Initialize Module every time IPAddress, Port, or Request_Type is set or changed
+#HELP_END
+
+
+#USER_SIMPLSHARP_LIBRARY "Automate_VX"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+ *******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_, Debug, Initialize, Login, _SKIP_, Toggle_AutoSwitch, Start_AutoSwitch, Stop_AutoSwitch, _SKIP_, Toggle_Recording, Start_Recording, Stop_Recording, _SKIP_, 
+Toggle_ISO_Recording, Start_ISO_Recording, Stop_ISO_Recording, _SKIP_, Toggle_Stream, Start_Stream, Stop_Stream, _SKIP_,Toggle_Output, Start_Output, Stop_Output, _SKIP_, 
+Get_AutoSwitch_Status, Get_ISO_Record_Status, Get_Record_Status, Get_Stream_Status, Get_Output_Status, Get_Current_Layout, Get_Layout_Names, Get_Current_Room_Config, 
+Get_Room_Config_Names, _SKIP_, Layout[LayoutCount], _SKIP_, Room_Config[RoomConfigCount], _SKIP_, Camera_Select[CameraCount],  _SKIP_, _SKIP_;
+STRING_INPUT _SKIP_, IP_Address$[IPA_Length], _SKIP_, Username$[UserName_Length], Password$[Password_Length];
+
+ANALOG_INPUT Port, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Camera_Preset[CameraCount];
+
+DIGITAL_OUTPUT  _SKIP_, _SKIP_, _SKIP_,Initialized_FB, Login_FB, _SKIP_,_SKIP_, AutoSwitch_Enabled_FB, AutoSwitch_Disabled_FB, _SKIP_, _SKIP_, Recording_Started_FB, Recording_Stopped_FB,
+_SKIP_, _SKIP_, ISO_Recording_Started_FB, ISO_Recording_Stopped_FB, _SKIP_, _SKIP_, Stream_Started_FB, Stream_Stopped_FB, _SKIP_, _SKIP_, Output_Started_FB, Output_Stopped_FB, 
+_SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_,Layout_FB[LayoutCount], _SKIP_, Room_Config_FB[RoomConfigCount], _SKIP_, Camera_Select_FB[CameraCount], _SKIP_,
+_SKIP_;
+
+STRING_OUTPUT _SKIP_, Recording_Status$, Error_Message$, _SKIP_;
+
+ANALOG_OUTPUT _SKIP_, NumOfLayouts, NumOfConfigs, _SKIP_, Error_Status, _SKIP_, Camera_Preset_FB[CameraCount];
+
+STRING_OUTPUT _SKIP_, Layout_Names$[LayoutCount], _SKIP_, Room_Config_Names$[RoomConfigCount];
+
+AutomateVx Automate;
+
+/*******************************************************************************************
+  Parameters
+*******************************************************************************************/
+
+INTEGER_PARAMETER Request_Type;
+
+/*******************************************************************************************
+  Parameter Properties
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES Request_Type
+   	propValidUnits = unitDecimal;  
+   	propShortDescription = "HTTP or HTTPS Request";
+   	propBounds=0d, 1d;
+   	propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+
+/*******************************************************************************************
+  Global Variables
+ *******************************************************************************************/
+
+INTEGER Active_Preset, IPPort;
+STRING Username[UserName_Length], Password[Password_Length], IPAddress[IPA_Length];
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+
+PUSH Debug
+{
+	Automate.Debug(TRUE);	
+}
+
+RELEASE Debug
+{
+	Automate.Debug(FALSE);	
+}
+
+PUSH Initialize
+{	
+	Error_Message$ = "";
+	Automate.Initialize(IPAddress, IPPort, Request_Type);
+}
+
+PUSH Login
+{
+	Automate.Login(Username, Password);
+}
+
+PUSH Toggle_AutoSwitch
+{
+	Automate.ToggleAutoSwitch();
+}
+
+PUSH Start_AutoSwitch
+{
+	Automate.StartAutoSwitch();
+}
+
+PUSH Stop_AutoSwitch
+{
+	Automate.StopAutoSwitch();
+}
+
+PUSH Toggle_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.ToggleRecord();
+}
+
+PUSH Start_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.StartRecord();	
+}
+
+PUSH Stop_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.StopRecord();
+}
+
+PUSH Toggle_ISO_Recording
+{
+	Automate.ToggleIsoRecord();
+}
+
+PUSH Start_ISO_Recording
+{
+     Automate.StartIsoRecord();
+}
+
+PUSH Stop_ISO_Recording
+{
+     Automate.StopIsoRecord();
+}
+
+PUSH Toggle_Stream
+{
+	Automate.ToggleStream();
+}
+
+PUSH Start_Stream
+{
+     Automate.StartStream();
+}
+
+PUSH Stop_Stream
+{
+     Automate.StopStream();
+}
+
+PUSH Start_Output
+{
+     Automate.StartOutput();
+}
+   
+PUSH Toggle_Output
+{
+	Automate.ToggleOutput();
+}
+
+PUSH Stop_Output
+{
+     Automate.StopOutput();
+}
+
+PUSH Get_Current_Layout
+{
+    Automate.GetCurrentLayout();
+}
+
+PUSH Get_Layout_Names
+{
+	Automate.GetLayouts();
+}
+PUSH Get_Current_Room_Config
+{
+	Automate.GetRoomConfigs();
+} 
+
+PUSH Get_Room_Config_Names
+{
+	Automate.GetRoomConfigs();
+}
+
+PUSH Layout
+{
+	INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ChangeLayout(i);
+}
+
+PUSH Room_Config
+{
+    INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ChangeRoomConfig(i);
+}
+
+PUSH Camera_Select
+{
+    INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ManualSwitchCamera(i);
+}
+  
+PUSH Get_AutoSwitch_Status
+{
+	Automate.GetAutoSwitchStatus();
+}  
+  
+PUSH Get_Record_Status
+{
+	Automate.GetRecordStatus();
+}
+
+PUSH Get_ISO_Record_Status
+{
+	Automate.GetIsoRecordStatus();
+}
+
+PUSH Get_Stream_Status
+{
+	Automate.GetStreamStatus();
+}
+
+PUSH Get_Output_Status
+{
+	Automate.GetOutputStatus();
+}
+
+CHANGE Camera_Preset
+{
+	INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.SetCameraPreset(i, Camera_Preset[i]);
+}
+
+CHANGE Username$
+{
+	Username = Username$;	
+}
+
+CHANGE Password$
+{
+	Password = Password$;	
+}
+
+CHANGE IP_Address$
+{
+	IPAddress = IP_Address$;	
+}
+
+CHANGE Port
+{
+	IPPort = Port;
+}
+
+CALLBACK FUNCTION LoginStateCallback(INTEGER loginState)
+{
+	IF (loginState = 1)
+	{
+ 		Login_FB = ON;
+        Username = "";
+        Password = "";
+        
+		IF (Error_Status > 0)
+		{
+			Error_Status = 0;
+		}	
+	}
+	ELSE IF (loginState = 0)
+	{
+ 		Login_FB = OFF;
+	}	
+}
+
+CALLBACK FUNCTION AutomateVxErrorCallback(INTEGER code, STRING error)
+{
+	Error_Status = code;
+	Error_Message$ = error;
+}
+
+CALLBACK FUNCTION SystemStatusCallback(STRING status)
+{
+	Recording_Status$ = status; 
+}
+
+CALLBACK FUNCTION RecStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+        Recording_Stopped_FB = ON;
+		Recording_Started_FB = OFF;
+	}
+	ELSE IF(status = 1)
+	{
+		Recording_Stopped_FB = OFF;
+		Recording_Started_FB = ON;
+	} 	
+	IF (Error_Status > 0)
+	{
+		Error_Status = 0;
+	}
+}
+
+CALLBACK FUNCTION AutoSwitchStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		AutoSwitch_Enabled_FB = OFF;
+		AutoSwitch_Disabled_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        AutoSwitch_Enabled_FB = ON;
+        AutoSwitch_Disabled_FB = OFF;
+    }
+}
+
+CALLBACK FUNCTION IsoRecStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		ISO_Recording_Started_FB = OFF;
+		ISO_Recording_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        ISO_Recording_Started_FB = ON;
+		ISO_Recording_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION StreamStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		Stream_Started_FB = OFF;
+		Stream_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        Stream_Started_FB = ON;
+		Stream_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION OutputStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		Output_Started_FB = OFF;
+		Output_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        Output_Started_FB = ON;
+		Output_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION LayoutStatusCallback(INTEGER layout)
+{
+	SETARRAY(Layout_FB, OFF);
+	Layout_FB[layout] = ON;
+}
+
+CALLBACK FUNCTION LayoutNamesCallback(INTEGER index, STRING layoutName)
+{
+	Layout_Names$[index] = layoutName;		
+}
+
+CALLBACK FUNCTION LayoutCountCallback(INTEGER numberOfLayouts)
+{
+	IF(NumOfLayouts != numberOfLayouts)
+	{
+		NumOfLayouts = numberOfLayouts;
+	}
+}
+
+CALLBACK FUNCTION LayoutClearCallback()
+{
+	SETARRAY(Layout_Names$, "");
+}
+
+CALLBACK FUNCTION RoomConfigStatusCallback(INTEGER config)
+{
+	SETARRAY(Room_Config_FB, OFF);
+	Room_Config_FB[config] = ON;
+}
+
+CALLBACK FUNCTION RoomConfigNamesCallback(INTEGER index, STRING configName)
+{
+	Room_Config_Names$[index] = configName;		
+}
+
+CALLBACK FUNCTION RoomConfigCountCallback(INTEGER numberOfConfigs)
+{
+	IF(NumOfConfigs != numberOfConfigs)
+	{
+		NumOfConfigs = numberOfConfigs;
+	}
+}
+
+CALLBACK FUNCTION RoomConfigClearCallback()
+{
+	SETARRAY(Room_Config_Names$, "");
+}
+
+CALLBACK FUNCTION CameraSelectCallback(INTEGER camera)
+{
+	SETARRAY(Camera_Select_FB, OFF);
+	Camera_Select_FB[camera] = ON;
+}
+
+CALLBACK FUNCTION CameraPresetCallback(INTEGER camera, INTEGER preset)
+{
+	Camera_Preset_FB[camera] = preset;
+}
+
+CALLBACK FUNCTION InitializedCallback(INTEGER status)
+{
+	IF(status = 1)
+	{
+		Initialized_FB = ON;
+	}
+	ELSE
+	{
+		Initialized_FB = OFF;
+	}
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+function main()
+{
+    REGISTERDELEGATE(Automate, LoginStateCallbackEvent, LoginStateCallback);
+	REGISTERDELEGATE(Automate, SystemStatusCallbackEvent, SystemStatusCallback);
+	REGISTERDELEGATE(Automate, RecStatusCallbackEvent, RecStatusCallback);
+	REGISTERDELEGATE(Automate, StreamStatusCallbackEvent, StreamStatusCallback);
+	REGISTERDELEGATE(Automate, OutputStatusCallbackEvent, OutputStatusCallback);
+	REGISTERDELEGATE(Automate, InitializedCallbackEvent, InitializedCallback);
+	REGISTERDELEGATE(Automate, AutoSwitchStatusCallbackEvent, AutoSwitchStatusCallback); 
+	REGISTERDELEGATE(Automate, IsoRecStatusCallbackEvent, IsoRecStatusCallback); 
+	REGISTERDELEGATE(Automate, LayoutStatusCallbackEvent, LayoutStatusCallback);
+	REGISTERDELEGATE(Automate, LayoutNamesCallbackEvent, LayoutNamesCallback);
+	REGISTERDELEGATE(Automate, LayoutCountCallbackEvent, LayoutCountCallback);
+	REGISTERDELEGATE(Automate, LayoutClearCallbackEvent, LayoutClearCallback); 
+	REGISTERDELEGATE(Automate, RoomConfigStatusCallbackEvent, RoomConfigStatusCallback); 
+	REGISTERDELEGATE(Automate, RoomConfigNamesCallbackEvent, RoomConfigNamesCallback);
+	REGISTERDELEGATE(Automate, RoomConfigCountCallbackEvent, RoomConfigCountCallback);
+	REGISTERDELEGATE(Automate, RoomConfigClearCallbackEvent, RoomConfigClearCallback); 
+	REGISTERDELEGATE(Automate, CameraSelectCallbackEvent, CameraSelectCallback);
+	REGISTERDELEGATE(Automate, CameraPresetCallbackEvent, CameraPresetCallback);	
+	REGISTERDELEGATE(Automate, AutomateVxErrorCallbackEvent, AutomateVxErrorCallback);
+ 
+	WaitForInitializationComplete();         
+
+	IF (LEN(IP_Address$) > 0)
+		IPAddress = IP_Address$;
+
+	IF (LEN(Username$) > 0)
+		Username = Username$;
+
+	IF (LEN(Password$) > 0)
+		Password = Password$;
+
+	IF (Port > 0)
+		IPPort = Port;
+}
+
+

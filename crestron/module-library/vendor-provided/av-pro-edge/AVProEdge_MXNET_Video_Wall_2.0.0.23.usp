@@ -1,0 +1,137 @@
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+DIGITAL_INPUT CREATE_WALL, REMOVE_WALL, SET_SETTINGS, RECALL_LAYOUT, MOSAIC_LAYOUT_ACTIVE;
+ANALOG_INPUT INPUT, SCREEN_X, IMAGE_X, SCREEN_Y, IMAGE_Y;
+STRING_INPUT LAYOUT[255];
+STRING_OUTPUT CMD;
+
+
+INTEGER_PARAMETER pWallType;
+STRING_PARAMETER pWALL_NAME[100], pOUTPUT[50]; 
+
+integer g_HxW;
+integer g_O;
+integer g_input;
+
+
+STRING_FUNCTION __SWITCH_RANGE(string data)
+{
+	integer start, end, cnt;
+	string formatRange[50], temp[50], temp1[50], range[100];
+	
+	range = data;
+	
+	if (len(range) = 1)
+	return(range);  
+	
+	while (find( "-", range, 1) > 0 || find( ",", range, 1) > 0)
+	{
+		if ( find( ",", range, 1) > 0 ) 
+		{
+			temp = remove( ",", range, 1 );
+			if ( find( "-", temp, 1) > 0 ) 
+			{
+				temp = left( temp, len( temp ) - 1 );
+				temp1 = remove( "-", temp, 1);
+				temp1 = left( temp1, len( temp1 ) - 1 );
+				start = atoi( temp1 ); 
+				end = atoi( temp ); 
+				for (cnt = start to end - 1 )
+				{
+					formatRange = formatRange + itoa( cnt ) + ",";
+				}
+			} 
+			else 
+			{ 
+				formatRange = formatRange + temp;
+			}
+		}
+		else if (find( "-", range, 1) > 0 ) 
+		{
+			temp1 = remove( "-", range, 1);
+			temp1 = left( temp1, len( temp1 ) - 1 );
+			start = atoi( temp1 ); 
+			end = atoi( range ); 
+			for (cnt = start to end - 1)
+			{
+				formatRange = formatRange + itoa( cnt ) + ",";
+			}
+		} 
+	}
+	formatRange = formatRange + range;
+	return (formatRange);
+}
+
+
+PUSH CREATE_WALL
+{
+	string command[5000],  formatoutput[50], output_alias[5];
+	
+	integer cntCol, cntRow, rotation;
+	
+	formatoutput = __SWITCH_RANGE(pOUTPUT);
+	makestring(command, "vw add %s %d %d %d %d %s;", pWALL_NAME, g_HxW, g_HxW, g_input, g_O, formatoutput);
+	CMD = command;
+}
+
+PUSH REMOVE_WALL
+{
+	string command[256];
+	makestring(command, "vw remove %s;", pWALL_NAME);
+	CMD = command;
+}
+
+
+
+push SET_SETTINGS
+{
+	string command[256];
+	makestring(command, "vw gap %s %d %d %d %d;", pWALL_NAME, SCREEN_X, SCREEN_Y, IMAGE_X, IMAGE_Y);
+	CMD = command;
+	
+}
+
+threadsafe CHANGE INPUT
+{
+	string command[256];	
+	if (INPUT != g_input)
+	{
+		makestring(command, "vw change %s %d %d;", pWALL_NAME, INPUT, g_input);
+		g_input = INPUT;
+		CMD = command;
+	}
+}    
+
+push RECALL_LAYOUT
+{
+	string command[256];
+	
+	if(LEN(LAYOUT))
+	{
+		makestring(command, "vwid layout active %s %s;", pWALL_NAME, LAYOUT);
+		CMD = command;
+	}
+} 
+
+PUSH MOSAIC_LAYOUT_ACTIVE
+{
+	string command[256];
+	makestring(command, "vw mosaic layout active %s %s;", pWALL_NAME, LAYOUT);
+	CMD = command;
+}
+
+Function Main()
+{
+	WaitForInitializationComplete();
+	g_O = 0;
+	if (pWallType = 1) { g_HxW = 2; } 
+	else if (pWallType = 2) { g_HxW = 2; g_O = 180; }
+	else if (pWallType = 3) { g_HxW = 3; }
+	g_input = 1;
+}

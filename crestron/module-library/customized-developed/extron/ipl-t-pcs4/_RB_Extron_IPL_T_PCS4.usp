@@ -1,0 +1,132 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/* Compiler Directives */
+
+//#ENABLE_DYNAMIC
+#SYMBOL_NAME "Extron IPL T PCS4"
+#HINT "For Handling Volume Replies From Extron Equipment"
+#CATEGORY "46" "RBLAJDA_EXTRON" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+//#DEFINE_CONSTANT DEBUG  0
+#DEFINE_CONSTANT csDelimiter  "\x0D\x0A"
+#DEFINE_CONSTANT csSpace "\x20"
+
+//INPUTS
+DIGITAL_INPUT Get_All_Status, _SKIP_;
+DIGITAL_INPUT Outlet_On[4], Outlet_Off[4];
+BUFFER_INPUT _SKIP_, rx[1024];
+
+STRING_PARAMETER _SKIP_, Password[100];
+
+//OUTPUTS
+DIGITAL_OUTPUT Logged_In, _SKIP_, Outlet_On_Fb[4], Outlet_Off_Fb[4];
+STRING_OUTPUT   _SKIP_, tx;
+                  
+STRING gsSetOutletResponseChanged[25], gsSetOutletResponseStatus[25], gsGetOutletStatusCommand[25];
+
+FUNCTION Main()
+{
+	gsSetOutletResponseChanged = "Cpn";
+	gsSetOutletResponseStatus = "Ppc";
+	Logged_In = OFF;
+}
+
+FUNCTION GetOutletStatus(integer outlet)
+{
+	makestring(tx, "\x1B%dPC\x0D", outlet);
+}
+
+FUNCTION GetAllOutletStatus()
+{
+	integer i;
+	for (i = 1 to 4)
+	{
+		GetOutletStatus(i);
+	}
+}
+
+CHANGE rx
+{
+	string data[1024];
+ 	integer startpos, endpos, outlet, status, pwrequest, login;
+
+	while(find(csDelimiter, rx) <> OFF)
+	{
+		data = Gather(csDelimiter, rx);
+	
+		pwrequest = find("password:", lower(data));
+		login = find("login", lower(data));
+		
+		if(login <> OFF) { Logged_In = ON; }
+		
+		if(pwRequest <> OFF) { Logged_In = OFF; makeString(tx, "%s\x0D", Password); }
+		
+		startpos = find(gsSetOutletResponseChanged, data);
+	
+		if(startpos <> OFF)
+		{
+			startpos = startpos + len(gsSetOutletResponseChanged);	
+			endpos = find(csSpace, data);
+	
+			try { outlet = atoi(mid(data, startpos, endpos - startpos)); }
+			catch { print("Exception Getting Outlet: %s", GetExceptionMessage()); }
+		}
+	
+		startpos = find(gsSetOutletResponseStatus, data);
+			
+		if(startpos <> OFF)
+		{
+			startpos = startpos + len(gsSetOutletResponseStatus);
+			endpos = find(csDelimiter, data);
+	
+			try { status = atoi(mid(data, startpos, endpos - startpos)); }
+			catch { print("Exception Getting Outlet: %s", GetExceptionMessage()); }
+		}
+	
+		if(outlet <> OFF)
+		{
+			switch(status)
+			{
+				case(ON):
+				{
+					Outlet_On_Fb[outlet] = ON;
+					Outlet_Off_Fb[outlet] = OFF;			
+				}
+				case(OFF):
+				{
+					Outlet_On_Fb[outlet] = OFF;
+					Outlet_Off_Fb[outlet] = ON;
+				}
+			}
+		}
+	}
+}
+
+CHANGE Outlet_On
+{
+	integer changed;
+	changed = getLastModifiedArrayIndex();
+
+	//if pressed
+	if(Outlet_On[changed] = ON) makestring(tx, "\x1B%d*1PC\x0D", changed);
+}
+
+CHANGE Outlet_Off
+{
+	integer changed;
+	changed = getLastModifiedArrayIndex();
+
+	//if pressed
+	if(Outlet_Off[changed] = ON) makestring(tx, "\x1B%d*0PC\x0D", changed);
+}
+
+PUSH Get_All_Status
+{
+	GetAllOutletStatus();	
+}

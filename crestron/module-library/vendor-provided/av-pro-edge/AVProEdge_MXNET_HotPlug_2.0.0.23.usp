@@ -1,0 +1,79 @@
+#define_constant MAX_OUTPUTS  200
+#define_constant MAX_INPUTS  200
+
+
+buffer_input RX[10000];
+
+digital_output  INPUT_DETECT[MAX_INPUTS];
+digital_output  OUTPUT_DETECT[MAX_OUTPUTS];
+
+CMutex buffer_mutex;
+
+
+
+THREADSAFE change RX
+{                                                                  
+	string sIn[10], sOut[10], cmd[100];
+	integer iInput, iOutput, iOnOff;
+	
+	buffer_mutex.WaitForMutex();
+	while(len(RX) > 5 && find( ";", RX, 1 ) > 0)
+	{
+		cmd = gather( ";", RX );
+		cmd = left( cmd, len( cmd ) -1 ); //remove ;
+		
+		if (len(cmd) > 8 && find( "HPD_IN", cmd, 1 ) > 0)
+		{	 
+			sIn = remove( "HPD_IN ", cmd );
+			sIn = remove( "=", cmd );
+			iOnOff = atoi( cmd );
+			sIn = left( sIn, len( sIn ) -1 ); //remove =
+			
+			if(len(sIn) > 0)
+			{
+				if (iInput <= MAX_INPUTS)
+				{
+
+					iInput = atoi( sIn );
+					if(INPUT_DETECT[iInput] != iOnOff)
+					{
+						INPUT_DETECT[iInput] = iOnOff;
+					}
+				}
+				else
+				{
+					Print( "%d HotPlug is not a support Input\n", iOutput );
+				}
+
+			}
+		}
+		else if (len(cmd) > 9 && find( "HPD_OUT ", cmd, 1 ) > 0)
+		{
+			sOut = remove( "HPD_OUT ", cmd );
+			sOut = remove( "=", cmd );
+			iOnOff = atoi( cmd );
+			sOut = left( sOut, len( sOut ) -1 ); //remove =
+			
+			if(len(sOut) > 0)
+			{
+				iOutput = atoi( sOut );
+				if (iOutput <= MAX_OUTPUTS)
+				{
+			
+					if(OUTPUT_DETECT[iOutput] != iOnOff)
+					{
+						OUTPUT_DETECT[iOutput] = iOnOff;
+					}
+				}
+				else
+				{
+					Print( "%d HotPlug is not a support output\n", iOutput );
+				}
+
+			}
+		}  
+		
+	}
+	buffer_mutex.ReleaseMutex();		
+}
+

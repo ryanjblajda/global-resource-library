@@ -1,0 +1,146 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "Kiloview Device"
+#HINT "cotnrols a kiloview device"
+#CATEGORY "46" "RBLAJDA-C#" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENABLE_DYNAMIC
+#DEFINE_CONSTANT ciMaxStringLength 255
+#DEFINE_CONSTANT ciMaxSignals 1024
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+#USER_SIMPLSHARP_LIBRARY "Kiloview"
+
+/**PARAMETERS**/
+INTEGER_PARAMETER Poll_Time;
+
+#BEGIN_PARAMETER_PROPERTIES Poll_Time
+	propValidUnits = unitTime;
+   	propDefaultUnit = unitTime;
+   	propBounds = 1s , 30s;
+   	propDefaultValue = 1s;
+   	propShortDescription = "how often the device should be polled for information";
+#END_PARAMETER_PROPERTIES
+
+/**INPUTS**/
+DIGITAL_INPUT _SKIP_, Debug, _SKIP_, Login;
+STRING_INPUT  _SKIP_, _SKIP_, _SKIP_, Host[ciMaxStringLength], Username[ciMaxStringLength], Password[ciMaxStringLength];
+ANALOG_INPUT  _SKIP_, Recall_Decoding_Stream_Preset;
+
+/**OUTPUTS**/
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, Logged_In_Fb, Error_Fb;
+STRING_OUTPUT Error_Message_Fb, _SKIP_, _SKIP_, _SKIP_; //Hostname_Fb, IP_Address_Fb; 
+ANALOG_OUTPUT _SKIP_, _SKIP_, Decoding_Stream_Preset_Fb;
+STRING_OUTPUT Decoding_Stream_Name_Fb, Decoding_Stream_IP_Address_Fb, Decoding_Stream_URL_Fb;
+
+/**GLOBAL VARIABLES**/
+KiloviewDevice thisDevice;
+
+/**FUNCTIONS**/
+FUNCTION MAIN()
+{
+	waitForInitializationComplete();
+
+    thisDevice.PollInterval = Poll_Time;
+
+	RegisterEvent(thisDevice, IsLoggedInChanged, OnLoginChanged);
+	RegisterEvent(thisDevice, IsErrorChanged, OnErrorChanged);
+	RegisterEvent(thisDevice, ErrorMessageChanged, OnErrorMessageChanged);
+	RegisterEvent(thisDevice, ActualStreamIDChanged, OnStreamIDChanged);
+	RegisterEvent(thisDevice, ActualStreamIPChanged, OnStreamIPChanged);
+	RegisterEvent(thisDevice, ActualStreamURLChanged, OnStreamURLChanged);
+	RegisterEvent(thisDevice, ActualStreamNameChanged, OnStreamNameChanged);
+}
+
+
+/**EVENT HANDLERS**/
+EVENTHANDLER OnStreamIDChanged(KiloviewDevice sender, AnalogPayloadArgs args)
+{
+	Decoding_Stream_Preset_Fb = args.Payload;	
+}
+
+EVENTHANDLER OnStreamIPChanged(KiloviewDevice sender, StringPayloadArgs args)
+{
+	Decoding_Stream_IP_Address_Fb = args.Payload;
+}
+
+EVENTHANDLER OnStreamURLChanged(KiloviewDevice sender, StringPayloadArgs args)
+{
+	Decoding_Stream_URL_Fb = args.Payload;
+}
+
+EVENTHANDLER OnStreamNameChanged(KiloviewDevice sender, StringPayloadArgs args)
+{
+	Decoding_Stream_Name_Fb = args.Payload;
+}
+
+EVENTHANDLER OnLoginChanged(KiloviewDevice sender, DigitalPayloadArgs args)
+{
+	Logged_In_Fb = args.Payload;
+}
+
+EVENTHANDLER OnErrorChanged(KiloviewDevice sender, DigitalPayloadArgs args)
+{
+	Error_Fb = args.Payload;
+}
+
+EVENTHANDLER OnErrorMessageChanged(KiloviewDevice sender, StringPayloadArgs args)
+{
+	Error_Message_Fb = args.Payload;
+}
+
+CHANGE Debug
+{
+	thisDevice.EnableDebug(Debug);
+}
+
+PUSH Login 
+{
+	thisDevice.SendLoginRequest();
+}
+
+CHANGE Host 
+{
+	thisDevice.Host = Host;
+}
+
+CHANGE Username
+{
+	thisDevice.Username = Username;
+}
+
+CHANGE Password
+{
+	thisDevice.Password = Password;
+}
+
+CHANGE Recall_Decoding_Stream_Preset
+{
+	thisDevice.RecallDecodingStreamPreset(Recall_Decoding_Stream_Preset);
+}

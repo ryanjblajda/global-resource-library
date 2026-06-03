@@ -1,0 +1,86 @@
+#define_constant MAX_INPUTS  200
+
+digital_input SET_1280x720_50FPS[MAX_INPUTS];
+digital_input SET_1280x720_60FPS[MAX_INPUTS];
+
+digital_input SET_1920x1080_24FPS[MAX_INPUTS];
+digital_input SET_1920x1080_50FPS[MAX_INPUTS];
+digital_input SET_1920x1080_60FPS[MAX_INPUTS];
+
+digital_input SET_3840x2160_30FPS[MAX_INPUTS];
+digital_input PASSTHROUGH[MAX_INPUTS];
+
+
+string_output CONFIGURE_RX_CMD;
+         
+
+push SET_1280x720_50FPS
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device video 1280 720 50 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+push SET_1280x720_60FPS
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device video 1280 720 60 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+         
+push SET_1920x1080_24FPS
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device video 1920 1080 24 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+push SET_1920x1080_50FPS
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device video 1920 1080 50 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+push SET_1920x1080_60FPS
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device video 1920 1080 60 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+push SET_3840x2160_30FPS
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device video 3840 2160 30 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+
+push PASSTHROUGH
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device video 0 0 0 OUTPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_RX_CMD = cmd;
+}
+

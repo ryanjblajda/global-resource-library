@@ -1,0 +1,116 @@
+				/*
+		Programmer: Ryan Blajda		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "String Router v1"
+#HINT "routes strings from inputs to outputs"
+#CATEGORY "46" "RBLAJDA" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+//#DEFINE_CONSTANT ci_Debug           1
+#DEFINE_CONSTANT ci_MaxDestinations   32
+#DEFINE_CONSTANT ci_MaxRoutableInputs 50
+#DEFINE_CONSTANT ci_MaxOutputLength   512
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+
+/**INPUTS**/
+STRING_INPUT Zero_Value_Input[ci_MaxOutputLength];
+ANALOG_INPUT Input_[ci_MaxDestinations];
+ANALOG_INPUT _SKIP_;
+STRING_INPUT String_[ci_MaxRoutableInputs][ci_MaxOutputLength];
+
+/**OUTPUTS**/
+#OUTPUT_SHIFT 1
+STRING_OUTPUT Active_String[ci_MaxDestinations];
+
+/**GLOBAL VARIABLES**/
+integer giDefinedOutputs;
+string  gsStringInputs[ci_MaxRoutableInputs][ci_MaxOutputLength];
+
+/**FUNCTIONS**/
+FUNCTION Main()
+{
+	integer i; 
+	
+	for(i = ci_MaxDestinations to 1 step -1)
+	{
+		if(IsSignalDefined(Active_String[i]))
+		{
+			break;
+		}
+	}
+
+	giDefinedOutputs = i;
+}
+
+/**EVENT HANDLERS**/
+CHANGE Zero_Value_Input
+{
+	integer i;
+	gsStringInputs[0] = Zero_Value_Input;
+	//update any output, whose value is equal to zero
+	for(i = 1 to giDefinedOutputs)
+	{
+		if(0 = Input_[i]) Active_String[i] = gsStringInputs[0]; 
+	}
+}
+
+CHANGE String_
+{
+	integer i, iLastChanged;
+	iLastChanged = GetLastModifiedArrayIndex();
+    
+	//store string in the array
+	gsStringInputs[iLastChanged] = String_[iLastChanged];
+
+	#IF_DEFINED ci_Debug
+		print("Changed = %s", gsStringInputs[iLastChanged]);
+	#ENDIF
+    
+	//update any output, whose value is equal to the string that changed (iLastChanged)
+	for(i = 1 to giDefinedOutputs)
+	{
+		if(iLastChanged = Input_[i])
+		{
+			Active_String[i] = gsStringInputs[iLastChanged]; 
+		}
+	}
+}
+
+CHANGE Input_
+{
+	integer iLastChanged;
+	iLastChanged = GetLastModifiedArrayIndex();
+    
+	if(Input_[iLastChanged] <= ci_MaxRoutableInputs)
+	{
+		Active_String[iLastChanged] = gsStringInputs[Input_[iLastChanged]];
+	}
+	else
+	{
+		print("Value Out Of Range: %u", Input_[iLastChanged]);
+	}
+}

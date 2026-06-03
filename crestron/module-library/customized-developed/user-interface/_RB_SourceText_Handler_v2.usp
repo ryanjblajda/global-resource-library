@@ -1,0 +1,204 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+#SYMBOL_NAME "Interface Source & Help Text Handler with Signal Detection"
+#HINT "variant of string router, specific to source selection routing."
+#CATEGORY "46" "RBLAJDA" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciMaxSources 24
+#DEFINE_CONSTANT ciBufferSize 1024
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+
+/**INPUTS**/
+DIGITAL_INPUT _SKIP_, _SKIP_, Room_Power_Off;
+DIGITAL_INPUT Signal_Detected_Source_[ciMaxSources];
+ANALOG_INPUT  Selected_Source, Selected_Source_Fb;
+STRING_INPUT  _SKIP_, Error_Message_Help_Text[ciBufferSize], No_Source_Selected_Message[ciBufferSize], No_Source_Selected_Help_Text[ciBufferSize];
+STRING_INPUT  Source_Name[ciMaxSources][ciBufferSize], Source_HelpText[ciMaxSources][ciBufferSize];
+
+/**OUTPUTS**/
+#OUTPUT_SHIFT 3
+DIGITAL_OUTPUT Selected_Source_Detected_Fb, Selected_Source_Not_Detected_Fb;
+ANALOG_OUTPUT Selected_Source_Out;
+STRING_OUTPUT Selected_Source_Name, Selected_Source_HelpText;
+
+/**GLOBAL VARIABLES**/
+STRING gsSourceName[ciMaxSources][ciBufferSize];
+STRING gsHelpText[ciMaxSources][ciBufferSize];
+STRING gsHelpTextErrorMessage[ciBufferSize];
+
+/** PARAMETERS **/
+INTEGER_PARAMETER Insert_Source_Name, Propagate_Source_Feedback_To_Output;
+
+#BEGIN_PARAMETER_PROPERTIES Insert_Source_Name
+	propValidUnits = unitDecimal;
+   	propDefaultUnit = unitDecimal;
+   	propDefaultValue = 1d;
+   	propList = {1d, "Yes"},{0d, "No"};
+   	propShortDescription= "insert the source name into the error string displayed when a source is not detected";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Propagate_Source_Feedback_To_Output
+	propValidUnits = unitDecimal;
+   	propDefaultUnit = unitDecimal;
+   	propDefaultValue = 1d;
+   	propList = {1d, "Yes"},{0d, "No"};
+   	propShortDescription= "when source feedback changes, force the output to match if not already matched";
+#END_PARAMETER_PROPERTIES
+
+/**FUNCTIONS**/
+ 
+STRING_FUNCTION GenerateHelpTextString(string srcName, integer source) {
+	string helptext[ciBufferSize]; //our temporary string to return 
+
+	if(Signal_Detected_Source_[source] = ON) { //if the currently selected source is detected
+		return(gsHelpText[source]); //return the raw help text string, no need for extra processing
+	}
+	//if the currently selected source is not detected
+	if(Insert_Source_Name = ON) { //if insert source name is on, we want to prefix the helptext with the source name
+		makestring(helptext, "%s%s", srcName, gsHelpTextErrorMessage);
+	}
+	else { makeString(helptext, "%s", gsHelpTextErrorMessage); } //if insert source name is not on, just return the helptext
+
+	return(helptext);
+}
+
+INTEGER_FUNCTION InvertSourceDetectionStatus(integer status) {
+	if(status = ON) { return(OFF); }
+	return(ON);
+}
+
+/**EVENT HANDLERS**/
+PUSH Room_Power_Off
+{
+	Selected_Source_Out = OFF;
+	Selected_Source_Name = gsSourceName[0];
+	Selected_Source_HelpText = gsHelpText[0];
+	Selected_Source_Not_Detected_Fb = OFF;
+	Selected_Source_Detected_Fb = OFF;
+}
+
+CHANGE Error_Message_Help_Text {
+	gsHelpTextErrorMessage = Error_Message_Help_Text;
+}
+
+CHANGE Signal_Detected_Source_
+{
+	INTEGER iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	if(Selected_Source <> OFF && Selected_Source = iChanged) //if the selected source is not zero, and the signal detection status that changed matches the source we currently have selected
+	{
+		Selected_Source_HelpText = GenerateHelpTextString(gsSourceName[Selected_Source], Selected_Source);
+
+		Selected_Source_Not_Detected_Fb = InvertSourceDetectionStatus(Signal_Detected_Source_[iChanged]); //invert the signal detection status for the output
+		Selected_Source_Detected_Fb = Signal_Detected_Source_[iChanged];
+	}
+	
+	if(isSignalDefined(Selected_Source_Fb) = ON) {
+		if(Selected_Source_Fb <> OFF && Selected_Source_Fb = iChanged) //if the selected source is not zero, and the signal detection status that changed matches the source we currently have selected
+		{
+			Selected_Source_HelpText = GenerateHelpTextString(gsSourceName[Selected_Source_Fb], Selected_Source_Fb);
+		}
+
+		Selected_Source_Not_Detected_Fb = InvertSourceDetectionStatus(Signal_Detected_Source_[iChanged]); //invert the signal detection status for the output
+		Selected_Source_Detected_Fb = Signal_Detected_Source_[iChanged];	
+	}
+
+}
+
+CHANGE Selected_Source
+{  	
+	Selected_Source_Out = Selected_Source;
+	Selected_Source_Name = gsSourceName[Selected_Source];
+	Selected_Source_Not_Detected_Fb = OFF;
+	Selected_Source_Detected_Fb = OFF;
+
+
+	if(Selected_Source <> OFF) { //if selected source is not zero, we want to generate our dynamic string
+		Selected_Source_HelpText = GenerateHelpTextString(gsSourceName[Selected_Source], Selected_Source);
+		Selected_Source_Not_Detected_Fb = InvertSourceDetectionStatus(Signal_Detected_Source_[Selected_Source]);
+		Selected_Source_Detected_Fb = Signal_Detected_Source_[Selected_Source];
+	}
+	else { //if the selected source is zero, just send the no source help text string
+		Selected_Source_HelpText = gsHelpText[0];
+	}
+}
+
+CHANGE Selected_Source_Fb
+{
+	if(Propagate_Source_Feedback_To_Output = ON) 
+	{ 
+		if (Selected_Source_Out <> Selected_Source_Fb) { Selected_Source_Out = Selected_Source_Fb; }
+	}
+	
+	Selected_Source_Name = gsSourceName[Selected_Source_Fb];
+	Selected_Source_Not_Detected_Fb = OFF;
+	Selected_Source_Detected_Fb = OFF;
+
+	if(Selected_Source_Fb <> OFF) { //if selected source is not zero, we want to generate our dynamic string
+		Selected_Source_HelpText = GenerateHelpTextString(gsSourceName[Selected_Source_Fb], Selected_Source_Fb);
+		Selected_Source_Not_Detected_Fb = InvertSourceDetectionStatus(Signal_Detected_Source_[Selected_Source_Fb]);
+		Selected_Source_Detected_Fb = Signal_Detected_Source_[Selected_Source_Fb];
+	}
+	else { //if the selected source is zero, just send the no source help text string
+		Selected_Source_HelpText = gsHelpText[0];
+	}
+
+}
+
+CHANGE No_Source_Selected_Message //make sure to update the output if no source is selected && store ths string in memory for use later
+{
+	gsSourceName[0] = No_Source_Selected_Message;
+	if(Selected_Source = OFF) Selected_Source_Name = gsSourceName[0]; //no need to generate dynamic string
+}
+
+CHANGE No_Source_Selected_Help_Text //make sure to update the output if no source is selected && store the string in memory for use later
+{
+	gsHelpText[0] = No_Source_Selected_Help_Text;
+	if(Selected_Source = OFF) Selected_Source_HelpText = gsHelpText[0]; //no need to generate dynamic string
+}
+
+CHANGE Source_Name //store string in memory for use later
+{
+	INTEGER iChanged;
+	iChanged = getLastModifiedArrayIndex();	
+	gsSourceName[iChanged] = Source_Name[iChanged];
+	//if the currently selected source is equal to what just changed, pass through the new data
+	if(Selected_Source = iChanged) Selected_Source_Name = gsSourceName[Selected_Source];
+	if(Selected_Source_Fb = iChanged) Selected_Source_Name = gsSourceName[Selected_Source_Fb];
+}
+
+CHANGE Source_HelpText //store string in memory for use later
+{
+	INTEGER iChanged;
+	iChanged = getLastModifiedArrayIndex();	
+	gsHelpText[iChanged] = Source_HelpText[iChanged];
+	//if the currently selected source is equal to what just changed, pass through the new data
+	if(Selected_Source = iChanged) Selected_Source_HelpText = gsHelpText[Selected_Source];
+	if(Selected_Source_Fb = iChanged) Selected_Source_HelpText = gsHelpText[Selected_Source_Fb];
+
+}

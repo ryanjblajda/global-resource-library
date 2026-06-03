@@ -1,0 +1,149 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "Axis Camera v1"
+#HINT "controls axis cameras via http"
+#CATEGORY "46" "RBLAJDA-C#" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+#USER_SIMPLSHARP_LIBRARY "Axis"
+
+/**INPUTS**/
+string_input  Cam_IP_Address[255];
+analog_input  PanTiltSpeed, ZoomSpeed;
+digital_input Cam_Up, Cam_Down, Cam_Left, Cam_Right;
+digital_input Cam_Zoom_In, Cam_Zoom_Out;
+digital_input Cam_Home_Go, Cam_Home_Save;
+digital_input Recall_Preset_[10], Save_Preset_[10];
+
+/**OUTPUTS**/
+digital_output Cam_Command_Success_Reponse, Cam_Command_Failure_Response;
+string_output Cam_Command_FailureMessage;
+
+/**PARAMETERS**/
+
+/**GLOBAL VARIABLES**/
+Camera thisCamera;
+
+/**FUNCTIONS**/
+function Main()
+{
+	RegisterEvent(thisCamera, Success, OnSuccess);
+	RegisterEvent(thisCamera, Failure, OnFailure);
+	RegisterEvent(thisCamera, FailureMessage, OnFailureMessage);
+}
+
+/**EVENT HANDLERS**/
+eventhandler OnSuccess(Camera sender, DigitalPayloadEventArgs args)
+{
+	Cam_Command_Success_Reponse = args.Payload;
+}
+
+eventhandler OnFailure(Camera sender, DigitalPayloadEventArgs args)
+{
+	Cam_Command_Failure_Response = args.Payload;
+}
+
+eventhandler OnFailureMessage(Camera sender, StringPayloadEventArgs args)
+{
+	Cam_Command_FailureMessage = args.Payload;
+}
+
+push Cam_Up
+{
+	thisCamera.PanTiltZoom(1);
+}
+
+push Cam_Down
+{
+	thisCamera.PanTiltZoom(2);
+}
+
+push Cam_Left 
+{
+	thisCamera.PanTiltZoom(3);
+}
+
+push Cam_Right
+{
+	thisCamera.PanTiltZoom(4);
+}
+
+push Cam_Home_Save
+{
+	thisCamera.Home(0);
+}
+
+push Cam_Home_Go
+{
+	thisCamera.Home(1);
+}
+
+push Cam_Zoom_In
+{
+	thisCamera.PanTiltZoom(5);
+}
+
+push Cam_Zoom_Out
+{
+	thisCamera.PanTiltZoom(6);
+}
+
+push Recall_Preset_
+{
+	integer preset;
+	preset = GetLastModifiedArrayIndex();
+	thisCamera.RecallPreset(preset);
+}
+
+push Save_Preset_
+{
+	integer preset;
+	preset = GetLastModifiedArrayIndex();
+	thisCamera.SavePreset(preset);
+}
+
+change PanTiltSpeed
+{
+	thisCamera.PanTiltSpeed = PanTiltSpeed;
+}
+
+change ZoomSpeed
+{
+	thisCamera.ZoomSpeed = ZoomSpeed;
+}
+
+change Cam_IP_Address
+{
+	thisCamera.IPAddress = Cam_IP_Address;
+}
+
+release Cam_Up, Cam_Down, Cam_Left, Cam_Right, Cam_Zoom_In, Cam_Zoom_Out
+{
+	thisCamera.PanTiltZoom(0);
+}

@@ -1,0 +1,78 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Serial Comparison (Full Set) v2"
+#HINT "Compares 2 Strings For Equality"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciBufferSize 1024
+
+#HELP_BEGIN
+
+Just Like Analog Compare but with strings
+
+#HELP_END
+
+ 
+STRING_INPUT String_A[ciBufferSize], String_B[ciBufferSize];
+
+DIGITAL_OUTPUT Are_Equal_Case_Sensitive, Are_Equal_Case_Insensitive, Not_Equal;
+
+/* GLOBAL VARIABLES */
+string compare_string_a[ciBufferSize], compare_string_b[ciBufferSize];
+
+/* FUNCTIONS */
+FUNCTION Compare_Strings(string a, string b)
+{
+	if(a = b)
+	{
+		Are_Equal_Case_Sensitive = ON;
+	}
+	else
+	{
+		Are_Equal_Case_Sensitive = OFF;
+	}
+
+	if(lower(a) = lower(b))
+	{
+		Are_Equal_Case_Insensitive = ON;
+	}
+	else
+	{
+		Are_Equal_Case_Insensitive = OFF;
+	}
+
+	if((a <> b) && (lower(a) <> (lower(b))))
+	{
+		Not_Equal = ON;
+	}
+	else
+	{
+		Not_Equal = OFF;
+	}
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE String_A
+{
+	compare_string_a = String_A;
+	Compare_Strings(compare_string_a, compare_string_b);
+}
+
+CHANGE String_B
+{	
+	compare_string_b = String_B;
+	Compare_Strings(compare_string_a, compare_string_b);
+}

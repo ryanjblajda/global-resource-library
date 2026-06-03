@@ -1,0 +1,51 @@
+/*
+Programmer: RBLAJDA
+*/
+
+/***Compiler Directives***/
+#SYMBOL_NAME "Time Creator"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+/** SIMPL# **/
+
+/** PARAMS **/
+
+/** INPUTS**/
+ANALOG_INPUT Time_Hours, Time_Minutes;
+DIGITAL_INPUT Time_PM;
+
+/** OUTPUTS **/
+STRING_OUTPUT Generated_Time;
+
+/** GLOBAL VARIABLES **/
+
+/** FUNCTIONS **/
+STRING_FUNCTION Generate_Time(integer iHours, integer iMinutes, integer iPM)
+{
+	string result[18];
+    
+	if(iHours = 12)
+	{
+		//time is midnight
+		if(iPM = OFF) iHours = iHours - 12;
+	}
+	else
+	{
+		//create military time for every time other than midnight/noon
+		if(iPM = ON) iHours = iHours + 12;
+	}    
+	makestring(result, "%02d%02d", iHours, iMinutes);
+	
+	return(result);
+}
+
+/** EVENTS **/
+CHANGE Time_Hours, Time_Minutes, Time_PM
+{
+	Generated_Time = Generate_Time(Time_Hours, Time_Minutes, Time_PM);
+}

@@ -1,0 +1,322 @@
+/***********************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+***********************************************************************************/
+/*
+Dealer Name:	Crestron Electronics
+System Name:
+System Number:
+Programmer:		PAC
+Comments:
+*/
+/***********************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+***********************************************************************************/
+#SYMBOL_NAME "Epson TCP/IP Driver v1.0"
+// #HINT ""
+#DEFINE_CONSTANT	ciCONNECTFAILED		0
+#DEFINE_CONSTANT	ciCONNECTED			1
+#DEFINE_CONSTANT	ciINVALIDPASS	2
+#DEFINE_CONSTANT	ciCONNECTING	3
+#DEFINE_CONSTANT	ciDISCONNECTED		4
+#DEFINE_CONSTANT	ciDISCONNECTING		5
+
+#DEFINE_CONSTANT	ciQUEUESIZE			30
+
+#DEFINE_CONSTANT	csCONNOPASS			"ESC/VP.net\x10\x03\x00\x00\x00\x00"
+#DEFINE_CONSTANT	csERRUNAUTH			"ESC/VP.net\x10\x02\x00\x00\x41\x00"
+#DEFINE_CONSTANT	csERRBUSY		"ESC/VP.net\x10\x02\x00\x00\x53\x00"
+#DEFINE_CONSTANT	csCONOK			"ESC/VP.net\x10\x03\x00\x00\x20\x00"
+#DEFINE_CONSTANT	csERRINVALID		"ESC/VP.net\x10\x02\x00\x00\x43\x00"
+#DEFINE_CONSTANT	csUNAUTHORIZED		"ESC/VP.net\x10\x03\x00\x00\x41\x00"
+#DEFINE_CONSTANT	csCONPASS		"ESC/VP.net\x10\x03\x00\x00\x00\x01\x01\x01"
+
+#DEFINE_CONSTANT	csCOMMANDEOM		"\x0D"
+
+// #CATEGORY "" 
+#CATEGORY "24" // TV/Video Projector
+#DEFAULT_VOLATILE
+// #DEFAULT_NONVOLATILE
+// #PRINT_TO_TRACE
+// #ENABLE_TRACE
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+/***********************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+***********************************************************************************/
+DIGITAL_INPUT	Connect, Connected, Disconnect, Time_Out;
+// ANALOG_INPUT 
+STRING_INPUT	From_Device$[250];
+BUFFER_INPUT	From_Module$[500];
+
+DIGITAL_OUTPUT	Connect_Out, Ok_to_Send, Timed_Out;
+ANALOG_OUTPUT		Status;
+STRING_OUTPUT		To_Device$;
+/***********************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+***********************************************************************************/
+INTEGER	iFlag1, iFlag2, iNextSend, iNextStore, iSendOk, a;
+STRING	sPassword[16], sTemp[250], sQueue[ciQUEUESIZE][50], sTemp1[50];
+
+STRING_PARAMETER Password$[16]; 
+
+//#BEGIN_PARAMETER_PROPERTIES Password$
+//   propDefaultValue = "";
+//#END_PARAMETER_PROPERTIES
+
+/***********************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+***********************************************************************************/
+Function fTimeOut()
+{
+	wait(500, wTimeOut)
+	{
+		Timed_Out = 1;
+	}
+}
+
+/*
+Integer_Function MyIntFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+
+    Return (0);
+}
+*/
+
+/*
+String_Function MyStrFunction1()
+{
+    // TODO:  Add local variable declarations here
+
+    // TODO:  Add code here
+
+    Return ("");
+}
+*/
+/***********************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+***********************************************************************************/
+PUSH Connect
+{
+	if(Connected = 0)
+	{
+		Connect_Out = 1;
+		Status = ciCONNECTING;
+		iSendOk = 0;
+		call fTimeOut();
+	}
+}
+
+PUSH Connected
+{
+	To_Device$ = csCONPASS + sPassword;
+}
+
+PUSH Time_Out
+{
+	Timed_Out = 0;
+	Connect_Out = 0;
+	Status = ciCONNECTFAILED;
+	iSendOk = 0;
+	Ok_to_Send = 0;
+}
+
+RELEASE Connected
+{
+	Connect_Out = 0;
+	Ok_to_Send = 0;
+	iSendOk = 0;
+	Status = ciDISCONNECTED;
+}
+
+PUSH Disconnect
+{
+	if(Connected = 1)
+	{
+		Connect_Out = 0;
+		Ok_to_Send = 0;
+		iSendOk = 0;
+		Status = ciDISCONNECTING;
+		call fTimeOut();
+	}
+	else
+	{
+		Connect_Out = 0;
+		Ok_to_Send = 0;
+		iSendOk = 0;
+		Status = ciDISCONNECTED;
+	}
+}
+
+/*
+CHANGE Password$
+{
+	clearbuffer(sPassword);
+	if(len(Password$) < 16)
+	{
+		for(a = 1 to (16 - len(Password$)))
+			sPassword = sPassword + "\x00";
+	} 
+	sPassword = Password$ + sPassword;
+}
+*/
+CHANGE From_Device$
+{
+	if(iFlag1 = 0)
+	{
+		iFlag1 = 1;
+		while(len(From_Device$) > 0)
+		{
+			cancelwait(wTimeOut);
+			sTemp = sTemp + From_Device$;
+			clearbuffer(From_Device$);
+			if(find(csCONOK, sTemp) > 0)
+			{
+				Status = ciCONNECTED;
+				sTemp = "";
+				if(iNextSend <> iNextStore)
+				{
+					To_Device$ = sQueue[iNextSend];
+					iNextSend = inextSend + 1;
+					if(iNextSend > ciQUEUESIZE)
+					{
+						iNextSend = 1;
+					}
+					iSendOk = 0;
+					Ok_to_Send = 0;
+				}
+				else
+				{
+					iSendOk = 1;
+					Ok_to_Send = 1;
+				}
+			}
+			else if(find(csERRUNAUTH, sTemp) > 0)
+			{
+				makestring(To_Device$, "%s%s", csCONPASS, sPassword);
+				Ok_to_Send = 0;
+				iSendOk = 0;
+				sTemp = "";
+				call fTimeOut();
+			}
+/*			else if(find(csUNAUTHORIZED, sTemp) > 0)
+			{
+				makestring(To_Device$, "%s%s", csCONPASS, sPassword);
+				Ok_to_Send = 0;
+				iSendOk = 0;
+				sTemp = "";
+				call fTimeOut();
+			}
+*/			else if(find(csERRINVALID, sTemp) > 0)
+			{
+				Status = ciINVALIDPASS;
+				Ok_to_Send = 0;
+				iSendOk = 0;
+				sTemp = "";
+			}
+			else if(find(csERRBUSY, sTemp) > 0)
+			{
+				Status = ciCONNECTFAILED;
+				Ok_to_Send = 0;
+				iSendOk = 0;
+				sTemp = "";
+			}
+			else if((find("ESC/VP", sTemp) = 0) || (find("=", sTemp) > 0))
+			{
+				sTemp = "";
+				if(iNextSend <> iNextStore)
+				{
+					To_Device$ = sQueue[iNextSend];
+					iNextSend = inextSend + 1;
+					if(iNextSend > ciQUEUESIZE)
+					{
+						iNextSend = 1;
+					}
+					iSendOk = 0;
+					Ok_to_Send = 0;
+				}
+				else
+				{
+					Ok_to_Send = 1;
+					iSendOk = 1;
+				}
+			}
+		}
+		iFlag1 = 0;
+	}
+}
+
+CHANGE From_Module$
+{
+	if(iFlag2 = 0)
+	{
+		iFlag2 = 1;
+		while(find(csCOMMANDEOM, From_Module$) > 0)
+		{
+			sTemp1 = remove(csCOMMANDEOM, From_Module$);
+			if(iSendOk = 1)
+			{
+				To_Device$ = sTemp1;
+				sTemp1 = "";
+			}
+			else
+			{
+				sQueue[iNextStore] = sTemp1;
+				iNextStore = iNextStore + 1;
+				if(iNextStore > ciQUEUESIZE)
+				{
+					iNextStore = 1;
+				}
+				sTemp1 = "";
+				if(Connected = 0)
+				{
+					Connect_Out = 1;
+					Status = ciCONNECTING;
+				}
+			}
+		}
+		iFlag2 = 0;
+	}
+}
+/***********************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+***********************************************************************************/
+Function Main()
+{
+	iFlag1 = 0;
+	iFlag2 = 0;
+	sTemp = "";
+	sTemp1 = "";
+	Status = ciDISCONNECTED;
+	Connect_Out = 0;
+	Ok_to_Send = 0;
+	sPassword = "";
+	iNextStore = 1;
+	iNextSend = 1;
+	iSendOk = 0;
+
+	clearbuffer(sPassword);
+	if(len(Password$) < 16)
+	{
+		for(a = 1 to (16 - len(Password$)))
+			sPassword = sPassword + "\x00";
+	} 
+	sPassword = Password$ + sPassword;
+}

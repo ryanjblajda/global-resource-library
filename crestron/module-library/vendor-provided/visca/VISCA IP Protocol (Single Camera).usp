@@ -1,0 +1,1176 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "VISCA IP Protocol (Single Camera)"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND
+// #ANALOG_SERIAL_EXPAND
+// #OUTPUT_SHIFT
+// #HELP_PDF_FILE ""
+// #DEFAULT_VOLATILE
+// #ENABLE_STACK_CHECKING
+// #ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+ANALOG_INPUT Address;
+
+ANALOG_INPUT Pan_Speed, Tilt_Speed;
+DIGITAL_INPUT Tilt_Up, Tilt_Down, Pan_Left, Pan_Right;
+DIGITAL_INPUT Pan_Tilt_Up_Left, Pan_Tilt_Up_Right, Pan_Tilt_Down_Left, Pan_Tilt_Down_Right;
+DIGITAL_INPUT Pan_Tilt_Stop, Pan_Tilt_Home;
+
+ANALOG_INPUT Zoom_Mode_Param, Zoom_Speed, Tele_Convert_Param;
+DIGITAL_INPUT Zoom_Mode, Zoom_Stop, Zoom_Tele, Zoom_Wide, Zoom_Tele_Convert;
+
+ANALOG_INPUT Focus_Mode_Param, Focus_Speed, AF_Mode_Param;
+DIGITAL_INPUT Focus_Mode, Focus_Stop, Focus_Far, Focus_Near, Focus_One_Push_Trigger, Focus_AF_Mode;
+
+ANALOG_INPUT Preset_Mode_Param, Preset_Call_Mode_Param, Preset_Number, Preset_Select_Param, Preset_Separate_Speed, Preset_Common_Speed;
+DIGITAL_INPUT Preset_Mode, Preset_Call_Mode, Preset_Set, Preset_Reset, Preset_Recall, Preset_Stop;
+DIGITAL_INPUT Preset_Speed_Select, Preset_Speed_Separate, Preset_Speed_Common;
+
+ANALOG_INPUT WB_Mode_Param;
+DIGITAL_INPUT WB_Mode, WB_One_Push_Trigger, WB_Offset_Reset, WB_Offset_Up, WB_Offset_Down;
+DIGITAL_INPUT R_Gain_Reset, R_Gain_Up, R_Gain_Down, B_Gain_Reset, B_Gain_Up, B_Gain_Down;
+
+ANALOG_INPUT Exposure_Mode_Param, Auto_Slow_Shutter_Param, Backlight_Param, Exposure_Compensation_Param;
+ANALOG_INPUT Visibility_Enhancer_Param, VE_Brightness, VE_Luminance, VE_Intensity;
+DIGITAL_INPUT Exposure_Mode, Iris_Reset, Iris_Up, Iris_Down, Gain_Reset, Gain_Up, Gain_Down;
+DIGITAL_INPUT Shutter_Reset, Shutter_Up, Shutter_Down, Auto_Slow_Shutter, Backlight;
+DIGITAL_INPUT Exposure_Compensation, Exposure_Compensation_Reset, Exposure_Compensation_Up, Exposure_Compensation_Down;
+DIGITAL_INPUT Visibility_Enhancer, Visibility_Enhancer_Level;
+
+ANALOG_INPUT Video_Select_Param;
+DIGITAL_INPUT Video_Select;
+
+ANALOG_INPUT Power_Param;
+DIGITAL_INPUT Power;
+
+ANALOG_INPUT Tally_Control_Param, Tally_Level_Param;
+DIGITAL_INPUT Tally_Control, Tally_Level;
+
+DIGITAL_INPUT Camera_Select_Initialize;
+
+STRING_INPUT Input_Visca[100];
+STRING_INPUT From_Device[100];
+
+STRING_OUTPUT Command;
+STRING_OUTPUT Answer1;
+STRING_OUTPUT Answer2;
+ANALOG_OUTPUT Selected_Video_Format;
+ANALOG_OUTPUT Selected_Power_Param;
+ANALOG_OUTPUT Model_Param;
+ANALOG_OUTPUT Version_Major;
+ANALOG_OUTPUT Version_Minor;
+DIGITAL_OUTPUT Initialize_Requested;
+DIGITAL_OUTPUT Busy;
+DIGITAL_OUTPUT Version2;
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+LONG_INTEGER counter;
+INTEGER seq_power_inq, seq_version_inq, seq_video_inq;
+
+STRING str_address[1];
+STRING str_pan_speed[1], str_tilt_speed[1];
+STRING str_zoom_mode_param[1], str_zoom_speed_tele[1], str_zoom_speed_wide[1], str_tele_convert_param[1];
+STRING str_focus_mode_param[1], str_focus_speed_far[1], str_focus_speed_near[1], str_af_mode_param[1];
+STRING str_preset_mode_param[1], str_preset_call_mode_param[1], str_preset_number[1];
+STRING str_preset_select_param[1], str_preset_separate_speed[1], str_preset_common_speed_upper[1], str_preset_common_speed_lower[1];
+STRING str_wb_mode_param[1];
+STRING str_exposure_mode_param[1], str_exposure_compensation_param[1], str_auto_slow_shutter_param[1], str_backlight_param[1], str_visibility_enhancer_param[1];
+STRING str_ve_brightness[1], str_ve_luminance[1], str_ve_intensity[1];
+STRING str_video_select_param_upper[1], str_video_select_param_lower[1];
+STRING str_power_param[1];
+STRING str_tally_control_param[1], str_tally_level_param[1];
+STRING visca[100];
+STRING response[100];
+
+INTEGER zoom_stop_come, focus_stop_come, pt_stop_come, mutex;
+// 0: IDLE, 1: Recall issued, 2: Recall executing (Comp -> 0:IDLE), 3: Request cancelling
+INTEGER preset_recall_status;
+INTEGER preset_ack_array[1];
+INTEGER inq_category;
+INTEGER video_select_backup, video_select_requesting;
+INTEGER power_request_status; // 0:Normal, 1:RequestingPowerOff, 2:PowerOff, 3:RequestingPowerOn
+CMutex visca_mutex;
+CMutex recv_mutex;
+CEvent visca_event;
+INTEGER wait_ack;
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+String_Function OverIp(INTEGER command_type)
+{
+    STRING visca_over_ip[100];
+    INTEGER seq_number1, seq_number2, seq_number3, seq_number4, wait_ret;
+
+    TRACE("Mutex wait before.");
+    visca_mutex.WaitForMutex();
+    if (mutex = 1) {
+        mutex = 0;
+    }
+    else {
+        wait_ret = visca_event.Wait(1000);
+        if (wait_ret <> 1) {
+            TRACE("Mutex forcibly acquired due to timeout.");
+        }
+        mutex = 0;
+    }
+
+    if (wait_ack = 1) {
+        TRACE("Ack is not replied.");
+        Delay(3);
+        wait_ack = 0;
+    }
+
+    //  range of command_type:
+    //  0=>Normal, 1=>Preset recall, 2=>CameraSelect Initialize
+    //  3=>Video Select, 4=> CAM_Power off/on
+    if (command_type = 1) {
+        if (preset_recall_status = 0) {
+            preset_recall_status = 1;
+        }
+        else if (preset_recall_status = 1) {
+            TRACE("Preset recall request is being already issued.");
+        }
+        // In case that the preset recall requst comes when the very preset operation
+        // is being executed, the status will be moved back to requesting state.
+        else if (preset_recall_status = 2) {
+            preset_recall_status = 1;
+        }
+    }
+    else if (command_type = 2) {
+        if (inq_category = 0) {
+            TRACE("CAM_Power inq request.");
+            TRACE("Waiting for the request.");
+            inq_category = 1;
+        }
+        else if (inq_category = 1) {
+            TRACE("Version inq request.");
+            inq_category = 2;
+        }
+        else if (inq_category = 2) {
+            TRACE("VideoFormat inq request.");
+            inq_category = 3;
+        }
+        else {
+            TRACE("Anyhow the last inquiry response has not been properly received.");
+            inq_category = 1;
+        }
+    }
+    else if (command_type = 3) {
+        video_select_requesting = 1;
+        TRACE("System Select request [%2X].", Video_Select_Param);
+    }
+    else if (command_type = 4) { // Power Off/On
+        if (Power_Param = 0x03 && power_request_status = 0) {
+            power_request_status = 1;
+        }
+        else if (Power_Param = 0x02 && power_request_status = 2) {
+            power_request_status = 3;
+        }
+        else {
+            TRACE("Unexpected Power control request [%2X].", Power_Param);
+        }
+    }
+
+    visca_mutex.ReleaseMutex();
+    TRACE("Mutex wait after.");
+
+    if (command_type <> 2) {
+        wait_ack = 1;
+    }
+
+    seq_number1 = RotateLeftLong(counter, 8 ) & 0xff;
+    seq_number2 = RotateLeftLong(counter, 16) & 0xff;
+    seq_number3 = RotateLeftLong(counter, 24) & 0xff;
+    seq_number4 = RotateLeftLong(counter, 32) & 0xff;
+    makestring(visca_over_ip, "\x01\x00\x00%s%s%s%s%s%s", chr(len(visca)), chr(seq_number1), chr(seq_number2), chr(seq_number3), chr(seq_number4), visca);
+
+    if (counter = 0xFFFFFFFF) {
+        counter = 0;
+    }
+    else {
+        counter = counter + 1;
+    }
+
+    Return (visca_over_ip);
+}
+
+String_Function IssueResetCommandOverIp()
+{
+    STRING visca_over_ip_reset[100];
+
+    makestring(visca_over_ip_reset, "\x02\x00\x00\x01\x00\x00\x00\x00\x01");
+
+    counter = 1;
+
+    Return (visca_over_ip_reset);
+}
+
+Function InvokePowerInquiry()
+{
+    seq_power_inq = counter & 0xFF;
+    TRACE("seq_power_inq = %02X", seq_power_inq);
+    makestring(visca, "%s\x09\x04\x00\xFF", str_address);
+    Command = OverIp(2);
+}
+
+Function InvokeVersionInquiry()
+{
+    seq_version_inq = counter & 0xFF;
+    TRACE("seq_version_inq = %02X", seq_version_inq);
+    makestring(visca, "%s\x09\x00\x02\xFF", str_address);
+    Command = OverIp(2);
+}
+
+Function InvokeVideoFormat_Status()
+{
+    seq_video_inq = counter & 0xFF;
+    TRACE("seq_video_inq = %02X", seq_video_inq);
+    makestring(visca, "%s\x09\x7E\x04\x33\xFF", str_address);
+    Command = OverIp(2);
+}
+
+String_Function AnswerMessage()
+{
+    INTEGER key;
+    INTEGER error_code;
+    key = Byte(response, 2) & 0xF0;
+    error_code = Byte(response, 3) & 0xFF;
+
+    if (key = 0x40) {
+        Return ("Ack");
+    }
+    else if (key = 0x50 && len(response) = 3) {
+        Return ("Comp");
+    }
+    else if (key = 0x60) {
+        if (error_code = 0x01) {
+            Return ("MLE");
+        }
+        else if (error_code = 0x02) {
+            Return ("Syntax");
+        }
+        else if (error_code = 0x03) {
+            Return ("BufFULL");
+        }
+        else if (error_code = 0x04) {
+            Return ("Canceled");
+        }
+        else if (error_code = 0x05) {
+            Return ("NoSock");
+        }
+        else if (error_code = 0x41) {
+            Return ("CNE");
+        }
+    }
+    Return("");
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+CHANGE Input_Visca
+{
+    visca = Input_Visca;
+    Command = OverIp(0);
+}
+
+Function Handle_Visca_Request_Reply(INTEGER ack_no, INTEGER reply, STRING response)
+{
+    INTEGER key, code;
+    key = reply & 0xF0;
+
+    if (key = 0x40 || key = 0x50 || key = 0x60) {
+        TRACE("Mutex release before (%d)", ack_no);
+        visca_mutex.WaitForMutex();
+
+        if (key = 0x40) {   // ACK
+            if (preset_recall_status = 1) {
+                preset_ack_array[ack_no - 1] = 1;
+                preset_recall_status = 2;
+            }
+            if (video_select_requesting > 0) {
+                video_select_requesting = 0;
+            }
+            if (power_request_status > 0) {
+                if (power_request_status = 1) {
+                    TRACE("Power Off ACK received.");
+                }
+                else if (power_request_status = 3) {
+                    TRACE("Power On ACK received.");
+                }
+            }
+            wait_ack = 0;
+        }
+        else if (key = 0x60) {  // Some error (Syntax/NoSocket/CNE)
+            if (preset_recall_status > 0) {
+                code = Byte(response, 3);
+                if (code = 0x04) {
+                    TRACE("Preset is successfully canceled.");
+                    preset_ack_array[ack_no - 1] = 0;
+                }
+                else if (code = 0x05) {
+                    TRACE("Preset is already stopped.");
+                }
+                else if (code = 0x41) { // CNE
+                    preset_recall_status = 0;
+                }
+            }
+            if (video_select_requesting > 0) {
+                video_select_requesting = 0;
+                TRACE("VideoSelect not sucessful");
+                Selected_Video_Format = video_select_backup;
+            }
+        }
+        else if (key = 0x50) {
+            if (preset_recall_status = 2) {
+                preset_recall_status = 0;
+                preset_ack_array[ack_no - 1] = 0;
+            }
+            if (power_request_status > 0) {
+                if (power_request_status = 1) {
+                    TRACE("Power Off Comp received.");
+                    power_request_status = 2;
+                    Selected_Power_Param = 0x03;
+                }
+                else if (power_request_status = 3) {
+                    TRACE("Power On Comp received.");
+                    power_request_status = 0;
+                    PULSE(10, Initialize_Requested);
+                }
+            }
+        }
+
+        if ((key <> 0x50) && (mutex = 0)) {
+            mutex = 1;
+            visca_event.Set();
+        }
+        visca_mutex.ReleaseMutex();
+        TRACE("Mutex release after (%d)", ack_no);
+    }
+}
+
+INTEGER_Function Handle_Visca_Inquiry_Reply(INTEGER reply, STRING response, INTEGER sequence)
+{
+    INTEGER temp, is_consecutive_comm;
+
+    is_consecutive_comm = 0;
+
+    TRACE("Mutex release before (Inq)");
+    visca_mutex.WaitForMutex();
+
+    if (sequence = seq_power_inq) {
+        // Response form should be "90 50 0p FF"
+        temp = Byte(response, 3);
+        TRACE("CAM_Power status [%2X].", temp);
+        Selected_Power_Param = temp;
+        if (temp = 0x02) {
+            power_request_status = 0;
+            is_consecutive_comm = 1;
+            mutex = 1;
+        }
+        else {
+            power_request_status = 2;
+            // In case of CAM_Power=Off, we will finish the initialize process.
+            inq_category = 0;
+        }
+    }
+    if (sequence = seq_version_inq) {
+        // Response form should be "90 50 pp pp qq qq rr rr 0s FF"
+        temp = (Byte(response, 5) << 8 | Byte(response, 6));
+        TRACE("Model Parameter [%4X].", temp);
+        if (temp = 0x51C) {
+            // BRC-X400
+            Model_Param = 1;
+        }
+        else if (temp = 0x51D) {
+            // BRC-X401
+            Model_Param = 2;
+        }
+        else if (temp = 0x617) {
+            // SRG-X400
+            Model_Param = 3;
+        }
+        else if (temp = 0x61A) {
+            // SRG-201M2
+            Model_Param = 4;
+        }
+        else if (temp = 0x61C) {
+            // SRG-X402
+            Model_Param = 5;
+        }
+        else if (temp = 0x618) {
+            // SRG-X120
+            Model_Param = 6;
+        }
+        else if (temp = 0x61B) {
+            // SRG-HD1M2
+            Model_Param = 7;
+        }
+        else {
+            // Unknown model
+            Model_Param = 0;
+        }
+
+        Version_Major = Byte(response, 7);
+        Version_Minor = Byte(response, 8);
+        if (Version_Major >= 0x2) {
+            Version2 = 1;
+        }
+
+        is_consecutive_comm = 2;
+    }
+    if (sequence = seq_video_inq) {
+        // Response form should be "90 50 0p 0p FF"
+        Selected_Video_Format = (Byte(response, 3) << 4) + Byte(response, 4);
+        TRACE("VideoFormat [%02X]", Selected_Video_Format);
+        video_select_backup = Selected_Video_Format;
+        inq_category = 0;
+    }
+
+    if (mutex = 0) {
+        mutex = 1;
+        visca_event.Set();
+    }
+
+    visca_mutex.ReleaseMutex();
+    TRACE("Mutex release after (Inq)");
+    if (is_consecutive_comm = 1) {
+        recv_mutex.ReleaseMutex();
+        InvokeVersionInquiry();
+    }
+    else if (is_consecutive_comm = 2) {
+        recv_mutex.ReleaseMutex();
+        if (Version_Major >= 2) {
+            InvokeVideoFormat_Status();
+        }
+        else {
+            inq_category = 0;
+        }
+    }
+
+    if (inq_category = 0) {
+        Busy = 0;
+    }
+
+    Return(is_consecutive_comm);
+}
+
+CHANGE From_Device
+{
+    INTEGER ack_no, reply, key, is_response_received, is_consecutive_comm;
+    INTEGER sequence;
+
+    is_consecutive_comm = 0;
+
+    recv_mutex.WaitForMutex();
+    TRACE("Data received.");
+    is_response_received = 0;
+
+    // if camera didn't like the sequence number in the command that was sent
+    if (left(From_Device, 4) = "\x02\x00\x00\x02" && right(From_Device, 2) = "\x0F\x01") {
+        sequence = Byte(From_Device, 8);
+        Command = IssueResetCommandOverIp();
+
+        if (seq_power_inq = sequence) {
+            seq_power_inq = counter & 0xFF;
+        }
+        else if (seq_version_inq = sequence) {
+            seq_version_inq = counter & 0xFF;
+        }
+        else if (seq_video_inq = sequence) {
+            seq_video_inq = counter & 0xFF;
+        }
+
+    }
+    else if (left(From_Device, 2) = "\x02\x01") {
+        visca_mutex.WaitForMutex();
+        mutex = 1;
+        visca_mutex.ReleaseMutex();
+        recv_mutex.ReleaseMutex();
+        Command = OverIp(0);
+        is_consecutive_comm = 1;
+    }
+    else if (left(From_Device, 2) = "\x01\x11" && right(From_Device, 1) = "\xFF") {
+        is_response_received = 1;
+        response = Mid(From_Device, 9, Byte(From_Device, 4));
+    }
+
+    if (is_response_received = 1) {
+        reply = Byte(response, 2);
+        ack_no = reply & 0x0F;
+        key = reply & 0xF0;
+
+        if (ack_no = 0x01) {
+            Answer1 = AnswerMessage();
+            Handle_Visca_Request_Reply(ack_no, reply, response);
+        }
+        else if (ack_no = 0x02) {
+            Answer2 = AnswerMessage();
+            Handle_Visca_Request_Reply(ack_no, reply, response);
+        }
+        else if (key = 0x60) {
+            Answer1 = AnswerMessage();
+            TRACE("Mutex release before (3)");
+            visca_mutex.WaitForMutex();
+
+            if (inq_category > 0) {
+                TRACE("Possible Visca Inquiry not supported.");
+                inq_category = 0;
+            }
+
+            if (mutex = 0) {
+                mutex = 1;
+                visca_event.Set();
+            }
+            visca_mutex.ReleaseMutex();
+            TRACE("Mutex release after (3)");
+        }
+        else if (reply = 0x50) {  // Inquiry reply
+            sequence = Byte(From_Device, 8);
+            is_consecutive_comm = Handle_Visca_Inquiry_Reply(reply, response, sequence);
+        }
+        else {
+            TRACE("Unexpected: key[%2X], reply[%2X], data[%2X]", key, reply, Byte(response, 3));
+        }
+    }
+
+    if (is_consecutive_comm = 0) {
+        recv_mutex.ReleaseMutex();
+    }
+}
+
+CHANGE Address
+{
+    str_address = chr(0x80 | Address);
+}
+
+CHANGE Pan_Speed
+{
+    str_pan_speed = chr(Pan_Speed);
+}
+
+CHANGE Tilt_Speed
+{
+    str_tilt_speed = chr(Tilt_Speed);
+}
+
+CHANGE Zoom_Mode_Param
+{
+    str_zoom_mode_param = chr(Zoom_Mode_Param);
+}
+
+CHANGE Zoom_Speed
+{
+    str_zoom_speed_tele = chr(0x20 | Zoom_Speed);
+    str_zoom_speed_wide = chr(0x30 | Zoom_Speed);
+}
+
+CHANGE Tele_Convert_Param
+{
+    str_tele_convert_param = chr(Tele_Convert_Param);
+}
+
+CHANGE Focus_Mode_Param
+{
+    str_focus_mode_param = chr(Focus_Mode_Param);
+}
+
+CHANGE Focus_Speed
+{
+    str_focus_speed_far  = chr(0x20 | Focus_Speed);
+    str_focus_speed_near = chr(0x30 | Focus_Speed);
+}
+
+CHANGE AF_Mode_Param
+{
+    str_af_mode_param = chr(AF_Mode_Param);
+}
+
+CHANGE Preset_Mode_Param
+{
+    str_preset_mode_param = chr(Preset_Mode_Param);
+}
+
+CHANGE Preset_Call_Mode_Param
+{
+    str_preset_call_mode_param = chr(Preset_Call_Mode_Param);
+}
+
+CHANGE Preset_Number
+{
+    str_preset_number = chr(Preset_Number);
+}
+
+CHANGE Preset_Select_Param
+{
+    str_preset_select_param = chr(Preset_Select_Param);
+}
+
+CHANGE Preset_Separate_Speed
+{
+    str_preset_separate_speed = chr(Preset_Separate_Speed);
+}
+
+CHANGE Preset_Common_Speed
+{
+    str_preset_common_speed_upper = chr((Preset_Common_Speed & 0xF0) >> 4);
+    str_preset_common_speed_lower = chr(Preset_Common_Speed & 0x0F);
+}
+
+CHANGE WB_Mode_Param
+{
+    str_wb_mode_param = chr(WB_Mode_Param);
+}
+
+CHANGE Exposure_Mode_Param
+{
+    str_exposure_mode_param = chr(Exposure_Mode_Param);
+}
+
+CHANGE Backlight_Param
+{
+    str_backlight_param = chr(Backlight_Param);
+}
+
+CHANGE Auto_Slow_Shutter_Param
+{
+    str_auto_slow_shutter_param = chr(Auto_Slow_Shutter_Param);
+}
+
+CHANGE Exposure_Compensation_Param
+{
+    str_exposure_compensation_param = chr(Exposure_Compensation_Param);
+}
+
+CHANGE Visibility_Enhancer_Param
+{
+    str_visibility_enhancer_param = chr(Visibility_Enhancer_Param);
+}
+
+CHANGE VE_Brightness
+{
+    str_ve_brightness = chr(VE_Brightness);
+}
+
+CHANGE VE_Luminance
+{
+    str_ve_luminance = chr(VE_Luminance);
+}
+
+CHANGE VE_Intensity
+{
+    str_ve_intensity = chr(VE_Intensity);
+}
+
+CHANGE Video_Select_Param
+{
+    str_video_select_param_upper = chr((Video_Select_Param & 0xF0) >> 4);
+    str_video_select_param_lower = chr(Video_Select_Param & 0x0F);
+}
+
+CHANGE Power_Param
+{
+    str_power_param = chr(Power_Param);
+}
+
+CHANGE Tally_Control_Param
+{
+    str_tally_control_param = chr(Tally_Control_Param);
+}
+
+CHANGE Tally_Level_Param
+{
+    str_tally_level_param = chr(Tally_Level_Param);
+}
+
+PUSH Tilt_Up
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x03\x01\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Tilt_Down
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x03\x02\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Pan_Left
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x01\x03\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Pan_Right
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x02\x03\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Pan_Tilt_Up_Left
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x01\x01\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Pan_Tilt_Up_Right
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x02\x01\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Pan_Tilt_Down_Left
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x01\x02\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Pan_Tilt_Down_Right
+{
+    makestring(visca, "%s\x01\x06\x01%s%s\x02\x02\xFF", str_address, str_pan_speed, str_tilt_speed);
+    Command = OverIp(0);
+}
+
+PUSH Pan_Tilt_Stop
+{
+    if (pt_stop_come = 0) {
+        pt_stop_come = 1;
+    }
+    else {
+        makestring(visca, "%s\x01\x06\x01\x01\x01\x03\x03\xFF", str_address);
+        Command = OverIp(0);
+    }
+}
+
+PUSH Pan_Tilt_Home
+{
+    makestring(visca, "%s\x01\x06\x04\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Zoom_Mode
+{
+    makestring(visca, "%s\x01\x04\x06%s\xFF", str_address, str_zoom_mode_param);
+    Command = OverIp(0);
+}
+
+PUSH Zoom_Stop
+{
+    if (zoom_stop_come = 0) {
+        zoom_stop_come = 1;
+    }
+    else {
+        makestring(visca, "%s\x01\x04\x07\x00\xFF", str_address);
+        Command = OverIp(0);
+    }
+}
+
+PUSH Zoom_Tele
+{
+    makestring(visca, "%s\x01\x04\x07%s\xFF", str_address, str_zoom_speed_tele);
+    Command = OverIp(0);
+}
+
+PUSH Zoom_Wide
+{
+    makestring(visca, "%s\x01\x04\x07%s\xFF", str_address, str_zoom_speed_wide);
+    Command = OverIp(0);
+}
+
+PUSH Zoom_Tele_Convert
+{
+    makestring(visca, "%s\x01\x7E\x04\x36%s\xFF", str_address, str_tele_convert_param);
+    Command = OverIp(0);
+}
+
+PUSH Focus_Mode
+{
+    makestring(visca, "%s\x01\x04\x38%s\xFF", str_address, str_focus_mode_param);
+    Command = OverIp(0);
+}
+
+PUSH Focus_Stop
+{
+    if (focus_stop_come = 0) {
+        focus_stop_come = 1;
+    }
+    else {
+        makestring(visca, "%s\x01\x04\x08\x00\xFF", str_address);
+        Command = OverIp(0);
+    }
+}
+
+PUSH Focus_Far
+{
+    makestring(visca, "%s\x01\x04\x08%s\xFF", str_address, str_focus_speed_far);
+    Command = OverIp(0);
+}
+
+PUSH Focus_Near
+{
+    makestring(visca, "%s\x01\x04\x08%s\xFF", str_address, str_focus_speed_near);
+    Command = OverIp(0);
+}
+
+PUSH Focus_One_Push_Trigger
+{
+    makestring(visca, "%s\x01\x04\x18\x01\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Focus_AF_Mode
+{
+    makestring(visca, "%s\x01\x04\x57%s\xFF", str_address, str_af_mode_param);
+    Command = OverIp(0);
+}
+
+PUSH Preset_Mode
+{
+    makestring(visca, "%s\x01\x7E\x04\x3D%s\xFF", str_address, str_preset_mode_param);
+    Command = OverIp(0);
+}
+
+PUSH Preset_Call_Mode
+{
+    makestring(visca, "%s\x01\x7E\x04\x3B%s\xFF", str_address, str_preset_call_mode_param);
+    Command = OverIp(0);
+}
+
+PUSH Preset_Set
+{
+    makestring(visca, "%s\x01\x04\x3F\x01%s\xFF", str_address, str_preset_number);
+    Command = OverIp(0);
+}
+
+PUSH Preset_Reset
+{
+    makestring(visca, "%s\x01\x04\x3F\x00%s\xFF", str_address, str_preset_number);
+    Command = OverIp(0);
+}
+
+PUSH Preset_Recall
+{
+    makestring(visca, "%s\x01\x04\x3F\x02%s\xFF", str_address, str_preset_number);
+    Command = OverIp(1);
+}
+
+PUSH Preset_Stop
+{
+    STRING cancel_req[1];
+    INTEGER ack_no;
+
+    ack_no = 0;
+    if (preset_ack_array[0] = 1) {
+        ack_no = 1;
+    }
+    else if (preset_ack_array[1] = 1) {
+        ack_no = 2;
+    }
+    if (ack_no > 0) {
+        cancel_req = chr(ack_no | 0x20);
+        makestring(visca, "%s%s\xFF", str_address, cancel_req);
+        Command = OverIp(0);
+    }
+}
+
+PUSH Preset_Speed_Select
+{
+    makestring(visca, "%s\x01\x7E\x04\x1B%s\xFF", str_address, str_preset_select_param);
+    Command = OverIp(0);
+}
+
+PUSH Preset_Speed_Separate
+{
+    makestring(visca, "%s\x01\x7E\x01\x0B%s%s\xFF", str_address, str_preset_number, str_preset_separate_speed);
+    Command = OverIp(0);
+}
+
+PUSH Preset_Speed_Common
+{
+    makestring(visca, "%s\x01\x7E\x04\x1C%s%s\xFF", str_address, str_preset_common_speed_upper, str_preset_common_speed_lower);
+    Command = OverIp(0);
+}
+
+PUSH WB_Mode
+{
+    makestring(visca, "%s\x01\x04\x35%s\xFF", str_address, str_wb_mode_param);
+    Command = OverIp(0);
+}
+
+PUSH WB_One_Push_Trigger
+{
+    makestring(visca, "%s\x01\x04\x10\x05\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH WB_Offset_Reset
+{
+    makestring(visca, "%s\x01\x7E\x01\x2E\x00\x00\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH WB_Offset_Up
+{
+    makestring(visca, "%s\x01\x7E\x01\x2E\x00\x02\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH WB_Offset_Down
+{
+    makestring(visca, "%s\x01\x7E\x01\x2E\x00\x03\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH R_Gain_Reset
+{
+    makestring(visca, "%s\x01\x04\x03\x00\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH R_Gain_Up
+{
+    makestring(visca, "%s\x01\x04\x03\x02\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH R_Gain_Down
+{
+    makestring(visca, "%s\x01\x04\x03\x03\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH B_Gain_Reset
+{
+    makestring(visca, "%s\x01\x04\x04\x00\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH B_Gain_Up
+{
+    makestring(visca, "%s\x01\x04\x04\x02\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH B_Gain_Down
+{
+    makestring(visca, "%s\x01\x04\x04\x03\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Exposure_Mode
+{
+    makestring(visca, "%s\x01\x04\x39%s\xFF", str_address, str_exposure_mode_param);
+    Command = OverIp(0);
+}
+
+PUSH Iris_Reset
+{
+    makestring(visca, "%s\x01\x04\x0B\x00\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Iris_Up
+{
+    makestring(visca, "%s\x01\x04\x0B\x02\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Iris_Down
+{
+    makestring(visca, "%s\x01\x04\x0B\x03\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Gain_Reset
+{
+    makestring(visca, "%s\x01\x04\x0C\x00\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Gain_Up
+{
+    makestring(visca, "%s\x01\x04\x0C\x02\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Gain_Down
+{
+    makestring(visca, "%s\x01\x04\x0C\x03\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Shutter_Reset
+{
+    makestring(visca, "%s\x01\x04\x0A\x00\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Shutter_Up
+{
+    makestring(visca, "%s\x01\x04\x0A\x02\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Shutter_Down
+{
+    makestring(visca, "%s\x01\x04\x0A\x03\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Auto_Slow_Shutter
+{
+    makestring(visca, "%s\x01\x04\x5A%s\xFF", str_address, str_auto_slow_shutter_param);
+    Command = OverIp(0);
+}
+
+PUSH Backlight
+{
+    makestring(visca, "%s\x01\x04\x33%s\xFF", str_address, str_backlight_param);
+    Command = OverIp(0);
+}
+
+PUSH Exposure_Compensation
+{
+    makestring(visca, "%s\x01\x04\x3E%s\xFF", str_address, str_exposure_compensation_param);
+    Command = OverIp(0);
+}
+
+PUSH Exposure_Compensation_Reset
+{
+    makestring(visca, "%s\x01\x04\x0E\x00\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Exposure_Compensation_Up
+{
+    makestring(visca, "%s\x01\x04\x3E\x02\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Exposure_Compensation_Down
+{
+    makestring(visca, "%s\x01\x04\x3E\x03\xFF", str_address);
+    Command = OverIp(0);
+}
+
+PUSH Visibility_Enhancer
+{
+    makestring(visca, "%s\x01\x04\x3D%s\xFF", str_address, str_visibility_enhancer_param);
+    Command = OverIp(0);
+}
+
+PUSH Visibility_Enhancer_Level
+{
+    makestring(visca, "%s\x01\x04\x2D\x00%s%s%s\x00\x00\x00\x00\xFF", str_address, str_ve_brightness, str_ve_luminance, str_ve_intensity);
+    Command = OverIp(0);
+}
+
+PUSH Video_Select
+{
+    TRACE("Back up value [%2X].", video_select_backup);
+    makestring(visca, "%s\x01\x7E\x04\x32%s%s\xFF", str_address, str_video_select_param_upper, str_video_select_param_lower);
+    Command = OverIp(3);
+}
+
+PUSH Power
+{
+    makestring(visca, "%s\x01\x04\x00%s\xFF", str_address, str_power_param);
+    Command = OverIp(4);
+}
+
+PUSH Tally_Control
+{
+    if (power_request_status = 0 && inq_category = 0) {
+        makestring(visca, "%s\x01\x7E\x01\x0A\x00%s\xFF", str_address, str_tally_control_param);
+        Command = OverIp(0);
+    }
+}
+
+PUSH Tally_Level
+{
+    makestring(visca, "%s\x01\x7E\x01\x0A\x01%s\xFF", str_address, str_tally_level_param);
+    Command = OverIp(0);
+}
+
+PUSH Camera_Select_Initialize
+{
+    // We'll get the following status - PowerInq, VersionInq, VideoFormat_Status
+    PULSE(300, Busy);
+    Selected_Power_Param  = 0;
+    Model_Param           = 0;
+    Version_Major         = 0;
+    Version_Minor         = 0;
+    Version2              = 0;
+    Selected_Video_Format = 0;
+    inq_category          = 0;
+    InvokePowerInquiry();
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    print("Main started");
+    str_address             = chr(0x81);
+    Selected_Video_Format   = 0x00;
+    mutex                   = 1;
+    wait_ack                = 0;
+    counter                 = 0x2;
+    preset_recall_status    = 0;
+    preset_ack_array[0]     = 0;
+    preset_ack_array[1]     = 0;
+    inq_category            = 0;
+    video_select_backup     = 0;
+    video_select_requesting = 0;
+    power_request_status    = 0;
+    Initialize_Requested    = 0;
+    seq_power_inq           = 0xFFFF;
+    seq_version_inq         = 0xFFFF;
+    seq_video_inq           = 0xFFFF;
+    visca_event.Reset();
+}

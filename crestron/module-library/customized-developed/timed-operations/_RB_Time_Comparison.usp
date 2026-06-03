@@ -1,0 +1,86 @@
+/*
+Programmer: RBLAJDA
+*/
+
+/***Compiler Directives***/
+#SYMBOL_NAME "Time Comparer"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+//#DEFINE_CONSTANT DEBUG 0
+
+/** SIMPL# **/
+
+/** PARAMS **/
+
+/** INPUTS**/
+STRING_INPUT tod$[255];
+STRING_INPUT time_compare[255][25];
+
+/** OUTPUTS **/
+#OUTPUT_SHIFT 1
+DIGITAL_OUTPUT time_event_match[255];
+
+/** GLOBAL VARIABLES **/
+string time_compare_array[25][256];
+integer sigs_defined;
+string sCurrentTime[10];
+
+/** FUNCTIONS **/
+function main()
+{
+	integer i;
+
+	waitForInitializationComplete();
+
+	for(i = 255 to 1 step -1)
+	{
+		if(isSignalDefined(time_compare[i])) break;
+	}
+	sigs_defined = i;
+}
+
+/** EVENTS **/
+CHANGE tod$
+{
+	if(sigs_defined <> 0) {
+		wait(1)
+		{
+			integer iCount;
+			string sTempTime[10];
+			//12032021 1554 070000
+		
+			sTempTime = mid(tod$, 9, 4);
+			if(sTempTime <> sCurrentTime)
+			{
+				sCurrentTime = sTempTime;
+				#IF_DEFINED DEBUG
+					print("Current Time: %s\r", sCurrentTime);
+				#ENDIF
+				
+				for(iCount = 1 to sigs_defined)
+				{
+					if(find(time_compare_array[iCount], sCurrentTime) <> 0)
+					{
+						pulse(20, time_event_match[iCount]);
+						#IF_DEFINED DEBUG 
+							print("Event %d Match\r", iCount);
+						#ENDIF
+					}
+					processLogic();
+				}
+			}
+		}
+	}   
+}
+
+CHANGE time_compare
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	
+	if(time_compare[iChanged] <> "") time_compare_array[iChanged] = time_compare[iChanged];
+}

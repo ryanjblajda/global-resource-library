@@ -1,0 +1,64 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "2's Complement Checksum Generator"
+#CATEGORY "46" "RBLAJDA_PROCESSOR" // Custom
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+
+ANALOG_INPUT   Byte_[MAXITEMS];
+DIGITAL_OUTPUT Checksum_Finished;
+ANALOG_OUTPUT  Checksum_Byte;
+
+integer giDefinedInputs;
+
+CHANGE Byte_ 
+{
+	integer i, iTempChecksum;
+
+	for(i = 1 to giDefinedInputs)
+	{
+		iTempChecksum = iTempChecksum + (not(Byte_[i]) + 1);
+	}
+
+	Checksum_Byte = iTempChecksum;
+
+	pulse(1, Checksum_Finished);
+}
+
+FUNCTION MAIN()
+{
+	integer i;
+	for(i = MAXITEMS to 0 step -1)
+	{
+		if(isSignalDefined(Byte_[i]))
+		{
+			break;
+		}
+	}
+
+	giDefinedInputs = i;
+}

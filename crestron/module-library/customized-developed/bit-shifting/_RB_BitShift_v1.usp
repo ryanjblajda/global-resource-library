@@ -1,0 +1,65 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Bit Shifter"
+#HINT "shifts bits back to one number"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+
+#HELP_BEGIN
+
+Use this module to take a response that is comprised of multiple bits, and compress it back into one number. 
+
+typically occurs when displays respond with lamp hours data and such.
+
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Parse, _SKIP_;
+ANALOG_INPUT Byte_[4];
+
+/*** PARAMETERS ***/
+
+/*** OUTPUTS ***/
+ANALOG_OUTPUT Result;
+STRING_OUTPUT Result_String;
+
+/*** GLOBAL VARIABLES ***/
+
+/*** FUNCTIONS ***/
+LONG_INTEGER_FUNCTION Shift_Bits(integer byte1, integer byte2, integer byte3, integer byte4)
+{
+	long_integer result, byte1_shifted, byte2_shifted; 
+	integer byte3_shifted, byte4_shifted;
+
+	print("1: %d // 2: %d // 3: %d // 4: %d", byte1, byte2, byte3, byte4);
+    
+	byte1_shifted = (byte1 & 0x0F) << 24;
+	byte2_shifted = (byte2 & 0x0F) << 16;
+	byte3_shifted = (byte3 & 0xFF) << 8;
+	byte4_shifted = (byte4 & 0xFF) << 0;
+
+	print("shifted_1: %ld // shifted_2: %ld // shifted_3: %d // shifted_4: %d", byte1_shifted, byte2_shifted, byte3_shifted, byte4_shifted);
+
+	result = byte1_shifted + byte2_shifted + byte3_shifted + byte4_shifted;
+
+	print("%ld", result);
+
+	return(result);
+}
+
+/*** EVENT HANDLERS ***/
+PUSH Parse {
+	long_integer func_result;
+	func_result = Shift_Bits(Byte_[1], Byte_[2], Byte_[3], Byte_[4]);
+	//if we are truly expecting a 32 bit value, there will be loss, but most of the time we will use a max of 3 bits and there wont be
+	Result = func_result;
+	//if it is a 32 bit value, convert it to a string, and deal with it that way. 
+	Result_String = ltoa(func_result);
+}

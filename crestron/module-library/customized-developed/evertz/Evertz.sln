@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quartz", "Evertz\Quartz.csproj", "{39A52D21-1329-4777-A5F4-CA086F369FCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{B7117850-F91C-49F9-A3F3-69DDA939EA39}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39A52D21-1329-4777-A5F4-CA086F369FCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A52D21-1329-4777-A5F4-CA086F369FCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39A52D21-1329-4777-A5F4-CA086F369FCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39A52D21-1329-4777-A5F4-CA086F369FCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7117850-F91C-49F9-A3F3-69DDA939EA39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7117850-F91C-49F9-A3F3-69DDA939EA39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7117850-F91C-49F9-A3F3-69DDA939EA39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7117850-F91C-49F9-A3F3-69DDA939EA39}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

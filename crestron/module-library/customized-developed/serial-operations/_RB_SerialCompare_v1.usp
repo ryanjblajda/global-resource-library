@@ -1,0 +1,72 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Serial Compare v1"
+#HINT "Checks If A String Matches A list of parameter strings"
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#DEFINE_CONSTANT MAXIGNORE 5
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+
+Just Like Analog Compare but with strings
+
+#HELP_END
+
+ 
+STRING_INPUT stringToCheck[MAXITEMS][MAXITEMS];
+
+DIGITAL_OUTPUT StringIsMatch[MAXITEMS];
+
+STRING_PARAMETER stringToCompare[MAXIGNORE][MAXITEMS];
+
+/* FUNCTIONS */
+
+integer_function checkString(string _string) {
+	integer functionResult, i;
+	functionResult = 0;
+
+	if(_string <> "")
+	{
+		for(i = 1 to MAXIGNORE)
+		{
+			if(_string = stringToCompare[i])
+			{
+				functionResult = 1;
+				break;
+			}
+	    }
+	}
+	return(functionResult);
+}
+
+/*** Event Handlers ***/
+
+CHANGE stringToCheck 
+{
+	integer iChanged;
+	string  sChanged[MAXITEMS];
+	iChanged = getLastModifiedArrayIndex();
+	sChanged = stringToCheck[iChanged];
+	StringIsMatch[iChanged] = checkString(sChanged); 
+}

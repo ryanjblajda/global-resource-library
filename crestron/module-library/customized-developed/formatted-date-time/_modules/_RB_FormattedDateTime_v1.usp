@@ -1,0 +1,87 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "Formatted Date Time String"
+#HINT "outputs a formatted date time string to a touchpanel, allowing for custom font, color & formatting."
+#CATEGORY "46" "RBLAJDA-C#" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+	"dd/MM/yyyy"	25-04-2025	/ the system date separator
+	"yyyy MMMM"	2025 April	MMMM name of the month
+	"MMM d"	Apr 25	 MMM abbreviated name of the month
+	"ddd, dd MMM yy"	Thu, 25 Apr 24	yy the year, from 00 to 99.
+	ddd abbreviated name of the day
+	"dddd, dd MMMM yyyy"	Friday, 25 April 2025	dddd name of the day
+	"ddd, dd MMM yyyy h:mm"	Thu, 25 Apr 2025 5:07	date and time together
+	"yyyy-MM-dd HH:mm:ss"	2025-04-25 17:07:17	Format that can be sorted : the system time separator HH hour from 00 to 23
+	"hh:mm:ss tt"	05:07:06 PM	tt the AM/PM designator.
+	hh hour from 00 to 11
+	"h:m:s t"	5:7:6 P	t the A/M designator.
+	No leading 0 with h m s
+	"H:mm:ss"	17:07:06	H hour from 0 to 23
+	"HH:mm:ss.ff"	17:07:06.73	f for a fraction of a second
+	"HH:mm:ss.fffffff"	17:07:06.7301481	use as many f as needed
+	"HH:mm:ss UTC"	17:07:06 UTC	UTC chars are not interpreted
+	"hh:mm:ss K"	05:07:06 +04:00	 K time zone information.
+	"hh:mm:ss z"	05:07:06 +4	 z time zone information from UTC.
+	"hh:mm:ss zz"	05:07:06 +04	 zz time zone information from UTC with leading zero
+	"HH:\\mm"	17:m7	\ is the escape character need \\ in a C# literal string @"HH:\mm"	17:m7	\ escape character, don’t need \\ in a C# verbatim literal string @"…"
+	"HH:'mm':ss"	17:mm:06	chars in '…' are escaped
+	"HH:\"mm\":ss"	17:mm:06	chars in "…" are escaped
+#HELP_END
+
+/**LIBRARIES**/
+#USER_SIMPLSHARP_LIBRARY "FormattedTimeDateString"
+
+/**INPUTS**/
+
+/**OUTPUTS**/
+DIGITAL_OUTPUT _SKIP_, Error_Fb;
+STRING_OUTPUT Formatted_DateTime;
+
+/**PARAMETERS**/
+STRING_PARAMETER DateTimeFormat[255];
+
+/**GLOBAL VARIABLES**/
+Formatter thisFormatter;
+
+/**FUNCTIONS**/
+function Main()
+{
+	RegisterEvent(thisFormatter, UpdateFormattedTime, OnUpdateFormattedTime);
+	RegisterEvent(thisFormatter, Error, OnError);
+	thisFormatter.Format = DateTimeFormat;
+}
+
+/**EVENT HANDLERS**/
+EVENTHANDLER OnUpdateFormattedTime(Formatter sender, StringPayloadEventArgs args)
+{
+	Formatted_DateTime = args.Payload;
+}
+
+EVENTHANDLER OnError(Formatter sender, DigitalAnalogPayloadEventArgs args)
+{
+	Error_Fb = args.Payload;
+}

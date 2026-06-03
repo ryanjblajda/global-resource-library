@@ -1,0 +1,157 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Biamp AudiaFlex Processor v1.00 - RB"
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#DEFINE_CONSTANT ciMaxModules   255
+#DEFINE_CONSTANT ciChunkSize    2048
+#DEFINE_CONSTANT ciInitCommand  "Send Name"
+#DEFINE_CONSTANT ciErrResponse  "-ERR"
+#DEFINE_CONSTANT ciOKResponse   "+OK"
+#DEFINE_CONSTANT ciCR           "\x0D\x0A"
+#DEFINE_CONSTANT ciLF			"\x0A"
+
+#HELP_BEGIN
+
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Connected_Fb, Force_Initialization, Enable_Debug_Messages;
+BUFFER_INPUT  From_DSP[ciChunkSize], From_Modules[ciChunkSize];
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT Initialization_Busy, _SKIP_, _SKIP_;
+STRING_OUTPUT  To_DSP, To_Module[ciMaxModules];
+
+/*** GLOBAL VARIABLES ***/
+INTEGER giInitComplete, giInitRunning, giNumModules;
+STRING  gsModuleNames[ciMaxModules][ciChunkSize];
+
+/*** FUNCTIONS ***/
+FUNCTION Main()
+{
+	integer i;
+
+	for(i = ciMaxModules to 1 step -1) if(isSignalDefined(To_Module[i])) break;
+
+	giNumModules = i;
+}
+
+FUNCTION DebugMessage(string message)
+{
+	if(Enable_Debug_Messages = ON)
+	{
+		trace("%s", message);			
+	}
+}
+
+INTEGER_FUNCTION RunInitialization()
+{
+	integer i;
+	string  sInitCommand[ciChunkSize];
+
+	giInitRunning = ON;
+	Initialization_Busy = giInitRunning;
+
+	for(i = 1 to giNumModules)
+	{
+		//only send commands out to signal outputs that are defined, no need to spend extra time.
+		if(isSignalDefined(To_Module[i]))
+		{
+			makeString(sInitCommand, "%u %s%s", i, ciInitCommand, ciCR);
+			To_Module[i] = sInitCommand;
+		}		
+	}
+
+	giInitRunning = OFF;
+	Initialization_Busy = giInitRunning;
+}
+
+FUNCTION AddModule(string parameterData)
+{
+	integer iDelimiterPos, iCommandStartPos, iModuleNumber, iParameterDataLen;
+	string  sModuleString[ciChunkSize];
+
+	iParameterDataLen = len(parameterData);
+	iDelimiterPos     = find("\n", parameterData);
+	iCommandStartPos  = 1 + find("=", parameterData);
+
+	iModuleNumber = atoi(left(parameterData, 1));
+	sModuleString = mid(parameterData, iCommandStartPos, iDelimiterPos - iCommandStartPos);
+	print("Adding Module Number %d %s", iModuleNumber, sModuleString);
+	gsModuleNames[iModuleNumber] = sModuleString;
+}
+
+/** EVENT HANDLERS **/
+PUSH Connected_Fb
+{
+	RunInitialization();
+}
+
+PUSH Force_Initialization
+{
+	RunInitialization();
+}
+
+CHANGE From_DSP
+{
+	string tempData[ciChunkSize];
+	integer i;
+    
+	while(len(From_DSP) > 0)
+	{
+		DebugMessage("ENTER DSP WHILE LOOP");
+		tempData = gather(ciLF, From_DSP);
+		
+		if(find("Welcome", tempData) <> 0 )
+		{
+			DebugMessage("Audia Login Successful");
+		}
+		else
+		{
+			DebugMessage("Finding Module");
+			for(i = 1 to giNumModules)
+			{
+				if(len(gsModuleNames[i]) > 0 && find(gsModuleNames[i], tempData) > 0 && find("#", tempData) > 0)
+				{
+					//DebugMessage("Module Found @ %d", i);
+					To_Module[i] = tempData;
+					break;
+				}
+			}
+		}
+	}
+	DebugMessage("EXIT DSP WHILE LOOP");
+}
+  
+CHANGE From_Modules
+{
+	string tempData[ciChunkSize];
+	
+	while(len(From_Modules) > 0)
+	{
+		DebugMessage("ENTER MODULE WHILE LOOP");
+        tempData = gather(ciLF, From_Modules);
+
+		if(0 <> find(ciInitCommand, tempData))
+		{	
+			AddModule(tempData);
+		}
+		else
+		{
+			DebugMessage("IN MODULE RX ELSE");
+
+			To_DSP = tempData;
+		}
+	}
+
+	DebugMessage("EXIT MODULE WHILE LOOP");
+}

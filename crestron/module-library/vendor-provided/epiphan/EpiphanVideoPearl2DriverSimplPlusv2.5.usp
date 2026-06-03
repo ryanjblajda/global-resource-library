@@ -1,0 +1,1073 @@
+/*
+  	Programmer: Casey Blicharz
+	Version: 2.2
+
+	Notes:
+		-All S# arrays are 0 based - all conversion done in S+
+*/
+#SYMBOL_NAME "Epiphan Video Pearl 2 Driver Wrapper v2.5"
+            
+#USER_SIMPLSHARP_LIBRARY "EpiphanVideoPearl2Driver"
+
+#DEFINE_CONSTANT MAXRECORDERS 8
+#DEFINE_CONSTANT MAXCHANNELS 8
+#DEFINE_CONSTANT MAXINPUTS 10
+#DEFINE_CONSTANT MAXOUTPUTS 5             
+
+DIGITAL_INPUT StartCommunication;
+DIGITAL_INPUT StopCommunication;
+STRING_INPUT DeviceConnectionType[10];
+STRING_INPUT DeviceAddress[50];
+ANALOG_INPUT DevicePort;
+STRING_INPUT DeviceUsername[50];
+STRING_INPUT DevicePassword[50];
+DIGITAL_INPUT LoggingEnabled;
+DIGITAL_INPUT VerboseLoggingEnabled;
+DIGITAL_OUTPUT IsCommunicating;
+
+ANALOG_INPUT SelectChannel;
+ANALOG_INPUT SelectStream;
+DIGITAL_INPUT AddRTSPStream;
+DIGITAL_INPUT AddRTMPStream;
+DIGITAL_INPUT AddRTPUDPStream;
+DIGITAL_INPUT AddMPEGRTPStream;
+DIGITAL_INPUT AddMPEGUDPStream;
+
+DIGITAL_INPUT SetSettingsRTSPStream;
+DIGITAL_INPUT RTSPSingleTouch;
+STRING_INPUT RTSPURL[255];
+ANALOG_INPUT RTSPTransport;
+STRING_INPUT RTSPUsername[255];
+STRING_INPUT RTSPPassword[255];
+
+DIGITAL_INPUT SetSettingsRTMPStream;
+DIGITAL_INPUT RTMPSingleTouch;
+STRING_INPUT RTMPURL[255];
+STRING_INPUT RTMPStreamName[255];
+STRING_INPUT RTMPUsername[255];
+STRING_INPUT RTMPPassword[255];
+
+DIGITAL_INPUT SetSettingsRTPUDPStream;
+STRING_INPUT RTPUDPAddress[255];
+ANALOG_INPUT RTPUDPVideoPort;
+ANALOG_INPUT RTPUDPAudioPort;
+
+DIGITAL_INPUT SetSettingsMPEGRTPStream;
+STRING_INPUT MPEGRTPAddress[255];
+ANALOG_INPUT MPEGRTPPort;
+DIGITAL_INPUT MPEGRTPSap;
+STRING_INPUT MPEGRTPSapIP[255];
+STRING_INPUT MPEGRTPSapChannel[255];
+STRING_INPUT MPEGRTPSapPlayGroup[255];
+
+DIGITAL_INPUT SetSettingsMPEGUDPStream;
+STRING_INPUT MPEGUDPAddress[255];
+ANALOG_INPUT MPEGUDPPort;
+DIGITAL_INPUT MPEGUDPSap;
+STRING_INPUT MPEGUDPSapIP[255];
+STRING_INPUT MPEGUDPSapChannel[255];
+STRING_INPUT MPEGUDPSapPlayGroup[255];
+
+DIGITAL_INPUT CurrentEventPause;
+DIGITAL_INPUT CurrentEventResume;
+DIGITAL_INPUT CurrentEventStop;
+DIGITAL_INPUT CurrentEventExtend;
+
+STRING_INPUT RecordingPrefix[100];
+         
+DIGITAL_INPUT StartRecordingOnRecorder[MAXRECORDERS];
+DIGITAL_INPUT StopRecordingOnRecorder[MAXRECORDERS];                           
+DIGITAL_INPUT StartRecordingOnChannel[MAXCHANNELS];
+DIGITAL_INPUT StopRecordingOnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout1OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout2OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout3OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout4OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout5OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout6OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout7OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout8OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout9OnChannel[MAXCHANNELS];
+DIGITAL_INPUT SetActiveLayout10OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StartAllStreamsOnChannel[MAXCHANNELS];
+DIGITAL_INPUT StopAllStreamsOnChannel[MAXCHANNELS];
+DIGITAL_INPUT StartStream1OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StartStream2OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StartStream3OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StartStream4OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StartStream5OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StopStream1OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StopStream2OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StopStream3OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StopStream4OnChannel[MAXCHANNELS];
+DIGITAL_INPUT StopStream5OnChannel[MAXCHANNELS];
+ANALOG_INPUT PreviewLayoutOnChannel[MAXCHANNELS];
+												   
+ANALOG_OUTPUT RecorderCount;
+ANALOG_OUTPUT ChannelCount;
+ANALOG_OUTPUT VideoInputCount;
+ANALOG_OUTPUT AudioInputCount;
+ANALOG_OUTPUT VideoOutputCount;
+ANALOG_OUTPUT TotalSpaceAnanlog;
+ANALOG_OUTPUT UsedSpaceAnalog;
+ANALOG_OUTPUT FreeSpaceAnalog;
+STRING_OUTPUT TotalSpaceSerial;
+STRING_OUTPUT UsedSpaceSerial;
+STRING_OUTPUT FreeSpaceSerial;
+STRING_OUTPUT ErrorMessage;
+STRING_OUTPUT UpcomingEventName;
+STRING_OUTPUT UpcomingEventCountdown;
+STRING_OUTPUT CurrentEventName;
+STRING_OUTPUT CurrentEventCountdown;
+STRING_OUTPUT CurrentEventStatus;
+DIGITAL_OUTPUT RecorderIsAvailable[MAXRECORDERS];
+STRING_OUTPUT RecorderName[MAXRECORDERS];
+DIGITAL_OUTPUT RecorderIsRecording[MAXRECORDERS];
+DIGITAL_OUTPUT ChannelIsAvaialble[MAXCHANNELS];
+STRING_OUTPUT ChannelName[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelIsRecording[MAXCHANNELS];
+ANALOG_OUTPUT ChannelLayoutCount[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout1IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout2IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout3IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout4IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout5IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout6IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout7IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout8IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout9IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout10IsAvailable[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout1Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout2Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout3Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout4Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout5Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout6Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout7Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout8Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout9Name[MAXCHANNELS];
+STRING_OUTPUT ChannelLayout10Name[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout1IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout2IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout3IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout4IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout5IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout6IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout7IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout8IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout9IsActive[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelLayout10IsActive[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisherCount[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelPublisher1IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelPublisher2IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelPublisher3IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelPublisher4IsAvailable[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelPublisher5IsAvailable[MAXCHANNELS];
+STRING_OUTPUT ChannelPublisher1StreamingName[MAXCHANNELS];
+STRING_OUTPUT ChannelPublisher2StreamingName[MAXCHANNELS];
+STRING_OUTPUT ChannelPublisher3StreamingName[MAXCHANNELS];
+STRING_OUTPUT ChannelPublisher4StreamingName[MAXCHANNELS];
+STRING_OUTPUT ChannelPublisher5StreamingName[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher1StreamingType[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher2StreamingType[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher3StreamingType[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher4StreamingType[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher5StreamingType[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher1StreamingState[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher2StreamingState[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher3StreamingState[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher4StreamingState[MAXCHANNELS];
+ANALOG_OUTPUT ChannelPublisher5StreamingState[MAXCHANNELS];
+DIGITAL_OUTPUT ChannelAllStreamsActive[MAXCHANNELS];
+DIGITAL_OUTPUT VideoInputIsAvailable[MAXINPUTS];
+DIGITAL_OUTPUT VideoInputHasSignal[MAXINPUTS];
+STRING_OUTPUT VideoInputName[MAXINPUTS];
+STRING_OUTPUT VideoInputResolution[MAXINPUTS];
+DIGITAL_OUTPUT AudioInputIsAvailable[MAXINPUTS];
+DIGITAL_OUTPUT AudioInputHasSignal[MAXINPUTS];
+STRING_OUTPUT AudioInputName[MAXINPUTS]; 
+DIGITAL_OUTPUT VideoOutputIsAvailable[MAXOUTPUTS];
+DIGITAL_OUTPUT VideoOutputHasSignal[MAXOUTPUTS];
+STRING_OUTPUT VideoOutputName[MAXOUTPUTS];
+STRING_OUTPUT VideoOutputResolution[MAXOUTPUTS];
+STRING_OUTPUT VideoOutputResolutionAndRate[MAXOUTPUTS];
+STRING_OUTPUT ChannelPreviewUrl[MAXCHANNELS];
+STRING_OUTPUT ChannelLayoutPreviewURL[MAXCHANNELS];
+
+SimplPearl2Driver Driver;
+integer _initilizationComplete;
+  
+PUSH StartRecordingOnRecorder
+{
+	Driver.StartRecordingOnRecorder(GetLastModifiedArrayIndex() - 1);
+}
+
+PUSH StopRecordingOnRecorder
+{
+	Driver.StopRecordingOnRecorder(GetLastModifiedArrayIndex() - 1);	
+}
+
+CALLBACK FUNCTION SimplRecorderListUpdate(integer entryCount)
+{
+	integer i;
+
+	for (i = 1 to entryCount)
+	{
+    	RecorderIsAvailable[i] = 1;
+		RecorderName[i] = Driver.Recorders[i - 1].Name;		
+	}
+
+	for (i = entryCount + 1 to MAXRECORDERS)
+	{
+ 		RecorderIsAvailable[i] = 0;
+		RecorderName[i] = "";
+		RecorderIsRecording[i] = 0;
+	}
+
+	RecorderCount = entryCount;
+}
+
+CALLBACK FUNCTION SimplRecorderStateUpdate(integer recorderIndex, integer recorderState)
+{
+	RecorderIsRecording[recorderIndex + 1] = recorderState;	
+}
+
+CALLBACK FUNCTION SimplRecorderNameUpdate(integer recorderIndex, string recorderNameS)
+{
+	RecorderName[recorderIndex + 1] = recorderNameS;
+}
+
+PUSH StartAllStreamsOnChannel
+{
+	Driver.StartAllStreams(GetLastModifiedArrayIndex() - 1);
+}
+
+PUSH StopAllStreamsOnChannel
+{
+	Driver.StopAllStreams(GetLastModifiedArrayIndex() - 1);
+}
+
+PUSH StartRecordingOnChannel
+{
+	Driver.StartChannelRecording(GetLastModifiedArrayIndex() - 1);
+}
+
+PUSH StopRecordingOnChannel
+{
+	Driver.StopChannelRecording(GetLastModifiedArrayIndex() - 1);
+}
+
+PUSH SetActiveLayout1OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 0);
+}
+
+PUSH SetActiveLayout2OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 1);
+}
+
+PUSH SetActiveLayout3OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 2);
+}
+
+PUSH SetActiveLayout4OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 3);
+}
+
+PUSH SetActiveLayout5OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 4);
+}
+
+PUSH SetActiveLayout6OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 5);
+}
+
+PUSH SetActiveLayout7OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 6);
+}
+
+PUSH SetActiveLayout8OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 7);
+}
+
+PUSH SetActiveLayout9OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 8);
+}
+
+PUSH SetActiveLayout10OnChannel
+{
+    Driver.SetActiveLayout(GetLastModifiedArrayIndex() - 1, 9);
+}
+
+PUSH StartStream1OnChannel
+{
+	Driver.StartStreaming(GetLastModifiedArrayIndex() - 1, 0);
+}
+
+PUSH StartStream2OnChannel
+{
+	Driver.StartStreaming(GetLastModifiedArrayIndex() - 1, 1);
+}
+
+PUSH StartStream3OnChannel
+{
+	Driver.StartStreaming(GetLastModifiedArrayIndex() - 1, 2);
+}
+
+PUSH StartStream4OnChannel
+{
+	Driver.StartStreaming(GetLastModifiedArrayIndex() - 1, 3);
+}
+
+PUSH StartStream5OnChannel
+{
+	Driver.StartStreaming(GetLastModifiedArrayIndex() - 1, 4);
+}
+
+PUSH StopStream1OnChannel
+{
+	Driver.StopStreaming(GetLastModifiedArrayIndex() - 1, 0);
+}
+
+PUSH StopStream2OnChannel
+{
+	Driver.StopStreaming(GetLastModifiedArrayIndex() - 1, 1);
+}
+
+PUSH StopStream3OnChannel
+{
+	Driver.StopStreaming(GetLastModifiedArrayIndex() - 1, 2);
+}
+
+PUSH StopStream4OnChannel
+{
+	Driver.StopStreaming(GetLastModifiedArrayIndex() - 1, 3);
+}
+
+PUSH StopStream5OnChannel
+{
+	Driver.StopStreaming(GetLastModifiedArrayIndex() - 1, 4);
+}
+
+Push SetSettingsRTSPStream
+{
+	if (SelectChannel = 0 || SelectStream = 0)
+	{
+		ErrorMessage = "Error: Selected Channel or Stream cannot be 0";
+	}
+	else
+	{
+		Driver.SettingsRTSPStream(SelectChannel-1, SelectStream-1, RTSPSingleTouch, RTSPURL, RTSPTransport, RTSPUsername, RTSPPassword);
+	}
+}
+
+Push SetSettingsRTMPStream
+{
+	if (SelectChannel = 0 || SelectStream = 0)
+	{
+		ErrorMessage = "Error: Selected Channel or Stream cannot be 0";
+	}
+	else
+	{
+		Driver.SettingsRTMPStream(SelectChannel-1, SelectStream-1, RTMPSingleTouch, RTMPURL, RTMPStreamName, RTMPUsername, RTMPPassword);
+	}
+}
+
+Push SetSettingsRTPUDPStream
+{
+	if (SelectChannel = 0 || SelectStream = 0)
+	{
+		ErrorMessage = "Error: Selected Channel or Stream cannot be 0";
+	}
+	else
+	{
+		Driver.SettingsRTPUDPStream(SelectChannel-1, SelectStream-1, RTPUDPAddress, RTPUDPVideoPort, RTPUDPAudioPort);
+	}
+}
+
+Push SetSettingsMPEGRTPStream
+{	
+	if (SelectChannel = 0 || SelectStream = 0)
+	{
+		ErrorMessage = "Error: Selected Channel or Stream cannot be 0";
+	}
+	else
+	{
+		Driver.SettingsMPEGRTPStream(SelectChannel-1, SelectStream-1, MPEGRTPAddress, MPEGRTPPort, MPEGRTPSap, MPEGRTPSapIP, MPEGRTPSapChannel, MPEGRTPSapPlayGroup);
+	}
+}
+
+Push SetSettingsMPEGUDPStream
+{
+	if (SelectChannel = 0 || SelectStream = 0)
+	{
+		ErrorMessage = "Error: Selected Channel or Stream cannot be 0";
+	}
+	else
+	{
+		Driver.SettingsMPEGUDPStream(SelectChannel-1, SelectStream-1, MPEGUDPAddress, MPEGUDPPort, MPEGUDPSap, MPEGUDPSapIP, MPEGUDPSapChannel, MPEGUDPSapPlayGroup);
+	}
+}
+
+Push AddRTSPStream
+{
+	if (SelectChannel = 0)
+	{
+		ErrorMessage = "Error: Selected Channel cannot be 0";
+	}
+	else
+	{
+		Driver.AddRTSPStream(SelectChannel);
+	}
+}
+Push AddRTMPStream
+{
+	if (SelectChannel = 0)
+	{
+		ErrorMessage = "Error: Selected Channel cannot be 0";
+	}
+	else
+	{
+		Driver.AddRTMPStream(SelectChannel);
+	}
+}
+Push AddRTPUDPStream
+{
+	if (SelectChannel = 0)
+	{
+		ErrorMessage = "Error: Selected Channel cannot be 0";
+	}
+	else
+	{
+		Driver.AddRTPUDPStream(SelectChannel);
+	}
+}
+Push AddMPEGRTPStream
+{
+	if (SelectChannel = 0)
+	{
+		ErrorMessage = "Error: Selected Channel cannot be 0";
+	}
+	else
+	{
+		Driver.AddMPEGRTPStream(SelectChannel);
+	}
+}
+Push AddMPEGUDPStream
+{
+    if (SelectChannel = 0)
+	{
+		ErrorMessage = "Error: Selected Channel cannot be 0";
+	}
+	else
+	{
+		Driver.AddMPEGUDPStream(SelectChannel);
+	}
+}
+
+Push CurrentEventPause
+{
+	Driver.PauseEvent();
+}
+
+Push CurrentEventResume
+{
+	Driver.ResumeEvent();
+}
+
+Push CurrentEventStop
+{
+	Driver.StopEvent();
+}
+
+Push CurrentEventExtend
+{
+	Driver.ExtendEvent();
+}
+
+Change PreviewLayoutOnChannel
+{
+    Driver.GetLayoutPreview(GetLastModifiedArrayIndex() - 1, PreviewLayoutOnChannel[GetLastModifiedArrayIndex()] - 1);
+}
+
+Change RecordingPrefix
+{
+    Driver.SetRecPrefixAll(RecordingPrefix);
+}
+
+CALLBACK FUNCTION SimplChannelRecordingStateUpdate(integer channelIndex, integer state)
+{
+ 	ChannelIsRecording[channelIndex + 1] = state;
+}
+
+CALLBACK FUNCTION SimplChannelListUpdate(integer entryCount)
+{
+	integer i;
+	for (i = 1 to entryCount)
+	{
+ 		ChannelName[i] = Driver.Channels[i - 1].Name;
+		ChannelIsAvaialble[i] = 1;  
+		//ChannelPreviewUrl[i] = Driver.Channels[i - 1].PreviewUrl;  	
+	}
+	for (i = entryCount + 1 to MAXCHANNELS)
+	{
+ 		ChannelName[i] = "";
+		ChannelIsAvaialble[i] = 0; 
+		ChannelPreviewUrl[i] = "";
+	}
+
+	ChannelCount = entryCount;
+}
+
+CALLBACK FUNCTION SimplPublishingStreamTypeUpdate(integer channelIndex, integer publisherIndex, integer type)
+{
+	switch (publisherIndex)
+	{
+		case (0): 
+		{
+			ChannelPublisher1StreamingType[channelIndex + 1] = type;
+		}
+		case (1): 
+		{
+			ChannelPublisher2StreamingType[channelIndex + 1] = type;
+		}
+		case (2): 
+		{
+			ChannelPublisher3StreamingType[channelIndex + 1] = type;
+		}
+		case (3): 
+		{
+			ChannelPublisher4StreamingType[channelIndex + 1] = type;
+		}
+		case (4): 
+		{
+			ChannelPublisher5StreamingType[channelIndex + 1] = type;
+		}
+	}
+}
+
+CALLBACK FUNCTION SimplPublishingStreamStateUpdate(integer channelIndex, integer publisherIndex, integer state)
+{
+	switch (publisherIndex)
+	{
+		case (0): 
+		{
+			ChannelPublisher1StreamingState[channelIndex + 1] = state;
+		}
+		case (1): 
+		{
+			ChannelPublisher2StreamingState[channelIndex + 1] = state;
+		}
+		case (2): 
+		{
+			ChannelPublisher3StreamingState[channelIndex + 1] = state;
+		}
+		case (3): 
+		{
+			ChannelPublisher4StreamingState[channelIndex + 1] = state;
+		}
+		case (4): 
+		{
+			ChannelPublisher5StreamingState[channelIndex + 1] = state;
+		}
+	}
+}
+
+CALLBACK FUNCTION SimplPublishingNameUpdate(integer channelIndex, integer publisherIndex, string publisherName)
+{
+	switch (publisherIndex)
+	{
+		case (0): 
+		{
+			ChannelPublisher1StreamingName[channelIndex + 1] = publisherName;
+		}
+		case (1): 
+		{
+			ChannelPublisher2StreamingName[channelIndex + 1] = publisherName;
+		}
+		case (2): 
+		{
+			ChannelPublisher3StreamingName[channelIndex + 1] = publisherName;
+		}
+		case (3): 
+		{
+			ChannelPublisher4StreamingName[channelIndex + 1] = publisherName;
+		}
+		case (4): 
+		{
+			ChannelPublisher5StreamingName[channelIndex + 1] = publisherName;
+		}
+	}
+}
+
+CALLBACK FUNCTION SimplAllPublishingStateUpdate(integer channelIndex, integer state)
+{
+	ChannelAllStreamsActive[channelIndex + 1] = state;
+}
+
+CALLBACK FUNCTION SimplPublishingListUpdate(integer channelIndex, integer publisherCount)
+{
+	ChannelPublisher1IsAvailable[channelIndex + 1] = publisherCount > 0;
+	ChannelPublisher2IsAvailable[channelIndex + 1] = publisherCount > 1;
+	ChannelPublisher3IsAvailable[channelIndex + 1] = publisherCount > 2;
+	ChannelPublisher4IsAvailable[channelIndex + 1] = publisherCount > 3;
+	ChannelPublisher5IsAvailable[channelIndex + 1] = publisherCount > 4;
+
+	ChannelPublisher1StreamingName[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[0].Name;
+	ChannelPublisher2StreamingName[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[1].Name;
+	ChannelPublisher3StreamingName[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[2].Name;
+	ChannelPublisher4StreamingName[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[3].Name;
+	ChannelPublisher5StreamingName[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[4].Name;
+
+    ChannelPublisher1StreamingType[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[0].SimplStreamingType;
+    ChannelPublisher2StreamingType[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[1].SimplStreamingType;
+    ChannelPublisher3StreamingType[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[2].SimplStreamingType;
+    ChannelPublisher4StreamingType[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[3].SimplStreamingType;
+    ChannelPublisher5StreamingType[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[4].SimplStreamingType;
+
+	ChannelPublisher1StreamingState[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[0].SimplStreamingState;
+	ChannelPublisher2StreamingState[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[1].SimplStreamingState;
+	ChannelPublisher3StreamingState[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[2].SimplStreamingState;
+	ChannelPublisher4StreamingState[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[3].SimplStreamingState;
+	ChannelPublisher5StreamingState[channelIndex + 1] = Driver.Channels[channelIndex].PublisherArray[4].SimplStreamingState;
+
+	ChannelPublisherCount[channelIndex + 1] = publisherCount;
+}
+
+CALLBACK FUNCTION SimplChannelNameUpdate(integer channelIndex, string channelNameS)
+{
+	ChannelName[channelIndex + 1] = channelNameS;
+}
+
+CALLBACK FUNCTION SimplLayoutListUpdate(integer channelIndex, integer layoutCount)
+{
+	ChannelLayout1IsAvailable[channelIndex + 1] = layoutCount > 0;
+	ChannelLayout2IsAvailable[channelIndex + 1] = layoutCount > 1;
+	ChannelLayout3IsAvailable[channelIndex + 1] = layoutCount > 2;
+	ChannelLayout4IsAvailable[channelIndex + 1] = layoutCount > 3;
+	ChannelLayout5IsAvailable[channelIndex + 1] = layoutCount > 4;
+	ChannelLayout6IsAvailable[channelIndex + 1] = layoutCount > 5;
+	ChannelLayout7IsAvailable[channelIndex + 1] = layoutCount > 6;
+	ChannelLayout8IsAvailable[channelIndex + 1] = layoutCount > 7;
+	ChannelLayout9IsAvailable[channelIndex + 1] = layoutCount > 8;
+	ChannelLayout10IsAvailable[channelIndex + 1] = layoutCount > 9;
+		
+	if (layoutCount > 0)
+	{
+    	ChannelLayout1Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[0].Name;
+		ChannelLayout1IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[0].SimplIsActive;
+	}
+
+	if (layoutCount > 1)
+	{
+    	ChannelLayout2Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[1].Name;
+		ChannelLayout2IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[1].SimplIsActive;
+	}
+
+	if (layoutCount > 2)
+	{
+    	ChannelLayout3Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[2].Name;
+		ChannelLayout3IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[2].SimplIsActive;
+	}
+
+	if (layoutCount > 3)
+	{
+    	ChannelLayout4Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[3].Name;
+		ChannelLayout4IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[3].SimplIsActive;
+	}
+
+	if (layoutCount > 4)
+	{
+    	ChannelLayout5Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[4].Name;
+		ChannelLayout5IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[4].SimplIsActive;
+	}
+
+	if (layoutCount > 5)
+	{
+    	ChannelLayout6Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[5].Name;
+		ChannelLayout6IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[5].SimplIsActive;
+	}
+
+	if (layoutCount > 6)
+	{
+    	ChannelLayout7Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[6].Name;
+		ChannelLayout7IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[6].SimplIsActive;
+	}
+
+	if (layoutCount > 7)
+	{
+    	ChannelLayout8Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[7].Name;
+		ChannelLayout8IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[7].SimplIsActive;
+	}
+
+	if (layoutCount > 8)
+	{
+    	ChannelLayout9Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[8].Name;
+		ChannelLayout9IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[8].SimplIsActive;
+	}
+
+	if (layoutCount > 9)
+	{
+    	ChannelLayout10Name[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[9].Name;
+		ChannelLayout10IsActive[channelIndex + 1] = Driver.Channels[channelIndex].LayoutArray[9].SimplIsActive;
+	}
+
+	ChannelLayoutCount[channelIndex + 1] = layoutCount;
+}
+
+CALLBACK FUNCTION SimplLayoutNameUpdate(integer channelIndex, integer layoutIndex, string layoutName)
+{
+	switch (layoutIndex)
+	{
+		case (0): 
+		{
+			ChannelLayout1Name[channelIndex + 1] = layoutName;
+		}
+		case (1): 
+		{
+			ChannelLayout2Name[channelIndex + 1] = layoutName;
+		}
+		case (2): 
+		{
+			ChannelLayout3Name[channelIndex + 1] = layoutName;
+		}
+		case (3): 
+		{
+			ChannelLayout4Name[channelIndex + 1] = layoutName;
+		}
+		case (4): 
+		{
+			ChannelLayout5Name[channelIndex + 1] = layoutName;
+		}
+		case (5): 
+		{
+			ChannelLayout6Name[channelIndex + 1] = layoutName;
+		}
+		case (6): 
+		{
+			ChannelLayout7Name[channelIndex + 1] = layoutName;
+		}
+		case (7): 
+		{
+			ChannelLayout8Name[channelIndex + 1] = layoutName;
+		}
+		case (8): 
+		{
+			ChannelLayout9Name[channelIndex + 1] = layoutName;
+		}
+		case (9): 
+		{
+			ChannelLayout10Name[channelIndex + 1] = layoutName;
+		}
+	}
+}
+
+CALLBACK FUNCTION SimplLayoutActivityUpdate(integer channelIndex, integer layoutIndex, integer isActive)
+{
+	switch (layoutIndex)
+	{
+		case (0): 
+		{
+			ChannelLayout1IsActive[channelIndex + 1] = isActive;
+		}
+		case (1): 
+		{
+			ChannelLayout2IsActive[channelIndex + 1] = isActive;
+		}
+		case (2): 
+		{
+			ChannelLayout3IsActive[channelIndex + 1] = isActive;
+		}
+		case (3): 
+		{
+			ChannelLayout4IsActive[channelIndex + 1] = isActive;
+		}
+		case (4): 
+		{
+			ChannelLayout5IsActive[channelIndex + 1] = isActive;
+		}
+		case (5): 
+		{
+			ChannelLayout6IsActive[channelIndex + 1] = isActive;
+		}
+		case (6): 
+		{
+			ChannelLayout7IsActive[channelIndex + 1] = isActive;
+		}
+		case (7): 
+		{
+			ChannelLayout8IsActive[channelIndex + 1] = isActive;
+		}
+		case (8): 
+		{
+			ChannelLayout9IsActive[channelIndex + 1] = isActive;
+		}
+		case (9): 
+		{
+			ChannelLayout10IsActive[channelIndex + 1] = isActive;
+		}
+	}
+}
+
+CALLBACK FUNCTION SimplAudioSourceListUpdate(integer entryCount)
+{
+	integer i;
+	for (i = 1 to entryCount)
+	{
+ 		AudioInputIsAvailable[i] = 1;
+		AudioInputHasSignal[i] = Driver.AudioSources[i - 1].SimplHasSignal;
+		AudioInputName[i] = Driver.AudioSources[i - 1].Name;
+	}
+	for (i = entryCount + 1 to MAXINPUTS)
+	{
+ 		AudioInputIsAvailable[i] = 0; 
+		AudioInputHasSignal[i] = 0;
+		AudioInputName[i] = ""; 
+	}
+
+	AudioInputCount = entryCount;
+}
+
+CALLBACK FUNCTION SimplAudioSourceActivityUpdate(integer index, integer state)
+{
+	AudioInputHasSignal[index + 1] = state;
+}
+
+CALLBACK FUNCTION SimplAudioSourceNameUpdate(integer index, string nameS)
+{
+	AudioInputName[index + 1] = nameS;
+}
+
+CALLBACK FUNCTION SimplVideoSourceListUpdate(integer entryCount)
+{
+	integer i;
+	for (i = 1 to entryCount)
+	{
+ 		VideoInputIsAvailable[i] = 1;
+		VideoInputHasSignal[i] = Driver.VideoSources[i - 1].SimplHasSignal;
+		VideoInputName[i] = Driver.VideoSources[i - 1].Name;
+		VideoInputResolution[i] = Driver.VideoSources[i - 1].Resolution;
+	}
+	for (i = entryCount + 1 to MAXINPUTS)
+	{
+ 		VideoInputIsAvailable[i] = 0; 
+		VideoInputHasSignal[i] = 0;
+		VideoInputName[i] = "";
+		VideoInputResolution[i] = ""; 
+	}
+
+	VideoInputCount = entryCount;
+}
+
+CALLBACK FUNCTION SimplVideoSourceActivityUpdate(integer index, integer state)
+{
+	VideoInputHasSignal[index + 1] = state;
+}
+
+CALLBACK FUNCTION SimplVideoSourceNameUpdate(integer index, string nameS)
+{
+	VideoInputName[index + 1] = nameS;
+}
+
+CALLBACK FUNCTION SimplVideoSourceTimingUpdate(integer index, string timing)
+{
+	VideoInputResolution[index + 1] = timing;
+}
+
+CALLBACK FUNCTION SimplDisplayListUpdate(integer entryCount)
+{
+	integer i;
+	for (i = 1 to entryCount)
+	{
+		VideoOutputIsAvailable[i] = 1;
+		VideoOutputHasSignal[i] = Driver.Displays[i - 1].SimplIsActive;
+		VideoOutputName[i] = Driver.Displays[i - 1].Name;
+		VideoOutputResolution[i] = Driver.Displays[i - 1].Resolution;
+		VideoOutputResolutionAndRate[i] = Driver.Displays[i - 1].ResolutionAndRefreshRate;
+	}
+	for (i = entryCount + 1 to MAXOUTPUTS)
+	{
+		VideoOutputIsAvailable[i] = 0;
+		VideoOutputHasSignal[i] = 0;
+		VideoOutputName[i] = "";
+		VideoOutputResolution[i] = "";
+		VideoOutputResolutionAndRate[i] = ""; 
+	}
+
+	VideoOutputCount = entryCount;
+}
+
+CALLBACK FUNCTION SimplDisplayActivityUpdate(integer index, integer state)
+{
+	VideoOutputHasSignal[index + 1] = state;
+}
+
+CALLBACK FUNCTION SimplDisplayNameUpdate(integer index, string nameS)
+{
+	VideoOutputName[index + 1] = nameS;
+}
+
+CALLBACK FUNCTION SimplDisplayTimingUpdate(integer index, string reso, string resoAndRate)
+{
+	VideoOutputResolution[index + 1] = reso;
+	VideoOutputResolutionAndRate[index + 1] = resoAndRate;
+}
+
+CALLBACK FUNCTION SimplTotalSpaceUpdate(integer spaceAnalog, string spaceSerial)
+{
+	TotalSpaceAnanlog = spaceAnalog;
+	TotalSpaceSerial = spaceSerial;
+}
+
+CALLBACK FUNCTION SimplUsedSpaceUpdate(integer spaceAnalog, string spaceSerial)
+{
+	UsedSpaceSerial = spaceSerial;
+	UsedSpaceAnalog = spaceAnalog;
+}
+
+CALLBACK FUNCTION SimplFreeSpaceUpdate(integer spaceAnalog, string spaceSerial)
+{
+	FreeSpaceSerial = spaceSerial;
+	FreeSpaceAnalog = spaceAnalog;
+}
+
+THREADSAFE PUSH StartCommunication
+{
+	while (_initilizationComplete = 0)
+	{
+         Delay(50);
+	}
+	Driver.StartCommunication(DeviceAddress, DevicePort, DeviceUsername, DevicePassword);
+}
+
+THREADSAFE PUSH StopCommunication
+{
+	if (_initilizationComplete)
+	{
+ 		Driver.StopCommunication();
+	}
+}
+
+CALLBACK FUNCTION SimplCommunicationStateUpdate(integer isCommunicatingB)
+{
+	IsCommunicating = isCommunicatingB;
+}
+
+CALLBACK FUNCTION SimplErrorMessageUpdate(string message)
+{
+	ErrorMessage = message;
+}
+
+CALLBACK FUNCTION SimplUpcomingEventNameUpdate(string eventName)
+{
+	UpcomingEventName = eventName;
+}
+
+CALLBACK FUNCTION SimplCurrentEventNameUpdate(string eventName)
+{
+	CurrentEventName = eventName;
+}
+
+CALLBACK FUNCTION SimplUpcomingEventCountdownUpdate(string countdown)
+{
+	UpcomingEventCountdown = countdown;
+}
+
+CALLBACK FUNCTION SimplCurrentEventStatusUpdate(string status)
+{
+	CurrentEventStatus = status;
+}
+
+CALLBACK FUNCTION SimplChannelPreviewImageUpdate(integer index, string value)
+{
+	ChannelPreviewUrl[index] = value;
+}
+
+CALLBACK FUNCTION SimplChannelLayoutPreviewImageUpdate(integer index, string value)
+{
+	ChannelLayoutPreviewUrl[index] = value;
+}
+
+PUSH LoggingEnabled
+{
+	Driver.EnableLogging(1);
+}
+
+RELEASE LoggingEnabled
+{
+	Driver.EnableLogging(0);
+}
+
+PUSH VerboseLoggingEnabled
+{
+	Driver.EnableVerboseLogging(1);
+}
+
+RELEASE VerboseLoggingEnabled
+{
+	Driver.EnableVerboseLogging(0);
+}
+
+FUNCTION RegisterDelegates()
+{
+ 	RegisterDelegate(Driver, SimplRecorderListUpdated, SimplRecorderListUpdate);
+ 	RegisterDelegate(Driver, SimplRecorderStateUpdated, SimplRecorderStateUpdate);
+ 	RegisterDelegate(Driver, SimplRecorderNameUpdated, SimplRecorderNameUpdate);
+
+ 	RegisterDelegate(Driver, SimplChannelRecordingStateUpdated, SimplChannelRecordingStateUpdate);
+ 	RegisterDelegate(Driver, SimplChannelListUpdated, SimplChannelListUpdate);
+ 	RegisterDelegate(Driver, SimplPublishingStreamTypeUpdated, SimplPublishingStreamTypeUpdate);
+ 	RegisterDelegate(Driver, SimplPublishingStreamStateUpdated, SimplPublishingStreamStateUpdate);
+ 	RegisterDelegate(Driver, SimplPublishingNameUpdated, SimplPublishingNameUpdate);
+ 	RegisterDelegate(Driver, SimplPublishingListUpdated, SimplPublishingListUpdate);
+ 	RegisterDelegate(Driver, SimplChannelNameUpdated, SimplChannelNameUpdate);
+ 	RegisterDelegate(Driver, SimplLayoutListUpdated, SimplLayoutListUpdate);
+ 	RegisterDelegate(Driver, SimplLayoutNameUpdated, SimplLayoutNameUpdate);
+ 	RegisterDelegate(Driver, SimplLayoutActivityUpdated, SimplLayoutActivityUpdate);
+	RegisterDelegate(Driver, SimplAllPublishingStateUpdated, SimplAllPublishingStateUpdate);
+
+ 	RegisterDelegate(Driver, SimplAudioSourceListUpdated, SimplAudioSourceListUpdate);
+ 	RegisterDelegate(Driver, SimplAudioSourceActivityUpdated, SimplAudioSourceActivityUpdate);
+ 	RegisterDelegate(Driver, SimplAudioSourceNameUpdated, SimplAudioSourceNameUpdate);
+
+ 	RegisterDelegate(Driver, SimplVideoSourceListUpdated, SimplVideoSourceListUpdate);
+ 	RegisterDelegate(Driver, SimplVideoSourceActivityUpdated, SimplVideoSourceActivityUpdate);
+ 	RegisterDelegate(Driver, SimplVideoSourceNameUpdated, SimplVideoSourceNameUpdate);
+ 	RegisterDelegate(Driver, SimplVideoSourceTimingUpdated, SimplVideoSourceTimingUpdate);
+
+ 	RegisterDelegate(Driver, SimplDisplayListUpdated, SimplDisplayListUpdate);
+ 	RegisterDelegate(Driver, SimplDisplayActivityUpdated, SimplDisplayActivityUpdate);
+ 	RegisterDelegate(Driver, SimplDisplayNameUpdated, SimplDisplayNameUpdate);
+ 	RegisterDelegate(Driver, SimplDisplayTimingUpdated, SimplDisplayTimingUpdate);
+
+ 	RegisterDelegate(Driver, SimplTotalSpaceUpdated, SimplTotalSpaceUpdate);
+ 	RegisterDelegate(Driver, SimplUsedSpaceUpdated, SimplUsedSpaceUpdate);
+    RegisterDelegate(Driver, SimplFreeSpaceUpdated, SimplFreeSpaceUpdate);
+
+	RegisterDelegate(Driver, SimplCommunicationStateUpdated, SimplCommunicationStateUpdate);
+	RegisterDelegate(Driver, SimplErrorMessageUpdated, SimplErrorMessageUpdate);
+
+	RegisterDelegate(Driver, SimplUpcomingEventNameUpdated, SimplUpcomingEventNameUpdate);
+	RegisterDelegate(Driver, SimplCurrentEventNameUpdated, SimplCurrentEventNameUpdate);
+	RegisterDelegate(Driver, SimplUpcomingEventCountdownUpdated, SimplUpcomingEventCountdownUpdate);
+	RegisterDelegate(Driver, SimplCurrentEventStatusUpdated, SimplCurrentEventStatusUpdate);
+
+	RegisterDelegate(Driver, SimplChannelPreviewImageUpdated, SimplChannelPreviewImageUpdate);
+	RegisterDelegate(Driver, SimplChannelLayoutPreviewImageUpdated, SimplChannelLayoutPreviewImageUpdate);
+}
+
+FUNCTION Main()
+{
+	WaitForInitializationComplete();
+	RegisterDelegates();
+	Driver.SimplPearl2DriverConfig(DeviceConnectionType);
+    _initilizationComplete = 1;
+}

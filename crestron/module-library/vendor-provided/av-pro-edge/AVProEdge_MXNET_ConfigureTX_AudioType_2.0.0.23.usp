@@ -1,0 +1,63 @@
+#define_constant MAX_INPUTS  200
+
+digital_input HDMI[MAX_INPUTS];
+digital_input ANALOG[MAX_INPUTS];
+digital_input AUTO[MAX_INPUTS];
+digital_input AUTO_1[MAX_INPUTS];
+digital_input AUTO_2[MAX_INPUTS];
+
+
+
+string_output CONFIGURE_TX_CMD;
+         
+
+push HDMI
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device audio input hdmi INPUT_ALIAS[%d]" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push ANALOG
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device audio input analog INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+         
+push AUTO
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device audio input auto INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push AUTO_1
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device audio input auto_1 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+
+push AUTO_2
+{
+  integer i;
+  String cmd[256];
+
+  i = getlastmodifiedarrayindex();
+  makestring( CMD, "config set device audio input auto_2 INPUT_ALIAS[%d];" , i ) ;
+  CONFIGURE_TX_CMD = cmd;
+}
+

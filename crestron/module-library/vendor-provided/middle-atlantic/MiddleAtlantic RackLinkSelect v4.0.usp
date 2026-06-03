@@ -1,0 +1,2217 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: MiddleAtlantic RackLinkSelect v1.0
+System Number:
+Programmer: JJM
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+
+// MAX STUFF
+#DEFINE_CONSTANT MAX_MSG_SIZE 255
+#DEFINE_CONSTANT MAX_TOKENS 20
+#DEFINE_CONSTANT MAX_TOKEN_LENGTH 100        
+#DEFINE_CONSTANT MAX_NAME_SIZE 50
+#DEFINE_CONSTANT MAX_OUTLETS 16
+
+// RESPONSE
+#DEFINE_CONSTANT RESPONSE_PULSE_TIME 5
+        
+// PROTOCOL PARTS
+#DEFINE_CONSTANT HEADER 0xfe
+#DEFINE_CONSTANT ESCAPE 0xfd
+#DEFINE_CONSTANT TAIL 0xff
+                 
+// PROTOCOL
+// ADDRESS
+#DEFINE_CONSTANT RL_ADD_GLOBAL 0x00
+
+// CMDS
+#DEFINE_CONSTANT RL_CMD_NACK 0x10
+#DEFINE_CONSTANT RL_CMD_PING 0x01
+#DEFINE_CONSTANT RL_CMD_LOGIN 0x02
+
+#DEFINE_CONSTANT RL_CMD_PWR_OUTLET 0x20
+#DEFINE_CONSTANT RL_CMD_PWR_OUTLET_NAME 0x21
+#DEFINE_CONSTANT RL_CMD_PWR_OUTLET_COUNT 0x22
+#DEFINE_CONSTANT RL_CMD_PWR_OUTLET_EMS 0x23
+#DEFINE_CONSTANT RL_CMD_DRY_CONTACTS 0x30
+#DEFINE_CONSTANT RL_CMD_DRY_CONTACTS_NAME 0x31
+#DEFINE_CONSTANT RL_CMD_DRY_CONTACTS_COUNT 0x32
+#DEFINE_CONSTANT RL_CMD_SEQUENCE_POWER_OUTLETS 0x36
+#DEFINE_CONSTANT RL_CMD_EMERGENCY_POWER_OFF 0x37
+
+#DEFINE_CONSTANT RL_CMD_REG_LOG_ALERTS 0x40
+#DEFINE_CONSTANT RL_CMD_REG_STATUS_CHANGE 0x41
+
+#DEFINE_CONSTANT RL_CMD_CURRENT_KILOWATT 0x50
+#DEFINE_CONSTANT RL_CMD_CURRENT_PEAK_VOLT 0x51
+#DEFINE_CONSTANT RL_CMD_CURRENT_RMS_VOLT 0x52
+#DEFINE_CONSTANT RL_CMD_CURRENT_PEAK_CURRENT 0x53
+#DEFINE_CONSTANT RL_CMD_CURRENT_RMS_CURRENT 0x54
+#DEFINE_CONSTANT RL_CMD_CURRENT_TEMP 0x55
+#DEFINE_CONSTANT RL_CMD_CURRENT_WATTS 0x56
+#DEFINE_CONSTANT RL_CMD_CURRENT_PWR_FACTOR 0x57
+#DEFINE_CONSTANT RL_CMD_CURRENT_THERMAL_LOAD 0x58
+#DEFINE_CONSTANT RL_CMD_CURRENT_SURGE_STATE 0x59
+#DEFINE_CONSTANT RL_CMD_CURRENT_COMPETE_EMS 0x60
+#DEFINE_CONSTANT RL_CMD_CURRENT_OCCUPANCY_STATE 0x61
+#DEFINE_CONSTANT RL_CMD_LOW_VOLTAGE_THRESHOLD 0x70
+#DEFINE_CONSTANT RL_CMD_HI_VOLTAGE_THRESHOLD 0x71
+#DEFINE_CONSTANT RL_CMD_MAX_CURRENT 0x73
+#DEFINE_CONSTANT RL_CMD_MIN_CURRENT 0x74
+#DEFINE_CONSTANT RL_CMD_MAX_TEMPERATURE 0x76
+#DEFINE_CONSTANT RL_CMD_MIN_TEMPERATURE 0x77
+
+#DEFINE_CONSTANT RL_CMD_LOG_ENTRY 0x80
+#DEFINE_CONSTANT RL_CMD_LOG_COUNT 0x81
+#DEFINE_CONSTANT RL_CMD_LOG_CLEAR 0x82
+
+#DEFINE_CONSTANT RL_CMD_PRODUCT_PART_NUM 0x90
+#DEFINE_CONSTANT RL_CMD_PRODUCT_RATING 0x91
+#DEFINE_CONSTANT RL_CMD_PRODUCT_SURGE_PROTECT 0x93
+#DEFINE_CONSTANT RL_CMD_PRODUCT_IP_ADDRESS 0x94
+#DEFINE_CONSTANT RL_CMD_PRODUCT_MAC 0x95
+
+// SUB CMDS
+#DEFINE_CONSTANT RL_SUB_SET 0x01
+#DEFINE_CONSTANT RL_SUB_GET 0x02
+#DEFINE_CONSTANT RL_SUB_RESPONSE 0x10
+#DEFINE_CONSTANT RL_SUB_STATUS_CHANGE 0x12
+#DEFINE_CONSTANT RL_SUB_LOG_ALERT 0x30
+
+// CONTROL STATE
+#DEFINE_CONSTANT RL_CS_OFF 0x00
+#DEFINE_CONSTANT RL_CS_ON 0x01
+#DEFINE_CONSTANT RL_CS_CYCLE 0x02
+#DEFINE_CONSTANT RL_CS_NON_CONTROLLABLE 0x03
+
+// LOGIN STATE
+#DEFINE_CONSTANT RL_LOGIN_ACCEPTED 0x01
+#DEFINE_CONSTANT RL_LOGIN_DECLINED 0x00
+
+// EPO State
+#DEFINE_CONSTANT RL_EPO_RECOVER 0x00
+#DEFINE_CONSTANT RL_EPO_INIT 0x01
+
+#DEFINE_CONSTANT EPO_STATUS_NORMAL 0x00
+#DEFINE_CONSTANT EPO_STATUS_ACTIVE 0x01
+
+// Occupancy State
+#DEFINE_CONSTANT RL_OCCUPIED "O"
+#DEFINE_CONSTANT RL_UNOCCUPIED "U"
+
+// Power Sequence
+#DEFINE_CONSTANT RL_PWRSEQ_UP 0x01
+#DEFINE_CONSTANT RL_PWRSEQ_DN 0x03
+
+#DEFINE_CONSTANT SEQ_STATUS_NONE 0x00
+#DEFINE_CONSTANT SEQ_STATUS_UP 0x01
+#DEFINE_CONSTANT SEQ_STATUS_UP_DONE 0x02
+#DEFINE_CONSTANT SEQ_STATUS_DN 0x03
+#DEFINE_CONSTANT SEQ_STATUS_DN_DONE 0x04
+	
+// BOOLEAN
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+               
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+// #DEFINE_CONSTANT
+#CATEGORY "46" "Middle Atlantic"
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+To be used with MiddleAtlantic RackLinkSelect v1.0.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_; 
+DIGITAL_INPUT CONNECT,DISCONNECT;
+DIGITAL_INPUT OUTLET_1_ON, OUTLET_1_OFF, OUTLET_1_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_2_ON, OUTLET_2_OFF, OUTLET_2_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_3_ON, OUTLET_3_OFF, OUTLET_3_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_4_ON, OUTLET_4_OFF, OUTLET_4_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_5_ON, OUTLET_5_OFF, OUTLET_5_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_6_ON, OUTLET_6_OFF, OUTLET_6_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_7_ON, OUTLET_7_OFF, OUTLET_7_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_8_ON, OUTLET_8_OFF, OUTLET_8_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_9_ON, OUTLET_9_OFF, OUTLET_9_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_10_ON, OUTLET_10_OFF, OUTLET_10_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_11_ON, OUTLET_11_OFF, OUTLET_11_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_12_ON, OUTLET_12_OFF, OUTLET_12_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_13_ON, OUTLET_13_OFF, OUTLET_13_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_14_ON, OUTLET_14_OFF, OUTLET_14_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_15_ON, OUTLET_15_OFF, OUTLET_15_CYCLE,_SKIP_;
+DIGITAL_INPUT OUTLET_16_ON, OUTLET_16_OFF, OUTLET_16_CYCLE,_SKIP_;
+
+DIGITAL_INPUT POWER_SEQ_UP, POWER_SEQ_DN,_SKIP_;
+
+DIGITAL_INPUT ROOM_OCCUPANCY_ON, ROOM_OCCUPANCY_OFF, _SKIP_;
+
+DIGITAL_INPUT REFRESH_LOG, _SKIP_;
+
+ANALOG_INPUT POWER_CYCLE_TIME, _SKIP_;
+ANALOG_INPUT POWER_SEQ_TIME, _SKIP_;
+
+ANALOG_INPUT _SKIP_, _SKIP_, _SKIP_;
+
+ANALOG_INPUT OUTLET_1_EMS_SET, OUTLET_2_EMS_SET, OUTLET_3_EMS_SET, OUTLET_4_EMS_SET;
+ANALOG_INPUT OUTLET_5_EMS_SET, OUTLET_6_EMS_SET, OUTLET_7_EMS_SET, OUTLET_8_EMS_SET;
+ANALOG_INPUT OUTLET_9_EMS_SET, OUTLET_10_EMS_SET, OUTLET_11_EMS_SET, OUTLET_12_EMS_SET;
+ANALOG_INPUT OUTLET_13_EMS_SET, OUTLET_14_EMS_SET, OUTLET_15_EMS_SET, OUTLET_16_EMS_SET, _SKIP_;
+
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_; 
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_,_SKIP_, _SKIP_, _SKIP_, _SKIP_ , _SKIP_; 
+                                 
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_; 
+
+STRING_INPUT OUTLET_1_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_2_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_3_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_4_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_5_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_6_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_7_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_8_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_9_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_10_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_11_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_12_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_13_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_14_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_15_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT OUTLET_16_NAME_SET$[MAX_NAME_SIZE]; 
+STRING_INPUT _SKIP_;   
+
+STRING_INPUT _SKIP_, _SKIP_;                               
+
+BUFFER_INPUT comRX$[10000], USER[254], PASS[254];
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_;
+DIGITAL_OUTPUT IS_COMMUNICATING_FB,_SKIP_;
+DIGITAL_OUTPUT OUTLET_1_ON_FB, OUTLET_1_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_2_ON_FB, OUTLET_2_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_3_ON_FB, OUTLET_3_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_4_ON_FB, OUTLET_4_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_5_ON_FB, OUTLET_5_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_6_ON_FB, OUTLET_6_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_7_ON_FB, OUTLET_7_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_8_ON_FB, OUTLET_8_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_9_ON_FB, OUTLET_9_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_10_ON_FB, OUTLET_10_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_11_ON_FB, OUTLET_11_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_12_ON_FB, OUTLET_12_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_13_ON_FB, OUTLET_13_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_14_ON_FB, OUTLET_14_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_15_ON_FB, OUTLET_15_OFF_FB, _SKIP_,_SKIP_;
+DIGITAL_OUTPUT OUTLET_16_ON_FB, OUTLET_16_OFF_FB, _SKIP_,_SKIP_;
+
+DIGITAL_OUTPUT POWER_SEQ_UP_FB, POWER_SEQ_DN_FB,_SKIP_;
+
+DIGITAL_OUTPUT ROOM_OCCUPANCY_ON_FB, ROOM_OCCUPANCY_OFF_FB, _SKIP_;
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_;
+
+ANALOG_OUTPUT _SKIP_, _SKIP_;
+ANALOG_OUTPUT _SKIP_, _SKIP_;
+
+ANALOG_OUTPUT OUTLETS_PRESENT_BITMASK, OUTLETS_CONTROLLABLE_BITMASK, _SKIP_;
+
+ANALOG_OUTPUT OUTLET_1_EMS_STATUS, OUTLET_2_EMS_STATUS, OUTLET_3_EMS_STATUS, OUTLET_4_EMS_STATUS;
+ANALOG_OUTPUT OUTLET_5_EMS_STATUS, OUTLET_6_EMS_STATUS, OUTLET_7_EMS_STATUS, OUTLET_8_EMS_STATUS;
+ANALOG_OUTPUT OUTLET_9_EMS_STATUS, OUTLET_10_EMS_STATUS, OUTLET_11_EMS_STATUS, OUTLET_12_EMS_STATUS;
+ANALOG_OUTPUT OUTLET_13_EMS_STATUS, OUTLET_14_EMS_STATUS, OUTLET_15_EMS_STATUS, OUTLET_16_EMS_STATUS, _SKIP_;
+
+STRING_OUTPUT OUTLET_1_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_2_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_3_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_4_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_5_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_6_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_7_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_8_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_9_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_10_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_11_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_12_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_13_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_14_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_15_EMS_STATUS$; 
+STRING_OUTPUT OUTLET_16_EMS_STATUS$; 
+STRING_OUTPUT _SKIP_; 
+
+STRING_OUTPUT PI_PART_NUMBER$; 
+STRING_OUTPUT PI_RATING$; 
+STRING_OUTPUT PI_IP_ADDRESS$;
+STRING_OUTPUT PI_MAC_ADDRESS$; 
+STRING_OUTPUT _SKIP_; 
+
+STRING_OUTPUT OUTLET_1_NAME$; 
+STRING_OUTPUT OUTLET_2_NAME$; 
+STRING_OUTPUT OUTLET_3_NAME$; 
+STRING_OUTPUT OUTLET_4_NAME$; 
+STRING_OUTPUT OUTLET_5_NAME$; 
+STRING_OUTPUT OUTLET_6_NAME$; 
+STRING_OUTPUT OUTLET_7_NAME$; 
+STRING_OUTPUT OUTLET_8_NAME$; 
+STRING_OUTPUT OUTLET_9_NAME$; 
+STRING_OUTPUT OUTLET_10_NAME$; 
+STRING_OUTPUT OUTLET_11_NAME$; 
+STRING_OUTPUT OUTLET_12_NAME$; 
+STRING_OUTPUT OUTLET_13_NAME$; 
+STRING_OUTPUT OUTLET_14_NAME$; 
+STRING_OUTPUT OUTLET_15_NAME$; 
+STRING_OUTPUT OUTLET_16_NAME$; 
+STRING_OUTPUT _SKIP_;  
+
+STRING_OUTPUT CS_POWER_SEQ$, _SKIP_;
+                                  
+STRING_OUTPUT comTX$, _SKIP_;
+
+STRING_OUTPUT LOG_ENTRIES$[15];
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+// TCP_CLIENT
+// TCP_SERVER
+// UDP_SOCKET
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+//STRING_PARAMETER USER_NAME$[MAX_NAME_SIZE], USER_PASSWORD$[MAX_NAME_SIZE];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+/*
+STRUCTURE MyStruct1
+{
+};
+
+MyStruct1 struct;
+*/
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+                
+// General
+STRING sNull[1];
+                            
+// Product Data
+STRING ipAddress[15];
+STRING macAddress[17];
+STRING model[MAX_NAME_SIZE];
+STRING rating[MAX_NAME_SIZE];
+
+// Power Sequence Status
+INTEGER powerSequenceStatus;
+
+// EPO
+INTEGER epoStatus;
+
+// Log Alert Registration
+STRING sLogAlertReg[2];
+
+// Outlets
+STRING outletNames[MAX_OUTLETS][MAX_NAME_SIZE];
+INTEGER outletEMS[MAX_OUTLETS];
+                 
+// Login
+INTEGER isLoggedIn;
+
+// PROTOCOL COMMANDS
+STRING cmdHeartbeat[MAX_MSG_SIZE], USER_NAME[254], USER_PASSWORD[254];
+  
+// 	QUEUE
+STRING queue[10000];
+STRING queueLowPriority[10000];
+INTEGER queueIsBusy;
+
+INTEGER isIntialized;
+                        
+// BUFFER PARSING
+STRING sMsg[MAX_MSG_SIZE];
+INTEGER parsingBusy;
+
+// POLL
+integer nheartbeatCount;
+integer isHeartBeatRunning;
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/  
+////////////////////////////////////////////////////////////
+// stringTokenizer
+////////////////////////////////////////////////////////////                                
+Integer_Function stringTokenizer(STRING tokenList[], STRING stringMsg, STRING delimiter)
+{
+	INTEGER nStartLocation;
+	INTEGER nFoundLocation;
+	INTEGER item;
+
+	item = 0;
+
+	nStartLocation = 1;
+
+	WHILE (TRUE)
+	{
+		nFoundLocation = FIND(delimiter, stringMsg, nStartLocation);
+
+		IF (nFoundLocation = 0)
+			break;
+
+		item = item + 1;
+
+		tokenList[item] = MID(stringMsg, nStartLocation, nFoundLocation - nStartLocation);
+
+		nStartLocation = nFoundLocation + LEN(delimiter);	
+	}
+
+	IF (nStartLocation <= LEN(stringMsg))
+	{
+		item = item + 1;
+
+		tokenList[item] = MID(stringMsg, nStartLocation, (LEN(stringMsg) - nStartLocation) + 1);
+	}
+                                                       
+	return (item);
+}
+ 
+////////////////////////////////////////////////////////////
+// stringReplace
+////////////////////////////////////////////////////////////
+String_Function stringReplace(STRING stringMsg, STRING search, STRING replace)
+{
+	INTEGER X;
+	STRING response[MAX_MSG_SIZE];
+    
+	INTEGER tokenCount;
+    STRING tokens[MAX_TOKENS][MAX_TOKEN_LENGTH];
+	
+	tokenCount = stringTokenizer(tokens, stringMsg, search);
+
+	response = "";
+
+	IF (tokenCount > 0)
+	{
+		FOR (X = 1 TO tokenCount)
+		{
+			IF (X < tokenCount)
+				MakeString(response,"%s%s%s",response,tokens[X],replace);	
+			ELSE
+				MakeString(response,"%s%s",response,tokens[X]);	
+		}
+	}
+   
+	return (response);
+}
+  
+////////////////////////////////////////////////////////////
+// cleanFloat
+////////////////////////////////////////////////////////////
+String_Function cleanFloat(String float)
+{
+	STRING response[MAX_NAME_SIZE];
+
+	INTEGER tokenCount;
+    STRING tokens[MAX_TOKENS][MAX_TOKEN_LENGTH];
+
+	tokenCount = stringTokenizer(tokens, float, ".");
+
+	response = "0";
+                   
+	// is float? XXXX.X
+	IF (tokenCount = 2)
+	{
+     	MakeString(response,"%d.%d",ATOI(tokens[1]),ATOI(tokens[2]));
+	}
+
+	RETURN (response);
+}
+
+////////////////////////////////////////////////////////////
+// cleanInteger
+////////////////////////////////////////////////////////////
+String_Function cleanInteger(String int)
+{
+	RETURN (ITOA(ATOI(int)));
+}
+
+////////////////////////////////////////////////////////////
+// EMS State Helper Methods
+////////////////////////////////////////////////////////////
+String_Function getEMSState_MsgValue(INTEGER state)
+{
+	STRING response[1];
+
+	SWITCH (state)
+	{	
+		// Off
+		CASE (1):
+		{
+			response = "O";
+		}
+		// On
+		CASE (2):
+		{
+			response = "I";
+		}
+		// Standby
+		CASE (3):
+		{
+			response = "S";
+		}
+		// Disconnected
+		CASE (4):
+		{
+			response = "D";
+		}
+		// Unknown
+		DEFAULT:
+		{
+			response = "U";
+		}
+	}
+
+	RETURN (response);
+}
+
+String_Function getEMSState_Text(INTEGER state)
+{
+	STRING response[MAX_NAME_SIZE];
+
+	SWITCH (state)
+	{	
+		// Off
+		CASE (1):
+		{
+			response = "Off";
+		}
+		// On
+		CASE (2):
+		{
+			response = "On";
+		}
+		// Standby
+		CASE (3):
+		{
+			response = "Standby";
+		}
+		// Disconnected
+		CASE (4):
+		{
+			response = "Disconnected";
+		}
+		// Unknown
+		DEFAULT:
+		{
+			response = "Unknown";
+		}
+	}
+
+	RETURN (response);
+}
+
+Integer_Function getEMSState_Value(STRING state)
+{
+	INTEGER response;
+
+	IF (state = "O")
+		response = 1;
+	ELSE IF (state = "I")
+		response = 2;
+	ELSE IF (state = "S")
+		response = 3;
+	ELSE IF (state = "D")
+		response = 4;
+	ELSE
+		response = 0;
+
+	RETURN (response);
+}
+ 
+////////////////////////////////////////////////////////////
+// deQueue
+////////////////////////////////////////////////////////////
+Function deQueue()
+{
+	STRING msg[MAX_MSG_SIZE];
+	INTEGER responseTime;
+	INTEGER logRequestID;
+
+	IF (LEN(queue) > 0 || LEN(queueLowPriority) > 0)
+	{
+		IF (queueIsBusy = FALSE)
+		{
+			queueIsBusy = TRUE;
+                                         
+			IF (LEN(queue) > 0)	
+				msg = REMOVE(CHR(TAIL), queue);
+			ELSE
+				msg = REMOVE(CHR(TAIL), queueLowPriority);
+
+			responseTime = 100;
+
+			// MSG CONTACTS REQUESTID
+			IF (BYTE(msg,1) != HEADER)
+				logRequestID = BYTE(RemoveByLength(1, msg), 1);
+
+			// LOG ENTRY? GIVE IT ALOT OF TIME!
+			//IF (BYTE(msg, 4) = RL_CMD_LOG_ENTRY)
+			//	responseTime = 3000;
+              
+			WAIT (500, commTimeoutQueue)
+				IS_COMMUNICATING_FB = FALSE;
+
+			WAIT (responseTime, falseResponse)
+			{	
+				queueIsBusy = FALSE;
+				deQueue();
+			}
+                                   
+			// Send Message!
+			MakeString(comTX$,"%s", msg);
+		}
+	}
+}
+ 
+////////////////////////////////////////////////////////////
+// enQueue
+////////////////////////////////////////////////////////////
+Function enQueue(STRING msg, INTEGER requestID)
+{
+	IF (LEN(queue) > 0 || LEN(queueLowPriority) > 0)
+	{
+		MakeString(queue,"%s%s%s", queue, CHR(requestID), msg);
+    }                  
+    ELSE
+	{
+		MakeString(queue,"%s%s%s", queue, CHR(requestID), msg);
+
+		IF (queueIsBusy = FALSE)
+			deQueue();
+	}
+}
+
+Function enQueueLowPriority(STRING msg, INTEGER requestID)
+{
+	IF (LEN(queue) > 0 || LEN(queueLowPriority) > 0)
+	{
+		MakeString(queueLowPriority,"%s%s%s", queueLowPriority, CHR(requestID), msg);
+    }                  
+    ELSE
+	{
+		MakeString(queueLowPriority,"%s%s%s", queueLowPriority, CHR(requestID), msg);
+
+		IF (queueIsBusy = FALSE)
+			deQueue();
+	}
+}
+
+////////////////////////////////////////////////////////////
+// resetQueue
+////////////////////////////////////////////////////////////
+Function resetQueue()
+{
+	CANCELWAIT (commTimeoutQueue);
+	CANCELWAIT(falseResponse);
+	queue = "";
+	queueIsBusy = FALSE;
+}
+
+////////////////////////////////////////////////////////////
+// goodResponse
+////////////////////////////////////////////////////////////
+Function goodResponse()
+{
+	IF (isLoggedIn = TRUE)
+		IS_COMMUNICATING_FB = TRUE;
+
+	CANCELWAIT (falseResponse);
+	queueIsBusy = false;
+	deQueue();
+}
+
+////////////////////////////////////////////////////////////
+// RackLink_CalcChecksum
+////////////////////////////////////////////////////////////
+Integer_Function RackLink_CalcChecksum(STRING msg)
+{
+    INTEGER cs;
+	INTEGER x;
+	INTEGER nByte;
+
+	cs = 0;
+
+	FOR (X = 1 TO LEN(msg))
+	{
+ 		nByte = BYTE(MID(msg, X ,1), 1);
+
+		cs = ((cs + nByte) % 0x80);
+	}
+
+	Return (cs);
+}
+  
+////////////////////////////////////////////////////////////
+// RackLink_EscapeMessage
+////////////////////////////////////////////////////////////
+String_Function RackLink_EscapeMessage(STRING msg)
+{
+	INTEGER x;
+	INTEGER nByte;
+	STRING escapedMessage[MAX_MSG_SIZE];
+
+	FOR (x = 1 to LEN(msg))
+	{
+		nByte = BYTE(MID(msg, X ,1), 1);
+       
+		IF (nByte = HEADER || nByte = TAIL || nByte = ESCAPE)
+			MakeString(escapedMessage,"%s%s%s",escapedMessage,CHR(ESCAPE),CHR(NOT(nByte)));
+		ELSE       
+			MakeString(escapedMessage,"%s%s",escapedMessage,CHR(nByte));
+    }
+
+	Return (escapedMessage);
+}
+
+////////////////////////////////////////////////////////////
+// RackLink_UnescapeMessage
+////////////////////////////////////////////////////////////
+String_Function RackLink_UnescapeMessage(STRING msg)
+{
+	INTEGER x;
+	INTEGER nByte;
+	INTEGER escapeByte;
+	STRING unescapedMessage[MAX_MSG_SIZE];
+
+	FOR (x = 1 to LEN(msg))
+	{
+		nByte = BYTE(MID(msg, X ,1), 1);
+
+		IF (nByte = ESCAPE)
+			escapeByte = TRUE;
+		ELSE
+		{
+			IF (escapeByte = TRUE)
+				MakeString(unescapedMessage,"%s%s",unescapedMessage, CHR(NOT(nByte)));
+			ELSE
+				MakeString(unescapedMessage,"%s%s",unescapedMessage, CHR(nByte));
+
+			escapeByte = FALSE;
+		}        
+	}
+
+	Return (unescapedMessage);
+}
+  
+////////////////////////////////////////////////////////////
+// RackLink_CreateMessage
+////////////////////////////////////////////////////////////
+String_Function RackLink_CreateMessage(INTEGER cmd, INTEGER subCmd, STRING data)
+{
+	INTEGER length;
+	INTEGER cs;
+	STRING finalMessage[MAX_MSG_SIZE];
+	STRING tMsg[MAX_MSG_SIZE];
+
+	MakeString(finalMessage,"%s%s%s%s",CHR(RL_ADD_GLOBAL), CHR(cmd), CHR(subCmd), data);
+
+	length = LEN(finalMessage);
+
+	MakeString(finalMessage,"%s%s",CHR(length), finalMessage);
+
+	MakeString(tMsg,"%s%s",CHR(HEADER), finalMessage);
+
+	cs = RackLink_CalcChecksum(tMsg);
+
+	finalMessage = RackLink_EscapeMessage(finalMessage);
+
+	MakeString(finalMessage,"%s%s%s%s", CHR(HEADER), finalMessage, CHR(cs), CHR(TAIL));
+
+	Return (finalMessage);
+}
+  
+////////////////////////////////////////////////////////////
+// RackLink_SendDirectMessage
+////////////////////////////////////////////////////////////
+Function RackLink_SendDirectMessage(STRING msg)
+{
+	comTX$ = msg;
+}
+     
+////////////////////////////////////////////////////////////
+// RackLink_SendQueueMessage
+////////////////////////////////////////////////////////////
+Function RackLink_SendQueueMessage(STRING msg)
+{
+	enQueue(msg, 0);
+}
+
+////////////////////////////////////////////////////////////
+// RackLink_SendQueueMessageLowPriority
+////////////////////////////////////////////////////////////
+Function RackLink_SendQueueMessageLowPriority(STRING msg)
+{
+	enQueueLowPriority(msg, 0);
+}
+ 
+////////////////////////////////////////////////////////////
+// RackLink_LogEntryTypeName
+////////////////////////////////////////////////////////////
+String_Function RackLink_LogEntryTypeName(STRING typeNum)
+{
+	String response[MAX_NAME_SIZE];
+
+	response = "Unknown";
+
+	if (typeNum = "00")
+		response = "NORMAL";
+	else if (typeNum = "01")
+		response = "OVER_VOLT";
+	else if (typeNum = "02")
+		response = "UNDER_VOLT";
+	else if (typeNum = "03")
+		response = "OVER_CURRENT";
+	else if (typeNum = "04")
+		response = "UNDER_CURRENT";
+	else if (typeNum = "05")
+		response = "OVER_TEMP";
+	else if (typeNum = "06")
+		response = "UNDER_TEMP";
+	else if (typeNum = "07")
+		response = "SURGE_FAULT";
+	else if (typeNum = "08")
+		response = "AUTO_PING";
+	else if (typeNum = "09")
+		response = "COMM_FAIL";
+	else if (typeNum = "10")
+		response = "EPO_INIT";
+	else if (typeNum = "11")
+		response = "EPO_RECOVER";
+
+	return (response);
+}
+
+////////////////////////////////////////////////////////////
+// RackLink_GetStatus
+////////////////////////////////////////////////////////////
+Function RackLink_Poll()
+{
+	INTEGER X;
+                     
+	// only poll if things are quite.
+	IF (LEN(queueLowPriority) = 0)
+	{
+		FOR (X = 1 TO MAX_OUTLETS)
+			RackLink_SendQueueMessageLowPriority(RackLink_CreateMessage(RL_CMD_PWR_OUTLET_NAME, RL_SUB_GET, CHR(X)));
+	}
+}
+
+Function RackLink_GetStatus()
+{
+	INTEGER X;
+	STRING statusChange[MAX_NAME_SIZE];
+    
+	FOR (X = 1 TO MAX_OUTLETS)
+	{
+		RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET, RL_SUB_GET, CHR(X)));
+		RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET_NAME, RL_SUB_GET, CHR(X)));
+	}
+
+	MakeString(statusChange,"%s%s%s%s%s%s",CHR(0x01),CHR(0x04),CHR(0x00),CHR(0x00),CHR(0x00),CHR(0x00));
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_REG_STATUS_CHANGE, RL_SUB_SET, statusChange));
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_SEQUENCE_POWER_OUTLETS, RL_SUB_GET, sNull));
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_CURRENT_OCCUPANCY_STATE, RL_SUB_GET, sNull));
+                                                                                             
+	MakeString(statusChange,"%s%s",CHR(0x00),CHR(0x00));
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_REG_LOG_ALERTS, RL_SUB_SET, statusChange));
+	
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_CURRENT_COMPETE_EMS, RL_SUB_GET, sNull));
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET_COUNT, RL_SUB_GET, sNull));
+	
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PRODUCT_IP_ADDRESS, RL_SUB_GET, sNull));
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PRODUCT_RATING, RL_SUB_GET, sNull));
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PRODUCT_PART_NUM, RL_SUB_GET, sNull));
+}
+ 
+////////////////////////////////////////////////////////////
+// RackLink_CreateLogMessage
+////////////////////////////////////////////////////////////            
+String_Function RackLink_CreateLogMessage(STRING entry, STRING category, STRING logData)
+{
+	STRING modifiedLogData[100];
+	STRING categoryName[MAX_NAME_SIZE];
+	STRING response[MAX_MSG_SIZE];
+
+	//  TAKE "LOG" PROTION AND REPLACE COMMA FOR PIPE AND SPACE FOR PIPE.
+	modifiedLogData = stringReplace(logData, ",", "|");
+	modifiedLogData = stringReplace(modifiedLogData, " ", "|");
+
+ 	categoryName = RackLink_LogEntryTypeName(category);
+
+	MakeString(response,"%s|%s|%s", entry, categoryName, modifiedLogData);
+
+	return (response); 
+}
+ 
+////////////////////////////////////////////////////////////
+// Racklink_ParseResponse
+////////////////////////////////////////////////////////////            
+Function Racklink_ParseResponse(INTEGER cmd, STRING dataEnvelope, INTEGER isResponse)
+{
+	// parsing
+	INTEGER nValue1;
+	INTEGER nValue2;
+	STRING sValue1[MAX_NAME_SIZE];
+	STRING sValue2[MAX_NAME_SIZE];
+	STRING sTemp[MAX_MSG_SIZE];
+                                        
+	// STRING TOKENIZER
+	INTEGER tokenCount;
+    STRING tokens[MAX_TOKENS][MAX_TOKEN_LENGTH];
+
+	switch (cmd)
+	{
+		case (RL_CMD_NACK):	
+		{
+		}
+		case (RL_CMD_LOGIN):	
+		{
+            nValue1 = BYTE(dataEnvelope, 1);
+
+			IF (nValue1 = RL_LOGIN_ACCEPTED)
+			{
+				isLoggedIn = TRUE;
+
+				RackLink_SendQueueMessage(cmdHeartbeat);
+			}
+			ELSE
+				isLoggedIn = FALSE;
+		}
+		case (RL_CMD_PWR_OUTLET):	
+		{
+			nValue1 = BYTE(dataEnvelope, 1);
+
+			IF (nValue1 > 0 && nValue1 <= MAX_OUTLETS)
+			{
+				nValue2 = BYTE(dataEnvelope, 2);
+
+				SWITCH (nValue1)
+				{
+					CASE (1):		
+					{		
+						OUTLET_1_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_1_OFF_FB = !OUTLET_1_ON_FB;
+					}
+					CASE (2):		
+					{		
+						OUTLET_2_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_2_OFF_FB = !OUTLET_2_ON_FB;
+					}
+					CASE (3):		
+					{		
+						OUTLET_3_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_3_OFF_FB = !OUTLET_3_ON_FB;
+					}
+					CASE (4):		
+					{		
+						OUTLET_4_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_4_OFF_FB = !OUTLET_4_ON_FB;
+					}
+					CASE (5):		
+					{		
+						OUTLET_5_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_5_OFF_FB = !OUTLET_5_ON_FB;
+					}
+					CASE (6):		
+					{		
+						OUTLET_6_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_6_OFF_FB = !OUTLET_6_ON_FB;
+					}
+					CASE (7):		
+					{		
+						OUTLET_7_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_7_OFF_FB = !OUTLET_7_ON_FB;
+					}
+					CASE (8):		
+					{		
+						OUTLET_8_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_8_OFF_FB = !OUTLET_8_ON_FB;
+					}
+					CASE (9):		
+					{		
+						OUTLET_9_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_9_OFF_FB = !OUTLET_9_ON_FB;
+					}
+					CASE (10):		
+					{		
+						OUTLET_10_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_10_OFF_FB = !OUTLET_10_ON_FB;
+					}
+					CASE (11):		
+					{		
+						OUTLET_11_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_11_OFF_FB = !OUTLET_11_ON_FB;
+					}
+					CASE (12):		
+					{		
+						OUTLET_12_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_12_OFF_FB = !OUTLET_12_ON_FB;
+					}
+					CASE (13):		
+					{		
+						OUTLET_13_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_13_OFF_FB = !OUTLET_13_ON_FB;
+					}
+					CASE (14):		
+					{		
+						OUTLET_14_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_14_OFF_FB = !OUTLET_14_ON_FB;
+					}
+					CASE (15):		
+					{		
+						OUTLET_15_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_15_OFF_FB = !OUTLET_15_ON_FB;
+					}
+					CASE (16):		
+					{		
+						OUTLET_16_ON_FB = (nValue2 = RL_CS_ON);
+						OUTLET_16_OFF_FB = !OUTLET_16_ON_FB;
+					}
+				}
+			}	
+		}
+		case (RL_CMD_PWR_OUTLET_NAME):	
+		{
+			nValue1 = BYTE(dataEnvelope, 1);
+
+			IF (nValue1 > 0 && nValue1 <= MAX_OUTLETS)
+			{
+                sValue1 = MID(dataEnvelope, 2, LEN(dataEnvelope));
+
+				IF (outletNames[nValue1] != sValue1)
+				{
+					outletNames[nValue1] = sValue1;
+					
+					SWITCH (nValue1)
+					{
+						CASE (1):		
+						{		
+							OUTLET_1_NAME$ = outletNames[nValue1];
+						}
+						CASE (2):		
+						{		
+							OUTLET_2_NAME$ = outletNames[nValue1];
+						}
+						CASE (3):		
+						{		
+							OUTLET_3_NAME$ = outletNames[nValue1];
+						}
+						CASE (4):		
+						{		
+							OUTLET_4_NAME$ = outletNames[nValue1];
+						}
+						CASE (5):		
+						{		
+							OUTLET_5_NAME$ = outletNames[nValue1];
+						}
+						CASE (6):		
+						{		
+							OUTLET_6_NAME$ = outletNames[nValue1];
+						}
+						CASE (7):		
+						{		
+							OUTLET_7_NAME$ = outletNames[nValue1];
+						}
+						CASE (8):		
+						{		
+							OUTLET_8_NAME$ = outletNames[nValue1];
+						}
+						CASE (9):		
+						{		
+							OUTLET_9_NAME$ = outletNames[nValue1];
+						}
+						CASE (10):		
+						{		
+							OUTLET_10_NAME$ = outletNames[nValue1];
+						}
+						CASE (11):		
+						{		
+							OUTLET_11_NAME$ = outletNames[nValue1];
+						}
+						CASE (12):		
+						{		
+							OUTLET_12_NAME$ = outletNames[nValue1];
+						}
+						CASE (13):		
+						{		
+							OUTLET_13_NAME$ = outletNames[nValue1];
+						}
+						CASE (14):		
+						{		
+							OUTLET_14_NAME$ = outletNames[nValue1];
+						}
+						CASE (15):		
+						{		
+							OUTLET_15_NAME$ = outletNames[nValue1];
+						}
+						CASE (16):		
+						{		
+							OUTLET_16_NAME$ = outletNames[nValue1];
+						}
+					}
+				}
+			}				
+		}
+		case (RL_CMD_PWR_OUTLET_COUNT):	
+		{			
+			FOR (nValue1 = 1 to LEN(dataEnvelope))
+			{
+				nValue2 = (0x01 << (nValue1 - 1));
+
+				IF (MID(dataEnvelope, nValue1, 1) = "C")
+				{
+					// LSB = PRESENT
+					OUTLETS_PRESENT_BITMASK = OUTLETS_PRESENT_BITMASK | nValue2;
+
+					// MSB = CONTROLLABLE
+					OUTLETS_CONTROLLABLE_BITMASK = OUTLETS_CONTROLLABLE_BITMASK | nValue2;
+				}
+				ELSE IF (MID(dataEnvelope, nValue1, 1) = "N")
+				{
+					// LSB = PRESENT
+					OUTLETS_PRESENT_BITMASK = OUTLETS_PRESENT_BITMASK | nValue2;
+
+					// MSB = CONTROLLABLE
+					OUTLETS_CONTROLLABLE_BITMASK = OUTLETS_CONTROLLABLE_BITMASK & (0xffff - nValue2);
+				}
+				ELSE IF (MID(dataEnvelope, nValue1, 1) = "X")
+				{
+					// LSB = PRESENT
+					OUTLETS_PRESENT_BITMASK = OUTLETS_PRESENT_BITMASK & (0xffff - nValue2);
+
+					// MSB = CONTROLLABLE
+					OUTLETS_CONTROLLABLE_BITMASK = OUTLETS_CONTROLLABLE_BITMASK & (0xffff - nValue2);
+				}
+			}
+		}
+		case (RL_CMD_PWR_OUTLET_EMS):	
+		{
+			nValue1 = BYTE(dataEnvelope, 1);
+
+			IF (nValue1 > 0 && nValue1 <= MAX_OUTLETS)
+			{
+                sValue1 = MID(dataEnvelope, 2, LEN(dataEnvelope));
+
+				IF (outletEMS[nValue1] != getEMSState_Value(sValue1))
+				{
+					outletEMS[nValue1] = getEMSState_Value(sValue1);
+					
+					SWITCH (nValue1)
+					{
+						CASE (1):		
+						{		
+							OUTLET_1_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_1_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (2):		
+						{		
+							OUTLET_2_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_2_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (3):		
+						{		
+							OUTLET_3_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_3_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (4):		
+						{		
+							OUTLET_4_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_4_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (5):		
+						{		
+							OUTLET_5_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_5_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (6):		
+						{		
+							OUTLET_6_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_6_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (7):		
+						{		
+							OUTLET_7_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_7_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (8):		
+						{		
+							OUTLET_8_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_8_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (9):		
+						{		
+							OUTLET_9_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_9_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (10):		
+						{		
+							OUTLET_10_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_10_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (11):		
+						{		
+							OUTLET_11_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_11_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (12):		
+						{		
+							OUTLET_12_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_12_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (13):		
+						{		
+							OUTLET_13_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_13_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (14):		
+						{		
+							OUTLET_14_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_14_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (15):		
+						{		
+							OUTLET_15_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_15_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+						CASE (16):		
+						{		
+							OUTLET_16_EMS_STATUS = outletEMS[nValue1];
+							OUTLET_16_EMS_STATUS$ = getEMSState_Text(outletEMS[nValue1]);
+						}
+					}
+				}
+			}				
+		}
+		case (RL_CMD_SEQUENCE_POWER_OUTLETS):	
+		{
+			nValue1 = BYTE(dataEnvelope, 1);
+
+			if (nValue1 != powerSequenceStatus)
+			{
+				powerSequenceStatus = nValue1;
+                                          
+				SWITCH (powerSequenceStatus)
+				{
+					CASE (SEQ_STATUS_NONE):
+					{
+						POWER_SEQ_UP_FB = FALSE;
+						POWER_SEQ_DN_FB = FALSE;
+						CS_POWER_SEQ$ = "None";
+					}
+					CASE (SEQ_STATUS_UP):
+					{
+						POWER_SEQ_UP_FB = TRUE;
+						POWER_SEQ_DN_FB = FALSE;
+						CS_POWER_SEQ$ = "Up.Running";
+					}
+					CASE (SEQ_STATUS_UP_DONE):
+					{
+						POWER_SEQ_UP_FB = FALSE;
+						POWER_SEQ_DN_FB = FALSE;
+						CS_POWER_SEQ$ = "Up.Completed";
+					}
+					CASE (SEQ_STATUS_DN):
+					{
+						POWER_SEQ_UP_FB = FALSE;
+						POWER_SEQ_DN_FB = TRUE;
+						CS_POWER_SEQ$ = "Down.Running";
+					}
+					CASE (SEQ_STATUS_DN_DONE):
+					{
+						POWER_SEQ_UP_FB = FALSE;
+						POWER_SEQ_DN_FB = FALSE;
+						CS_POWER_SEQ$ = "Down.Completed";
+					}
+				}
+			}
+		}
+		case (RL_CMD_CURRENT_COMPETE_EMS):
+		{
+			IF (LEN(dataEnvelope) = 9)
+			{
+				ROOM_OCCUPANCY_ON_FB = (LEFT(dataEnvelope,1) = RL_OCCUPIED);
+				ROOM_OCCUPANCY_OFF_FB = (LEFT(dataEnvelope,1) = RL_UNOCCUPIED);		
+                               
+				outletEMS[1] = getEMSState_Value(MID(dataEnvelope,2,1));
+				outletEMS[2] = getEMSState_Value(MID(dataEnvelope,3,1));
+				outletEMS[3] = getEMSState_Value(MID(dataEnvelope,4,1));
+				outletEMS[4] = getEMSState_Value(MID(dataEnvelope,5,1));
+				outletEMS[5] = getEMSState_Value(MID(dataEnvelope,6,1));
+				outletEMS[6] = getEMSState_Value(MID(dataEnvelope,7,1));
+				outletEMS[7] = getEMSState_Value(MID(dataEnvelope,8,1));
+				outletEMS[8] = getEMSState_Value(MID(dataEnvelope,9,1));
+		
+				OUTLET_1_EMS_STATUS$ = getEMSState_Text(outletEMS[1]);
+				OUTLET_2_EMS_STATUS$ = getEMSState_Text(outletEMS[2]);
+				OUTLET_3_EMS_STATUS$ = getEMSState_Text(outletEMS[3]);
+				OUTLET_4_EMS_STATUS$ = getEMSState_Text(outletEMS[4]);
+				OUTLET_5_EMS_STATUS$ = getEMSState_Text(outletEMS[5]);
+				OUTLET_6_EMS_STATUS$ = getEMSState_Text(outletEMS[6]);
+				OUTLET_7_EMS_STATUS$ = getEMSState_Text(outletEMS[7]);
+				OUTLET_8_EMS_STATUS$ = getEMSState_Text(outletEMS[8]);
+
+				OUTLET_1_EMS_STATUS = outletEMS[1];
+				OUTLET_2_EMS_STATUS = outletEMS[2];
+				OUTLET_3_EMS_STATUS = outletEMS[3];
+				OUTLET_4_EMS_STATUS = outletEMS[4];
+				OUTLET_5_EMS_STATUS = outletEMS[5];
+				OUTLET_6_EMS_STATUS = outletEMS[6];
+				OUTLET_7_EMS_STATUS = outletEMS[7];
+				OUTLET_8_EMS_STATUS = outletEMS[8];
+			}
+		}
+		case (RL_CMD_CURRENT_OCCUPANCY_STATE):
+		{
+			IF (LEN(dataEnvelope) = 1)
+			{
+				ROOM_OCCUPANCY_ON_FB = (dataEnvelope = RL_OCCUPIED);
+				ROOM_OCCUPANCY_OFF_FB = (dataEnvelope = RL_UNOCCUPIED);
+			}
+		}
+		case (RL_CMD_REG_LOG_ALERTS):	
+		{
+			nValue1 = BYTE(dataEnvelope, 1);
+			nValue2 = BYTE(dataEnvelope, 2);
+
+			//LOG_ALERT_REG_FB = (nValue2 << 8) + nValue1;
+		}
+		case (RL_CMD_PRODUCT_PART_NUM):	
+		{
+			IF (LEN(dataEnvelope) > 0)
+			{
+				IF (model != dataEnvelope)
+				{
+					model = dataEnvelope;
+					
+					MakeString(PI_PART_NUMBER$,"%s" ,model);
+				}
+
+				IF (isIntialized = FALSE)
+					isIntialized = TRUE;
+			}
+		}
+		case (RL_CMD_PRODUCT_RATING):	
+		{
+			IF (LEN(dataEnvelope) > 0)
+			{
+				IF (rating != dataEnvelope)
+				{
+					rating = dataEnvelope;
+					
+					MakeString(PI_RATING$,"%s", rating);
+				}
+			}
+		}
+		case (RL_CMD_PRODUCT_IP_ADDRESS):	
+		{
+			IF (LEN(dataEnvelope) > 0)
+			{
+				IF (ipAddress != dataEnvelope)
+				{
+					ipAddress = dataEnvelope;
+					
+					MakeString(PI_IP_ADDRESS$,"%s", ipAddress);
+				}
+			}
+		}
+		case (RL_CMD_PRODUCT_MAC):	
+		{
+			IF (LEN(dataEnvelope) > 0)
+			{	
+				IF (macAddress != dataEnvelope)
+				{
+					macAddress = dataEnvelope;
+					
+					MakeString(PI_MAC_ADDRESS$,"%s", macAddress);
+				}
+			}
+
+			IF (isIntialized = FALSE)
+				RackLink_GetStatus();
+		}
+	}
+
+	IF (isResponse = TRUE && cmd != RL_CMD_LOG_ENTRY)
+		goodResponse();
+}
+ 
+////////////////////////////////////////////////////////////
+// Racklink_ParseMessage
+////////////////////////////////////////////////////////////
+Function Racklink_ParseMessage(STRING MSG)
+{
+	STRING unescapedMsg[MAX_MSG_SIZE];
+	
+	// pieces
+	STRING dataEnvelope[MAX_MSG_SIZE];
+	INTEGER length;
+	INTEGER cs;
+	INTEGER cmd;
+	INTEGER subCmd;
+
+	INTEGER tokenCount;
+    STRING tokens[MAX_TOKENS][MAX_TOKEN_LENGTH];
+
+	// check to see if whole message
+	IF (BYTE(MSG, 1) = HEADER && BYTE(RIGHT(MSG, 1), 1) = TAIL)
+	{
+		CancelWait(commTimeoutQueue);
+
+		unescapedMsg = RackLink_UnescapeMessage(MSG);
+
+		length = BYTE(unescapedMsg, 2);
+        
+		cmd =  BYTE(unescapedMsg, 4);
+
+		subCmd =  BYTE(unescapedMsg, 5);
+
+		dataEnvelope = MID(unescapedMsg, 6, length - 3);
+
+		switch (subCmd)
+		{
+			case (RL_SUB_SET):
+			{
+				IF (cmd = RL_CMD_PING && isLoggedIn = TRUE)
+				{
+					// Non-Response Message, bypass queue!
+					RackLink_SendDirectMessage(RackLink_CreateMessage(RL_CMD_PING, RL_SUB_RESPONSE, sNull));
+				}
+			}
+			case (RL_SUB_RESPONSE):
+			{
+				Racklink_ParseResponse(cmd, dataEnvelope, TRUE);
+			}
+			case (RL_SUB_STATUS_CHANGE):
+			{
+				Racklink_ParseResponse(cmd, dataEnvelope, FALSE);
+			}
+			case (RL_SUB_LOG_ALERT):
+			{
+				IF (cmd = RL_CMD_LOG_ENTRY)
+				{
+					// ITEM|ITEMS TO RECEIVE|ENTRY|CATEGORY|LOG
+		            tokenCount = stringTokenizer(tokens, dataEnvelope, "|");
+		
+					if (tokenCount = 5)
+					{
+						//LOG_ALERT$ = RackLink_CreateLogMessage(tokens[3], tokens[4], tokens[5]);
+					}
+				}			
+			}
+		}
+	}
+	ELSE
+		TRACE("PARSE_ERROR!");
+}
+
+////////////////////////////////////////////////////////////
+// RackLink_StartHeartBeat
+////////////////////////////////////////////////////////////
+Function RackLink_StartHeartBeat()
+{
+	STRING login[MAX_NAME_SIZE];
+
+	isHeartBeatRunning = TRUE;
+	
+	IF (isLoggedIn = FALSE)
+	{
+		MakeString(login, "%s|%s", USER_NAME, USER_PASSWORD);
+						
+		RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_LOGIN, RL_SUB_SET, login));
+	}
+	ELSE
+		RackLink_SendQueueMessage(cmdHeartbeat);
+
+	WAIT (3000, heartbeat)
+		RackLink_StartHeartBeat();
+}
+
+////////////////////////////////////////////////////////////
+// OUTLET CONTROL
+////////////////////////////////////////////////////////////
+Function Racklink_OutletOn(INTEGER outletID)
+{
+	STRING data[6];
+
+	MakeString(data,"%s%s0000",CHR(outletID),CHR(RL_CS_ON));
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET, RL_SUB_SET, data));
+}
+
+Function Racklink_OutletOff(INTEGER outletID)
+{
+	STRING data[6];
+
+	MakeString(data,"%s%s0000",CHR(outletID),CHR(RL_CS_OFF));
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET, RL_SUB_SET, data));
+}
+
+Function Racklink_OutletCycle(INTEGER outletID)
+{
+	INTEGER cycleTime;
+	STRING data[6];
+
+	cycleTime = POWER_CYCLE_TIME;
+
+	IF (cycleTime = 0 || cycleTime > 3600)
+		cycleTime = 1;
+
+	MakeString(data,"%s%s%04d", CHR(outletID), CHR(RL_CS_CYCLE), cycleTime);
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET, RL_SUB_SET, data));
+}
+
+Function Racklink_OutletNameSet(INTEGER outletID, STRING name)
+{
+	STRING sValue[MAX_NAME_SIZE];
+
+	IF (outletID > 0 && outletID <= MAX_OUTLETS)
+	{
+		MakeString(sValue, "%s%s", CHR(outletID), name);
+
+		RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET_NAME, RL_SUB_SET, sValue));
+	}
+}
+
+Function Racklink_OutletEMSSet(INTEGER outletID, INTEGER state)
+{
+	STRING sValue[MAX_NAME_SIZE];
+
+	IF (outletID > 0 && outletID <= MAX_OUTLETS)
+	{
+		IF (state >= 0 && state <= 4)
+		{
+			MakeString(sValue, "%s%s", CHR(outletID), getEMSState_MsgValue(state));
+
+			RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_PWR_OUTLET_EMS, RL_SUB_SET, sValue));
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
+// CONTACT CONTROL
+////////////////////////////////////////////////////////////
+Function Racklink_ContactOn(INTEGER contactID)
+{
+	STRING data[6];
+
+	MakeString(data,"%s%s0000",CHR(contactID),CHR(RL_CS_ON));
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_DRY_CONTACTS, RL_SUB_SET, data));
+}
+
+Function Racklink_ContactOff(INTEGER contactID)
+{
+	STRING data[6];
+
+	MakeString(data,"%s%s0000",CHR(contactID),CHR(RL_CS_OFF));
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_DRY_CONTACTS, RL_SUB_SET, data));
+}
+
+Function Racklink_ContactCycle(INTEGER contactID)
+{
+	INTEGER cycleTime;
+	STRING data[6];
+
+	cycleTime = POWER_CYCLE_TIME;
+
+	IF (cycleTime = 0 || cycleTime > 3600)
+		cycleTime = 1;
+
+	MakeString(data,"%s%s%04d", CHR(contactID), CHR(RL_CS_CYCLE), cycleTime);
+
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_DRY_CONTACTS, RL_SUB_SET, data));
+}
+
+Function Racklink_ContactNameSet(INTEGER contactID, STRING name)
+{
+	STRING sValue[MAX_NAME_SIZE];
+
+	IF (contactID > 0 && contactID <= MAX_OUTLETS)
+	{
+		MakeString(sValue, "%s%s", CHR(contactID), name);
+
+		RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_DRY_CONTACTS_NAME, RL_SUB_SET, sValue));
+	}
+}
+
+////////////////////////////////////////////////////////////
+// POWER SEQUENCING
+////////////////////////////////////////////////////////////
+Function Racklink_PowerSequenceUp()
+{
+	STRING data[5];
+	INTEGER powerSeqTime;
+
+	powerSeqTime = POWER_SEQ_TIME;
+
+	IF (powerSeqTime < 1 || powerSeqTime > 999)
+		powerSeqTime = 1;
+
+	MakeString(data,"%s%04d",CHR(RL_PWRSEQ_UP), powerSeqTime);
+	
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_SEQUENCE_POWER_OUTLETS, RL_SUB_SET, data));
+}
+
+Function Racklink_PowerSequenceDown()
+{
+	STRING data[5];
+	INTEGER powerSeqTime;
+
+	powerSeqTime = POWER_SEQ_TIME;
+
+	IF (powerSeqTime < 1 || powerSeqTime > 999)
+		powerSeqTime = 1;
+
+	MakeString(data,"%s%04d",CHR(RL_PWRSEQ_DN), powerSeqTime);
+	
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_SEQUENCE_POWER_OUTLETS, RL_SUB_SET, data));
+}
+
+////////////////////////////////////////////////////////////
+// EMERGENCY POWER OPERATE MODE (EPO)
+////////////////////////////////////////////////////////////
+Function Racklink_EPOInit()
+{
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_EMERGENCY_POWER_OFF, RL_SUB_SET, CHR(RL_EPO_INIT)));
+}
+
+Function Racklink_EPORecover()
+{	
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_EMERGENCY_POWER_OFF, RL_SUB_SET, CHR(RL_EPO_RECOVER)));
+}
+
+////////////////////////////////////////////////////////////
+// ROOM OCCUPANCY
+////////////////////////////////////////////////////////////
+Function Racklink_Set_Occupied()
+{
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_CURRENT_OCCUPANCY_STATE, RL_SUB_SET, RL_OCCUPIED));
+}
+
+Function Racklink_Set_Unoccupied()
+{	
+	RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_CURRENT_OCCUPANCY_STATE, RL_SUB_SET, RL_UNOCCUPIED));
+}
+  
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+////////////////////////////////////////////////////////////
+// CONNECT CONTROL
+////////////////////////////////////////////////////////////
+PUSH CONNECT
+{
+	IF (isHeartBeatRunning = FALSE)
+	{
+		RackLink_StartHeartBeat();
+	}
+}
+
+PUSH DISCONNECT
+{
+	STRING statusChange[6];
+
+	IF (isHeartBeatRunning = TRUE)
+	{
+		resetQueue();
+		CANCELWAIT (heartbeat);
+		isHeartBeatRunning = FALSE;
+		IS_COMMUNICATING_FB = FALSE;
+		isLoggedIn = FALSE;
+		isIntialized = FALSE;
+
+		MakeString(statusChange,"%s%s%s%s%s%s",CHR(0x00),CHR(0x00),CHR(0x00),CHR(0x00),CHR(0x00),CHR(0x00));
+		RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_REG_STATUS_CHANGE, RL_SUB_SET, statusChange));
+                                                                                                
+
+		MakeString(statusChange,"%s%s",CHR(0x00),CHR(0x00));
+		RackLink_SendQueueMessage(RackLink_CreateMessage(RL_CMD_REG_LOG_ALERTS, RL_SUB_SET, statusChange));
+	}
+}
+
+////////////////////////////////////////////////////////////
+// OUTLET CONTROL
+////////////////////////////////////////////////////////////
+PUSH OUTLET_1_ON
+{
+	Racklink_OutletOn(1);
+}
+
+PUSH OUTLET_1_OFF
+{
+	Racklink_OutletOff(1);
+}
+
+PUSH OUTLET_1_CYCLE
+{
+	Racklink_OutletCycle(1);
+}
+
+PUSH OUTLET_2_ON
+{
+	Racklink_OutletOn(2);
+}
+
+PUSH OUTLET_2_OFF
+{
+	Racklink_OutletOff(2);
+}
+
+PUSH OUTLET_2_CYCLE
+{
+	Racklink_OutletCycle(2);
+}
+
+PUSH OUTLET_3_ON
+{
+	Racklink_OutletOn(3);
+}
+
+PUSH OUTLET_3_OFF
+{
+	Racklink_OutletOff(3);
+}
+
+PUSH OUTLET_3_CYCLE
+{
+	Racklink_OutletCycle(3);
+}
+
+PUSH OUTLET_4_ON
+{
+	Racklink_OutletOn(4);
+}
+
+PUSH OUTLET_4_OFF
+{
+	Racklink_OutletOff(4);
+}
+
+PUSH OUTLET_4_CYCLE
+{
+	Racklink_OutletCycle(4);
+}
+
+PUSH OUTLET_5_ON
+{
+	Racklink_OutletOn(5);
+}
+
+PUSH OUTLET_5_OFF
+{
+	Racklink_OutletOff(5);
+}
+
+PUSH OUTLET_5_CYCLE
+{
+	Racklink_OutletCycle(5);
+}
+
+PUSH OUTLET_6_ON
+{
+	Racklink_OutletOn(6);
+}
+
+PUSH OUTLET_6_OFF
+{
+	Racklink_OutletOff(6);
+}
+
+PUSH OUTLET_6_CYCLE
+{
+	Racklink_OutletCycle(6);
+}
+
+PUSH OUTLET_7_ON
+{
+	Racklink_OutletOn(7);
+}
+
+PUSH OUTLET_7_OFF
+{
+	Racklink_OutletOff(7);
+}
+
+PUSH OUTLET_7_CYCLE
+{
+	Racklink_OutletCycle(7);
+}
+
+PUSH OUTLET_8_ON
+{
+	Racklink_OutletOn(8);
+}
+
+PUSH OUTLET_8_OFF
+{
+	Racklink_OutletOff(8);
+}
+
+PUSH OUTLET_8_CYCLE
+{
+	Racklink_OutletCycle(8);
+}
+
+PUSH OUTLET_9_ON
+{
+	Racklink_OutletOn(9);
+}
+
+PUSH OUTLET_9_OFF
+{
+	Racklink_OutletOff(9);
+}
+
+PUSH OUTLET_9_CYCLE
+{
+	Racklink_OutletCycle(9);
+}
+
+PUSH OUTLET_10_ON
+{
+	Racklink_OutletOn(10);
+}
+
+PUSH OUTLET_10_OFF
+{
+	Racklink_OutletOff(10);
+}
+
+PUSH OUTLET_10_CYCLE
+{
+	Racklink_OutletCycle(10);
+}
+
+PUSH OUTLET_11_ON
+{
+	Racklink_OutletOn(11);
+}
+
+PUSH OUTLET_11_OFF
+{
+	Racklink_OutletOff(11);
+}
+
+PUSH OUTLET_11_CYCLE
+{
+	Racklink_OutletCycle(11);
+}
+
+PUSH OUTLET_12_ON
+{
+	Racklink_OutletOn(12);
+}
+
+PUSH OUTLET_12_OFF
+{
+	Racklink_OutletOff(12);
+}
+
+PUSH OUTLET_12_CYCLE
+{
+	Racklink_OutletCycle(12);
+}
+
+PUSH OUTLET_13_ON
+{
+	Racklink_OutletOn(13);
+}
+
+PUSH OUTLET_13_OFF
+{
+	Racklink_OutletOff(13);
+}
+
+PUSH OUTLET_13_CYCLE
+{
+	Racklink_OutletCycle(13);
+}
+
+PUSH OUTLET_14_ON
+{
+	Racklink_OutletOn(14);
+}
+
+PUSH OUTLET_14_OFF
+{
+	Racklink_OutletOff(14);
+}
+
+PUSH OUTLET_14_CYCLE
+{
+	Racklink_OutletCycle(14);
+}
+
+PUSH OUTLET_15_ON
+{
+	Racklink_OutletOn(15);
+}
+
+PUSH OUTLET_15_OFF
+{
+	Racklink_OutletOff(15);
+}
+
+PUSH OUTLET_15_CYCLE
+{
+	Racklink_OutletCycle(15);
+}
+                         
+PUSH OUTLET_16_ON
+{
+	Racklink_OutletOn(16);
+}
+
+PUSH OUTLET_16_OFF
+{
+	Racklink_OutletOff(16);
+}
+
+PUSH OUTLET_16_CYCLE
+{
+	Racklink_OutletCycle(16);
+}
+
+////////////////////////////////////////////////////////////
+// OUTLET NAME SETS
+////////////////////////////////////////////////////////////
+CHANGE OUTLET_1_NAME_SET$
+{
+	Racklink_OutletNameSet(1, OUTLET_1_NAME_SET$);
+}
+
+CHANGE OUTLET_2_NAME_SET$
+{
+	Racklink_OutletNameSet(2, OUTLET_2_NAME_SET$);
+}
+
+CHANGE OUTLET_3_NAME_SET$
+{
+	Racklink_OutletNameSet(3, OUTLET_3_NAME_SET$);
+}
+
+CHANGE OUTLET_4_NAME_SET$
+{
+	Racklink_OutletNameSet(4, OUTLET_4_NAME_SET$);
+}
+
+CHANGE OUTLET_5_NAME_SET$
+{
+	Racklink_OutletNameSet(5, OUTLET_5_NAME_SET$);
+}
+
+CHANGE OUTLET_6_NAME_SET$
+{
+	Racklink_OutletNameSet(6, OUTLET_6_NAME_SET$);
+}
+
+CHANGE OUTLET_7_NAME_SET$
+{
+	Racklink_OutletNameSet(7, OUTLET_7_NAME_SET$);
+}
+
+CHANGE OUTLET_8_NAME_SET$
+{
+	Racklink_OutletNameSet(8, OUTLET_8_NAME_SET$);
+}
+
+CHANGE OUTLET_9_NAME_SET$
+{
+	Racklink_OutletNameSet(9, OUTLET_9_NAME_SET$);
+}
+
+CHANGE OUTLET_10_NAME_SET$
+{
+	Racklink_OutletNameSet(10, OUTLET_10_NAME_SET$);
+}
+
+CHANGE OUTLET_11_NAME_SET$
+{
+	Racklink_OutletNameSet(11, OUTLET_11_NAME_SET$);
+}
+
+CHANGE OUTLET_12_NAME_SET$
+{
+	Racklink_OutletNameSet(12, OUTLET_12_NAME_SET$);
+}
+
+CHANGE OUTLET_13_NAME_SET$
+{
+	Racklink_OutletNameSet(13, OUTLET_13_NAME_SET$);
+}
+
+CHANGE OUTLET_14_NAME_SET$
+{
+	Racklink_OutletNameSet(14, OUTLET_14_NAME_SET$);
+}
+
+CHANGE OUTLET_15_NAME_SET$
+{
+	Racklink_OutletNameSet(15, OUTLET_15_NAME_SET$);
+}
+
+CHANGE OUTLET_16_NAME_SET$
+{
+	Racklink_OutletNameSet(16, OUTLET_16_NAME_SET$);
+}
+
+////////////////////////////////////////////////////////////
+// POWER SEQUENCE
+////////////////////////////////////////////////////////////
+PUSH POWER_SEQ_UP
+{
+	Racklink_PowerSequenceUp();
+}
+
+PUSH POWER_SEQ_DN
+{
+	Racklink_PowerSequenceDown();
+}
+   
+////////////////////////////////////////////////////////////
+// ROOM OCCUPANCY
+////////////////////////////////////////////////////////////
+PUSH ROOM_OCCUPANCY_ON
+{
+	Racklink_Set_Occupied();
+}
+
+PUSH ROOM_OCCUPANCY_OFF
+{
+	Racklink_Set_Unoccupied();
+}
+
+////////////////////////////////////////////////////////////
+// POWER OUTLET DEVICE ENERGY MANAGEMENT STATE
+////////////////////////////////////////////////////////////
+CHANGE OUTLET_1_EMS_SET
+{
+	Racklink_OutletEMSSet(1, OUTLET_1_EMS_SET);
+}
+
+CHANGE OUTLET_2_EMS_SET
+{
+	Racklink_OutletEMSSet(2, OUTLET_2_EMS_SET);
+}
+
+CHANGE OUTLET_3_EMS_SET
+{
+	Racklink_OutletEMSSet(3, OUTLET_3_EMS_SET);
+}
+
+CHANGE OUTLET_4_EMS_SET
+{
+	Racklink_OutletEMSSet(4, OUTLET_4_EMS_SET);
+}
+
+CHANGE OUTLET_5_EMS_SET
+{
+	Racklink_OutletEMSSet(5, OUTLET_5_EMS_SET);
+}
+
+CHANGE OUTLET_6_EMS_SET
+{
+	Racklink_OutletEMSSet(6, OUTLET_6_EMS_SET);
+}
+
+CHANGE OUTLET_7_EMS_SET
+{
+	Racklink_OutletEMSSet(7, OUTLET_7_EMS_SET);
+}
+
+CHANGE OUTLET_8_EMS_SET
+{
+	Racklink_OutletEMSSet(8, OUTLET_8_EMS_SET);
+}
+
+CHANGE OUTLET_9_EMS_SET
+{
+	Racklink_OutletEMSSet(9, OUTLET_9_EMS_SET);
+}
+
+CHANGE OUTLET_10_EMS_SET
+{
+	Racklink_OutletEMSSet(10, OUTLET_10_EMS_SET);
+}
+
+CHANGE OUTLET_11_EMS_SET
+{
+	Racklink_OutletEMSSet(11, OUTLET_11_EMS_SET);
+}
+
+CHANGE OUTLET_12_EMS_SET
+{
+	Racklink_OutletEMSSet(12, OUTLET_12_EMS_SET);
+}
+
+CHANGE OUTLET_13_EMS_SET
+{
+	Racklink_OutletEMSSet(13, OUTLET_13_EMS_SET);
+}
+
+CHANGE OUTLET_14_EMS_SET
+{
+	Racklink_OutletEMSSet(14, OUTLET_14_EMS_SET);
+}
+
+CHANGE OUTLET_15_EMS_SET
+{
+	Racklink_OutletEMSSet(15, OUTLET_15_EMS_SET);
+}
+
+CHANGE OUTLET_16_EMS_SET
+{
+	Racklink_OutletEMSSet(16, OUTLET_16_EMS_SET);
+}
+
+////////////////////////////////////////////////////////////
+// LOG
+////////////////////////////////////////////////////////////
+PUSH REFRESH_LOG
+{
+}
+////////////////////////////////////////////////////////////
+// INCOMING PACKETS
+////////////////////////////////////////////////////////////
+CHANGE comRX$
+{
+	IF (parsingBusy = FALSE)
+	{
+		parsingBusy = TRUE;
+		
+		WHILE (TRUE)
+		{
+			sMsg = GATHER(CHR(TAIL), comRX$);
+	
+			IF (LEN(sMsg) > 0)
+			{
+				Racklink_ParseMessage(sMsg);  
+	
+				//ProcessLogic();			
+			}
+		}
+
+		parsingBusy = FALSE;
+	}          
+}
+
+CHANGE USER { USER_NAME = USER; }
+CHANGE PASS { USER_PASSWORD = PASS; }
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    // TODO:  Add code here
+    // Initialize declared global and local variables/arrays as needed.
+
+	isLoggedIn = FALSE;
+
+	cmdHeartbeat = RackLink_CreateMessage(RL_CMD_PRODUCT_MAC, RL_SUB_GET, sNull);
+
+	queueIsBusy = FALSE;
+	queue = "";
+
+	isHeartBeatRunning = FALSE;
+
+	parsingBusy = FALSE;
+
+	isIntialized = FALSE;
+
+	powerSequenceStatus = 0xff;
+	epoStatus = 0xff;
+
+    //WaitForInitializationComplete();
+}

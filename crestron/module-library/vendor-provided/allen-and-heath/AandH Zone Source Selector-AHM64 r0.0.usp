@@ -1,0 +1,141 @@
+// SIMPL+ Module Information
+/*
+Dealer Name:	Front Side Solutions, Inc.
+Programmer:		cdr
+Comments:			A&H AHM64 Zone Source Selector
+*/
+
+// Compiler Directives
+#ENABLE_DYNAMIC
+#SYMBOL_NAME "AandH Zone Source Selector-AHM64"
+#CATEGORY "34" // Mixer
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+AandH Zone Source Selector-AHM64 r0.0.usp
+
+Controls setting Input Channels on Zone Source Selectors.
+
+Parameters:
+ ZoneChnl: Select valid range from control type in decimal format.
+ 
+Inputs:
+ Digital-
+ 	Take: Send selected source. Can be pulsed or Latch to 1 to always send. 
+ Analog-
+  Source: Decimal Value of Source to activate. Valid range is 1d ~ 14d.
+  
+ Serial-
+  FmMixer: Connect to the TCP/IP symbol receive line. (For Future Use)
+
+Outputs:
+ Analog-
+  SourceFb: Decimal Value of Active Source. Valid range is 1d ~ 14d.
+      Note that feedback is tracked internal to this module and is not available from the
+      DSP at this time.
+  
+ Serial-
+  ToMixer: Connect to the TCP/IP symbol Transmit line.
+
+Notes:
+ Reference the AHM64 protocol for valid Control Channels for the
+  selected control type.
+
+ For more information Reference: AHM-TCP-Protocol-V1.pdf
+
+ Tested with AHM64 Firmware V1.02 - Rev59154
+
+ Release: 2020-Dec-16 Release r0.0
+
+#HELP_END
+
+
+// DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+DIGITAL_INPUT 	_SKIP_,Take;
+ANALOG_INPUT		Source;
+BUFFER_INPUT 		FmMixer[1024];
+ANALOG_OUTPUT		_SKIP_,_SKIP_,SourceFb;
+STRING_OUTPUT 	ToMixer;
+
+// Parameters
+INTEGER_PARAMETER	ZoneChnl;
+
+// Parameter Properties
+#BEGIN_PARAMETER_PROPERTIES ZoneChnl
+	propValidUnits = unitDecimal;
+	propDefaultUnit = unitDecimal;
+	propBounds = 1d , 64d;
+  propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+// Global Variables
+STRING cCmdSysExHdr[8], cFuncHdr[2], cSrc[2], cBuildHdr[11], cZoneChnl[2], cCmd[13];//,cRxCmd[16];
+NONVOLATILE INTEGER	nSrc;
+
+// Functions
+Function BuildCmd(Integer nSource)
+{
+  If(nSource >= 1 && nSource <= 14)
+ 	{
+ 		Makestring(ToMixer, "%s%s\xF7", cBuildHdr, CHR(0x00 + nSource - 1));
+    nSrc = nSource;		// Set Local Fb
+    SourceFb = nSrc;	// Set Local Fb
+	}
+}
+
+
+// Event Handlers
+CHANGE Source
+{
+	If(Take)
+		BuildCmd(Source);	
+}
+
+PUSH Take
+{
+	BuildCmd(Source);	
+}
+
+THREADSAFE CHANGE FmMixer
+{
+	STRING cParse[100],cTrash[100],cTemp[1];
+
+	While (Len(FmMixer))
+	{
+		If (Find (cBuildHdr,FmMixer) && Find ("\xF7",FmMixer))
+		{
+			cParse = Remove("\xF7",FmMixer);
+			cTrash = Remove(cBuildHdr,cParse);
+			cTemp = Left(cParse,1);
+
+	    nSrc = (Byte (cTemp, 1)+ 1);
+			SourceFb = nSrc;
+
+			ClearBuffer(FmMixer);
+		}
+		Else
+		{
+			ClearBuffer(FmMixer);
+		}
+	}
+}
+
+// Main()
+Function Main()
+{
+	WaitForInitializationComplete();
+	Makestring(cCmdSysExHdr, "\xF0\x00\x00\x1A\x50\x12\x01\x00");
+	Makestring(cFuncHdr, "\x00\x08");
+	cZoneChnl = CHR(0x00 + ZoneChnl - 1);
+	Makestring(cBuildHdr, "%S%S%S",cCmdSysExHdr,cFuncHdr,cZoneChnl);
+//	Makestring(cCmd, "%s\x63%s%s\x62\x18%s\x06", cMidi,cZoneChnl,cMidi,cMidi);
+//	Makestring(cRxCmd, "%s\x63%s\x62\x18\x06", cMidi,cZoneChnl);
+//	BuildFb();
+}	

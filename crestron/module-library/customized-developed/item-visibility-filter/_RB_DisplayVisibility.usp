@@ -1,0 +1,169 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Item Visibility Filter v1"
+#HINT "Shows Items Based On Analog Join"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+//#DEFINE_CONSTANT DEBUG 1
+#DEFINE_CONSTANT MAXIGNORE 5
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+
+INPUTS
+
+Filter_Number: a number that will be compared against the Filter_List parameter for each input
+
+Item_IsDefined: a digital signal representing whether the item has been "defined" 
+
+OUTPUTS
+Item_IsVisible: when the Filter_Number value exists in the Filter_List for this item, AND Item_IsDefined is HIGH for the associated input, it will be high.
+
+PARAMETERS
+
+Filter_List: a list of Filter_Number values in which an Item_IsDefined input should be allowed to propogate to its associated Item_IsVisible output.
+#HELP_END
+
+/*** INPUTS ***/
+ANALOG_INPUT  Filter_Number;
+DIGITAL_INPUT Enable, _SKIP_;
+DIGITAL_INPUT Item_IsDefined[MAXITEMS];
+
+STRING_PARAMETER _SKIP_, _SKIP_, Filter_List[MAXITEMS][MAXITEMS];
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT _SKIP_, _SKIP_, Item_IsVisible[MAXITEMS];
+
+/*** GLOBAL VARIABLES ***/
+integer availabilityMap[MAXITEMS][MAXITEMS];
+integer totalInputs;
+
+/*** FUNCTIONS ***/
+
+INTEGER_FUNCTION modeAllowsItem(integer item, integer mode)
+{
+	string allowed[10];
+
+	#IF_DEFINED DEBUG
+				 	
+		if (availabilityMap[item][mode] = ON) { allowed = "True!"; }
+		else { allowed = "False!"; }
+
+		print("Current Item: %d // Current Mode: %d // Allowed: %s\r\n", item, mode, allowed);
+	#ENDIF
+	
+	return (availabilityMap[item][mode]);
+}
+
+FUNCTION checkAll()
+{
+	integer i;
+	//for all our defined inputs
+	for(i = 1 to totalInputs)
+	{
+		//if the input is defined
+		//print("input is %u, signal is %u\n", inputIsDefined[i], Item_IsDefined[i]);
+		if(ON = Item_IsDefined[i])
+		{	
+			//if the current room mode allows the Item to be active
+			Item_IsVisible[i] = modeAllowsItem(i, Filter_Number);
+		}
+		else
+		{
+			Item_IsVisible[i] = OFF;
+		}
+		processLogic();
+	}
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE Filter_Number
+{
+	SetArray(Item_IsVisible, OFF);
+	checkAll();
+}
+
+CHANGE Item_IsDefined
+{	
+	integer _last;
+	_last = getLastModifiedArrayIndex();
+
+	if(ENABLE = ON)
+	{
+		if(ON = Item_IsDefined[_last])
+		{
+			Item_IsVisible[_last] = modeAllowsItem(_last, Filter_Number);
+		}
+		else
+		{
+			Item_IsVisible[_last] = OFF;
+		}
+	}
+}
+
+PUSH Enable
+{
+	checkAll();
+}
+
+RELEASE Enable 
+{
+	SetArray(Item_IsVisible, OFF);
+}
+
+/*** Main() ***/
+Function Main()
+{
+	integer undefinedInputCount, i, maxLoops, delimiterPosition;
+	string currentFilterItem[MAXITEMS], chunk[32];
+
+	waitForInitializationComplete();
+
+	//count backwards from the last item
+	for(i = MAXITEMS to 1 step -1)
+	{
+		if(ON = isSignalDefined(Item_IsDefined[i]))
+		{
+			break;
+		}
+		processLogic();
+	}
+
+	totalInputs = i;
+
+	for (i = 0 to totalInputs)
+	{
+		if (i <> 0) {
+			currentFilterItem = Filter_List[i];
+			while(len(currentFilterItem) > 0 && (maxLoops < MAXITEMS)) {
+				delimiterPosition = Find(",", currentFilterItem);
+
+				//get the current chunk which should be 1, or 10, or 111, by finding the delimiter position
+				if (delimiterPosition <> 0) { 
+					chunk = left(currentFilterItem, delimiterPosition - 1);
+					currentFilterItem = mid(currentFilterItem, delimiterPosition + 1, len(currentFilterItem));
+				}
+				//if the delimiter is not found, then we assume we are at the end of the string
+				else { 
+					chunk = right(currentFilterItem, len(currentFilterItem)); 
+					currentFilterItem = "";
+				} 
+				//rip the chunk off the rest of the string
+				//print so i can see it
+				//print("Current Chunk of FilterList[%d] // %s\r\n", i, chunk);
+				//set the index of the availability map to on
+				availabilityMap[i][atoi(chunk)] = ON;
+
+				maxLoops = maxLoops + 1;
+			}
+		}
+	}
+}

@@ -1,0 +1,81 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "HTML String Formatter"
+#HINT "adds HTML formatting to an entire string (handy with checkbox lists you)"
+// #DEFINE_CONSTANT
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+
+exactly the same as stringprefix, but suffix
+
+#HELP_END
+
+//INPUTS
+STRING_INPUT _SKIP_, _SKIP_, _SKIP_, StringToFormat[255][255];
+
+//PARAMETERS
+STRING_PARAMETER HTML_Start[255], HTML_End[255];
+
+//OUTPUTS
+#OUTPUT_SHIFT 3
+STRING_OUTPUT StringWithFormatting[255];
+
+/* GLOBAL VARIABLES */
+
+integer giDefinedInputs;
+string  gsStringToFormat[255][255];
+
+/*** Event Handlers ***/
+
+CHANGE StringToFormat {
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	
+	gsStringToFormat[iChanged] = StringToFormat[iChanged];
+
+	if(gsStringToFormat[iChanged] <> "")
+	{
+		StringWithFormatting[iChanged] = HTML_Start + gsStringToFormat[iChanged] + HTML_End; 
+	}
+}
+
+/*** Main() ***/
+Function Main() {
+	integer i;
+    WaitForInitializationComplete();
+
+	for(i = MAXITEMS to 1 step - 1)
+	{
+		if(isSignalDefined(StringToFormat[i])) break;
+	}
+
+	giDefinedInputs = i;
+
+	#IF_DEFINED DEBUG
+		print("%s: definedInputs = %u", getSymbolInstanceName(), i);
+	#ENDIF
+}
+
+

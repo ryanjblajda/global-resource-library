@@ -1,0 +1,103 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "JSON Config File - Custom Button Label Handler"
+#HINT ""
+#CATEGORY "46" "RBLAJDA-C#" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciMaxButtons 32
+#DEFINE_CONSTANT ciMaxStringLength 256
+
+#HELP_BEGIN
+//example json file
+
+if you dont want to provide any button labels initially, just leave the list empty, and when the user saves new buttons, it will write to the file
+
+{
+	"buttons":
+	[
+		"Camera Preset 1 Name",
+		"Podium",
+		"Audience Left",
+		"Audience Right",
+		"Stage Wide",
+		"Camera Preset 6 Name"
+	]
+}
+#HELP_END
+
+/**LIBRARIES**/
+#USER_SIMPLSHARP_LIBRARY "ButtonLabelReader"
+
+/**INPUTS**/
+DIGITAL_INPUT 	_SKIP_, Refresh;
+STRING_INPUT 	LabelText[ciMaxStringLength];
+DIGITAL_INPUT 	UpdateButton[ciMaxButtons];
+/**OUTPUTS**/
+#OUTPUT_SHIFT  2
+STRING_OUTPUT  Button_Label[ciMaxButtons];
+
+/**PARAMETERS**/
+STRING_PARAMETER FilePath[ciMaxStringLength];
+
+/**GLOBAL VARIABLES**/
+ButtonReader thisReader;
+STRING gsNewLabel[ciMaxStringLength];
+
+/**FUNCTIONS**/
+FUNCTION Main()
+{
+	waitForInitializationComplete();
+	RegisterEvent(thisReader, OnButtonsUpdated, ButtonsUpdated);
+	thisReader.FilePath = FilePath;
+}
+
+/**EVENTS**/
+EVENTHANDLER ButtonsUpdated(ButtonReader sender, ButtonLabelArgs args)
+{
+	integer i;
+	for(i = 0 to args.NumLabels - 1)
+	{
+		Button_Label[i + 1] = args.Labels[i];
+	}
+}
+
+CHANGE LabelText
+{
+	gsNewLabel = LabelText;
+}
+
+PUSH UpdateButton
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	clearBuffer(LabelText);
+	thisReader.UpdateLabel(iChanged - 1, gsNewLabel);
+}
+
+PUSH Refresh
+{
+	setArray(Button_Label, "");
+	thisReader.Refresh(thisReader.FilePath);
+}

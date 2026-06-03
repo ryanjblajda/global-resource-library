@@ -1,0 +1,49 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "ASCII Byte Adder"
+#HINT "takes ascii bytes and re-assembles them into one number"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+
+#HELP_BEGIN
+
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Parse, _SKIP_;
+ANALOG_INPUT Byte_[4];
+
+/*** PARAMETERS ***/
+
+/*** OUTPUTS ***/
+ANALOG_OUTPUT Result;
+STRING_OUTPUT Result_String;
+
+/*** GLOBAL VARIABLES ***/
+
+/*** FUNCTIONS ***/
+STRING_FUNCTION Assemble(integer byte1, integer byte2, integer byte3, integer byte4)
+{
+	string result_string[4];
+	
+	makestring(result_string, "%d%d%d%d", byte1, byte2, byte3, byte4);
+	
+	return(result_string);
+}
+
+/*** EVENT HANDLERS ***/
+PUSH Parse {
+	string func_result[4];
+	func_result = Assemble(Byte_[1], Byte_[2], Byte_[3], Byte_[4]);
+	//if we are truly expecting a 32 bit value, there will be loss, but most of the time we will use a max of 3 bits and there wont be
+	Result = atoi(func_result);
+	//if it is a 32 bit value, convert it to a string, and deal with it that way. 
+	Result_String = func_result;
+}

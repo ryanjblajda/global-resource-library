@@ -1,0 +1,155 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "String Suffix w. Alternate v2"
+#HINT "adds a suffix to a string, supports an alternate Suffix"
+// #DEFINE_CONSTANT
+#CATEGORY "46" "RBLAJDA" // Custom
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+
+#HELP_END
+
+//INPUTS
+DIGITAL_INPUT UseExternalSuffix;
+STRING_INPUT _SKIP_, Internal_Suffix[255], External_Suffix[255];
+STRING_INPUT _SKIP_, StringToSuffix[255][255];
+ 
+
+//OUTPUTS
+#OUTPUT_SHIFT 5
+STRING_OUTPUT StringWithSuffix[255];
+
+/* GLOBAL VARIABLES */
+
+integer giDefinedInputs;
+string  gsStringToSuffix[255][255];
+string  gsInternalSuffix[255], gsExternalSuffix[255];
+
+/*** Event Handlers ***/
+
+CHANGE UseExternalSuffix
+{
+	integer i;
+	for(i = 1 to giDefinedInputs) 
+	{
+		if(gsStringToSuffix[i] <> "") //if the internally stored string is not empty, update it
+		{
+			if(UseExternalSuffix = ON)
+			{
+				StringWithSuffix[i] = gsStringToSuffix[i] + gsExternalSuffix;
+			}
+			else if(UseExternalSuffix = OFF)
+			{
+				StringWithSuffix[i] = gsStringToSuffix[i] + gsInternalSuffix;
+			}
+		}
+		else //clear the output side if the internally stored string is empty
+		{
+			StringWithSuffix[i] = "";
+		}
+		processLogic();
+	}
+}
+
+CHANGE Internal_Suffix
+{
+	integer i;
+
+	//store the new Suffix, strings are transient
+	gsInternalSuffix = Internal_Suffix;
+    
+	//if we are supposed to use the internal Suffix
+	if(UseExternalSuffix = OFF)
+	{
+	//update all outputs defined
+		for(i = 1 to giDefinedInputs)
+		{
+			//if the string we stored in our internal array (the last time this string input changed), make new string
+			if(gsStringToSuffix[i] <> "")
+			{
+				StringWithSuffix[i] = gsStringToSuffix[i] + gsInternalSuffix;
+			}
+		}
+	}		
+}
+
+CHANGE External_Suffix
+{
+	integer i;
+
+	//store the new Suffix, strings are transient
+	gsExternalSuffix = External_Suffix;
+    
+	//if we are supposed to use the internal Suffix
+	if(UseExternalSuffix = ON)
+	{
+	//update all outputs defined
+		for(i = 1 to giDefinedInputs)
+		{
+			//if the string we stored in our internal array (the last time this string input changed), make new string
+			if(gsStringToSuffix[i] <> "")
+			{
+				StringWithSuffix[i] = gsStringToSuffix[i] + gsExternalSuffix;
+			}
+		}
+	}		
+} 
+
+CHANGE StringToSuffix {
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+	
+	gsStringToSuffix[iChanged] = StringToSuffix[iChanged];
+
+	if(gsStringToSuffix[iChanged] <> "")
+	{
+		if(UseExternalSuffix = ON)
+		{
+			StringWithSuffix[iChanged] = gsStringToSuffix[iChanged] + gsExternalSuffix;
+		}
+		else if(UseExternalSuffix = OFF)
+		{
+			StringWithSuffix[iChanged] = gsStringToSuffix[iChanged] + gsInternalSuffix;
+		}
+	}
+}
+
+/*** Main() ***/
+Function Main() {
+	integer i;
+    WaitForInitializationComplete();
+
+	for(i = MAXITEMS to 1 step - 1)
+	{
+		if(isSignalDefined(stringToSuffix[i])) break;
+	}
+
+	giDefinedInputs = i;
+
+	#IF_DEFINED DEBUG
+		print("%s: definedInputs = %u", getSymbolInstanceName(), i);
+	#ENDIF
+}
+
+

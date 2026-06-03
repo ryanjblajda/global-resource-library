@@ -1,0 +1,262 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: BBI Engineering, Inc.
+System Name:
+System Number:
+Programmer: Sam Wong
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "TCP Client"
+#HINT "TCP Client with programmable IP and port."
+// #DEFINE_CONSTANT
+#CATEGORY "39" // Device Extender Modules
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+
+   Equivalent to the system TCP client module, but allow you to specify the IP as a string 
+and the port as an analog.
+
+	Verbose on will generate console outputs for connection/disconnect and other state messages.
+
+#HELP_END
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Connect;
+DIGITAL_INPUT verbose;
+ANALOG_INPUT _Skip_, Port_Number;
+STRING_INPUT IP_Address$[128];
+BUFFER_INPUT _SKIP_, TX$[10000];
+
+DIGITAL_OUTPUT ConnectF, _SKIP_, _SKIP_;
+ANALOG_OUTPUT status;
+STRING_OUTPUT _SKIP_, _SKIP_, RX$;
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+TCP_CLIENT tcpClient[1536];
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+// STRING_PARAMETER
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER connected;
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+           
+Function DoConnect()
+{
+	Signed_Integer ret;
+
+	If ((Len(IP_Address$) = 0) || (Port_Number = 0))
+		Return;
+
+	if (tcpClient.SocketStatus = 2)
+	{
+		// let's disconnect
+		ret = SocketDisconnectClient(tcpClient);
+		if (ret < 0)
+			Print("Error disconnecting socket to address %s on port %d", IP_Address$, Port_Number);
+	}
+	// now try to connect to the new address
+    ret = SocketConnectClient(tcpClient, IP_Address$, Port_Number, 1);
+
+    if (ret < 0)
+        Print("Error connecting socket to address %s on port  %d", IP_Address$, Port_Number);
+	status = tcpClient.SocketStatus;
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Connect
+{
+	DoConnect();
+}
+
+RELEASE Connect
+{
+    SIGNED_INTEGER ret;
+
+	ret = SocketDisconnectClient(tcpClient);
+	if (ret < 0)
+		Print("Error disconnecting socket to address %s on port %d", IP_Address$, Port_Number);
+	status = tcpClient.SocketStatus;
+}
+      
+CHANGE IP_Address$
+{
+	If (Connect)
+		DoConnect();
+}
+
+CHANGE Port_NUmber
+{
+	If (Connect)
+		DoConnect();
+}
+
+THREADSAFE CHANGE TX$
+{
+    signed_integer ret;
+	integer length;
+   	string buf[256];
+         
+	If (!connected || (tcpClient.SocketStatus <> 2))
+	{
+		ClearBuffer(TX$);
+		TerminateEvent;
+    }
+
+	WHILE (LEN(TX$) > 0)
+	{
+		try
+		{
+			length = LEN(TX$);
+			if (length > 256)
+				length = 256;
+			buf = RemoveByLength(length, TX$);			
+		    ret = SocketSend(tcpClient, buf);
+		    if (ret < 0)
+        		Print("Error Sending to MyClient: %d\n", ret);  
+		}
+		catch
+		{
+		}
+	}
+}
+
+SOCKETCONNECT tcpClient
+{
+	SIGNED_LONG_INTEGER PortNumber;
+    SIGNED_INTEGER LocalStatus;
+    STRING RemoteIPAddress[20];
+    STRING RequestedAddress[256];
+    
+    ConnectF = 1;
+	connected = 1;
+    LocalStatus = SocketGetAddressAsRequested(tcpClient, RequestedAddress);
+    if (LocalStatus < 0)
+        Print("Error getting remote ip address. %d\n", LocalStatus);
+    PortNumber = SocketGetPortNumber(tcpClient);
+    if (PortNumber < 0)
+        Print("Error getting client port number. %ld\n", PortNumber);        
+    LocalStatus = SocketGetRemoteIPAddress(tcpClient, RemoteIPAddress);
+    if (LocalStatus < 0)
+        Print("Error getting remote ip address. %d\n", LocalStatus);
+	if (verbose)
+	    Print("OnConnect: Connected to port %ld on address %s\n", PortNumber, RemoteIPAddress);
+}
+
+SOCKETDISCONNECT tcpClient
+{
+	ConnectF = 0;
+	connected = 0;
+	if (verbose)
+	{
+    	if (Connect)
+        	Print("Socket disconnected remotely");
+	    Else
+    	    Print("Local disconnect complete.");
+	}
+}
+
+SOCKETRECEIVE tcpClient
+{
+	integer length;
+	String str[1536];
+
+	RX$ = tcpClient.SocketRxBuf;
+	ClearBuffer(tcpClient.SocketRxBuf);               
+}
+
+SOCKETSTATUS tcpClient
+{
+    SIGNED_INTEGER ret;
+
+    ret = SocketGetStatus();
+/*	if (ret = 6 || ret = 7)
+	{
+		if (connected)
+			status = 2;
+		else
+			status = ret;
+	}
+	else
+*/
+	    status = ret;
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    // TODO:  Add code here
+    // Initialize declared global and local variables/arrays as needed.
+
+     WaitForInitializationComplete();
+	connected = 0;
+}
+

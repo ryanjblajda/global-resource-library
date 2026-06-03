@@ -1,0 +1,311 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "Video Matrix Processor v3"
+#HINT "handles converting 'sources' to inputs on a video matrix to decouple the presentation on a touchpanel from the physical configuration of video matrix"
+#CATEGORY "46" "RBLAJDA_PROCESSOR" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT ciMaxInputs 32
+#DEFINE_CONSTANT ciMaxChar 255
+
+#HELP_BEGIN
+#HELP_END
+
+/**INPUTS**/
+ANALOG_INPUT     Selected_Source;
+DIGITAL_INPUT    Enable_Debug;
+STRING_INPUT     No_Source_Name[255];
+DIGITAL_INPUT    Send_To_Output_[ciMaxInputs];
+
+ANALOG_INPUT     Output_Fb_[ciMaxInputs], Transmitter_Input_Fb_[ciMaxInputs];
+STRING_INPUT     Source_Name_[ciMaxInputs][ciMaxChar];
+
+ANALOG_INPUT	 _SKIP_, Input_For_Source_[ciMaxInputs], _SKIP_, Transmitter_Input_For_Source_[ciMaxInputs];
+
+/**PARAMETERS**/
+
+/**OUTPUTS**/
+ANALOG_OUTPUT    Input_For_Output_[ciMaxInputs], Input_For_Tx_[ciMaxInputs];
+
+ANALOG_OUTPUT 	 Source_For_Output_[ciMaxInputs];
+STRING_OUTPUT    Source_For_Output_Name_[ciMaxInputs];
+STRING_OUTPUT	 Source_For_Transmitter_Name_[ciMaxInputs];
+
+/**GLOBAL VARIABLES**/
+string  gsNoSourceName[255];
+integer giSourcesDefined, giOutputsDefined;
+
+structure Source
+{
+	STRING  Name[ciMaxChar];
+	INTEGER Input;
+	INTEGER TransmitterInput;
+};
+
+Source Sources[ciMaxChar];
+
+/**FUNCTIONS**/
+FUNCTION MapSources()
+{
+	INTEGER i;
+
+	for (i = 1 to giSourcesDefined)
+	{
+		Sources[i].Input = Input_For_Source_[i];
+		Sources[i].TransmitterInput = Transmitter_Input_For_Source_[i];
+		if (Enable_Debug = ON) { print("Source %d // Name: %s, Input: %d, Transmitter Input: %d", i, Sources[i].Name, Sources[i].Input, Sources[i].TransmitterInput); }
+	}
+}
+
+FUNCTION UpdateAllOutputsCurrentSource(INTEGER source)
+{
+	INTEGER i;
+	//loop through all displays defined
+	for(i = 1 to giOutputsDefined)
+	{		
+		//check if the output is currently displaying the source whose name just changed
+		if (Output_Fb_[i] = Sources[source].Input)
+		{
+			Source_For_Output_Name_[i] = Sources[source].Name;
+			Source_For_Output_[i] = source;
+		}
+	}
+}
+
+FUNCTION UpdateSingleOutputCurrentSource(integer output, integer source)
+{
+	string nm[255];
+    
+	//if the structure array has a valid name, use it, otherwise generate a useful string
+    if (Sources[source].Name <> "") { nm = Sources[source].Name; }
+    else { makestring(nm, "Input: %d // Transmitter Input: %d", Sources[source].Input, Sources[source].TransmitterInput); }
+	
+	Source_For_Output_[output] = Sources[source].Input;
+	Source_For_Output_Name_[output] = nm;
+}
+
+INTEGER_FUNCTION DetermineCurrentSource(INTEGER input)
+{
+	INTEGER result, i;
+	result = 0;
+	if (input <> 0)
+	{
+		for (i = 1 to giSourcesDefined)
+		{	
+			if (input = Sources[i].Input) 
+			{
+				//if the source is just a local matrix input, with no transmitters return the first match
+				if (Sources[i].TransmitterInput = 0) { return (i); }
+				else //if the source has a transmitter input of a value other than zero, make sure the transmitter for this input matches the structure value.
+				{	
+					//if it matches, return the source value, if not the loop will continue
+					if (Transmitter_Input_Fb_[Sources[i].Input] = Sources[i].TransmitterInput) { return (i); }
+				}
+			}
+		}
+	}
+	else { return (0); }
+}
+
+INTEGER_FUNCTION GetSource(integer input, integer txinput)
+{
+	integer i;
+
+	if (input <> 0) 
+	{
+		for (i = 1 to giSourcesDefined)
+		{
+			if (input = Sources[i].Input)
+			{
+				//if the source is just a local matrix input, with no transmitters return the first match
+				if (Sources[i].TransmitterInput = 0) { return (i); }
+				else //if the source has a transmitter input of a value other than zero, make sure the transmitter for this input matches the structure value.
+				{	
+					//if it matches, return the source value, if not the loop will continue
+					if (txinput = Sources[i].TransmitterInput) { return (i); }
+				}			
+			}
+		}
+	}
+	
+	return(0);
+}
+
+FUNCTION Main()
+{
+	INTEGER i;
+
+	for(i = ciMaxInputs to 1 step -1)
+	{
+		if(0 <> isSignalDefined(Input_For_Source_[i])) break;
+	}
+
+	giSourcesDefined = i;
+
+	for(i = ciMaxInputs to 1 step -1)
+	{
+		if(0 <> isSignalDefined(Send_To_Output_[i])) break;
+	}
+
+
+    giOutputsDefined = i;
+
+	MapSources();
+
+	Sources[0].Name = "No Source";
+	Sources[0].Input = 0;
+	Sources[0].TransmitterInput = 0;
+
+	UpdateAllOutputsCurrentSource(0);
+}
+
+/**EVENT HANDLERS**/
+PUSH Enable_Debug
+{
+	MapSources();
+}
+
+CHANGE No_Source_Name
+{
+	gsNoSourceName = No_Source_Name;
+	Sources[0].Name = gsNoSourceName;
+	//update any outputs
+	UpdateAllOutputsCurrentSource(0);
+}
+
+CHANGE Selected_Source
+{
+	integer i, src_input;
+    
+	//loop through all displays defined, checking if the SendToDisplay input is high
+	for(i = 1 to giOutputsDefined)
+	{
+		if(Send_To_Output_[i] = ON)
+		{
+			src_input = Sources[Selected_Source].Input;
+			Input_For_Output_[i] = Sources[Selected_Source].Input;
+
+			if(src_input <> 0) Input_For_Tx_[src_input] = Sources[Selected_Source].TransmitterInput;
+		}
+	}
+}
+
+PUSH Send_To_Output_
+{
+	integer iChanged, sourceInput;
+	//get the last array index that changed, which reflects the output we need to send the selected source to
+	iChanged = getLastModifiedArrayIndex();
+	//assign the input for the selected source to the desired output
+	Input_For_Output_[iChanged] = Sources[Selected_Source].Input;
+    //make sure the transmitter also changes to the required input
+	sourceInput = Sources[Selected_Source].Input;
+	//if sourceInput is 0 then we will throw an index error, so make sure that is not the case before attempting to assign to the input
+	if (sourceInput <> 0) { Input_For_Tx_[sourceInput] = Sources[Selected_Source].TransmitterInput; }
+}
+
+CHANGE Source_Name_
+{
+	integer iChanged, i;
+	//get the index that changed, which reflects which source changed
+	iChanged = getLastModifiedArrayIndex();
+	//assign the new source name to the structure instance
+	Sources[iChanged].Name = Source_Name_[iChanged];
+	//loop through all the defined displays to update their output feedback
+	UpdateAllOutputsCurrentSource(iChanged);
+}
+
+CHANGE Output_Fb_
+{
+	INTEGER iChanged, i, src, iCurrentInput;
+	//get the output array index that just changed;
+	iChanged = getLastModifiedArrayIndex();
+	iCurrentInput = Output_Fb_[iChanged];
+    
+	//handle what happens when the source is zero
+	if (iCurrentInput = 0) { src = 0; }
+	//handle any other value
+	else { src = DetermineCurrentSource(iCurrentInput); }
+    
+	//update the output directly without looping through all outputs
+	
+	UpdateSingleOutputCurrentSource(iChanged, src);	
+}
+
+CHANGE Transmitter_Input_Fb_
+{
+	integer iChanged, iCurrentTxInput, output, source;
+
+	iChanged = getLastModifiedArrayIndex();
+	iCurrentTxInput = Transmitter_Input_Fb_[iChanged];
+    
+	//ignore tx inputs of zero
+	if (iCurrentTxInput <> 0)
+	{
+		Source_For_Transmitter_Name_[iChanged] = Sources[GetSource(iChanged, iCurrentTxInput)].Name;
+
+		//loop through all defined outputs
+		for(output = 1 to giOutputsDefined)
+		{
+			//if the output is currently displaying the input (which will be the transmitter input that just changed)
+			//this output should be checked to make sure that the source name is correct, because the transmitter input has changed
+			if(Output_Fb_[output] = iChanged)
+			{
+				//		
+				for (source = 1 to giSourcesDefined)
+				{
+					if (iCurrentTxInput = Sources[source].TransmitterInput && Sources[source].Input = iChanged)
+					{
+						UpdateSingleOutputCurrentSource(output, source);
+					}
+				}
+			}
+		}
+	}
+}
+
+CHANGE Input_For_Source_
+{
+	INTEGER iChanged;
+	//get the item that changed
+	iChanged = getLastModifiedArrayIndex();
+	//assign the items value to the source, which is the item that changed
+	Sources[iChanged].Input = Input_For_Source_[iChanged];
+	//print to console for debug
+	if (Enable_Debug = ON) { print("Source %d New Input = %d", iChanged, Sources[iChanged].Input); }
+	//update outputs with new status
+	UpdateAllOutputsCurrentSource(iChanged);
+}
+
+CHANGE Transmitter_Input_For_Source_
+{
+	INTEGER iChanged;
+	//get the item that changed
+	iChanged = getLastModifiedArrayIndex();
+	//assign the items value to the source, which is the item that changed
+	Sources[iChanged].TransmitterInput = Transmitter_Input_For_Source_[iChanged];
+	//print to the console for debug
+	if (Enable_Debug = ON) { print("Source %d New Transmitter Input = %d", iChanged, Sources[iChanged].TransmitterInput); }
+	//update outputs with new status
+	UpdateAllOutputsCurrentSource(iChanged);
+}

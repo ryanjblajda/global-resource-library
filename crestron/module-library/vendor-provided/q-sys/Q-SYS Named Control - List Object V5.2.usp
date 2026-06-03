@@ -1,0 +1,127 @@
+/*
+Dealer Name: Crestron
+System Name:
+System Number: V1
+Programmer: JMG
+Comments:
+*/
+//Compiler Directives
+//#HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MaxSize 500
+
+//INCLUDES
+
+#CATEGORY "0" //Hidden
+
+#USER_SIMPLSHARP_LIBRARY "QsysControl"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Initialize_Named_Control,Enable_Poll;
+
+Analog_Input Direct_Select;
+
+// BUFFER_INPUT
+Analog_Output List_Count; 
+STRING_OUTPUT Selected_String,UnFormatted_String_Out[MaxSize],Formatted_String_Out[MaxSize,MaxSize];
+
+
+DIGITAL_OUTPUT Error;
+
+ 
+
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER Core_ID;			//Used to Identify what Core in program.
+STRING_PARAMETER NamedControl[500];
+Integer_Parameter Text_Size;
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER giID;		//Core ID
+STRING gsNamedControl[500];		//Core Host
+Integer giTextSize;
+STRING gsListItemFormatted[MaxSize],gsListItemUnFormatted[MaxSize];
+
+QSYSNamedControl myNamedControl;
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+EventHandler NamedControlEvent ( QSYSNamedControlEvent sender, QSYSNamedControlChangeArgs e )
+{
+	if(e.lIndex > 0)
+	{
+		UnFormatted_String_Out[e.lIndex] = e.lsValue;
+		Formatted_String_Out[e.lIndex]= e.lfsValue;	
+	}
+}
+
+CallBack Function cbf_ItemSelected(string SelectedItem)
+{
+ 	Selected_String = SelectedItem;
+}
+
+CallBack Function cbf_ItemCount(integer ItemCount)
+{
+ 	List_Count = ItemCount;
+}
+
+
+PUSH Initialize_Named_Control 
+{
+	myNamedControl.AddListNamedControl(gsNamedControl,giID,giTextSize);
+	RegisterEvent(myNamedControl,OnNamedControlEvent,NamedControlEvent);
+	    
+	delay(5);
+
+	if(Enable_Poll)
+	{
+      myNamedControl._Poll = Enable_Poll;
+
+	}	  
+}
+
+change Direct_Select
+{
+ 	myNamedControl.ListItemSelect(Direct_Select);
+}
+
+change Enable_Poll
+{
+
+ 	myNamedControl._Poll = Enable_Poll;
+}
+
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    WaitForInitializationComplete();
+	giID = Core_ID;
+	gsNamedControl = NamedControl;
+	giTextSize = Text_Size;
+	RegisterDelegate(myNamedControl,delItemSelected,cbf_ItemSelected);
+	RegisterDelegate(myNamedControl,delItemCount,cbf_ItemCount);
+}
+
+

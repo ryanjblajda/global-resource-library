@@ -1,0 +1,699 @@
+
+/*******************************************************************************************
+  SIMPL+ Module Information
+*******************************************************************************************/
+/*
+Dealer Name: 1Beyond
+Programmer: Mike B
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#SYMBOL_NAME "1Beyond - AutomateVX v1.7"
+#CATEGORY "46" "Lecture Capture" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT Num_Presets 10
+#DEFINE_CONSTANT UserName_Length 25
+#DEFINE_CONSTANT Password_Length 25
+#DEFINE_CONSTANT IPA_Length 100
+#DEFINE_CONSTANT File_Length 75
+#DEFINE_CONSTANT LayoutCount 10
+#DEFINE_CONSTANT RoomConfigCount 10
+#DEFINE_CONSTANT CameraCount 8
+#DEFINE_CONSTANT NumOfPlugins 3
+#DEFINE_CONSTANT Plugin_Name_Length 25
+
+#DIGITAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+#HELP_END
+
+#USER_SIMPLSHARP_LIBRARY "Automate_VX"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+ *******************************************************************************************/
+DIGITAL_INPUT _SKIP_,_SKIP_, Debug, Login, _SKIP_, Toggle_AutoSwitch, Start_AutoSwitch, Stop_AutoSwitch, _SKIP_, Toggle_Recording, Start_Recording, Stop_Recording, Pause_Recording, _SKIP_, 
+Toggle_ISO_Recording, Start_ISO_Recording, Stop_ISO_Recording, _SKIP_, Toggle_Stream, Start_Stream, Stop_Stream, _SKIP_,Toggle_Output, Start_Output, Stop_Output, _SKIP_, 
+Get_AutoSwitch_Status, Get_ISO_Record_Status, Get_Record_Status, Get_Stream_Status, Get_Output_Status, Get_Current_Layout, Get_Layouts, Get_Current_Room_Config, 
+Get_Room_Configs, Get_Camera_Status, Get_Recording_Space, Get_Copy_Status, Copy_Files, _SKIP_, _SKIP_, Sleep, Wake, Go_Home, _SKIP_, Call_Plugin[NumOfPlugins], _SKIP_, 
+Change_Layout[LayoutCount], _SKIP_, Change_Room_Config[RoomConfigCount], _SKIP_, Force_Change_Room_Config[RoomConfigCount], _SKIP_, Manual_Switch_Camera[CameraCount],  _SKIP_;
+
+STRING_INPUT  IP_Address$[IPA_Length], _SKIP_, Username$[UserName_Length], Password$[Password_Length], _SKIP_, Copy_Files_Destination[File_Length], Copy_Log_Destination[File_Length], _SKIP_,
+ Plugin_Arg1[File_Length], Plugin_Arg2[File_Length], Plugin_Arg3[File_Length], _SKIP_;
+
+ANALOG_INPUT _SKIP_, Port, _SKIP_, Delete_Source_File, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Call_Live_Camera_Preset, Call_Camera_Preset[CameraCount];
+
+STRING_INPUT _SKIP_, Plugin_Name[NumOfPlugins][Plugin_Name_Length];
+
+DIGITAL_OUTPUT  _SKIP_, _SKIP_, _SKIP_,_SKIP_, Login_FB, _SKIP_,_SKIP_, AutoSwitch_Enabled_FB, AutoSwitch_Disabled_FB, _SKIP_, _SKIP_, Recording_Started_FB, Recording_Stopped_FB,
+_SKIP_, _SKIP_, ISO_Recording_Started_FB, ISO_Recording_Stopped_FB, _SKIP_, _SKIP_, Stream_Started_FB, Stream_Stopped_FB, _SKIP_, _SKIP_, Output_Started_FB, Output_Stopped_FB, 
+_SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, Pause_Enabled, _SKIP_, Copy_File_Success, Copy_Files_In_Progress, _SKIP_, Sleep_FB, Wake_FB, Go_Home_Success_FB, _SKIP_, 
+Call_Plugin_Complete[NumOfPlugins], _SKIP_, Change_Layout_FB[LayoutCount], _SKIP_, Change_Room_Config_FB[RoomConfigCount], _SKIP_, Manual_Switch_Camera_FB[CameraCount], _SKIP_;
+
+STRING_OUTPUT Recording_Status$, Error_Message$, _SKIP_;
+
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_, Record_State, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, NumOfLayouts, NumOfConfigs, _SKIP_, Error_Status, _SKIP_, Space_Avail_Gb, Space_Total_Gb, _SKIP_, _SKIP_, Camera_Preset_FB[CameraCount];
+
+STRING_OUTPUT _SKIP_, Layout_Names$[LayoutCount], _SKIP_, Room_Config_Names$[RoomConfigCount];
+
+AutomateVx Automate;
+
+/*******************************************************************************************
+  Parameters
+*******************************************************************************************/
+
+INTEGER_PARAMETER Request_Type;
+
+/*******************************************************************************************
+  Parameter Properties
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES Request_Type
+   	propValidUnits = unitDecimal;  
+   	propShortDescription = "HTTP or HTTPS Request";
+   	propBounds=0d, 1d;
+   	propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+
+/*******************************************************************************************
+  Global Variables
+ *******************************************************************************************/
+
+INTEGER Active_Preset, ActiveLayout, ActiveConfig;
+STRING Plugins[NumOfPlugins][Plugin_Name_Length];
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+
+PUSH Debug
+{
+	Automate.Debug(TRUE);	
+}
+
+RELEASE Debug
+{
+	Automate.Debug(FALSE);	
+}
+
+PUSH Login
+{
+	Automate.Login();
+}
+
+PUSH Toggle_AutoSwitch
+{
+	Automate.ToggleAutoSwitch();
+}
+
+PUSH Start_AutoSwitch
+{
+	Automate.StartAutoSwitch();
+}
+
+PUSH Stop_AutoSwitch
+{
+	Automate.StopAutoSwitch();
+}
+
+PUSH Toggle_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.ToggleRecord();
+}
+
+PUSH Start_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.StartRecord();	
+}
+
+PUSH Stop_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.StopRecord();
+}
+
+PUSH Pause_Recording
+{
+	Recording_Started_FB = OFF;
+	Recording_Stopped_FB = OFF;
+	Automate.PauseRecord();
+}
+
+
+PUSH Toggle_ISO_Recording
+{
+	Automate.ToggleIsoRecord();
+}
+
+PUSH Start_ISO_Recording
+{
+     Automate.StartIsoRecord();
+}
+
+PUSH Stop_ISO_Recording
+{
+     Automate.StopIsoRecord();
+}
+
+PUSH Toggle_Stream
+{
+	Automate.ToggleStream();
+}
+
+PUSH Start_Stream
+{
+     Automate.StartStream();
+}
+
+PUSH Stop_Stream
+{
+     Automate.StopStream();
+}
+
+PUSH Start_Output
+{
+     Automate.StartOutput();
+}
+   
+PUSH Toggle_Output
+{
+	Automate.ToggleOutput();
+}
+
+PUSH Stop_Output
+{
+     Automate.StopOutput();
+}
+
+PUSH Get_Current_Layout
+{
+    Automate.GetCurrentLayout();
+}
+
+PUSH Get_Layouts
+{
+	Automate.GetLayouts();
+}
+PUSH Get_Current_Room_Config
+{
+	Automate.GetCurrentRoomConfig();
+} 
+
+PUSH Get_Room_Configs
+{
+	Automate.GetRoomConfigs();
+}
+
+PUSH Change_Layout
+{
+	INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ChangeLayout(i);
+}
+
+PUSH Change_Room_Config
+{
+    INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ChangeRoomConfig(i);
+}
+
+PUSH Force_Change_Room_Config
+{
+    INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ForceChangeRoomConfig(i);
+}
+
+PUSH Manual_Switch_Camera
+{
+    INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.ManualSwitchCamera(i);
+}
+  
+PUSH Get_AutoSwitch_Status
+{
+	Automate.GetAutoSwitchStatus();
+}  
+  
+PUSH Get_Record_Status
+{
+	Automate.GetRecordStatus();
+}
+
+PUSH Get_ISO_Record_Status
+{
+	Automate.GetIsoRecordStatus();
+}
+
+PUSH Get_Stream_Status
+{
+	Automate.GetStreamStatus();
+}
+
+PUSH Get_Output_Status
+{
+	Automate.GetOutputStatus();
+}
+
+PUSH Get_Camera_Status
+{
+	Automate.GetCameraStatus();
+}
+
+PUSH Copy_Files
+{
+    Automate.CopyFiles();
+}
+
+PUSH Get_Copy_Status
+{
+	Automate.GetCopyStatus();
+}
+
+PUSH Get_Recording_Space
+{
+	Automate.GetRecordingSpace();
+}
+
+PUSH Call_Plugin
+{
+	Automate.CallPlugin();
+}
+
+PUSH Sleep
+{
+	Automate.Sleep();
+}
+
+PUSH Wake
+{
+	Automate.Wake();
+}
+
+PUSH Go_Home
+{
+	Automate.GoHome();
+}
+
+CHANGE Call_Camera_Preset
+{
+	INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+	Automate.SetCameraPreset(i, Call_Camera_Preset[i]);
+}
+
+CHANGE Call_Live_Camera_Preset
+{
+	Automate.SetLiveCameraPreset(Call_Live_Camera_Preset);
+}
+
+CHANGE Delete_Source_File
+{
+    Automate.DeleteSource = Delete_Source_File;
+}
+
+CHANGE Copy_Files_Destination
+{
+    Automate.FileDestination = Copy_Files_Destination;
+}
+
+CHANGE Copy_Log_Destination
+{
+    Automate.LogDestination = Copy_Log_Destination;
+}
+
+CHANGE Plugin_Name
+{
+	INTEGER i;
+	i = GETLASTMODIFIEDARRAYINDEX();
+    Automate.PluginName = Plugin_Name[i];
+	Plugins[i] = Plugin_Name[i];
+}
+
+CHANGE Plugin_Arg1
+{
+    Automate.PluginArg1 = Plugin_Arg1;
+}
+
+CHANGE Plugin_Arg2
+{
+    Automate.PluginArg2 = Plugin_Arg2;
+}
+
+CHANGE Plugin_Arg3
+{
+    Automate.PluginArg3 = Plugin_Arg3;
+}
+
+CHANGE Username$
+{
+	Automate.Username = Username$;	
+}
+
+CHANGE Password$
+{
+	Automate.Password = Password$;	
+}
+
+CHANGE IP_Address$
+{
+	Automate.IpAddress = IP_Address$;
+	Automate.CheckForToken();	
+}
+
+CHANGE Port
+{
+	Automate.Port = Port;
+}
+
+CALLBACK FUNCTION LoginStateCallback(INTEGER loginState)
+{
+	IF (loginState = 1)
+	{
+ 		Login_FB = ON;        
+		IF (Error_Status > 0)
+		{
+			Error_Status = 0;
+		}	
+	}
+	ELSE IF (loginState = 0)
+	{
+ 		Login_FB = OFF;
+	}	
+}
+
+CALLBACK FUNCTION AutomateVxErrorCallback(INTEGER code, STRING error, STRING body)
+{
+	INTEGER i;
+	Error_Status = code;
+	Error_Message$ = error;
+	FOR (i = 1 TO NumOfPlugins)
+	{
+		IF(FINDNOCASE(Plugins[i], body) != 0)
+		{
+			PULSE(50, Call_Plugin_Complete[i]);
+			RETURN;
+		}
+	}
+}
+
+CALLBACK FUNCTION SystemStatusCallback(STRING status)
+{
+	Recording_Status$ = status; 
+}
+
+CALLBACK FUNCTION RecStatusCallback(INTEGER status, INTEGER state)
+{
+	IF(status = 0)
+	{
+        Recording_Stopped_FB = ON;
+		Recording_Started_FB = OFF;
+	}
+	ELSE IF(status = 1)
+	{
+		Recording_Stopped_FB = OFF;
+		Recording_Started_FB = ON;
+	} 
+
+	Record_State = state; 	
+	
+	IF (Error_Status > 0)
+	{
+		Error_Status = 0;
+	}
+}
+
+CALLBACK FUNCTION AutoSwitchStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		AutoSwitch_Enabled_FB = OFF;
+		AutoSwitch_Disabled_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        AutoSwitch_Enabled_FB = ON;
+        AutoSwitch_Disabled_FB = OFF;
+    }
+}
+
+CALLBACK FUNCTION IsoRecStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		ISO_Recording_Started_FB = OFF;
+		ISO_Recording_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        ISO_Recording_Started_FB = ON;
+		ISO_Recording_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION StreamStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		Stream_Started_FB = OFF;
+		Stream_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        Stream_Started_FB = ON;
+		Stream_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION OutputStatusCallback(INTEGER status)
+{
+	IF(status = 0)
+	{
+		Output_Started_FB = OFF;
+		Output_Stopped_FB = ON;
+	}
+	ELSE IF(status = 1)
+	{
+        Output_Started_FB = ON;
+		Output_Stopped_FB = OFF;
+	}
+}
+
+CALLBACK FUNCTION LayoutStatusCallback(INTEGER layout)
+{
+	IF(ActiveLayout != layout)
+	{
+		SETARRAY(Change_Layout_FB, OFF);
+	}
+	ActiveLayout = layout;
+	Change_Layout_FB[layout] = ON;
+}
+
+CALLBACK FUNCTION LayoutNamesCallback(INTEGER index, STRING layoutName)
+{
+	Layout_Names$[index] = layoutName;		
+}
+
+CALLBACK FUNCTION LayoutCountCallback(INTEGER numberOfLayouts)
+{
+	IF(NumOfLayouts != numberOfLayouts)
+	{
+		NumOfLayouts = numberOfLayouts;
+	}
+}
+
+CALLBACK FUNCTION LayoutClearCallback()
+{
+	SETARRAY(Layout_Names$, "");
+}
+
+CALLBACK FUNCTION RoomConfigStatusCallback(INTEGER config)
+{
+	IF(ActiveConfig != config)
+	{
+		SETARRAY(Change_Room_Config_FB, OFF);
+	}
+	ActiveConfig = config;
+	Change_Room_Config_FB[config] = ON;
+}
+
+CALLBACK FUNCTION RoomConfigNamesCallback(INTEGER index, STRING configName)
+{
+	Room_Config_Names$[index] = configName;		
+}
+
+CALLBACK FUNCTION RoomConfigCountCallback(INTEGER numberOfConfigs)
+{
+	IF(NumOfConfigs != numberOfConfigs)
+	{
+		NumOfConfigs = numberOfConfigs;
+	}
+}
+
+CALLBACK FUNCTION RoomConfigClearCallback()
+{
+	SETARRAY(Room_Config_Names$, "");
+}
+
+CALLBACK FUNCTION CameraSelectCallback(INTEGER camera)
+{
+	IF(camera > 0)
+	{
+		SETARRAY(Manual_Switch_Camera_FB, OFF);
+		Manual_Switch_Camera_FB[camera] = ON;
+	}
+}
+
+CALLBACK FUNCTION CameraPresetCallback(INTEGER camera, INTEGER preset)
+{
+	Camera_Preset_FB[camera] = preset;
+}
+
+CALLBACK FUNCTION CopyFilesStatusCallback(INTEGER success)
+{
+	IF(success = TRUE)
+    {
+        PULSE(50, Copy_File_Success);
+    }
+}
+
+CALLBACK FUNCTION RecSpaceInfoCallback(INTEGER available, INTEGER total)
+{
+    Space_Avail_Gb = available;
+    Space_Total_Gb = total;
+}
+
+CALLBACK FUNCTION PluginStatusCallback(STRING msg, INTEGER code, STRING body)
+{
+	INTEGER i;
+	IF(code = 0)
+    {
+		FOR (i = 1 TO NumOfPlugins)
+		{
+			IF(FINDNOCASE(Plugins[i], body) > 0)
+			{
+				PULSE(50, Call_Plugin_Complete[i]);
+				RETURN;
+			}
+		}
+    }
+}
+
+CALLBACK FUNCTION PauseEnabledCallback(INTEGER enabled)
+{
+	IF(enabled = TRUE)
+    {
+        Pause_Enabled = ON;    
+	}
+	ELSE
+	{
+		Pause_Enabled = OFF;
+	}
+}
+
+CALLBACK FUNCTION CopyStatusCallback(INTEGER inProgress)
+{
+	IF(inProgress = TRUE)
+    {
+        Copy_Files_In_Progress = ON;
+    }
+	ELSE
+	{
+		Copy_Files_In_Progress = OFF;
+	}
+}
+
+CALLBACK FUNCTION SleepStatusCallback(INTEGER sleep)
+{
+	IF(sleep = TRUE)
+    {
+        Sleep_FB = ON;
+		Wake_FB = OFF;
+    }
+	ELSE
+	{
+        Sleep_FB = OFF;
+		Wake_FB = ON;
+	}
+}
+
+CALLBACK FUNCTION GoHomeStatusCallback(INTEGER success)
+{
+	IF(success = TRUE)
+    {
+		PULSE(50, Go_Home_Success_FB);
+    }
+}
+
+
+
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+function main()
+{
+	Automate.IsHttps = Request_Type;
+
+    REGISTERDELEGATE(Automate, LoginStateCallbackEvent, LoginStateCallback);
+	REGISTERDELEGATE(Automate, SystemStatusCallbackEvent, SystemStatusCallback);
+	REGISTERDELEGATE(Automate, RecStatusCallbackEvent, RecStatusCallback);
+	REGISTERDELEGATE(Automate, StreamStatusCallbackEvent, StreamStatusCallback);
+	REGISTERDELEGATE(Automate, OutputStatusCallbackEvent, OutputStatusCallback);
+	REGISTERDELEGATE(Automate, AutoSwitchStatusCallbackEvent, AutoSwitchStatusCallback); 
+	REGISTERDELEGATE(Automate, IsoRecStatusCallbackEvent, IsoRecStatusCallback); 
+	REGISTERDELEGATE(Automate, LayoutStatusCallbackEvent, LayoutStatusCallback);
+	REGISTERDELEGATE(Automate, LayoutNamesCallbackEvent, LayoutNamesCallback);
+	REGISTERDELEGATE(Automate, LayoutCountCallbackEvent, LayoutCountCallback);
+	REGISTERDELEGATE(Automate, LayoutClearCallbackEvent, LayoutClearCallback); 
+	REGISTERDELEGATE(Automate, RoomConfigStatusCallbackEvent, RoomConfigStatusCallback); 
+	REGISTERDELEGATE(Automate, RoomConfigNamesCallbackEvent, RoomConfigNamesCallback);
+	REGISTERDELEGATE(Automate, RoomConfigCountCallbackEvent, RoomConfigCountCallback);
+	REGISTERDELEGATE(Automate, RoomConfigClearCallbackEvent, RoomConfigClearCallback); 
+	REGISTERDELEGATE(Automate, CameraSelectCallbackEvent, CameraSelectCallback);
+	REGISTERDELEGATE(Automate, CameraPresetCallbackEvent, CameraPresetCallback);	
+    REGISTERDELEGATE(Automate, CameraPresetCallbackEvent, CameraPresetCallback);
+	REGISTERDELEGATE(Automate, CopyFilesStatusCallbackEvent, CopyFilesStatusCallback);
+    REGISTERDELEGATE(Automate, RecSpaceInfoCallbackEvent, RecSpaceInfoCallback);
+    REGISTERDELEGATE(Automate, AutomateVxErrorCallbackEvent, AutomateVxErrorCallback);
+    REGISTERDELEGATE(Automate, PluginStatusCallbackEvent, PluginStatusCallback);
+	REGISTERDELEGATE(Automate, PauseEnabledCallbackEvent, PauseEnabledCallback);
+	REGISTERDELEGATE(Automate, CopyStatusCallbackEvent, CopyStatusCallback);
+	REGISTERDELEGATE(Automate, SleepStatusCallbackEvent, SleepStatusCallback);	
+	REGISTERDELEGATE(Automate, GoHomeStatusCallbackEvent, GoHomeStatusCallback);
+	
+SETARRAY(Plugins, "!*!");
+	
+	IF (Port > 0)
+		Automate.Port = Port;
+
+	IF (LEN(IP_Address$) > 0)
+		Automate.IpAddress = IP_Address$;
+
+	IF (LEN(Username$) > 0)
+		Automate.Username = Username$;
+
+	IF (LEN(Password$) > 0)
+		Automate.Password = Password$;
+
+	WaitForInitializationComplete();    
+}
+
+

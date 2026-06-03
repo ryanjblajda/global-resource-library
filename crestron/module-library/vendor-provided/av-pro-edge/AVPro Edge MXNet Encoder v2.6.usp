@@ -1,0 +1,407 @@
+/*******************************************************************************************
+  INFORMATION
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: AVPro Edge MXNet Encoder v2.6
+Programmer:  VNG
+Version:     2.5
+*/
+
+/*******************************************************************************************
+  COMPILER DIRECTIVES
+*******************************************************************************************/
+
+#SYMBOL_NAME "AVPro Edge MXNet Encoder v2.6"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #HINT ""
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+/*******************************************************************************************
+  CONSTANTS
+*******************************************************************************************/
+
+#DEFINE_CONSTANT TRUE 1
+#DEFINE_CONSTANT FALSE 0
+#DEFINE_CONSTANT MAX_STRING 100
+#DEFINE_CONSTANT SCREEN_ON 0
+#DEFINE_CONSTANT SCREEN_FLASH 1
+#DEFINE_CONSTANT SCREEN_OFF 2
+#DEFINE_CONSTANT OSD_ON 1
+#DEFINE_CONSTANT OSD_OFF 0
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE 0
+
+#HELP_BEGIN
+To be used with AVPro Edge MXNet Encoder v2.6.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  INCLUDE LIBRARIES
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "AVProEdgeMXNetLib2"
+
+/*******************************************************************************************
+  MODULE I/O
+*******************************************************************************************/
+
+// --------------------- INPUTS
+
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			  Reboot,
+			  ScreenOn,
+			  ScreenFlash,
+			  ScreenOff,
+			  VolumeInc,
+			  VolumeDec,
+			  VolumeSet,
+			  MuteOn,
+			  MuteOff,
+			  MuteTog,
+			  HotPlugReset;
+				
+ANALOG_INPUT  VolumeLevel,
+			  AudioSourceSet,
+			  EdidSet;
+     
+// --------------------- OUTPUTS
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_,
+			   IsInitialized,
+			   IsOnline,
+			   ScreenOnFb,
+			   ScreenFlashFb,
+			   ScreenOffFb,
+			   VolumeMuteFb,
+			   HotPlugFb;
+
+ANALOG_OUTPUT  VolumeLevelFb,
+			   AudioSourceFb,
+			   EdidFb;
+				
+STRING_OUTPUT  ConnectionRatingFb,
+			   ResAndTimeFb,
+			   ColorspaceFb,
+			   BitdepthFb,
+			   HdrFb,
+			   HdcpFb,
+			   AudioFormatFb,
+			   NetworkConnectionFb,
+				_SKIP_,
+				DeviceIdFb,
+				MacAddressFb,
+				_SKIP_,
+			   SnapshotUrl,
+			   MJPEGUrlSmall,
+			   MJPEGUrlLarge;
+
+				
+/*******************************************************************************************
+  PARAMETERS
+*******************************************************************************************/
+
+INTEGER_PARAMETER CommandProcessorID;
+STRING_PARAMETER DeviceID[MAX_STRING];
+INTEGER_PARAMETER Index;
+
+/*******************************************************************************************
+  PARAMETER PROPERTIES
+*******************************************************************************************/
+
+/*******************************************************************************************
+  GLOBAL VARIABLES
+*******************************************************************************************/
+
+// --------------------- SIMPL# Classes
+
+EncoderComponent encoder;   
+
+/*******************************************************************************************
+  FUNCTIONS
+*******************************************************************************************/
+
+// --------------------- RESET
+          
+FUNCTION ResetOutputs()
+{
+  // -- DIGITALS
+
+  IsInitialized = FALSE;
+  IsOnline      = FALSE;
+  ScreenOnFb    = FALSE;
+  ScreenFlashFb = FALSE;
+  ScreenOffFb	= FALSE;
+  VolumeMuteFb  = FALSE;
+  HotPlugFb	    = FALSE;
+
+  // -- ANALOGS
+
+  VolumeLevelFb 	 = NULL_VALUE;
+  AudioSourceFb 	 = NULL_VALUE;
+  EdidFb 			 = NULL_VALUE;
+  ConnectionRatingFb = NULL_STRING;
+
+  // -- SERIALS
+
+  ResAndTimeFb 		  = NULL_STRING;
+  ColorspaceFb 		  = NULL_STRING;
+  BitdepthFb 		  = NULL_STRING;
+  HdrFb 			  = NULL_STRING;
+  HdcpFb 			  = NULL_STRING;
+  AudioFormatFb 	  = NULL_STRING;
+  NetworkConnectionFb = NULL_STRING;
+}
+
+// --------------------- SIMPL# EVENT HANDLERS
+
+EVENTHANDLER OnInitialize (EncoderComponent sender, DigEventArgs args)
+{
+  IsInitialized = args.Payload;
+}
+
+EVENTHANDLER OnOnline (EncoderComponent sender, DigEventArgs args)
+{
+  IsOnline = args.Payload;
+}
+
+EVENTHANDLER OnScreen (EncoderComponent sender, AnaEventArgs args)
+{
+  // Do we actually need these? Logic below these will set all the values accordingly
+  // ScreenOnFb = FALSE;
+  // ScreenFlashFb = FALSE;
+  // ScreenOffFb = FALSE;
+
+  ScreenOnFb = (args.Payload = SCREEN_ON);
+  ScreenFlashFb = (args.Payload = SCREEN_FLASH);
+  ScreenOffFb = (args.Payload = SCREEN_OFF);
+}
+
+EVENTHANDLER OnVolumeLevel ( EncoderComponent sender, AnaEventArgs args )
+{
+  VolumeLevelFb = args.Payload;
+}
+
+EVENTHANDLER OnVolumeMute ( EncoderComponent sender, DigEventArgs args )
+{
+  VolumeMuteFb = args.Payload;
+}
+
+EVENTHANDLER OnEdid ( EncoderComponent sender, AnaEventArgs args )
+{
+  EdidFb = args.Payload;
+}
+
+EVENTHANDLER OnHotPlug ( EncoderComponent sender, DigEventArgs args )
+{
+  HotPlugFb = args.Payload;
+}
+
+EVENTHANDLER OnConnectionRating ( EncoderComponent sender, SerEventArgs args )
+{
+  ConnectionRatingFb = args.Payload;
+}
+
+EVENTHANDLER OnResAndTiming ( EncoderComponent sender, SerEventArgs args )
+{
+  ResAndTimeFb = args.Payload;
+}
+
+EVENTHANDLER OnColorspace ( EncoderComponent sender, SerEventArgs args )
+{
+  ColorspaceFb = args.Payload;
+}
+
+EVENTHANDLER OnBitdepth ( EncoderComponent sender, SerEventArgs args )
+{
+  BitdepthFb = args.Payload;
+}
+
+EVENTHANDLER OnHdr ( EncoderComponent sender, SerEventArgs args )
+{
+  HdrFb = args.Payload;
+}
+
+EVENTHANDLER OnHdcp ( EncoderComponent sender, SerEventArgs args )
+{
+  HdcpFb = args.Payload;
+}
+
+EVENTHANDLER OnAudioFormat ( EncoderComponent sender, SerEventArgs args )
+{
+  AudioFormatFb = args.Payload;
+}
+
+EVENTHANDLER OnNetworkConnection ( EncoderComponent sender, SerEventArgs args )
+{
+  NetworkConnectionFb = args.Payload;
+}
+
+EVENTHANDLER OnDeviceId ( EncoderComponent sender, SerEventArgs args )
+{
+  DeviceIdFb = args.Payload;
+}
+
+EVENTHANDLER OnMacAddress ( EncoderComponent sender, SerEventArgs args )
+{
+  MacAddressFb = args.Payload;
+}
+
+EVENTHANDLER OnSnapshotUrl ( EncoderComponent sender, SerEventArgs args )
+{
+  SnapshotUrl = args.Payload;
+}
+
+EVENTHANDLER OnSubstreamUrlSmall ( EncoderComponent sender, SerEventArgs args )
+{
+  MJPEGUrlSmall = args.Payload;
+}
+
+EVENTHANDLER OnSubstreamUrlLarge ( EncoderComponent sender, SerEventArgs args )
+{
+  MJPEGUrlLarge = args.Payload;
+}
+
+/*******************************************************************************************
+  EVENT HANDLERS
+*******************************************************************************************/
+
+// --------------------- REBOOT  
+
+THREADSAFE PUSH Reboot
+{
+  encoder.SetReboot();
+}
+
+// --------------------- SCREEN
+
+THREADSAFE PUSH ScreenOn
+{
+  encoder.SetScreenOn();
+}
+
+THREADSAFE PUSH ScreenFlash
+{
+  encoder.SetScreenFlash();
+}
+
+THREADSAFE PUSH ScreenOff
+{
+  encoder.SetScreenOff();
+}
+
+// --------------------- VOLUME
+
+THREADSAFE PUSH VolumeInc
+{
+  encoder.SetVolumeInc();
+}
+
+THREADSAFE PUSH VolumeDec
+{
+  encoder.SetVolumeDec();
+}
+
+THREADSAFE RELEASE VolumeInc
+{
+  encoder.SetVolumeStop();
+}
+
+THREADSAFE RELEASE VolumeDec
+{
+  encoder.SetVolumeStop();
+}
+
+THREADSAFE PUSH VolumeSet
+{
+  encoder.SetVolumeDiscrete(VolumeLevel);
+}
+
+THREADSAFE PUSH MuteOn
+{
+  encoder.SetMuteOn();
+}
+
+THREADSAFE PUSH MuteOff
+{
+  encoder.SetMuteOff();
+}
+
+THREADSAFE PUSH MuteTog
+{
+  encoder.SetMuteTog();
+}
+
+// --------------------- HOT PLUG
+
+THREADSAFE PUSH HotPlugReset
+{
+  encoder.SetHotplugReset();
+}
+        
+// --------------------- AUDIO SOURCE				
+
+THREADSAFE CHANGE AudioSourceSet 
+{
+  encoder.SetAudioSource(AudioSourceSet);
+                                 
+  // Since Audio Source does not provide real/queried feedback, we can use "Last Set" value as the FB value?
+  AudioSourceFb = AudioSourceSet;
+}
+
+// --------------------- EDID				
+
+THREADSAFE CHANGE EdidSet 
+{
+  encoder.SetEdid(EdidSet);
+}
+
+/*******************************************************************************************
+  MAIN
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  WAITFORINITIALIZATIONCOMPLETE();
+	
+  ResetOutputs();
+	
+  REGISTEREVENT(encoder, OnInitialize, OnInitialize);
+  REGISTEREVENT(encoder, OnOnline, OnOnline);
+  REGISTEREVENT(encoder, OnScreen, OnScreen);
+  REGISTEREVENT(encoder, OnVolumeLevel, OnVolumeLevel);
+  REGISTEREVENT(encoder, OnVolumeMute, OnVolumeMute);
+  REGISTEREVENT(encoder, OnEdid, OnEdid);
+  REGISTEREVENT(encoder, OnHotPlug, OnHotPlug);
+  REGISTEREVENT(encoder, OnConnectionRating, OnConnectionRating);
+  REGISTEREVENT(encoder, OnResAndTiming, OnResAndTiming);
+  REGISTEREVENT(encoder, OnColorspace, OnColorspace);
+  REGISTEREVENT(encoder, OnBitdepth, OnBitdepth);
+  REGISTEREVENT(encoder, OnHdr, OnHdr);
+  REGISTEREVENT(encoder, OnHdcp, OnHdcp);
+  REGISTEREVENT(encoder, OnAudioFormat, OnAudioFormat);
+  REGISTEREVENT(encoder, OnNetworkConnection, OnNetworkConnection);	
+  REGISTEREVENT(encoder, OnDeviceId, OnDeviceId);	
+  REGISTEREVENT(encoder, OnMacAddress, OnMacAddress);	
+  REGISTEREVENT(encoder, OnSnapshotUrl, OnSnapshotUrl);	
+  REGISTEREVENT(encoder, OnSubstreamUrlSmall, OnSubstreamUrlSmall);	
+  REGISTEREVENT(encoder, OnSubstreamUrlLarge, OnSubstreamUrlLarge);	
+
+	
+  encoder.Configure(CommandProcessorID, DeviceID, Index);
+}

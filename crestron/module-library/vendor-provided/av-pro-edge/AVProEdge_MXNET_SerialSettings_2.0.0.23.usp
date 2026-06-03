@@ -1,0 +1,122 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+
+
+DIGITAL_INPUT SEND_SETTINGS;
+STRING_OUTPUT SERIAL_SETTINGS;
+
+INTEGER_PARAMETER BAUD, PARITY, DATABITS, STOPBIT, MODEL;
+STRING_PARAMETER IN_NUMS[30], OUT_NUMS[30]; 
+
+  
+string B[10], P[1], D[1], S[1];
+
+STRING_FUNCTION __SWITCH_RANGE(string data)
+{
+  integer start, end, cnt;
+  string formatRange[50], temp[50], temp1[50], range[100];
+
+   range = data;
+
+  if (len(range) = 1)
+    return(range);  
+
+  while (find( "-", range, 1) > 0 || find( ",", range, 1) > 0)
+  {
+    if ( find( ",", range, 1) > 0 ) 
+	  {
+      temp = remove( ",", range, 1 );
+      if ( find( "-", temp, 1) > 0 ) 
+      {
+        temp = left( temp, len( temp ) - 1 );
+        temp1 = remove( "-", temp, 1);
+		    temp1 = left( temp1, len( temp1 ) - 1 );
+		    start = atoi( temp1 ); 
+		    end = atoi( temp ); 
+            for (cnt = start to end - 1 )
+		    {
+          formatRange = formatRange + itoa( cnt ) + ",";
+		    }
+	    } 
+	    else 
+	    { 
+        formatRange = formatRange + temp;
+	    }
+	  }
+    else if (find( "-", range, 1) > 0 ) 
+    {
+      temp1 = remove( "-", range, 1);
+  	  temp1 = left( temp1, len( temp1 ) - 1 );
+	    start = atoi( temp1 ); 
+	    end = atoi( range ); 
+      for (cnt = start to end - 1)
+	    {
+        formatRange = formatRange + itoa( cnt ) + ",";
+	    }
+	  } 
+  }
+  formatRange = formatRange + range;
+  return (formatRange);
+}
+
+PUSH SEND_SETTINGS
+{
+	SERIAL_SETTINGS = "config set device rs232mode 2 INPUT_ALIAS[" + __SWITCH_RANGE(IN_NUMS) + "]OUTPUT_ALIAS[" + __SWITCH_RANGE(OUT_NUMS) + "];";
+	if (MODEL = 1)//MXNet10G
+	{
+		SERIAL_SETTINGS = "config set device rs232setting " + B + " " + D + " " + P + " " + ITOA( STOPBIT ) + " INPUT_ALIAS[" + __SWITCH_RANGE(IN_NUMS) + "]OUTPUT_ALIAS[" + __SWITCH_RANGE(OUT_NUMS) + "];";
+	}	
+	else
+	{
+		SERIAL_SETTINGS = "config set device rs232setting " + B + " " + D + " " + P + " " + ITOA( STOPBIT ) + " 0 INPUT_ALIAS[" + __SWITCH_RANGE(IN_NUMS) + "]OUTPUT_ALIAS[" + __SWITCH_RANGE(OUT_NUMS) + "];";
+	}
+}          
+
+
+Function Main()
+{
+    string dbg[2000];
+    
+
+    if (BAUD = 1)
+      B = "300";
+    else if (BAUD = 2) 
+      B = "1200";
+    else if (BAUD = 3)
+      B = "2400";
+    else if (BAUD = 4)
+      B = "9600";
+    else if (BAUD = 5)
+      B = "19200";
+    else if (BAUD = 6)
+      B = "38400";
+    else if (BAUD = 7)
+      B = "57600";
+    else if (BAUD = 8)
+      B = "115200";
+
+    if (PARITY = 1)
+      P = "0";
+    else if (PARITY = 2) 
+      P = "1";
+    else if (PARITY = 3)
+      P = "2";
+              
+    if (DATABITS = 1)
+      D = "8";
+    else if (DATABITS = 2) 
+      D = "7";
+   
+  WaitForInitializationComplete();
+}
+

@@ -1,0 +1,139 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Analog Value Filter Multi v2"
+#HINT "Change Analog Values Without Heavy Logic"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+#DEFINE_CONSTANT MAXENDPOINTS 32
+//#DEFINE_CONSTANT DEBUG 1
+#DEFINE_CONSTANT MAXIGNORE 5
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+
+INPUTS
+Clear_Output_On_Filter_Matched: this will set Value_Filtered to zero, if this signal is HIGH & Value_To_Filter's current state is within the FilterList.
+		NOTE: THIS TAKES PRECEDENCE OVER NewValueFor[n]. if this signal is HIGH, then the number change wont happen.
+
+Filter_Number: analog value determining the rooms "mode" and which Items should be visible in that mode, based on the paramter list associated with that output
+Value_To_Filter: a number we wish to check for values that could cause trouble if passed. think VTC getting sent as a program audio source
+
+OUTPUTS
+Value_Filtered: the filtered value, which will either change, if using the 
+
+PARAMETERS
+
+Filter_List: a list of values you dont want to get passed to the output(you dont need a delimiter but for readability use commas, i.e 1,2,3,5)
+             NOTE: dont put any values you want to change here. 
+
+NewValueFor[n]: a new value you want to change [n] to.
+	i.e = on a DMPS to select the AirMedia as a video source, you must select 9, however if you want it as an audio source, you must select 14. (stupid i know.)
+		  you would increment the parameter list, until you reach 9, and then enter the value 14 in its field. anytime 9 comes in to this module (provided it is not in the filter list)
+          it will be changed to 14
+	NOTE = use this "" for unused parameters. if you want only certain values to be set to zero use 0d
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Clear_Output_On_Filter_Matched;
+ANALOG_INPUT  _SKIP_, _SKIP_, Value_To_Filter[MAXENDPOINTS];
+
+/*** PARAMTERS ***/
+STRING_PARAMETER  _SKIP_, Filter_List[MAXENDPOINTS], NewValueForZero[3], NewValueFor[MAXENDPOINTS][3];
+
+/*** OUTPUTS ***/
+
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_, Value_Filtered[MAXENDPOINTS];
+
+/*** GLOBAL VARIABLES ***/
+integer inputIsDefined[MAXENDPOINTS];
+integer totalInputs;
+
+/*** FUNCTIONS ***/
+INTEGER_FUNCTION ValueAllowed(integer _state)
+{
+	integer success, item;
+	string 	current[10], disallowed[MAXITEMS];
+
+    //print("current mode: %u -- Item %u is available in modes: %s\n", _mode, _Item, Filter_List[_Item]);
+    disallowed = Filter_List;
+	success = ON;
+
+    while(find(",", disallowed) <> OFF)
+	{
+		//result = find(itoa(_state), Filter_List);
+		current = remove(",", disallowed);
+		current = left(current, len(current) - 1);
+		item = atoi(current);
+		if (item = _state) success = OFF;
+		#IF_DEFINED DEBUG
+			print("current disallowed list item: %d ? input current state: %d", item, _state);
+		#ENDIF
+	}
+	
+	if(len(disallowed) <> OFF)
+	{
+		//result = find(itoa(_state), Filter_List);
+		item = atoi(disallowed);
+		if (item = _state) success = OFF;
+		#IF_DEFINED DEBUG
+			print("current disallowed list item: %d ? input current state: %d", item, _state);
+		#ENDIF
+	}
+
+	//print("find result %u \n", result);
+    
+
+	//if we found the value in our filter list, the value is not allowed, therefore succes = false/OFF
+	//if we didnt find the value in the filter list, then this value is allowed, therefore success = true/ON
+
+	return(success);
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE Value_To_Filter
+{
+	integer iChanged;
+	iChanged = getLastModifiedArrayIndex();
+
+	
+	if(ON = ValueAllowed(Value_To_Filter[iChanged])) 
+	{
+		if(Value_To_Filter[iChanged] <> 0)
+		{
+			if(NewValueFor[Value_To_Filter[iChanged]] <> "")
+			{
+				Value_Filtered[iChanged] = atoi(NewValueFor[Value_To_Filter[iChanged]]);
+			}
+			else
+			{
+				Value_Filtered[iChanged] = Value_To_Filter[iChanged];
+			}
+		}
+		else
+		{
+			if(NewValueForZero <> "")
+			{
+				Value_Filtered[iChanged] = atoi(NewValueForZero);
+			}
+			else
+			{
+				Value_Filtered[iChanged] = Value_To_Filter[iChanged];
+			}
+		}
+	}
+	else
+	{
+		if(ON = Clear_Output_On_Filter_Matched)
+		{
+			Value_Filtered[iChanged] = 0;
+		}
+	}
+}

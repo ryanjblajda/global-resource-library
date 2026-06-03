@@ -1,0 +1,1185 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Sharp PN-E421 v1.0 Processor"
+// #HINT ""
+
+#DEFINE_CONSTANT	ciPower  		1
+#DEFINE_CONSTANT	ciInput  		2
+#DEFINE_CONSTANT	ciAVMode  		3
+#DEFINE_CONSTANT	ciAspect  		4
+#DEFINE_CONSTANT	ciVolumeMute 	5
+#DEFINE_CONSTANT	ciPIPMode  		6
+#DEFINE_CONSTANT	ciPIPSource  	7
+#DEFINE_CONSTANT	ciPIPSound	  	8
+#DEFINE_CONSTANT	ciPIPMainPos	9
+#DEFINE_CONSTANT	ciPBPSubPos 	10
+#DEFINE_CONSTANT	ciDVISelect	  	11
+#DEFINE_CONSTANT	ciBNCSelect	  	12
+#DEFINE_CONSTANT	ciHDMISelect 	13
+#DEFINE_CONSTANT	ciVolume	  	14
+#DEFINE_CONSTANT	ciPIPSize	  	15
+#DEFINE_CONSTANT	ciPIPPosH	  	16
+#DEFINE_CONSTANT	ciPIPPosV	  	17
+#DEFINE_CONSTANT	ciPIPBlend	  	18
+#DEFINE_CONSTANT	ciAuto		  	19
+
+
+#DEFINE_CONSTANT	ciPoll  		30
+#DEFINE_CONSTANT	ciClear 		31
+
+// #CATEGORY "" 
+#DEFAULT_VOLATILE
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #DEFAULT_NONVOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+To be used with the Sharp PN-E421 v1.0.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Response_Timeout, Response_Timeout_2, Auto;
+DIGITAL_INPUT Power[2];
+DIGITAL_INPUT Input[9];
+DIGITAL_INPUT AVMode[3];
+DIGITAL_INPUT Aspect[5];
+DIGITAL_INPUT VolumeMute[2];
+DIGITAL_INPUT PIPMode[4];
+DIGITAL_INPUT PIPSource[9];
+DIGITAL_INPUT PIPSound[2];
+DIGITAL_INPUT PIPMainPos[2];
+DIGITAL_INPUT PBPSubPos[3];
+DIGITAL_INPUT DVISelect[2];
+DIGITAL_INPUT BNCSelect[2];
+DIGITAL_INPUT HDMISelect[2];
+DIGITAL_INPUT Poll[18];
+
+
+// ANALOG_INPUT 
+STRING_INPUT From_Device[25];
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT iWaitingForResponse; 
+ANALOG_OUTPUT Current_Power, Current_Input, Current_AVMode, Current_Aspect, Current_VolumeMute,
+			  Current_PIPMode, Current_PIPSource, Current_PIPSound, Current_PIPMainPos, Current_PBPSubPos,
+			  Current_DVISelect, Current_BNCSelect, Current_HDMISelect, Current_Volume, Current_PIPSize,
+			  Current_PIPPosH, Current_PIPPosV, Current_PIPBlend; 
+STRING_OUTPUT Number$, To_Device; 
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+//INTEGER iWaitingForResponse, iCommand, iValue;
+INTEGER iCommand, iValue, iValueIn, aLoc;
+INTEGER iPowerQueue, iInputQueue, iAVModeQueue, iAspectQueue, iVolumeMuteQueue;
+INTEGER iPIPModeQueue, iPIPSourceQueue, iPIPSoundQueue, iPIPMainPosQueue, iPBPSubPosQueue, iDVISelectQueue, iBNCSelectQueue, iHDMISelectQueue, iAutoQueue, iChannelReqQueue;
+INTEGER iCurrentVolumeQueue, iCurrentPIPSizeQueue, iCurrentPIPPosHQueue, iCurrentPIPPosVQueue, iCurrentPIPBlendQueue, iPollQueue;
+
+INTEGER iPowerSent, iInputSent, iAVModeSent, iAspectSent, iVolumeMuteSent;
+INTEGER iPIPModeSent, iPIPSourceSent, iPIPSoundSent, iPIPMainPosSent, iPBPSubPosSent, iDVISelectSent, iBNCSelectSent, iHDMISelectSent;
+INTEGER I, iPollSent, iSemaphore;
+
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING sToDeviceTemp[10], sFromDeviceTemp[30];
+STRING sNumber[10], sChannelF[9], sChannelR[9], sChannelTemp[30];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+String_Function SendPower(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "POWR   1\x0D";	
+		case(2):
+			sToDeviceTemp = "POWR   0\x0D";
+	}
+	Return (sToDeviceTemp);
+}
+
+
+String_Function SendInput(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "INPS   1\x0D";	
+		case(2):
+			sToDeviceTemp = "INPS   2\x0D";
+		case(3):
+			sToDeviceTemp = "INPS   3\x0D";	
+		case(4):
+			sToDeviceTemp = "INPS   4\x0D";
+		case(5):
+			sToDeviceTemp = "INPS   6\x0D";
+		case(6):
+			sToDeviceTemp = "INPS   7\x0D";
+		case(7):
+			sToDeviceTemp = "INPS   8\x0D";	
+		case(8):
+			sToDeviceTemp = "INPS   9\x0D";	
+		case(9):
+			sToDeviceTemp = "INPS  10\x0D";	
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendAVMode(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "BMOD   0\x0D";	
+		case(2):
+			sToDeviceTemp = "BMOD   2\x0D";
+		case(3):
+			sToDeviceTemp = "BMOD   3\x0D";	
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendAspect(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "WIDE   1\x0D";	
+		case(2):
+			sToDeviceTemp = "WIDE   2\x0D";
+		case(3):
+			sToDeviceTemp = "WIDE   3\x0D";	
+		case(4):
+			sToDeviceTemp = "WIDE   4\x0D";
+		case(5):
+			sToDeviceTemp = "WIDE   5\x0D";
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendVolumeMute(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "MUTE   1\x0D";	
+		case(2):
+			sToDeviceTemp = "MUTE   0\x0D";
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendPIPMode(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "MWIN   0\x0D";	
+		case(2):
+			sToDeviceTemp = "MWIN   1\x0D";	
+		case(3):
+			sToDeviceTemp = "MWIN   2\x0D";	
+		case(4):
+			sToDeviceTemp = "MWIN   3\x0D";	
+
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendPIPSource(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "MWIP   1\x0D";	
+		case(2):
+			sToDeviceTemp = "MWIP   2\x0D";	
+		case(3):
+			sToDeviceTemp = "MWIP   3\x0D";	
+		case(4):
+			sToDeviceTemp = "MWIP   4\x0D";	
+		case(5):
+			sToDeviceTemp = "MWIP   6\x0D";	
+		case(6):
+			sToDeviceTemp = "MWIP   7\x0D";
+		case(7):
+			sToDeviceTemp = "MWIP   8\x0D";	
+		case(8):
+			sToDeviceTemp = "MWIP   9\x0D";	
+		case(9):
+			sToDeviceTemp = "MWIP  10\x0D";	
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendPIPSound(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "MWAD   1\x0D";	
+		case(2):
+			sToDeviceTemp = "MWAD   2\x0D";	
+ 	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendPIPMainPos(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "MWPP   0\x0D";	
+		case(2):
+			sToDeviceTemp = "MWPP   1\x0D";		
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendPBPSubPos(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "MW2P   0\x0D";	
+		case(2):
+			sToDeviceTemp = "MW2P   1\x0D";		
+		case(3):
+			sToDeviceTemp = "MW2P   2\x0D";		
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendDVISelect(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "DVSL   0\x0D";	
+		case(2):
+			sToDeviceTemp = "DVSL   1\x0D";		
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendBNCSelect(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "BNSL   0\x0D";	
+		case(2):
+			sToDeviceTemp = "BNSL   1\x0D";		
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendHDMISelect(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "HDSL   0\x0D";	
+		case(2):
+			sToDeviceTemp = "HDSL   1\x0D";		
+	}
+	Return (sToDeviceTemp);
+}
+
+String_Function SendPoll(INTEGER iValue)
+{
+	switch(iValue)
+	{
+		case(1):
+			sToDeviceTemp = "POWR   ?\x0D";	
+		case(2):
+			sToDeviceTemp = "INPS   ?\x0D";
+		case(3):
+			sToDeviceTemp = "BMOD   ?\x0D";
+		case(4):
+			sToDeviceTemp = "WIDE   ?\x0D";
+		case(5):
+			sToDeviceTemp = "MUTE   ?\x0D";
+		case(6):
+			sToDeviceTemp = "MWIN   ?\x0D";
+		case(7):
+			sToDeviceTemp = "MWIP   ?\x0D";
+		case(8):
+			sToDeviceTemp = "MWAD   ?\x0D";
+		case(9):
+			sToDeviceTemp = "MWPP   ?\x0D";
+		case(10):
+			sToDeviceTemp = "MW2P   ?\x0D";
+		case(11):
+			sToDeviceTemp = "DVSL   ?\x0D";
+		case(12):
+			sToDeviceTemp = "BNSL   ?\x0D";
+		case(13):
+			sToDeviceTemp = "HDSL   ?\x0D";
+		case(14):
+			sToDeviceTemp = "VOLM   ?\x0D";
+		case(15):
+			sToDeviceTemp = "MPSZ   ?\x0D";
+		case(16):
+			sToDeviceTemp = "MHPS   ?\x0D";
+		case(17):
+			sToDeviceTemp = "MVPS   ?\x0D";
+		case(18):
+			sToDeviceTemp = "MWBL   ?\x0D";
+	}
+	Return (sToDeviceTemp);
+}
+
+Function SendCommandQueued()
+{
+	if(iWaitingForResponse = 1 && (iPowerQueue <> 0 || iInputQueue <> 0 || iAVModeQueue <> 0 || iAspectQueue <> 0 || iVolumeMuteQueue <> 0
+								|| iPIPModeQueue <> 0 || iPIPSourceQueue <> 0 || iPIPSoundQueue <> 0 || iPIPMainPosQueue <> 0 || iPBPSubPosQueue <> 0 || iDVISelectQueue <> 0 || iBNCSelectQueue <> 0 || iHDMISelectQueue <> 0))
+	{
+		if(iPowerQueue <> 0)
+		{
+			To_Device = SendPower(iPowerQueue);
+		 	iCommand = ciPower;
+			iPowerSent = iPowerQueue;
+		}
+		else if(iInputQueue <> 0)		
+		{
+			To_Device = SendInput(iInputQueue);
+		 	iCommand = ciInput;
+			iInputSent = iInputQueue;
+		}
+		else if(iAVModeQueue <> 0)		
+		{
+			To_Device = SendAVMode(iAVModeQueue);	   
+		 	iCommand = ciAVMode;
+			iAVModeSent = iAVModeQueue;
+		}
+		else if(iAspectQueue <> 0)		
+		{
+			To_Device = SendAspect(iAspectQueue);	   
+		 	iCommand = ciAspect;
+			iAspectSent = iAspectQueue;
+		}
+		else if(iVolumeMuteQueue <> 0)		
+		{
+			To_Device = SendVolumeMute(iVolumeMuteQueue);	   
+		 	iCommand = ciVolumeMute;
+			iVolumeMuteSent = iVolumeMuteQueue;
+		}
+		else if(iPIPModeQueue <> 0)		
+		{
+			To_Device = SendPIPMode(iPIPModeQueue);	   
+		 	iCommand = ciPIPMode;
+			iPIPModeSent = iPIPModeQueue;
+		}
+		else if(iPIPSourceQueue <> 0)		
+		{
+			To_Device = SendPIPSource(iPIPSourceQueue);	   
+		 	iCommand = ciPIPSource;
+			iPIPSourceSent = iPIPSourceQueue;
+		}
+		else if(iPIPSoundQueue <> 0)		
+		{
+			To_Device = SendPIPSound(iPIPSoundQueue);	   
+		 	iCommand = ciPIPSound;
+			iPIPSoundSent = iPIPSoundQueue;
+		}
+		else if(iPIPMainPosQueue <> 0)		
+		{
+			To_Device = SendPIPMainPos(iPIPMainPosQueue);	   
+		 	iCommand = ciPIPMainPos;
+			iPIPMainPosSent = iPIPMainPosQueue;
+		}
+		else if(iPBPSubPosQueue <> 0)		
+		{
+			To_Device = SendPBPSubPos(iPBPSubPosQueue);	   
+		 	iCommand = ciPBPSubPos;
+			iPBPSubPosSent = iPBPSubPosQueue;
+		}
+		else if(iDVISelectQueue <> 0)		
+		{
+			To_Device = SendDVISelect(iDVISelectQueue);	   
+		 	iCommand = ciDVISelect;
+			iDVISelectSent = iDVISelectQueue;
+		}
+		else if(iBNCSelectQueue <> 0)		
+		{
+			To_Device = SendBNCSelect(iBNCSelectQueue);	   
+		 	iCommand = ciBNCSelect;
+			iBNCSelectSent = iBNCSelectQueue;
+		}
+		else if(iHDMISelectQueue <> 0)		
+		{
+			To_Device = SendHDMISelect(iHDMISelectQueue);	   
+		 	iCommand = ciHDMISelect;
+			iHDMISelectSent = iHDMISelectQueue;
+		}
+	}
+}
+		
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Power
+{
+	iPowerQueue = getlastmodifiedarrayindex();
+	
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendPower(iPowerQueue);
+	 	iCommand = ciPower;
+		iPowerSent = iPowerQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH Input
+{
+	iInputQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendInput(iInputQueue);
+	 	iCommand = ciInput;
+		iInputSent = iInputQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH AVMode
+{
+	iAVModeQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendAVMode(iAVModeQueue);
+	 	iCommand = ciAVMode;
+		iAVModeSent = iAVModeQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH Aspect
+{
+	iAspectQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendAspect(iAspectQueue);
+	 	iCommand = ciAspect;
+		iAspectSent = iAspectQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH VolumeMute
+{
+	iVolumeMuteQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendVolumeMute(iVolumeMuteQueue);
+	 	iCommand = ciVolumeMute;
+		iVolumeMuteSent = iVolumeMuteQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH PIPMode
+{
+	iPIPModeQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendPIPMode(iPIPModeQueue);
+	 	iCommand = ciPIPMode;
+		iPIPModeSent = iPIPModeQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH PIPSource
+{
+	iPIPSourceQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendPIPSource(iPIPSourceQueue);
+	 	iCommand = ciPIPSource;
+		iPIPSourceSent = iPIPSourceQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH PIPSound
+{
+	iPIPSoundQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendPIPSound(iPIPSoundQueue);
+	 	iCommand = ciPIPSound;
+		iPIPSoundSent = iPIPSoundQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH PIPMainPos
+{
+	iPIPMainPosQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendPIPMainPos(iPIPMainPosQueue);
+	 	iCommand = ciPIPMainPos;
+		iPIPMainPosSent = iPIPMainPosQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH PBPSubPos
+{
+	iPBPSubPosQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendPBPSubPos(iPBPSubPosQueue);
+	 	iCommand = ciPBPSubPos;
+		iPBPSubPosSent = iPBPSubPosQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH DVISelect
+{
+	iDVISelectQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendDVISelect(iDVISelectQueue);
+	 	iCommand = ciDVISelect;
+		iDVISelectSent = iDVISelectQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH BNCSelect
+{
+	iBNCSelectQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendBNCSelect(iBNCSelectQueue);
+	 	iCommand = ciBNCSelect;
+		iBNCSelectSent = iBNCSelectQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH HDMISelect
+{
+	iHDMISelectQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendHDMISelect(iHDMISelectQueue);
+	 	iCommand = ciHDMISelect;
+		iHDMISelectSent = iHDMISelectQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH Poll
+{
+	iPollQueue = getlastmodifiedarrayindex();
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = SendPoll(iPollQueue);
+		iCommand = ciPoll;
+		iPollSent = iPollQueue;
+		iWaitingForResponse = 1;
+	}
+}
+
+PUSH Auto
+{
+	iAutoQueue = 1;
+	if(iWaitingForResponse = 0)
+	{
+		To_Device = "AGIN   1\x0D";
+		iCommand = ciAuto;
+		iWaitingForResponse = 1;
+	}
+}
+
+
+CHANGE From_Device
+{
+	if(iSemaphore = 0)
+	{
+		iSemaphore = 1;
+		while(find("\x0D\x0A", From_Device))
+		{
+			sFromDeviceTemp = remove("\x0D\x0A", From_Device);
+
+
+
+			if(find("OK", sFromDeviceTemp))
+			{
+				if(iCommand = ciPower)
+				{
+					Current_Power = iPowerSent;
+					if(Current_Power = iPowerQueue)
+						iPowerQueue = 0;
+				}
+				else if(iCommand = ciInput)
+				{
+					Current_Input = iInputSent;
+					if(Current_Input = iInputQueue)
+						iInputQueue = 0;
+				}
+				else if(iCommand = ciAVMode)
+				{
+					Current_AVMode = iAVModeSent;
+					if(Current_AVMode = iAVModeQueue)
+						iAVModeQueue = 0;
+				}
+				else if(iCommand = ciAspect)
+				{
+					Current_Aspect = iAspectSent;
+					if(Current_Aspect = iAspectQueue)
+						iAspectQueue = 0;
+				}
+				else if(iCommand = ciVolumeMute)
+				{
+					Current_VolumeMute = iVolumeMuteSent;
+					if(Current_VolumeMute = iVolumeMuteQueue)
+						iVolumeMuteQueue = 0;
+				}
+				else if(iCommand = ciPIPMode)
+				{
+					Current_PIPMode = iPIPModeSent;
+					if(Current_PIPMode = iPIPModeQueue)
+						iPIPModeQueue = 0;
+				}
+				else if(iCommand = ciPIPSource)
+				{
+					Current_PIPSource = iPIPSourceSent;
+					if(Current_PIPSource = iPIPSourceQueue)
+						iPIPSourceQueue = 0;
+				}
+				else if(iCommand = ciPIPSound)
+				{
+					Current_PIPSound = iPIPSoundSent;
+					if(Current_PIPSound = iPIPSoundQueue)
+						iPIPSoundQueue = 0;
+				}
+				else if(iCommand = ciPIPMainPos)
+				{
+					Current_PIPMainPos = iPIPMainPosSent;
+					if(Current_PIPMainPos = iPIPMainPosQueue)
+						iPIPMainPosQueue = 0;
+				}
+				else if(iCommand = ciPBPSubPos)
+				{
+					Current_PBPSubPos = iPBPSubPosSent;
+					if(Current_PBPSubPos = iPBPSubPosQueue)
+						iPBPSubPosQueue = 0;
+				}
+				else if(iCommand = ciDVISelect)
+				{
+					Current_DVISelect = iDVISelectSent;
+					if(Current_DVISelect = iDVISelectQueue)
+						iDVISelectQueue = 0;
+				}
+				else if(iCommand = ciBNCSelect)
+				{
+					Current_BNCSelect = iBNCSelectSent;
+					if(Current_BNCSelect = iBNCSelectQueue)
+						iBNCSelectQueue = 0;
+				}
+				else if(iCommand = ciHDMISelect)
+				{
+					Current_HDMISelect = iHDMISelectSent;
+					if(Current_HDMISelect = iHDMISelectQueue)
+						iHDMISelectQueue = 0;
+				}
+				else if(iCommand = ciAuto)
+						iAutoQueue = 0;
+			}					
+			else if(find("ERR\x0D\x0A", sFromDeviceTemp) || find("\xFF\xFF\xFF", sFromDeviceTemp))
+			{
+				if(iCommand = ciPower)
+						iPowerQueue = 0;	
+				else if(iCommand = ciInput)
+						iInputQueue = 0;
+				else if(iCommand = ciAVMode)
+						iAVModeQueue = 0;
+				else if(iCommand = ciAspect)
+						iAspectQueue = 0;
+				else if(iCommand = ciVolumeMute)
+						iVolumeMuteQueue = 0;
+				else if(iCommand = ciPIPMode)
+						iPIPModeQueue = 0;
+				else if(iCommand = ciPIPSource)
+						iPIPSourceQueue = 0;
+				else if(iCommand = ciPIPSound)
+						iPIPSoundQueue = 0;
+				else if(iCommand = ciPIPMainPos)
+						iPIPMainPosQueue = 0;
+				else if(iCommand = ciPBPSubPos)
+						iPBPSubPosQueue = 0;
+				else if(iCommand = ciDVISelect)
+						iDVISelectQueue = 0;
+				else if(iCommand = ciBNCSelect)
+						iBNCSelectQueue = 0;
+				else if(iCommand = ciHDMISelect)
+						iHDMISelectQueue = 0;
+				else if(iCommand = ciAuto)
+						iAutoQueue = 0;
+				else if(iCommand = ciPoll)
+						iPollQueue = 0;
+			}
+			else
+			{
+				iValueIn = atoi(sFromDeviceTemp);
+				if(iPollSent = ciPower)
+				{
+					switch(iValueIn)
+					{
+						case(1):
+							Current_Power = 1;
+						case(0):
+							Current_Power = 2;
+					}
+				}
+				if(iPollSent = ciInput)
+				{
+					switch(iValueIn)
+					{
+						case(1):
+							Current_Input = 1;
+						case(2):
+							Current_Input = 2;
+						case(3):
+							Current_Input = 3;
+						case(4):
+							Current_Input = 4;
+						case(6):
+							Current_Input = 5;
+						case(7):
+							Current_Input = 6;
+						case(8):
+							Current_Input = 7;
+						case(9):
+							Current_Input = 8;
+						case(10):
+							Current_Input = 9;
+					}
+				}
+				if(iPollSent = ciAVMode)
+				{
+					switch(iValueIn)
+					{
+						case(0):
+							Current_AVMode = 1;
+						case(2):
+							Current_AVMode = 2;
+						case(3):
+							Current_AVMode = 3;
+					}	
+				}
+				if(iPollSent = ciAspect)
+				{
+					switch(iValueIn)
+					{
+						case(1):
+							Current_Aspect = 1;
+						case(2):
+							Current_Aspect = 2;
+						case(3):
+							Current_Aspect = 3;
+						case(4):
+							Current_Aspect = 4;
+						case(5):
+							Current_Aspect = 5;
+					}
+				}
+				if(iPollSent = ciVolumeMute)
+				{
+					switch(iValueIn)
+					{
+						case(1):
+							Current_VolumeMute = 1;
+						case(0):
+							Current_VolumeMute = 2;
+					}	
+				}
+				if(iPollSent = ciPIPMode)
+				{
+					switch(iValueIn)
+					{
+						case(0):
+							Current_PIPMode = 1;
+						case(1):
+							Current_PIPMode = 2;
+						case(2):
+							Current_PIPMode = 3;
+						case(3):
+							Current_PIPMode = 4;
+					}
+				}
+				if(iPollSent = ciPIPSource)
+				{
+					switch(iValueIn)
+					{
+						case(1):
+							Current_PIPSource = 1;
+						case(2):
+							Current_PIPSource = 2;
+						case(3):
+							Current_PIPSource = 3;
+						case(4):
+							Current_PIPSource = 4;
+						case(6):
+							Current_PIPSource = 5;
+						case(7):
+							Current_PIPSource = 6;
+						case(8):
+							Current_PIPSource = 7;
+						case(9):
+							Current_PIPSource = 8;
+						case(10):
+							Current_PIPSource = 9;
+					}
+				}
+				if(iPollSent = ciPIPSound)
+				{
+					switch(iValueIn)
+					{
+						case(1):
+							Current_PIPSound = 1;
+						case(2):
+							Current_PIPSound = 2;
+					}
+				}
+				if(iPollSent = ciPIPMainPos)
+				{
+					switch(iValueIn)
+					{
+						case(0):
+							Current_PIPMainPos = 1;
+						case(1):
+							Current_PIPMainPos = 2;
+					}
+				}
+				if(iPollSent = ciPBPSubPos)
+				{
+					switch(iValueIn)
+					{
+						case(1):
+							Current_PBPSubPos = 1;
+						case(2):
+							Current_PBPSubPos = 2;
+					}
+				}
+				if(iPollSent = ciDVISelect)
+				{
+					switch(iValueIn)
+					{
+						case(0):
+							Current_DVISelect = 1;
+						case(1):
+							Current_DVISelect = 2;
+					}
+				}
+				if(iPollSent = ciBNCSelect)
+				{
+					switch(iValueIn)
+					{
+						case(0):
+							Current_BNCSelect = 1;
+						case(1):
+							Current_BNCSelect = 2;
+					}
+				}
+				if(iPollSent = ciHDMISelect)
+				{
+					switch(iValueIn)
+					{
+						case(0):
+							Current_HDMISelect = 1;
+						case(1):
+							Current_HDMISelect = 2;
+					}
+				}
+				if(iPollSent = ciVolume)
+				{
+					Current_Volume = iValueIn;
+				}
+				if(iPollSent = ciPIPSize)
+				{
+					Current_PIPSize = iValueIn;
+				}
+				if(iPollSent = ciPIPPosH)
+				{
+					Current_PIPPosH = iValueIn;
+				}
+				if(iPollSent = ciPIPPosV)
+				{
+					Current_PIPPosV = iValueIn;
+				}
+				if(iPollSent = ciPIPBlend)
+				{
+					Current_PIPBlend = iValueIn;
+				}
+			}
+			if(iWaitingForResponse = 1 && find("WAIT", sFromDeviceTemp) = 0 && (iPowerQueue <> 0 || iInputQueue <> 0 || iAVModeQueue <> 0 || iAspectQueue <> 0 || iVolumeMuteQueue <> 0
+										|| iPIPModeQueue <> 0 || iPIPSourceQueue <> 0 || iPIPSoundQueue <> 0 || iPIPMainPosQueue <> 0 || iPBPSubPosQueue <> 0 || iDVISelectQueue <> 0
+										|| iBNCSelectQueue <> 0 || iHDMISelectQueue <> 0 || iAutoQueue <> 0 ))
+		
+			{
+				if(iPowerQueue <> 0)
+				{
+					To_Device = SendPower(iPowerQueue);
+				 	iCommand = ciPower;
+					iPowerSent = iPowerQueue;
+				}
+				else if(iInputQueue <> 0)		
+				{
+					To_Device = SendInput(iInputQueue);
+				 	iCommand = ciInput;
+					iInputSent = iInputQueue;
+				}
+				else if(iAVModeQueue <> 0)		
+				{
+					To_Device = SendAVMode(iAVModeQueue);	   
+				 	iCommand = ciAVMode;
+					iAVModeSent = iAVModeQueue;
+				}
+				else if(iAspectQueue <> 0)		
+				{
+					To_Device = SendAspect(iAspectQueue);	   
+				 	iCommand = ciAspect;
+					iAspectSent = iAspectQueue;
+				}
+				else if(iVolumeMuteQueue <> 0)		
+				{
+					To_Device = SendVolumeMute(iVolumeMuteQueue);	   
+				 	iCommand = ciVolumeMute;
+					iVolumeMuteSent = iVolumeMuteQueue;
+				}
+				else if(iPIPModeQueue <> 0)		
+				{
+					To_Device = SendPIPMode(iPIPModeQueue);	   
+				 	iCommand = ciPIPMode;
+					iPIPModeSent = iPIPModeQueue;
+				}
+				else if(iPIPSourceQueue <> 0)		
+				{
+					To_Device = SendPIPSource(iPIPSourceQueue);	   
+				 	iCommand = ciPIPSource;
+					iPIPSourceSent = iPIPSourceQueue;
+				}
+				else if(iPIPSoundQueue <> 0)		
+				{
+					To_Device = SendPIPSound(iPIPSoundQueue);	   
+				 	iCommand = ciPIPSound;
+					iPIPSoundSent = iPIPSoundQueue;
+				}
+				else if(iPIPMainPosQueue <> 0)		
+				{
+					To_Device = SendPIPMainPos(iPIPMainPosQueue);	   
+				 	iCommand = ciPIPMainPos;
+					iPIPMainPosSent = iPIPMainPosQueue;
+				}	
+				else if(iPBPSubPosQueue <> 0)		
+				{
+					To_Device = SendPBPSubPos(iPBPSubPosQueue);	   
+				 	iCommand = ciPBPSubPos;
+					iPBPSubPosSent = iPBPSubPosQueue;
+				}
+				else if(iDVISelectQueue <> 0)		
+				{
+					To_Device = SendDVISelect(iDVISelectQueue);	   
+				 	iCommand = ciDVISelect;
+					iDVISelectSent = iDVISelectQueue;
+				}
+				else if(iBNCSelectQueue <> 0)		
+				{
+					To_Device = SendBNCSelect(iBNCSelectQueue);	   
+				 	iCommand = ciBNCSelect;
+					iBNCSelectSent = iBNCSelectQueue;
+				}
+				else if(iHDMISelectQueue <> 0)		
+				{
+					To_Device = SendHDMISelect(iHDMISelectQueue);	   
+				 	iCommand = ciHDMISelect;
+					iHDMISelectSent = iHDMISelectQueue;
+				}
+				else if(iAutoQueue <> 0)		
+				{
+					To_Device = "ACHA   1\x0D";
+			 	 	iCommand = ciAuto;
+				}	
+			}
+			else
+				iWaitingForResponse = 0;
+			iPollSent = ciClear;
+		}
+		iSemaphore = 0;
+ 	}
+}
+
+PUSH Response_Timeout
+{
+	if(iWaitingForResponse = 1 && (iPowerQueue <> 0 || iInputQueue <> 0 || iAVModeQueue <> 0 || iAspectQueue <> 0 || iVolumeMuteQueue <> 0
+								|| iPIPModeQueue <> 0 || iPIPSourceQueue <> 0 || iPIPSoundQueue <> 0 || iPIPMainPosQueue <> 0 || iPBPSubPosQueue <> 0 
+								|| iDVISelectQueue <> 0 || iBNCSelectQueue <> 0 || iHDMISelectQueue <> 0 || iAutoQueue <> 0 ))
+                                                                                                                                                      
+	{
+		if(iPowerQueue <> 0)
+		{
+			To_Device = SendPower(iPowerQueue);
+		 	iCommand = ciPower;
+			iPowerSent = iPowerQueue;
+		}
+		else if(iInputQueue <> 0)		
+		{
+			To_Device = SendInput(iInputQueue);
+		 	iCommand = ciInput;
+			iInputSent = iInputQueue;
+		}
+		else if(iAVModeQueue <> 0)		
+		{
+			To_Device = SendAVMode(iAVModeQueue);	   
+		 	iCommand = ciAVMode;
+			iAVModeSent = iAVModeQueue;
+		}
+		else if(iAspectQueue <> 0)		
+		{
+			To_Device = SendAspect(iAspectQueue);	   
+		 	iCommand = ciAspect;
+			iAspectSent = iAspectQueue;
+		}
+		else if(iVolumeMuteQueue <> 0)		
+		{
+			To_Device = SendVolumeMute(iVolumeMuteQueue);	   
+		 	iCommand = ciVolumeMute;
+			iVolumeMuteSent = iVolumeMuteQueue;
+		}
+		else if(iPIPModeQueue <> 0)		
+		{
+			To_Device = SendPIPMode(iPIPModeQueue);	   
+		 	iCommand = ciPIPMode;
+			iPIPModeSent = iPIPModeQueue;
+		}
+		else if(iPIPSourceQueue <> 0)		
+		{
+			To_Device = SendPIPSource(iPIPSourceQueue);	   
+		 	iCommand = ciPIPSource;
+			iPIPSourceSent = iPIPSourceQueue;
+		}
+		else if(iPIPSoundQueue <> 0)		
+		{
+			To_Device = SendPIPSound(iPIPSoundQueue);	   
+		 	iCommand = ciPIPSound;
+			iPIPSoundSent = iPIPSoundQueue;
+		}
+		else if(iPIPMainPosQueue <> 0)		
+		{
+			To_Device = SendPIPMainPos(iPIPMainPosQueue);	   
+		 	iCommand = ciPIPMainPos;
+			iPIPMainPosSent = iPIPMainPosQueue;
+		}
+		else if(iPBPSubPosQueue <> 0)		
+		{
+			To_Device = SendPBPSubPos(iPBPSubPosQueue);	   
+		 	iCommand = ciPBPSubPos;
+			iPBPSubPosSent = iPBPSubPosQueue;
+		}
+		else if(iDVISelectQueue <> 0)		
+		{
+			To_Device = SendDVISelect(iDVISelectQueue);	   
+		 	iCommand = ciDVISelect;
+			iDVISelectSent = iDVISelectQueue;
+		}
+		else if(iBNCSelectQueue <> 0)		
+		{
+			To_Device = SendBNCSelect(iBNCSelectQueue);	   
+		 	iCommand = ciBNCSelect;
+			iBNCSelectSent = iBNCSelectQueue;
+		}
+		else if(iHDMISelectQueue <> 0)		
+		{
+			To_Device = SendHDMISelect(iHDMISelectQueue);	   
+		 	iCommand = ciHDMISelect;
+			iHDMISelectSent = iHDMISelectQueue;
+		}
+		else if(iAutoQueue <> 0)		
+		{
+			To_Device = "ACHA1   \x0D";
+	 	 	iCommand = ciAuto;
+		}
+	}
+	else
+		iWaitingForResponse = 0;
+	iPollSent = ciClear;
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	iWaitingForResponse = 0;
+	iPowerQueue = 0;
+    iInputQueue = 0;
+    iAVModeQueue = 0;
+    iAspectQueue = 0;
+    iVolumeMuteQueue = 0;
+    iPIPModeQueue = 0;
+    iPIPSourceQueue = 0;
+	iPIPSoundQueue = 0;
+	iPIPMainPosQueue = 0;
+	iPBPSubPosQueue = 0;
+	iDVISelectQueue = 0;
+	iBNCSelectQueue = 0;
+	iHDMISelectQueue = 0;
+}
+
+
+

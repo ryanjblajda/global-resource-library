@@ -1,0 +1,4205 @@
+[
+Version=1
+]
+[
+ObjTp=FSgntr
+Sgntr=UserMacro
+RelVrs=4.30.01
+IntStrVrs=2
+MinSMWVrs=4.14.0
+MinTIOVrs=0
+SavedBy=SMW4.03.20
+]
+[
+ObjTp=Hd
+S0Nd=1
+S1Nd=2
+SLNd=3
+PrNm=MiddleAtlantic RackLinkSelect v2.0.umc
+DbVr=228.20.002.00
+DvcDbVr=200.415.001.00
+PgmNm=JJM
+CltNm=MiddleAtlantic RackLinkSelect v2.0
+Incl=6089,6101,6114,6136,6343,6356,6357,6423,8939,8943,17537,17561,
+McNm=MiddleAtlantic RackLinkSelect v2.0
+SmVr=1224
+DvVr=1224
+TpN1=1
+TpN2=2
+TpN3=3
+TpN4=4
+TpN5=5
+PdfHelp=Middle Atlantic RackLink Select v2.0 Help.pdf
+APg=1
+FltTmp=1
+FpCS=0
+EnType=0
+ZeroOnIoOk=0
+SGMethod=1
+]
+[
+ObjTp=Bk
+Nm1=\
+Sx1=0
+Sy1=0
+Mx1=0
+]
+[
+ObjTp=Bw
+H=1
+Lx=0
+Ly=0
+Rx=1387
+Ry=953
+Xm=-1
+Ym=-1
+SH=64
+Z=100
+P=2608
+Ht=1
+Hi=1
+]
+[
+ObjTp=Symbol
+Name=MiddleAtlantic RackLinkSelect v2.0
+Code=1
+SmplCName=MiddleAtlantic RackLinkSelect v2.0.umc
+Smpl-C=3
+CompilerTimePrecision=Single_Or_Double_Precision
+Exclusions=1,19,20,21,88,89,167,168,179,216,225,248,249,266,302,305,213,214,215,217,226,267,310,362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,718,756,767,830,841,842,854,883,955,1032,1062,1079,1128,1129,1134,1140,1157,1158,1195,1199,1220,1221,1222,1223,1299,1348,1349,1439,1472,1473,1499,1746,1766,1803,1975,2229,2354,2514,2523,2532,2567,2574,2590,2651,2655,2706,2707,2817,2886,2938,2947,3181,3197,3233,3235,3236,3427,3454,3567,3568,3601,3602,3680,3682,3706,3708,3710,3735,3736,3816,3888,3902,3903,3912,3918,3925,3926,4176,4193,4206,4207,4308,4476,4591,4769,5360,5388,5420,5455,5497,5699,5813,5919,6150,6161,
+Hint=MiddleAtlantic RackLinkSelect v2.0
+SMWRev=4.14.0
+TIORev=0
+S+=1
+HelpID=1055
+PdfHelp=Middle Atlantic RackLink Select v2.0 Help.pdf
+APg=1
+StdCmd=0
+FltTmp=1
+FpCS=0
+NumFixedInputs=145
+NumFixedOutputs=145
+NumFixedParams=4
+MinVariableInputs=0
+MinVariableInputsList2=0
+MinVariableInputsList3=0
+MinVariableOutputs=0
+MinVariableOutputsList2=0
+MinVariableOutputsList3=0
+MinVariableParams=0
+SymbolTree=46
+UserSymTreeName=Power
+InputSigType1=Digital
+InputSigType2=Digital
+InputSigType3=Digital
+InputSigType4=Digital|Analog|Serial|String
+InputSigType5=Digital|Analog|Serial|String
+InputSigType6=Digital|Analog|Serial|String
+InputSigType7=Digital|Analog|Serial|String
+InputSigType8=Digital|Analog|Serial|String
+InputSigType9=Digital|Analog|Serial|String
+InputSigType10=Digital|Analog|Serial|String
+InputSigType11=Digital
+InputSigType12=Digital
+InputSigType13=Digital
+InputSigType14=Serial
+InputSigType15=Digital|Analog|Serial|String
+InputSigType16=Digital|Analog|Serial|String
+InputSigType17=Digital|Analog|Serial|String
+InputSigType18=Digital|Analog|Serial|String
+InputSigType19=Digital
+InputSigType20=Digital
+InputSigType21=Digital
+InputSigType22=Serial
+InputSigType23=Digital|Analog|Serial|String
+InputSigType24=Digital|Analog|Serial|String
+InputSigType25=Digital|Analog|Serial|String
+InputSigType26=Digital|Analog|Serial|String
+InputSigType27=Digital
+InputSigType28=Digital
+InputSigType29=Digital
+InputSigType30=Serial
+InputSigType31=Digital|Analog|Serial|String
+InputSigType32=Digital|Analog|Serial|String
+InputSigType33=Digital|Analog|Serial|String
+InputSigType34=Digital|Analog|Serial|String
+InputSigType35=Digital
+InputSigType36=Digital
+InputSigType37=Digital
+InputSigType38=Serial
+InputSigType39=Digital|Analog|Serial|String
+InputSigType40=Digital|Analog|Serial|String
+InputSigType41=Digital|Analog|Serial|String
+InputSigType42=Digital|Analog|Serial|String
+InputSigType43=Digital
+InputSigType44=Digital
+InputSigType45=Digital
+InputSigType46=Serial
+InputSigType47=Digital|Analog|Serial|String
+InputSigType48=Digital|Analog|Serial|String
+InputSigType49=Digital|Analog|Serial|String
+InputSigType50=Digital|Analog|Serial|String
+InputSigType51=Digital
+InputSigType52=Digital
+InputSigType53=Digital
+InputSigType54=Serial
+InputSigType55=Digital|Analog|Serial|String
+InputSigType56=Digital|Analog|Serial|String
+InputSigType57=Digital|Analog|Serial|String
+InputSigType58=Digital|Analog|Serial|String
+InputSigType59=Digital
+InputSigType60=Digital
+InputSigType61=Digital
+InputSigType62=Serial
+InputSigType63=Digital|Analog|Serial|String
+InputSigType64=Digital|Analog|Serial|String
+InputSigType65=Digital|Analog|Serial|String
+InputSigType66=Digital|Analog|Serial|String
+InputSigType67=Digital
+InputSigType68=Digital
+InputSigType69=Digital
+InputSigType70=Serial
+InputSigType71=Digital|Analog|Serial|String
+InputSigType72=Digital|Analog|Serial|String
+InputSigType73=Digital|Analog|Serial|String
+InputSigType74=Digital|Analog|Serial|String
+InputSigType75=Digital
+InputSigType76=Digital
+InputSigType77=Digital
+InputSigType78=Serial
+InputSigType79=Digital|Analog|Serial|String
+InputSigType80=Digital|Analog|Serial|String
+InputSigType81=Digital|Analog|Serial|String
+InputSigType82=Digital|Analog|Serial|String
+InputSigType83=Digital
+InputSigType84=Digital
+InputSigType85=Digital
+InputSigType86=Serial
+InputSigType87=Digital|Analog|Serial|String
+InputSigType88=Digital|Analog|Serial|String
+InputSigType89=Digital|Analog|Serial|String
+InputSigType90=Digital|Analog|Serial|String
+InputSigType91=Digital
+InputSigType92=Digital
+InputSigType93=Digital
+InputSigType94=Serial
+InputSigType95=Digital|Analog|Serial|String
+InputSigType96=Digital|Analog|Serial|String
+InputSigType97=Digital|Analog|Serial|String
+InputSigType98=Digital|Analog|Serial|String
+InputSigType99=Digital
+InputSigType100=Digital
+InputSigType101=Digital
+InputSigType102=Serial
+InputSigType103=Digital|Analog|Serial|String
+InputSigType104=Digital|Analog|Serial|String
+InputSigType105=Digital|Analog|Serial|String
+InputSigType106=Digital|Analog|Serial|String
+InputSigType107=Digital
+InputSigType108=Digital
+InputSigType109=Digital
+InputSigType110=Serial
+InputSigType111=Digital|Analog|Serial|String
+InputSigType112=Digital|Analog|Serial|String
+InputSigType113=Digital|Analog|Serial|String
+InputSigType114=Digital|Analog|Serial|String
+InputSigType115=Digital
+InputSigType116=Digital
+InputSigType117=Digital
+InputSigType118=Serial
+InputSigType119=Digital|Analog|Serial|String
+InputSigType120=Digital|Analog|Serial|String
+InputSigType121=Digital|Analog|Serial|String
+InputSigType122=Digital|Analog|Serial|String
+InputSigType123=Digital
+InputSigType124=Digital
+InputSigType125=Digital
+InputSigType126=Serial
+InputSigType127=Digital|Analog|Serial|String
+InputSigType128=Digital|Analog|Serial|String
+InputSigType129=Digital|Analog|Serial|String
+InputSigType130=Digital|Analog|Serial|String
+InputSigType131=Digital
+InputSigType132=Digital
+InputSigType133=Digital
+InputSigType134=Serial
+InputSigType135=Digital|Analog|Serial|String
+InputSigType136=Digital|Analog|Serial|String
+InputSigType137=Digital|Analog|Serial|String
+InputSigType138=Digital|Analog|Serial|String
+InputSigType139=Analog
+InputSigType140=Digital|Analog|Serial|String
+InputSigType141=Digital|Analog|Serial|String
+InputSigType142=Digital
+InputSigType143=Digital
+InputSigType144=Analog
+InputSigType145=Digital|Analog|Serial|String
+OutputSigType1=Digital
+OutputSigType2=Digital
+OutputSigType3=Digital|Analog|Serial|String
+OutputSigType4=Digital|Analog|Serial|String
+OutputSigType5=Serial
+OutputSigType6=Serial
+OutputSigType7=Serial
+OutputSigType8=Serial
+OutputSigType9=Digital|Analog|Serial|String
+OutputSigType10=Digital|Analog|Serial|String
+OutputSigType11=Digital
+OutputSigType12=Digital
+OutputSigType13=Digital|Analog|Serial|String
+OutputSigType14=Serial
+OutputSigType15=Digital
+OutputSigType16=Digital
+OutputSigType17=Digital|Analog|Serial|String
+OutputSigType18=Digital|Analog|Serial|String
+OutputSigType19=Digital
+OutputSigType20=Digital
+OutputSigType21=Digital|Analog|Serial|String
+OutputSigType22=Serial
+OutputSigType23=Digital
+OutputSigType24=Digital
+OutputSigType25=Digital|Analog|Serial|String
+OutputSigType26=Digital|Analog|Serial|String
+OutputSigType27=Digital
+OutputSigType28=Digital
+OutputSigType29=Digital|Analog|Serial|String
+OutputSigType30=Serial
+OutputSigType31=Digital
+OutputSigType32=Digital
+OutputSigType33=Digital|Analog|Serial|String
+OutputSigType34=Digital|Analog|Serial|String
+OutputSigType35=Digital
+OutputSigType36=Digital
+OutputSigType37=Digital|Analog|Serial|String
+OutputSigType38=Serial
+OutputSigType39=Digital
+OutputSigType40=Digital
+OutputSigType41=Digital|Analog|Serial|String
+OutputSigType42=Digital|Analog|Serial|String
+OutputSigType43=Digital
+OutputSigType44=Digital
+OutputSigType45=Digital|Analog|Serial|String
+OutputSigType46=Serial
+OutputSigType47=Digital
+OutputSigType48=Digital
+OutputSigType49=Digital|Analog|Serial|String
+OutputSigType50=Digital|Analog|Serial|String
+OutputSigType51=Digital
+OutputSigType52=Digital
+OutputSigType53=Digital|Analog|Serial|String
+OutputSigType54=Serial
+OutputSigType55=Digital
+OutputSigType56=Digital
+OutputSigType57=Digital|Analog|Serial|String
+OutputSigType58=Digital|Analog|Serial|String
+OutputSigType59=Digital
+OutputSigType60=Digital
+OutputSigType61=Digital|Analog|Serial|String
+OutputSigType62=Serial
+OutputSigType63=Digital
+OutputSigType64=Digital
+OutputSigType65=Digital|Analog|Serial|String
+OutputSigType66=Digital|Analog|Serial|String
+OutputSigType67=Digital
+OutputSigType68=Digital
+OutputSigType69=Digital|Analog|Serial|String
+OutputSigType70=Serial
+OutputSigType71=Digital
+OutputSigType72=Digital
+OutputSigType73=Digital|Analog|Serial|String
+OutputSigType74=Digital|Analog|Serial|String
+OutputSigType75=Digital
+OutputSigType76=Digital
+OutputSigType77=Digital|Analog|Serial|String
+OutputSigType78=Serial
+OutputSigType79=Digital
+OutputSigType80=Digital
+OutputSigType81=Digital|Analog|Serial|String
+OutputSigType82=Digital|Analog|Serial|String
+OutputSigType83=Digital
+OutputSigType84=Digital
+OutputSigType85=Digital|Analog|Serial|String
+OutputSigType86=Serial
+OutputSigType87=Digital
+OutputSigType88=Digital
+OutputSigType89=Digital|Analog|Serial|String
+OutputSigType90=Digital|Analog|Serial|String
+OutputSigType91=Digital
+OutputSigType92=Digital
+OutputSigType93=Digital|Analog|Serial|String
+OutputSigType94=Serial
+OutputSigType95=Digital
+OutputSigType96=Digital
+OutputSigType97=Digital|Analog|Serial|String
+OutputSigType98=Digital|Analog|Serial|String
+OutputSigType99=Digital
+OutputSigType100=Digital
+OutputSigType101=Digital|Analog|Serial|String
+OutputSigType102=Serial
+OutputSigType103=Digital
+OutputSigType104=Digital
+OutputSigType105=Digital|Analog|Serial|String
+OutputSigType106=Digital|Analog|Serial|String
+OutputSigType107=Digital
+OutputSigType108=Digital
+OutputSigType109=Digital|Analog|Serial|String
+OutputSigType110=Serial
+OutputSigType111=Digital
+OutputSigType112=Digital
+OutputSigType113=Digital|Analog|Serial|String
+OutputSigType114=Digital|Analog|Serial|String
+OutputSigType115=Digital
+OutputSigType116=Digital
+OutputSigType117=Digital|Analog|Serial|String
+OutputSigType118=Serial
+OutputSigType119=Digital
+OutputSigType120=Digital
+OutputSigType121=Digital|Analog|Serial|String
+OutputSigType122=Digital|Analog|Serial|String
+OutputSigType123=Digital
+OutputSigType124=Digital
+OutputSigType125=Digital|Analog|Serial|String
+OutputSigType126=Serial
+OutputSigType127=Digital
+OutputSigType128=Digital
+OutputSigType129=Digital|Analog|Serial|String
+OutputSigType130=Digital|Analog|Serial|String
+OutputSigType131=Digital
+OutputSigType132=Digital
+OutputSigType133=Digital|Analog|Serial|String
+OutputSigType134=Serial
+OutputSigType135=Digital
+OutputSigType136=Digital
+OutputSigType137=Digital|Analog|Serial|String
+OutputSigType138=Digital|Analog|Serial|String
+OutputSigType139=Digital|Analog|Serial|String
+OutputSigType140=Digital|Analog|Serial|String
+OutputSigType141=Digital|Analog|Serial|String
+OutputSigType142=Digital
+OutputSigType143=Digital
+OutputSigType144=Serial
+OutputSigType145=Digital|Analog|Serial|String
+ParamSigType1=List
+ParamSigType2=String
+ParamSigType3=String
+ParamSigType4=String
+InputCue1=Connect
+InputCue2=Disconnect
+InputCue3=Debug_Enable
+InputCue4=[~BeginGroup~]Product_Info
+InputCue5=[~UNUSED~]
+InputCue6=[~UNUSED~]
+InputCue7=[~UNUSED~]
+InputCue8=[~UNUSED~]
+InputCue9=[~EndGroup~]Product_Info
+InputCue10=[~BeginGroup~]Outlet_01
+InputCue11=Outlet_01_Power_On
+InputCue12=Outlet_01_Power_Off
+InputCue13=Outlet_01_Power_Cycle
+InputCue14=Set_Outlet_01_Name
+InputCue15=[~UNUSED~]
+InputCue16=[~UNUSED~]
+InputCue17=[~EndGroup~]Outlet_01
+InputCue18=[~BeginGroup~]Outlet_02
+InputCue19=Outlet_02_Power_On
+InputCue20=Outlet_02_Power_Off
+InputCue21=Outlet_02_Power_Cycle
+InputCue22=Set_Outlet_02_Name
+InputCue23=[~UNUSED~]
+InputCue24=[~UNUSED~]
+InputCue25=[~EndGroup~]Outlet_02
+InputCue26=[~BeginGroup~]Outlet_03
+InputCue27=Outlet_03_Power_On
+InputCue28=Outlet_03_Power_Off
+InputCue29=Outlet_03_Power_Cycle
+InputCue30=Set_Outlet_03_Name
+InputCue31=[~UNUSED~]
+InputCue32=[~UNUSED~]
+InputCue33=[~EndGroup~]Outlet_03
+InputCue34=[~BeginGroup~]Outlet_04
+InputCue35=Outlet_04_Power_On
+InputCue36=Outlet_04_Power_Off
+InputCue37=Outlet_04_Power_Cycle
+InputCue38=Set_Outlet_04_Name
+InputCue39=[~UNUSED~]
+InputCue40=[~UNUSED~]
+InputCue41=[~EndGroup~]Outlet_04
+InputCue42=[~BeginGroup~]Outlet_05
+InputCue43=Outlet_05_Power_On
+InputCue44=Outlet_05_Power_Off
+InputCue45=Outlet_05_Power_Cycle
+InputCue46=Set_Outlet_05_Name
+InputCue47=[~UNUSED~]
+InputCue48=[~UNUSED~]
+InputCue49=[~EndGroup~]Outlet_05
+InputCue50=[~BeginGroup~]Outlet_06
+InputCue51=Outlet_06_Power_On
+InputCue52=Outlet_06_Power_Off
+InputCue53=Outlet_06_Power_Cycle
+InputCue54=Set_Outlet_06_Name
+InputCue55=[~UNUSED~]
+InputCue56=[~UNUSED~]
+InputCue57=[~EndGroup~]Outlet_06
+InputCue58=[~BeginGroup~]Outlet_07
+InputCue59=Outlet_07_Power_On
+InputCue60=Outlet_07_Power_Off
+InputCue61=Outlet_07_Power_Cycle
+InputCue62=Set_Outlet_07_Name
+InputCue63=[~UNUSED~]
+InputCue64=[~UNUSED~]
+InputCue65=[~EndGroup~]Outlet_07
+InputCue66=[~BeginGroup~]Outlet_08
+InputCue67=Outlet_08_Power_On
+InputCue68=Outlet_08_Power_Off
+InputCue69=Outlet_08_Power_Cycle
+InputCue70=Set_Outlet_08_Name
+InputCue71=[~UNUSED~]
+InputCue72=[~UNUSED~]
+InputCue73=[~EndGroup~]Outlet_08
+InputCue74=[~BeginGroup~]Outlet_09
+InputCue75=Outlet_09_Power_On
+InputCue76=Outlet_09_Power_Off
+InputCue77=Outlet_09_Power_Cycle
+InputCue78=Set_Outlet_09_Name
+InputCue79=[~UNUSED~]
+InputCue80=[~UNUSED~]
+InputCue81=[~EndGroup~]Outlet_09
+InputCue82=[~BeginGroup~]Outlet_10
+InputCue83=Outlet_10_Power_On
+InputCue84=Outlet_10_Power_Off
+InputCue85=Outlet_10_Power_Cycle
+InputCue86=Set_Outlet_10_Name
+InputCue87=[~UNUSED~]
+InputCue88=[~UNUSED~]
+InputCue89=[~EndGroup~]Outlet_10
+InputCue90=[~BeginGroup~]Outlet_11
+InputCue91=Outlet_11_Power_On
+InputCue92=Outlet_11_Power_Off
+InputCue93=Outlet_11_Power_Cycle
+InputCue94=Set_Outlet_11_Name
+InputCue95=[~UNUSED~]
+InputCue96=[~UNUSED~]
+InputCue97=[~EndGroup~]Outlet_11
+InputCue98=[~BeginGroup~]Outlet_12
+InputCue99=Outlet_12_Power_On
+InputCue100=Outlet_12_Power_Off
+InputCue101=Outlet_12_Power_Cycle
+InputCue102=Set_Outlet_12_Name
+InputCue103=[~UNUSED~]
+InputCue104=[~UNUSED~]
+InputCue105=[~EndGroup~]Outlet_12
+InputCue106=[~BeginGroup~]Outlet_13
+InputCue107=Outlet_13_Power_On
+InputCue108=Outlet_13_Power_Off
+InputCue109=Outlet_13_Power_Cycle
+InputCue110=Set_Outlet_13_Name
+InputCue111=[~UNUSED~]
+InputCue112=[~UNUSED~]
+InputCue113=[~EndGroup~]Outlet_13
+InputCue114=[~BeginGroup~]Outlet_14
+InputCue115=Outlet_14_Power_On
+InputCue116=Outlet_14_Power_Off
+InputCue117=Outlet_14_Power_Cycle
+InputCue118=Set_Outlet_14_Name
+InputCue119=[~UNUSED~]
+InputCue120=[~UNUSED~]
+InputCue121=[~EndGroup~]Outlet_14
+InputCue122=[~BeginGroup~]Outlet_15
+InputCue123=Outlet_15_Power_On
+InputCue124=Outlet_15_Power_Off
+InputCue125=Outlet_15_Power_Cycle
+InputCue126=Set_Outlet_15_Name
+InputCue127=[~UNUSED~]
+InputCue128=[~UNUSED~]
+InputCue129=[~EndGroup~]Outlet_15
+InputCue130=[~BeginGroup~]Outlet_16
+InputCue131=Outlet_16_Power_On
+InputCue132=Outlet_16_Power_Off
+InputCue133=Outlet_16_Power_Cycle
+InputCue134=Set_Outlet_16_Name
+InputCue135=[~UNUSED~]
+InputCue136=[~UNUSED~]
+InputCue137=[~EndGroup~]Outlet_16
+InputCue138=[~BeginGroup~]Power_Cycle
+InputCue139=Power_Cycle_Time
+InputCue140=[~EndGroup~]Power_Cycle
+InputCue141=[~BeginGroup~]Power_Sequence
+InputCue142=Power_Sequence_Up
+InputCue143=Power_Sequence_Down
+InputCue144=Power_Sequence_Time
+InputCue145=[~EndGroup~]Power_Sequence
+OutputCue1=Is_Communicating
+OutputCue2=Is_Initialized
+OutputCue3=[~UNUSED~]
+OutputCue4=[~BeginGroup~]Product_Info
+OutputCue5=Product_Part_Number_Text
+OutputCue6=Product_Rating_Text
+OutputCue7=Assigned_IP_Address_Text
+OutputCue8=Product_Mac_Address_Text
+OutputCue9=[~EndGroup~]Product_Info
+OutputCue10=[~BeginGroup~]Outlet_01
+OutputCue11=Outlet_01_Power_Is_On
+OutputCue12=Outlet_01_Power_Is_Off
+OutputCue13=[~UNUSED~]
+OutputCue14=Outlet_01_Name_Text
+OutputCue15=Outlet_01_Is_Controllable
+OutputCue16=Outlet_01_Is_Present
+OutputCue17=[~EndGroup~]Outlet_01
+OutputCue18=[~BeginGroup~]Outlet_02
+OutputCue19=Outlet_02_Power_Is_On
+OutputCue20=Outlet_02_Power_Is_Off
+OutputCue21=[~UNUSED~]
+OutputCue22=Outlet_02_Name_Text
+OutputCue23=Outlet_02_Is_Controllable
+OutputCue24=Outlet_02_Is_Present
+OutputCue25=[~EndGroup~]Outlet_02
+OutputCue26=[~BeginGroup~]Outlet_03
+OutputCue27=Outlet_03_Power_Is_On
+OutputCue28=Outlet_03_Power_Is_Off
+OutputCue29=[~UNUSED~]
+OutputCue30=Outlet_03_Name_Text
+OutputCue31=Outlet_03_Is_Controllable
+OutputCue32=Outlet_03_Is_Present
+OutputCue33=[~EndGroup~]Outlet_03
+OutputCue34=[~BeginGroup~]Outlet_04
+OutputCue35=Outlet_04_Power_Is_On
+OutputCue36=Outlet_04_Power_Is_Off
+OutputCue37=[~UNUSED~]
+OutputCue38=Outlet_04_Name_Text
+OutputCue39=Outlet_04_Is_Controllable
+OutputCue40=Outlet_04_Is_Present
+OutputCue41=[~EndGroup~]Outlet_04
+OutputCue42=[~BeginGroup~]Outlet_05
+OutputCue43=Outlet_05_Power_Is_On
+OutputCue44=Outlet_05_Power_Is_Off
+OutputCue45=[~UNUSED~]
+OutputCue46=Outlet_05_Name_Text
+OutputCue47=Outlet_05_Is_Controllable
+OutputCue48=Outlet_05_Is_Present
+OutputCue49=[~EndGroup~]Outlet_05
+OutputCue50=[~BeginGroup~]Outlet_06
+OutputCue51=Outlet_06_Power_Is_On
+OutputCue52=Outlet_06_Power_Is_Off
+OutputCue53=[~UNUSED~]
+OutputCue54=Outlet_06_Name_Text
+OutputCue55=Outlet_06_Is_Controllable
+OutputCue56=Outlet_06_Is_Present
+OutputCue57=[~EndGroup~]Outlet_06
+OutputCue58=[~BeginGroup~]Outlet_07
+OutputCue59=Outlet_07_Power_Is_On
+OutputCue60=Outlet_07_Power_Is_Off
+OutputCue61=[~UNUSED~]
+OutputCue62=Outlet_07_Name_Text
+OutputCue63=Outlet_07_Is_Controllable
+OutputCue64=Outlet_07_Is_Present
+OutputCue65=[~EndGroup~]Outlet_07
+OutputCue66=[~BeginGroup~]Outlet_08
+OutputCue67=Outlet_08_Power_Is_On
+OutputCue68=Outlet_08_Power_Is_Off
+OutputCue69=[~UNUSED~]
+OutputCue70=Outlet_08_Name_Text
+OutputCue71=Outlet_08_Is_Controllable
+OutputCue72=Outlet_08_Is_Present
+OutputCue73=[~EndGroup~]Outlet_08
+OutputCue74=[~BeginGroup~]Outlet_09
+OutputCue75=Outlet_09_Power_Is_On
+OutputCue76=Outlet_09_Power_Is_Off
+OutputCue77=[~UNUSED~]
+OutputCue78=Outlet_09_Name_Text
+OutputCue79=Outlet_09_Is_Controllable
+OutputCue80=Outlet_09_Is_Present
+OutputCue81=[~EndGroup~]Outlet_09
+OutputCue82=[~BeginGroup~]Outlet_10
+OutputCue83=Outlet_10_Power_Is_On
+OutputCue84=Outlet_10_Power_Is_Off
+OutputCue85=[~UNUSED~]
+OutputCue86=Outlet_10_Name_Text
+OutputCue87=Outlet_10_Is_Controllable
+OutputCue88=Outlet_10_Is_Present
+OutputCue89=[~EndGroup~]Outlet_10
+OutputCue90=[~BeginGroup~]Outlet_11
+OutputCue91=Outlet_11_Power_Is_On
+OutputCue92=Outlet_11_Power_Is_Off
+OutputCue93=[~UNUSED~]
+OutputCue94=Outlet_11_Name_Text
+OutputCue95=Outlet_11_Is_Controllable
+OutputCue96=Outlet_11_Is_Present
+OutputCue97=[~EndGroup~]Outlet_11
+OutputCue98=[~BeginGroup~]Outlet_12
+OutputCue99=Outlet_12_Power_Is_On
+OutputCue100=Outlet_12_Power_Is_Off
+OutputCue101=[~UNUSED~]
+OutputCue102=Outlet_12_Name_Text
+OutputCue103=Outlet_12_Is_Controllable
+OutputCue104=Outlet_12_Is_Present
+OutputCue105=[~EndGroup~]Outlet_12
+OutputCue106=[~BeginGroup~]Outlet_13
+OutputCue107=Outlet_13_Power_Is_On
+OutputCue108=Outlet_13_Power_Is_Off
+OutputCue109=[~UNUSED~]
+OutputCue110=Outlet_13_Name_Text
+OutputCue111=Outlet_13_Is_Controllable
+OutputCue112=Outlet_13_Is_Present
+OutputCue113=[~EndGroup~]Outlet_13
+OutputCue114=[~BeginGroup~]Outlet_14
+OutputCue115=Outlet_14_Power_Is_On
+OutputCue116=Outlet_14_Power_Is_Off
+OutputCue117=[~UNUSED~]
+OutputCue118=Outlet_14_Name_Text
+OutputCue119=Outlet_14_Is_Controllable
+OutputCue120=Outlet_14_Is_Present
+OutputCue121=[~EndGroup~]Outlet_14
+OutputCue122=[~BeginGroup~]Outlet_15
+OutputCue123=Outlet_15_Power_Is_On
+OutputCue124=Outlet_15_Power_Is_Off
+OutputCue125=[~UNUSED~]
+OutputCue126=Outlet_15_Name_Text
+OutputCue127=Outlet_15_Is_Controllable
+OutputCue128=Outlet_15_Is_Present
+OutputCue129=[~EndGroup~]Outlet_15
+OutputCue130=[~BeginGroup~]Outlet_16
+OutputCue131=Outlet_16_Power_Is_On
+OutputCue132=Outlet_16_Power_Is_Off
+OutputCue133=[~UNUSED~]
+OutputCue134=Outlet_16_Name_Text
+OutputCue135=Outlet_16_Is_Controllable
+OutputCue136=Outlet_16_Is_Present
+OutputCue137=[~EndGroup~]Outlet_16
+OutputCue138=[~BeginGroup~]Power_Cycle
+OutputCue139=[~UNUSED~]
+OutputCue140=[~EndGroup~]Power_Cycle
+OutputCue141=[~BeginGroup~]Power_Sequence
+OutputCue142=Power_Is_Sequencing_Up
+OutputCue143=Power_Is_Sequencing_Down
+OutputCue144=Power_Sequence_Text
+OutputCue145=[~EndGroup~]Power_Sequence
+ParamCue1=Connection Type,1d,2d
+ParamCue2=IP Address
+ParamCue3=Login User Username
+ParamCue4=Login User Password
+MPi=144
+Pi11=4
+Pi12=5
+Pi13=6
+Pi14=7
+Pi19=9
+Pi20=10
+Pi21=11
+Pi22=12
+Pi27=14
+Pi28=15
+Pi29=16
+Pi30=17
+Pi35=19
+Pi36=20
+Pi37=21
+Pi38=22
+Pi43=24
+Pi44=25
+Pi45=26
+Pi46=27
+Pi51=29
+Pi52=30
+Pi53=31
+Pi54=32
+Pi59=34
+Pi60=35
+Pi61=36
+Pi62=37
+Pi67=39
+Pi68=40
+Pi69=41
+Pi70=42
+Pi75=44
+Pi76=45
+Pi77=46
+Pi78=47
+Pi83=49
+Pi84=50
+Pi85=51
+Pi86=52
+Pi91=54
+Pi92=55
+Pi93=56
+Pi94=57
+Pi99=59
+Pi100=60
+Pi101=61
+Pi102=62
+Pi107=64
+Pi108=65
+Pi109=66
+Pi110=67
+Pi115=69
+Pi116=70
+Pi117=71
+Pi118=72
+Pi123=74
+Pi124=75
+Pi125=76
+Pi126=77
+Pi131=79
+Pi132=80
+Pi133=81
+Pi134=82
+Pi139=84
+Pi142=85
+Pi143=86
+Pi144=87
+MPo=144
+Po1=97
+Po5=98
+Po6=99
+Po7=100
+Po8=101
+Po11=102
+Po12=103
+Po14=104
+Po15=105
+Po16=106
+Po19=109
+Po20=110
+Po22=111
+Po23=112
+Po24=113
+Po27=116
+Po28=117
+Po30=118
+Po31=119
+Po32=120
+Po35=123
+Po36=124
+Po38=125
+Po39=126
+Po40=127
+Po43=130
+Po44=131
+Po46=132
+Po47=133
+Po48=134
+Po51=137
+Po52=138
+Po54=139
+Po55=140
+Po56=141
+Po59=144
+Po60=145
+Po62=146
+Po63=147
+Po64=148
+Po67=151
+Po68=152
+Po70=153
+Po71=154
+Po72=155
+Po75=158
+Po76=159
+Po78=160
+Po79=161
+Po80=162
+Po83=165
+Po84=166
+Po86=167
+Po87=168
+Po88=169
+Po91=172
+Po92=173
+Po94=174
+Po95=175
+Po96=176
+Po99=179
+Po100=180
+Po102=181
+Po103=182
+Po104=183
+Po107=186
+Po108=187
+Po110=188
+Po111=189
+Po112=190
+Po115=193
+Po116=194
+Po118=195
+Po119=196
+Po120=197
+Po123=200
+Po124=201
+Po126=202
+Po127=203
+Po128=204
+Po131=207
+Po132=208
+Po134=209
+Po135=210
+Po136=211
+Po142=214
+Po143=215
+Po144=216
+MPp=4
+Pp1=2
+Pp2=3
+Pp3=219
+Pp4=220
+FileName=MiddleAtlantic RackLinkSelect v2.0.umc
+EncodingType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Sm
+H=1
+SmC=157
+Nm=Central Control Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=2
+SmC=157
+Nm=Network Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=3
+SmC=157
+Nm=Ethernet
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=4
+SmC=156
+Nm=Logic
+ObjVer=1
+CF=2
+mC=2
+C1=19
+C2=16
+]
+[
+ObjTp=Sm
+H=5
+SmC=157
+Nm=DefineArguments
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mC=1
+C1=64
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=16
+SmC=858
+Nm=Make String Permanent
+ObjVer=1
+PrH=4
+CF=2
+n1I=37
+mI=37
+I1=324
+I2=325
+I3=326
+I4=327
+I5=342
+I6=349
+I7=356
+I8=363
+I9=370
+I10=377
+I11=384
+I12=391
+I13=68
+I14=75
+I15=80
+I16=85
+I17=90
+I18=95
+I19=102
+I20=107
+I21=97
+I22=178
+I23=185
+I24=192
+I25=199
+I26=206
+I27=213
+I28=220
+I29=227
+I30=5
+I31=8
+I32=11
+I33=12
+I34=13
+I35=14
+I36=15
+I37=16
+mP=1
+P1=255d
+]
+[
+ObjTp=Sm
+H=19
+SmC=103
+Nm=MiddleAtlantic RackLinkSelect v2.0.usp
+ObjVer=1
+PrH=4
+CF=2
+n1I=81
+n2I=65
+n1O=81
+mI=146
+I7=10
+I8=124
+I9=96
+I10=175
+I11=176
+I12=177
+I14=182
+I15=183
+I16=184
+I18=189
+I19=190
+I20=191
+I22=196
+I23=197
+I24=198
+I26=203
+I27=204
+I28=205
+I30=210
+I31=211
+I32=212
+I34=217
+I35=218
+I36=219
+I38=224
+I39=225
+I40=226
+I42=18
+I43=19
+I44=20
+I46=24
+I47=25
+I48=26
+I50=30
+I51=31
+I52=32
+I54=36
+I55=37
+I56=38
+I58=42
+I59=43
+I60=44
+I62=48
+I63=49
+I64=50
+I66=54
+I67=55
+I68=56
+I70=60
+I71=62
+I72=63
+I74=282
+I75=283
+I77=317
+I78=318
+I80=4
+I82=279
+I84=284
+I128=178
+I129=185
+I130=192
+I131=199
+I132=206
+I133=213
+I134=220
+I135=227
+I136=5
+I137=8
+I138=11
+I139=12
+I140=13
+I141=14
+I142=15
+I143=16
+mO=146
+tO=146
+O7=323
+O8=7
+O10=340
+O11=341
+O12=343
+O13=344
+O14=347
+O15=348
+O16=350
+O17=351
+O18=354
+O19=355
+O20=357
+O21=358
+O22=361
+O23=362
+O24=364
+O25=365
+O26=368
+O27=369
+O28=371
+O29=372
+O30=375
+O31=376
+O32=378
+O33=379
+O34=382
+O35=383
+O36=385
+O37=386
+O38=389
+O39=390
+O40=392
+O41=393
+O42=66
+O43=67
+O44=69
+O45=70
+O46=73
+O47=74
+O48=122
+O49=116
+O50=78
+O51=79
+O52=121
+O53=115
+O54=83
+O55=84
+O56=120
+O57=114
+O58=88
+O59=89
+O60=119
+O61=113
+O62=93
+O63=94
+O64=118
+O65=112
+O66=100
+O67=101
+O68=117
+O69=111
+O70=105
+O71=106
+O72=139
+O73=110
+O74=436
+O75=437
+O123=324
+O124=325
+O125=326
+O126=327
+O128=342
+O129=349
+O130=356
+O131=363
+O132=370
+O133=377
+O134=384
+O135=391
+O136=68
+O137=75
+O138=80
+O139=85
+O140=90
+O141=95
+O142=102
+O143=107
+O145=97
+mP=5
+P1=
+P2=#Connection Type
+P3=#IP Address
+P4=#Login User Username
+P5=#Login User Password
+]
+[
+ObjTp=Sm
+H=64
+SmC=55
+Nm=Argument Definition
+ObjVer=1
+PrH=5
+CF=2
+n1I=145
+n1O=145
+mI=145
+I1=10
+I2=124
+I3=96
+I4=61
+I5=6
+I6=6
+I7=6
+I8=6
+I9=171
+I10=174
+I11=175
+I12=176
+I13=177
+I14=178
+I15=6
+I16=6
+I17=180
+I18=181
+I19=182
+I20=183
+I21=184
+I22=185
+I23=6
+I24=6
+I25=187
+I26=188
+I27=189
+I28=190
+I29=191
+I30=192
+I31=6
+I32=6
+I33=194
+I34=195
+I35=196
+I36=197
+I37=198
+I38=199
+I39=6
+I40=6
+I41=201
+I42=202
+I43=203
+I44=204
+I45=205
+I46=206
+I47=6
+I48=6
+I49=208
+I50=209
+I51=210
+I52=211
+I53=212
+I54=213
+I55=6
+I56=6
+I57=215
+I58=216
+I59=217
+I60=218
+I61=219
+I62=220
+I63=6
+I64=6
+I65=222
+I66=223
+I67=224
+I68=225
+I69=226
+I70=227
+I71=6
+I72=6
+I73=229
+I74=17
+I75=18
+I76=19
+I77=20
+I78=5
+I79=6
+I80=6
+I81=22
+I82=23
+I83=24
+I84=25
+I85=26
+I86=8
+I87=6
+I88=6
+I89=28
+I90=29
+I91=30
+I92=31
+I93=32
+I94=11
+I95=6
+I96=6
+I97=34
+I98=35
+I99=36
+I100=37
+I101=38
+I102=12
+I103=6
+I104=6
+I105=40
+I106=41
+I107=42
+I108=43
+I109=44
+I110=13
+I111=6
+I112=6
+I113=46
+I114=47
+I115=48
+I116=49
+I117=50
+I118=14
+I119=6
+I120=6
+I121=52
+I122=53
+I123=54
+I124=55
+I125=56
+I126=15
+I127=6
+I128=6
+I129=58
+I130=59
+I131=60
+I132=62
+I133=63
+I134=16
+I135=6
+I136=6
+I137=65
+I138=278
+I139=279
+I140=280
+I141=281
+I142=282
+I143=283
+I144=284
+I145=285
+mO=145
+tO=145
+O1=323
+O2=7
+O3=6
+O4=61
+O5=324
+O6=325
+O7=326
+O8=327
+O9=171
+O10=174
+O11=340
+O12=341
+O13=6
+O14=342
+O15=343
+O16=344
+O17=180
+O18=181
+O19=347
+O20=348
+O21=6
+O22=349
+O23=350
+O24=351
+O25=187
+O26=188
+O27=354
+O28=355
+O29=6
+O30=356
+O31=357
+O32=358
+O33=194
+O34=195
+O35=361
+O36=362
+O37=6
+O38=363
+O39=364
+O40=365
+O41=201
+O42=202
+O43=368
+O44=369
+O45=6
+O46=370
+O47=371
+O48=372
+O49=208
+O50=209
+O51=375
+O52=376
+O53=6
+O54=377
+O55=378
+O56=379
+O57=215
+O58=216
+O59=382
+O60=383
+O61=6
+O62=384
+O63=385
+O64=386
+O65=222
+O66=223
+O67=389
+O68=390
+O69=6
+O70=391
+O71=392
+O72=393
+O73=229
+O74=17
+O75=66
+O76=67
+O77=6
+O78=68
+O79=69
+O80=70
+O81=22
+O82=23
+O83=73
+O84=74
+O85=6
+O86=75
+O87=122
+O88=116
+O89=28
+O90=29
+O91=78
+O92=79
+O93=6
+O94=80
+O95=121
+O96=115
+O97=34
+O98=35
+O99=83
+O100=84
+O101=6
+O102=85
+O103=120
+O104=114
+O105=40
+O106=41
+O107=88
+O108=89
+O109=6
+O110=90
+O111=119
+O112=113
+O113=46
+O114=47
+O115=93
+O116=94
+O117=6
+O118=95
+O119=118
+O120=112
+O121=52
+O122=53
+O123=100
+O124=101
+O125=6
+O126=102
+O127=117
+O128=111
+O129=58
+O130=59
+O131=105
+O132=106
+O133=6
+O134=107
+O135=139
+O136=110
+O137=65
+O138=278
+O139=6
+O140=280
+O141=281
+O142=436
+O143=437
+O144=97
+O145=285
+mP=4
+P1=Connection Type
+P2=IP Address
+P3=Login User Username
+P4=Login User Password
+MPi=144
+Pi11=4
+Pi12=5
+Pi13=6
+Pi14=7
+Pi19=9
+Pi20=10
+Pi21=11
+Pi22=12
+Pi27=14
+Pi28=15
+Pi29=16
+Pi30=17
+Pi35=19
+Pi36=20
+Pi37=21
+Pi38=22
+Pi43=24
+Pi44=25
+Pi45=26
+Pi46=27
+Pi51=29
+Pi52=30
+Pi53=31
+Pi54=32
+Pi59=34
+Pi60=35
+Pi61=36
+Pi62=37
+Pi67=39
+Pi68=40
+Pi69=41
+Pi70=42
+Pi75=44
+Pi76=45
+Pi77=46
+Pi78=47
+Pi83=49
+Pi84=50
+Pi85=51
+Pi86=52
+Pi91=54
+Pi92=55
+Pi93=56
+Pi94=57
+Pi99=59
+Pi100=60
+Pi101=61
+Pi102=62
+Pi107=64
+Pi108=65
+Pi109=66
+Pi110=67
+Pi115=69
+Pi116=70
+Pi117=71
+Pi118=72
+Pi123=74
+Pi124=75
+Pi125=76
+Pi126=77
+Pi131=79
+Pi132=80
+Pi133=81
+Pi134=82
+Pi139=84
+Pi142=85
+Pi143=86
+Pi144=87
+MPo=144
+Po1=97
+Po5=98
+Po6=99
+Po7=100
+Po8=101
+Po11=102
+Po12=103
+Po14=104
+Po15=105
+Po16=106
+Po19=109
+Po20=110
+Po22=111
+Po23=112
+Po24=113
+Po27=116
+Po28=117
+Po30=118
+Po31=119
+Po32=120
+Po35=123
+Po36=124
+Po38=125
+Po39=126
+Po40=127
+Po43=130
+Po44=131
+Po46=132
+Po47=133
+Po48=134
+Po51=137
+Po52=138
+Po54=139
+Po55=140
+Po56=141
+Po59=144
+Po60=145
+Po62=146
+Po63=147
+Po64=148
+Po67=151
+Po68=152
+Po70=153
+Po71=154
+Po72=155
+Po75=158
+Po76=159
+Po78=160
+Po79=161
+Po80=162
+Po83=165
+Po84=166
+Po86=167
+Po87=168
+Po88=169
+Po91=172
+Po92=173
+Po94=174
+Po95=175
+Po96=176
+Po99=179
+Po100=180
+Po102=181
+Po103=182
+Po104=183
+Po107=186
+Po108=187
+Po110=188
+Po111=189
+Po112=190
+Po115=193
+Po116=194
+Po118=195
+Po119=196
+Po120=197
+Po123=200
+Po124=201
+Po126=202
+Po127=203
+Po128=204
+Po131=207
+Po132=208
+Po134=209
+Po135=210
+Po136=211
+Po142=214
+Po143=215
+Po144=216
+MPp=4
+Pp1=2
+Pp2=3
+Pp3=219
+Pp4=220
+]
+[
+ObjTp=Sg
+H=4
+Nm=//__digital_reserved__
+]
+[
+ObjTp=Sg
+H=5
+Nm=Set_Outlet_09_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=6
+Nm=[~UNUSED~]
+SgTp=31
+]
+[
+ObjTp=Sg
+H=7
+Nm=Is_Initialized
+]
+[
+ObjTp=Sg
+H=8
+Nm=Set_Outlet_10_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=10
+Nm=Connect
+]
+[
+ObjTp=Sg
+H=11
+Nm=Set_Outlet_11_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=12
+Nm=Set_Outlet_12_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=13
+Nm=Set_Outlet_13_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=14
+Nm=Set_Outlet_14_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=15
+Nm=Set_Outlet_15_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=16
+Nm=Set_Outlet_16_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=17
+Nm=[~BeginGroup~]Outlet_09
+SgTp=31
+]
+[
+ObjTp=Sg
+H=18
+Nm=Outlet_09_Power_On
+]
+[
+ObjTp=Sg
+H=19
+Nm=Outlet_09_Power_Off
+]
+[
+ObjTp=Sg
+H=20
+Nm=Outlet_09_Power_Cycle
+]
+[
+ObjTp=Sg
+H=22
+Nm=[~EndGroup~]Outlet_09
+SgTp=31
+]
+[
+ObjTp=Sg
+H=23
+Nm=[~BeginGroup~]Outlet_10
+SgTp=31
+]
+[
+ObjTp=Sg
+H=24
+Nm=Outlet_10_Power_On
+]
+[
+ObjTp=Sg
+H=25
+Nm=Outlet_10_Power_Off
+]
+[
+ObjTp=Sg
+H=26
+Nm=Outlet_10_Power_Cycle
+]
+[
+ObjTp=Sg
+H=28
+Nm=[~EndGroup~]Outlet_10
+SgTp=31
+]
+[
+ObjTp=Sg
+H=29
+Nm=[~BeginGroup~]Outlet_11
+SgTp=31
+]
+[
+ObjTp=Sg
+H=30
+Nm=Outlet_11_Power_On
+]
+[
+ObjTp=Sg
+H=31
+Nm=Outlet_11_Power_Off
+]
+[
+ObjTp=Sg
+H=32
+Nm=Outlet_11_Power_Cycle
+]
+[
+ObjTp=Sg
+H=34
+Nm=[~EndGroup~]Outlet_11
+SgTp=31
+]
+[
+ObjTp=Sg
+H=35
+Nm=[~BeginGroup~]Outlet_12
+SgTp=31
+]
+[
+ObjTp=Sg
+H=36
+Nm=Outlet_12_Power_On
+]
+[
+ObjTp=Sg
+H=37
+Nm=Outlet_12_Power_Off
+]
+[
+ObjTp=Sg
+H=38
+Nm=Outlet_12_Power_Cycle
+]
+[
+ObjTp=Sg
+H=40
+Nm=[~EndGroup~]Outlet_12
+SgTp=31
+]
+[
+ObjTp=Sg
+H=41
+Nm=[~BeginGroup~]Outlet_13
+SgTp=31
+]
+[
+ObjTp=Sg
+H=42
+Nm=Outlet_13_Power_On
+]
+[
+ObjTp=Sg
+H=43
+Nm=Outlet_13_Power_Off
+]
+[
+ObjTp=Sg
+H=44
+Nm=Outlet_13_Power_Cycle
+]
+[
+ObjTp=Sg
+H=46
+Nm=[~EndGroup~]Outlet_13
+SgTp=31
+]
+[
+ObjTp=Sg
+H=47
+Nm=[~BeginGroup~]Outlet_14
+SgTp=31
+]
+[
+ObjTp=Sg
+H=48
+Nm=Outlet_14_Power_On
+]
+[
+ObjTp=Sg
+H=49
+Nm=Outlet_14_Power_Off
+]
+[
+ObjTp=Sg
+H=50
+Nm=Outlet_14_Power_Cycle
+]
+[
+ObjTp=Sg
+H=52
+Nm=[~EndGroup~]Outlet_14
+SgTp=31
+]
+[
+ObjTp=Sg
+H=53
+Nm=[~BeginGroup~]Outlet_15
+SgTp=31
+]
+[
+ObjTp=Sg
+H=54
+Nm=Outlet_15_Power_On
+]
+[
+ObjTp=Sg
+H=55
+Nm=Outlet_15_Power_Off
+]
+[
+ObjTp=Sg
+H=56
+Nm=Outlet_15_Power_Cycle
+]
+[
+ObjTp=Sg
+H=58
+Nm=[~EndGroup~]Outlet_15
+SgTp=31
+]
+[
+ObjTp=Sg
+H=59
+Nm=[~BeginGroup~]Outlet_16
+SgTp=31
+]
+[
+ObjTp=Sg
+H=60
+Nm=Outlet_16_Power_On
+]
+[
+ObjTp=Sg
+H=61
+Nm=[~BeginGroup~]Product_Info
+SgTp=31
+]
+[
+ObjTp=Sg
+H=62
+Nm=Outlet_16_Power_Off
+]
+[
+ObjTp=Sg
+H=63
+Nm=Outlet_16_Power_Cycle
+]
+[
+ObjTp=Sg
+H=65
+Nm=[~EndGroup~]Outlet_16
+SgTp=31
+]
+[
+ObjTp=Sg
+H=66
+Nm=Outlet_09_Power_Is_On
+]
+[
+ObjTp=Sg
+H=67
+Nm=Outlet_09_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=68
+Nm=Outlet_09_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=69
+Nm=Outlet_09_Is_Controllable
+]
+[
+ObjTp=Sg
+H=70
+Nm=Outlet_09_Is_Present
+]
+[
+ObjTp=Sg
+H=73
+Nm=Outlet_10_Power_Is_On
+]
+[
+ObjTp=Sg
+H=74
+Nm=Outlet_10_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=75
+Nm=Outlet_10_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=78
+Nm=Outlet_11_Power_Is_On
+]
+[
+ObjTp=Sg
+H=79
+Nm=Outlet_11_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=80
+Nm=Outlet_11_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=83
+Nm=Outlet_12_Power_Is_On
+]
+[
+ObjTp=Sg
+H=84
+Nm=Outlet_12_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=85
+Nm=Outlet_12_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=88
+Nm=Outlet_13_Power_Is_On
+]
+[
+ObjTp=Sg
+H=89
+Nm=Outlet_13_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=90
+Nm=Outlet_13_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=93
+Nm=Outlet_14_Power_Is_On
+]
+[
+ObjTp=Sg
+H=94
+Nm=Outlet_14_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=95
+Nm=Outlet_14_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=96
+Nm=Debug_Enable
+]
+[
+ObjTp=Sg
+H=97
+Nm=Power_Sequence_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=100
+Nm=Outlet_15_Power_Is_On
+]
+[
+ObjTp=Sg
+H=101
+Nm=Outlet_15_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=102
+Nm=Outlet_15_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=105
+Nm=Outlet_16_Power_Is_On
+]
+[
+ObjTp=Sg
+H=106
+Nm=Outlet_16_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=107
+Nm=Outlet_16_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=110
+Nm=Outlet_16_Is_Present
+]
+[
+ObjTp=Sg
+H=111
+Nm=Outlet_15_Is_Present
+]
+[
+ObjTp=Sg
+H=112
+Nm=Outlet_14_Is_Present
+]
+[
+ObjTp=Sg
+H=113
+Nm=Outlet_13_Is_Present
+]
+[
+ObjTp=Sg
+H=114
+Nm=Outlet_12_Is_Present
+]
+[
+ObjTp=Sg
+H=115
+Nm=Outlet_11_Is_Present
+]
+[
+ObjTp=Sg
+H=116
+Nm=Outlet_10_Is_Present
+]
+[
+ObjTp=Sg
+H=117
+Nm=Outlet_15_Is_Controllable
+]
+[
+ObjTp=Sg
+H=118
+Nm=Outlet_14_Is_Controllable
+]
+[
+ObjTp=Sg
+H=119
+Nm=Outlet_13_Is_Controllable
+]
+[
+ObjTp=Sg
+H=120
+Nm=Outlet_12_Is_Controllable
+]
+[
+ObjTp=Sg
+H=121
+Nm=Outlet_11_Is_Controllable
+]
+[
+ObjTp=Sg
+H=122
+Nm=Outlet_10_Is_Controllable
+]
+[
+ObjTp=Sg
+H=124
+Nm=Disconnect
+]
+[
+ObjTp=Sg
+H=139
+Nm=Outlet_16_Is_Controllable
+]
+[
+ObjTp=Sg
+H=171
+Nm=[~EndGroup~]Product_Info
+SgTp=31
+]
+[
+ObjTp=Sg
+H=174
+Nm=[~BeginGroup~]Outlet_01
+SgTp=31
+]
+[
+ObjTp=Sg
+H=175
+Nm=Outlet_01_Power_On
+]
+[
+ObjTp=Sg
+H=176
+Nm=Outlet_01_Power_Off
+]
+[
+ObjTp=Sg
+H=177
+Nm=Outlet_01_Power_Cycle
+]
+[
+ObjTp=Sg
+H=178
+Nm=Set_Outlet_01_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=180
+Nm=[~EndGroup~]Outlet_01
+SgTp=31
+]
+[
+ObjTp=Sg
+H=181
+Nm=[~BeginGroup~]Outlet_02
+SgTp=31
+]
+[
+ObjTp=Sg
+H=182
+Nm=Outlet_02_Power_On
+]
+[
+ObjTp=Sg
+H=183
+Nm=Outlet_02_Power_Off
+]
+[
+ObjTp=Sg
+H=184
+Nm=Outlet_02_Power_Cycle
+]
+[
+ObjTp=Sg
+H=185
+Nm=Set_Outlet_02_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=187
+Nm=[~EndGroup~]Outlet_02
+SgTp=31
+]
+[
+ObjTp=Sg
+H=188
+Nm=[~BeginGroup~]Outlet_03
+SgTp=31
+]
+[
+ObjTp=Sg
+H=189
+Nm=Outlet_03_Power_On
+]
+[
+ObjTp=Sg
+H=190
+Nm=Outlet_03_Power_Off
+]
+[
+ObjTp=Sg
+H=191
+Nm=Outlet_03_Power_Cycle
+]
+[
+ObjTp=Sg
+H=192
+Nm=Set_Outlet_03_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=194
+Nm=[~EndGroup~]Outlet_03
+SgTp=31
+]
+[
+ObjTp=Sg
+H=195
+Nm=[~BeginGroup~]Outlet_04
+SgTp=31
+]
+[
+ObjTp=Sg
+H=196
+Nm=Outlet_04_Power_On
+]
+[
+ObjTp=Sg
+H=197
+Nm=Outlet_04_Power_Off
+]
+[
+ObjTp=Sg
+H=198
+Nm=Outlet_04_Power_Cycle
+]
+[
+ObjTp=Sg
+H=199
+Nm=Set_Outlet_04_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=201
+Nm=[~EndGroup~]Outlet_04
+SgTp=31
+]
+[
+ObjTp=Sg
+H=202
+Nm=[~BeginGroup~]Outlet_05
+SgTp=31
+]
+[
+ObjTp=Sg
+H=203
+Nm=Outlet_05_Power_On
+]
+[
+ObjTp=Sg
+H=204
+Nm=Outlet_05_Power_Off
+]
+[
+ObjTp=Sg
+H=205
+Nm=Outlet_05_Power_Cycle
+]
+[
+ObjTp=Sg
+H=206
+Nm=Set_Outlet_05_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=208
+Nm=[~EndGroup~]Outlet_05
+SgTp=31
+]
+[
+ObjTp=Sg
+H=209
+Nm=[~BeginGroup~]Outlet_06
+SgTp=31
+]
+[
+ObjTp=Sg
+H=210
+Nm=Outlet_06_Power_On
+]
+[
+ObjTp=Sg
+H=211
+Nm=Outlet_06_Power_Off
+]
+[
+ObjTp=Sg
+H=212
+Nm=Outlet_06_Power_Cycle
+]
+[
+ObjTp=Sg
+H=213
+Nm=Set_Outlet_06_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=215
+Nm=[~EndGroup~]Outlet_06
+SgTp=31
+]
+[
+ObjTp=Sg
+H=216
+Nm=[~BeginGroup~]Outlet_07
+SgTp=31
+]
+[
+ObjTp=Sg
+H=217
+Nm=Outlet_07_Power_On
+]
+[
+ObjTp=Sg
+H=218
+Nm=Outlet_07_Power_Off
+]
+[
+ObjTp=Sg
+H=219
+Nm=Outlet_07_Power_Cycle
+]
+[
+ObjTp=Sg
+H=220
+Nm=Set_Outlet_07_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=222
+Nm=[~EndGroup~]Outlet_07
+SgTp=31
+]
+[
+ObjTp=Sg
+H=223
+Nm=[~BeginGroup~]Outlet_08
+SgTp=31
+]
+[
+ObjTp=Sg
+H=224
+Nm=Outlet_08_Power_On
+]
+[
+ObjTp=Sg
+H=225
+Nm=Outlet_08_Power_Off
+]
+[
+ObjTp=Sg
+H=226
+Nm=Outlet_08_Power_Cycle
+]
+[
+ObjTp=Sg
+H=227
+Nm=Set_Outlet_08_Name
+SgTp=4
+]
+[
+ObjTp=Sg
+H=229
+Nm=[~EndGroup~]Outlet_08
+SgTp=31
+]
+[
+ObjTp=Sg
+H=278
+Nm=[~BeginGroup~]Power_Cycle
+SgTp=31
+]
+[
+ObjTp=Sg
+H=279
+Nm=Power_Cycle_Time
+SgTp=2
+]
+[
+ObjTp=Sg
+H=280
+Nm=[~EndGroup~]Power_Cycle
+SgTp=31
+]
+[
+ObjTp=Sg
+H=281
+Nm=[~BeginGroup~]Power_Sequence
+SgTp=31
+]
+[
+ObjTp=Sg
+H=282
+Nm=Power_Sequence_Up
+]
+[
+ObjTp=Sg
+H=283
+Nm=Power_Sequence_Down
+]
+[
+ObjTp=Sg
+H=284
+Nm=Power_Sequence_Time
+SgTp=2
+]
+[
+ObjTp=Sg
+H=285
+Nm=[~EndGroup~]Power_Sequence
+SgTp=31
+]
+[
+ObjTp=Sg
+H=317
+Nm=Set_Room_Occupied
+]
+[
+ObjTp=Sg
+H=318
+Nm=Set_Room_Unoccupied
+]
+[
+ObjTp=Sg
+H=323
+Nm=Is_Communicating
+]
+[
+ObjTp=Sg
+H=324
+Nm=Product_Part_Number_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=325
+Nm=Product_Rating_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=326
+Nm=Assigned_IP_Address_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=327
+Nm=Product_Mac_Address_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=340
+Nm=Outlet_01_Power_Is_On
+]
+[
+ObjTp=Sg
+H=341
+Nm=Outlet_01_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=342
+Nm=Outlet_01_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=343
+Nm=Outlet_01_Is_Controllable
+]
+[
+ObjTp=Sg
+H=344
+Nm=Outlet_01_Is_Present
+]
+[
+ObjTp=Sg
+H=347
+Nm=Outlet_02_Power_Is_On
+]
+[
+ObjTp=Sg
+H=348
+Nm=Outlet_02_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=349
+Nm=Outlet_02_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=350
+Nm=Outlet_02_Is_Controllable
+]
+[
+ObjTp=Sg
+H=351
+Nm=Outlet_02_Is_Present
+]
+[
+ObjTp=Sg
+H=354
+Nm=Outlet_03_Power_Is_On
+]
+[
+ObjTp=Sg
+H=355
+Nm=Outlet_03_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=356
+Nm=Outlet_03_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=357
+Nm=Outlet_03_Is_Controllable
+]
+[
+ObjTp=Sg
+H=358
+Nm=Outlet_03_Is_Present
+]
+[
+ObjTp=Sg
+H=361
+Nm=Outlet_04_Power_Is_On
+]
+[
+ObjTp=Sg
+H=362
+Nm=Outlet_04_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=363
+Nm=Outlet_04_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=364
+Nm=Outlet_04_Is_Controllable
+]
+[
+ObjTp=Sg
+H=365
+Nm=Outlet_04_Is_Present
+]
+[
+ObjTp=Sg
+H=368
+Nm=Outlet_05_Power_Is_On
+]
+[
+ObjTp=Sg
+H=369
+Nm=Outlet_05_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=370
+Nm=Outlet_05_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=371
+Nm=Outlet_05_Is_Controllable
+]
+[
+ObjTp=Sg
+H=372
+Nm=Outlet_05_Is_Present
+]
+[
+ObjTp=Sg
+H=375
+Nm=Outlet_06_Power_Is_On
+]
+[
+ObjTp=Sg
+H=376
+Nm=Outlet_06_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=377
+Nm=Outlet_06_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=378
+Nm=Outlet_06_Is_Controllable
+]
+[
+ObjTp=Sg
+H=379
+Nm=Outlet_06_Is_Present
+]
+[
+ObjTp=Sg
+H=382
+Nm=Outlet_07_Power_Is_On
+]
+[
+ObjTp=Sg
+H=383
+Nm=Outlet_07_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=384
+Nm=Outlet_07_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=385
+Nm=Outlet_07_Is_Controllable
+]
+[
+ObjTp=Sg
+H=386
+Nm=Outlet_07_Is_Present
+]
+[
+ObjTp=Sg
+H=389
+Nm=Outlet_08_Power_Is_On
+]
+[
+ObjTp=Sg
+H=390
+Nm=Outlet_08_Power_Is_Off
+]
+[
+ObjTp=Sg
+H=391
+Nm=Outlet_08_Name_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=392
+Nm=Outlet_08_Is_Controllable
+]
+[
+ObjTp=Sg
+H=393
+Nm=Outlet_08_Is_Present
+]
+[
+ObjTp=Sg
+H=436
+Nm=Power_Is_Sequencing_Up
+]
+[
+ObjTp=Sg
+H=437
+Nm=Power_Is_Sequencing_Down
+]
+[
+ObjTp=Dp
+H=2
+Tp=1
+HD=TRUE
+DV=2d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=2
+Val1=1d
+Lbl1=TCP (Port 60000)
+Val2=2d
+Lbl2=SSH (Port 22)
+Sgn=0
+]
+[
+ObjTp=Dp
+H=3
+Tp=1
+SD=Login User Password Text
+HD=TRUE
+DV=0.0.0.0
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=4
+Tp=2
+DT=1
+FD1=Outlet 01 Power On
+SD=Outlet 01 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=5
+Tp=2
+DT=1
+FD1=Outlet 01 Power Off
+SD=Outlet 01 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=6
+Tp=2
+DT=1
+FD1=Outlet 01 Power Cycle
+SD=Outlet 01 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=7
+Tp=6
+DT=4
+FD1=Outlet 01 Power Cycle
+SD=Outlet 01 Power Cycle
+]
+[
+ObjTp=Dp
+H=9
+Tp=2
+DT=1
+FD1=Outlet 02 Power On
+SD=Outlet 02 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=10
+Tp=2
+DT=1
+FD1=Outlet 02 Power Off
+SD=Outlet 02 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=11
+Tp=2
+DT=1
+FD1=Outlet 02 Power Cycle
+SD=Outlet 02 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=12
+Tp=6
+DT=4
+FD1=Set Outlet 02 Name
+SD=Set Outlet 02 Name
+]
+[
+ObjTp=Dp
+H=14
+Tp=2
+DT=1
+FD1=Outlet 03 Power On
+SD=Outlet 03 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=15
+Tp=2
+DT=1
+FD1=Outlet 03 Power Off
+SD=Outlet 03 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=16
+Tp=2
+DT=1
+FD1=Outlet 03 Power Cycle
+SD=Outlet 03 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=17
+Tp=6
+DT=4
+FD1=Set Outlet 03 Name
+SD=Set Outlet 03 Name
+]
+[
+ObjTp=Dp
+H=19
+Tp=2
+DT=1
+FD1=Outlet 04 Power On
+SD=Outlet 04 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=20
+Tp=2
+DT=1
+FD1=Outlet 04 Power Off
+SD=Outlet 04 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=21
+Tp=2
+DT=1
+FD1=Outlet 04 Power Cycle
+SD=Outlet 04 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=22
+Tp=6
+DT=4
+FD1=Set Outlet 04 Name
+SD=Set Outlet 04 Name
+]
+[
+ObjTp=Dp
+H=24
+Tp=2
+DT=1
+FD1=Outlet 05 Power On
+SD=Outlet 05 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=25
+Tp=2
+DT=1
+FD1=Outlet 05 Power Off
+SD=Outlet 05 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=26
+Tp=2
+DT=1
+FD1=Outlet 05 Power Cycle
+SD=Outlet 05 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=27
+Tp=6
+DT=4
+FD1=Set Outlet 05 Name
+SD=Set Outlet 05 Name
+]
+[
+ObjTp=Dp
+H=29
+Tp=2
+DT=1
+FD1=Outlet 06 Power On
+SD=Outlet 06 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=30
+Tp=2
+DT=1
+FD1=Outlet 06 Power Off
+SD=Outlet 06 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=31
+Tp=2
+DT=1
+FD1=Outlet 06 Power Cycle
+SD=Outlet 06 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=32
+Tp=6
+DT=4
+FD1=Set Outlet 06 Name
+SD=Set Outlet 06 Name
+]
+[
+ObjTp=Dp
+H=34
+Tp=2
+DT=1
+FD1=Outlet 07 Power On
+SD=Outlet 07 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=35
+Tp=2
+DT=1
+FD1=Outlet 07 Power Off
+SD=Outlet 07 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=36
+Tp=2
+DT=1
+FD1=Outlet 07 Power Cycle
+SD=Outlet 07 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=37
+Tp=6
+DT=4
+FD1=Set Outlet 07 Name
+SD=Set Outlet 07 Name
+]
+[
+ObjTp=Dp
+H=39
+Tp=2
+DT=1
+FD1=Outlet 08 Power On
+SD=Outlet 08 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=40
+Tp=2
+DT=1
+FD1=Outlet 08 Power Off
+SD=Outlet 08 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=41
+Tp=2
+DT=1
+FD1=Outlet 08 Power Cycle
+SD=Outlet 08 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=42
+Tp=6
+DT=4
+FD1=Set Outlet 08 Name
+SD=Set Outlet 08 Name
+]
+[
+ObjTp=Dp
+H=44
+Tp=2
+DT=1
+FD1=Outlet 09 Power On
+SD=Outlet 09 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=45
+Tp=2
+DT=1
+FD1=Outlet 09 Power Off
+SD=Outlet 09 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=46
+Tp=2
+DT=1
+FD1=Outlet 09 Power Cycle
+SD=Outlet 09 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=47
+Tp=6
+DT=4
+FD1=Set Outlet 09 Name
+SD=Set Outlet 09 Name
+]
+[
+ObjTp=Dp
+H=49
+Tp=2
+DT=1
+FD1=Outlet 10 Power On
+SD=Outlet 10 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=50
+Tp=2
+DT=1
+FD1=Outlet 10 Power Off
+SD=Outlet 10 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=51
+Tp=2
+DT=1
+FD1=Outlet 10 Power Cycle
+SD=Outlet 10 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=52
+Tp=6
+DT=4
+FD1=Set Outlet 10 Name
+SD=Set Outlet 10 Name
+]
+[
+ObjTp=Dp
+H=54
+Tp=2
+DT=1
+FD1=Outlet 11 Power On
+SD=Outlet 11 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=55
+Tp=2
+DT=1
+FD1=Outlet 11 Power Off
+SD=Outlet 11 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=56
+Tp=2
+DT=1
+FD1=Outlet 11 Power Cycle
+SD=Outlet 11 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=57
+Tp=6
+DT=4
+FD1=Set Outlet 11 Name
+SD=Set Outlet 11 Name
+]
+[
+ObjTp=Dp
+H=59
+Tp=2
+DT=1
+FD1=Outlet 12 Power On
+SD=Outlet 12 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=60
+Tp=2
+DT=1
+FD1=Outlet 12 Power Off
+SD=Outlet 12 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=61
+Tp=2
+DT=1
+FD1=Outlet 12 Power Cycle
+SD=Outlet 12 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=62
+Tp=6
+DT=4
+FD1=Set Outlet 12 Name
+SD=Set Outlet 12 Name
+]
+[
+ObjTp=Dp
+H=64
+Tp=2
+DT=1
+FD1=Outlet 13 Power On
+SD=Outlet 13 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=65
+Tp=2
+DT=1
+FD1=Outlet 13 Power Off
+SD=Outlet 13 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=66
+Tp=2
+DT=1
+FD1=Outlet 13 Power Cycle
+SD=Outlet 13 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=67
+Tp=6
+DT=4
+FD1=Set Outlet 13 Name
+SD=Set Outlet 13 Name
+]
+[
+ObjTp=Dp
+H=69
+Tp=2
+DT=1
+FD1=Outlet 14 Power On
+SD=Outlet 14 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=70
+Tp=2
+DT=1
+FD1=Outlet 14 Power Off
+SD=Outlet 14 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=71
+Tp=2
+DT=1
+FD1=Outlet 14 Power Cycle
+SD=Outlet 14 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=72
+Tp=6
+DT=4
+FD1=Set Outlet 14 Name
+SD=Set Outlet 14 Name
+]
+[
+ObjTp=Dp
+H=74
+Tp=2
+DT=1
+FD1=Outlet 15 Power On
+SD=Outlet 15 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=75
+Tp=2
+DT=1
+FD1=Outlet 15 Power Off
+SD=Outlet 15 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=76
+Tp=2
+DT=1
+FD1=Outlet 15 Power Cycle
+SD=Outlet 15 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=77
+Tp=6
+DT=4
+FD1=Set Outlet 15 Name
+SD=Set Outlet 15 Name
+]
+[
+ObjTp=Dp
+H=79
+Tp=2
+DT=1
+FD1=Outlet 16 Power On
+SD=Outlet 16 Power On
+Trg=2
+]
+[
+ObjTp=Dp
+H=80
+Tp=2
+DT=1
+FD1=Outlet 16 Power Off
+SD=Outlet 16 Power Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=81
+Tp=2
+DT=1
+FD1=Outlet 16 Power Cycle
+SD=Outlet 16 Power Cycle
+Trg=2
+]
+[
+ObjTp=Dp
+H=82
+Tp=6
+DT=4
+FD1=Set Outlet 16 Name
+SD=Set Outlet 16 Name
+]
+[
+ObjTp=Dp
+H=84
+Tp=4
+FD1=Power Cycle Time
+SD=Power Cycle Time
+NF=1
+DNF=1
+VVS=1
+LR=0d
+HR=3600d
+]
+[
+ObjTp=Dp
+H=85
+Tp=2
+DT=1
+FD1=Power Sequence Up
+SD=Power Sequence Up
+Trg=2
+]
+[
+ObjTp=Dp
+H=86
+Tp=2
+DT=1
+FD1=Power Sequence Down
+SD=Power Sequence Down
+Trg=2
+]
+[
+ObjTp=Dp
+H=87
+Tp=4
+FD1=Power Sequence Time
+SD=Power Sequence Time
+NF=1
+DNF=1
+VVS=1
+LR=1d
+HR=999d
+]
+[
+ObjTp=Dp
+H=97
+Tp=3
+DT=1
+FD1=Is Communicating
+SD=Is Communicating
+RE=Communicating
+HS=Is Communicating
+]
+[
+ObjTp=Dp
+H=98
+Tp=7
+DT=4
+FD1=Product Part Number Text
+SD=Product Part Number Text
+]
+[
+ObjTp=Dp
+H=99
+Tp=7
+DT=4
+FD1=Product Rating Text
+SD=Product Rating Text
+]
+[
+ObjTp=Dp
+H=100
+Tp=7
+DT=4
+FD1=Assigned IP Address Text
+SD=Assigned IP Address Text
+]
+[
+ObjTp=Dp
+H=101
+Tp=7
+DT=4
+FD1=Product Mac Address Text
+SD=Product Mac Address Text
+]
+[
+ObjTp=Dp
+H=102
+Tp=3
+DT=1
+FD1=Outlet 01 Power Is On
+SD=Outlet 01 Power Is On
+RE=Outlet 01 Power On
+HS=Outlet 01 Power Is On
+]
+[
+ObjTp=Dp
+H=103
+Tp=3
+DT=1
+FD1=Outlet 01 Power Is Off
+SD=Outlet 01 Power Is Off
+RE=Outlet 01 Power Off
+HS=Outlet 01 Power Is Off
+]
+[
+ObjTp=Dp
+H=104
+Tp=7
+DT=4
+FD1=Outlet 01 Name Text
+SD=Outlet 01 Name Text
+]
+[
+ObjTp=Dp
+H=105
+Tp=3
+DT=1
+FD1=Outlet 01 Is Controllable
+SD=Outlet 01 Is Controllable
+RE=Outlet 01 Controllable
+HS=Outlet 01 Is Controllable
+]
+[
+ObjTp=Dp
+H=106
+Tp=3
+DT=1
+FD1=Outlet 01 Is Present
+SD=Outlet 01 Is Present
+RE=Outlet 01 Present
+HS=Outlet 01 Is Present
+]
+[
+ObjTp=Dp
+H=109
+Tp=3
+DT=1
+FD1=Outlet 02 Power Is On
+SD=Outlet 02 Power Is On
+RE=Outlet 02 Power On
+HS=Outlet 02 Power Is On
+]
+[
+ObjTp=Dp
+H=110
+Tp=3
+DT=1
+FD1=Outlet 02 Power Is Off
+SD=Outlet 02 Power Is Off
+RE=Outlet 02 Power Off
+HS=Outlet 02 Power Is Off
+]
+[
+ObjTp=Dp
+H=111
+Tp=7
+DT=4
+FD1=Outlet 02 Name Text
+SD=Outlet 02 Name Text
+]
+[
+ObjTp=Dp
+H=112
+Tp=3
+DT=1
+FD1=Outlet 02 Is Controllable
+SD=Outlet 02 Is Controllable
+RE=Outlet 02 Controllable
+HS=Outlet 02 Is Controllable
+]
+[
+ObjTp=Dp
+H=113
+Tp=3
+DT=1
+FD1=Outlet 02 Is Present
+SD=Outlet 02 Is Present
+RE=Outlet 02 Present
+HS=Outlet 02 Is Present
+]
+[
+ObjTp=Dp
+H=116
+Tp=3
+DT=1
+FD1=Outlet 03 Power Is On
+SD=Outlet 03 Power Is On
+RE=Outlet 03 Power On
+HS=Outlet 03 Power Is On
+]
+[
+ObjTp=Dp
+H=117
+Tp=3
+DT=1
+FD1=Outlet 03 Power Is Off
+SD=Outlet 03 Power Is Off
+RE=Outlet 03 Power Off
+HS=Outlet 03 Power Is Off
+]
+[
+ObjTp=Dp
+H=118
+Tp=7
+DT=4
+FD1=Outlet 03 Name Text
+SD=Outlet 03 Name Text
+]
+[
+ObjTp=Dp
+H=119
+Tp=3
+DT=1
+FD1=Outlet 03 Is Controllable
+SD=Outlet 03 Is Controllable
+RE=Outlet 03 Controllable
+HS=Outlet 03 Is Controllable
+]
+[
+ObjTp=Dp
+H=120
+Tp=3
+DT=1
+FD1=Outlet 03 Is Present
+SD=Outlet 03 Is Present
+RE=Outlet 03 Present
+HS=Outlet 03 Is Present
+]
+[
+ObjTp=Dp
+H=123
+Tp=3
+DT=1
+FD1=Outlet 04 Power Is On
+SD=Outlet 04 Power Is On
+RE=Outlet 04 Power On
+HS=Outlet 04 Power Is On
+]
+[
+ObjTp=Dp
+H=124
+Tp=3
+DT=1
+FD1=Outlet 04 Power Is Off
+SD=Outlet 04 Power Is Off
+RE=Outlet 04 Power Off
+HS=Outlet 04 Power Is Off
+]
+[
+ObjTp=Dp
+H=125
+Tp=7
+DT=4
+FD1=Outlet 04 Name Text
+SD=Outlet 04 Name Text
+]
+[
+ObjTp=Dp
+H=126
+Tp=3
+DT=1
+FD1=Outlet 04 Is Controllable
+SD=Outlet 04 Is Controllable
+RE=Outlet 04 Controllable
+HS=Outlet 04 Is Controllable
+]
+[
+ObjTp=Dp
+H=127
+Tp=3
+DT=1
+FD1=Outlet 04 Is Present
+SD=Outlet 04 Is Present
+RE=Outlet 04 Present
+HS=Outlet 04 Is Present
+]
+[
+ObjTp=Dp
+H=130
+Tp=3
+DT=1
+FD1=Outlet 05 Power Is On
+SD=Outlet 05 Power Is On
+RE=Outlet 05 Power On
+HS=Outlet 05 Power Is On
+]
+[
+ObjTp=Dp
+H=131
+Tp=3
+DT=1
+FD1=Outlet 05 Power Is Off
+SD=Outlet 05 Power Is Off
+RE=Outlet 05 Power Off
+HS=Outlet 05 Power Is Off
+]
+[
+ObjTp=Dp
+H=132
+Tp=7
+DT=4
+FD1=Outlet 05 Name Text
+SD=Outlet 05 Name Text
+]
+[
+ObjTp=Dp
+H=133
+Tp=3
+DT=1
+FD1=Outlet 05 Is Controllable
+SD=Outlet 05 Is Controllable
+RE=Outlet 05 Controllable
+HS=Outlet 05 Is Controllable
+]
+[
+ObjTp=Dp
+H=134
+Tp=3
+DT=1
+FD1=Outlet 05 Is Present
+SD=Outlet 05 Is Present
+RE=Outlet 05 Present
+HS=Outlet 05 Is Present
+]
+[
+ObjTp=Dp
+H=137
+Tp=3
+DT=1
+FD1=Outlet 06 Power Is On
+SD=Outlet 06 Power Is On
+RE=Outlet 06 Power On
+HS=Outlet 06 Power Is On
+]
+[
+ObjTp=Dp
+H=138
+Tp=3
+DT=1
+FD1=Outlet 06 Power Is Off
+SD=Outlet 06 Power Is Off
+RE=Outlet 06 Power Off
+HS=Outlet 06 Power Is Off
+]
+[
+ObjTp=Dp
+H=139
+Tp=7
+DT=4
+FD1=Outlet 06 Name Text
+SD=Outlet 06 Name Text
+]
+[
+ObjTp=Dp
+H=140
+Tp=3
+DT=1
+FD1=Outlet 06 Is Controllable
+SD=Outlet 06 Is Controllable
+RE=Outlet 06 Controllable
+HS=Outlet 06 Is Controllable
+]
+[
+ObjTp=Dp
+H=141
+Tp=3
+DT=1
+FD1=Outlet 06 Is Present
+SD=Outlet 06 Is Present
+RE=Outlet 06 Present
+HS=Outlet 06 Is Present
+]
+[
+ObjTp=Dp
+H=144
+Tp=3
+DT=1
+FD1=Outlet 07 Power Is On
+SD=Outlet 07 Power Is On
+RE=Outlet 07 Power On
+HS=Outlet 07 Power Is On
+]
+[
+ObjTp=Dp
+H=145
+Tp=3
+DT=1
+FD1=Outlet 07 Power Is Off
+SD=Outlet 07 Power Is Off
+RE=Outlet 07 Power Off
+HS=Outlet 07 Power Is Off
+]
+[
+ObjTp=Dp
+H=146
+Tp=7
+DT=4
+FD1=Outlet 07 Name Text
+SD=Outlet 07 Name Text
+]
+[
+ObjTp=Dp
+H=147
+Tp=3
+DT=1
+FD1=Outlet 07 Is Controllable
+SD=Outlet 07 Is Controllable
+RE=Outlet 07 Controllable
+HS=Outlet 07 Is Controllable
+]
+[
+ObjTp=Dp
+H=148
+Tp=3
+DT=1
+FD1=Outlet 07 Is Present
+SD=Outlet 07 Is Present
+RE=Outlet 07 Present
+HS=Outlet 07 Is Present
+]
+[
+ObjTp=Dp
+H=151
+Tp=3
+DT=1
+FD1=Outlet 08 Power Is On
+SD=Outlet 08 Power Is On
+RE=Outlet 08 Power On
+HS=Outlet 08 Power Is On
+]
+[
+ObjTp=Dp
+H=152
+Tp=3
+DT=1
+FD1=Outlet 08 Power Is Off
+SD=Outlet 08 Power Is Off
+RE=Outlet 08 Power Off
+HS=Outlet 08 Power Is Off
+]
+[
+ObjTp=Dp
+H=153
+Tp=7
+DT=4
+FD1=Outlet 08 Name Text
+SD=Outlet 08 Name Text
+]
+[
+ObjTp=Dp
+H=154
+Tp=3
+DT=1
+FD1=Outlet 08 Is Controllable
+SD=Outlet 08 Is Controllable
+RE=Outlet 08 Controllable
+HS=Outlet 08 Is Controllable
+]
+[
+ObjTp=Dp
+H=155
+Tp=3
+DT=1
+FD1=Outlet 08 Is Present
+SD=Outlet 08 Is Present
+RE=Outlet 08 Present
+HS=Outlet 08 Is Present
+]
+[
+ObjTp=Dp
+H=158
+Tp=3
+DT=1
+FD1=Outlet 09 Power Is On
+SD=Outlet 09 Power Is On
+RE=Outlet 09 Power On
+HS=Outlet 09 Power Is On
+]
+[
+ObjTp=Dp
+H=159
+Tp=3
+DT=1
+FD1=Outlet 09 Power Is Off
+SD=Outlet 09 Power Is Off
+RE=Outlet 09 Power Off
+HS=Outlet 09 Power Is Off
+]
+[
+ObjTp=Dp
+H=160
+Tp=7
+DT=4
+FD1=Outlet 09 Name Text
+SD=Outlet 09 Name Text
+]
+[
+ObjTp=Dp
+H=161
+Tp=3
+DT=1
+FD1=Outlet 09 Is Controllable
+SD=Outlet 09 Is Controllable
+RE=Outlet 09 Controllable
+HS=Outlet 09 Is Controllable
+]
+[
+ObjTp=Dp
+H=162
+Tp=3
+DT=1
+FD1=Outlet 09 Is Present
+SD=Outlet 09 Is Present
+RE=Outlet 09 Present
+HS=Outlet 09 Is Present
+]
+[
+ObjTp=Dp
+H=165
+Tp=3
+DT=1
+FD1=Outlet 10 Power Is On
+SD=Outlet 10 Power Is On
+RE=Outlet 10 Power On
+HS=Outlet 10 Power Is On
+]
+[
+ObjTp=Dp
+H=166
+Tp=3
+DT=1
+FD1=Outlet 10 Power Is Off
+SD=Outlet 10 Power Is Off
+RE=Outlet 10 Power Off
+HS=Outlet 10 Power Is Off
+]
+[
+ObjTp=Dp
+H=167
+Tp=7
+DT=4
+FD1=Outlet 10 Name Text
+SD=Outlet 10 Name Text
+]
+[
+ObjTp=Dp
+H=168
+Tp=3
+DT=1
+FD1=Outlet 10 Is Controllable
+SD=Outlet 10 Is Controllable
+RE=Outlet 10 Controllable
+HS=Outlet 10 Is Controllable
+]
+[
+ObjTp=Dp
+H=169
+Tp=3
+DT=1
+FD1=Outlet 10 Is Present
+SD=Outlet 10 Is Present
+RE=Outlet 10 Present
+HS=Outlet 10 Is Present
+]
+[
+ObjTp=Dp
+H=172
+Tp=3
+DT=1
+FD1=Outlet 11 Power Is On
+SD=Outlet 11 Power Is On
+RE=Outlet 11 Power On
+HS=Outlet 11 Power Is On
+]
+[
+ObjTp=Dp
+H=173
+Tp=3
+DT=1
+FD1=Outlet 11 Power Is Off
+SD=Outlet 11 Power Is Off
+RE=Outlet 11 Power Off
+HS=Outlet 11 Power Is Off
+]
+[
+ObjTp=Dp
+H=174
+Tp=7
+DT=4
+FD1=Outlet 11 Name Text
+SD=Outlet 11 Name Text
+]
+[
+ObjTp=Dp
+H=175
+Tp=3
+DT=1
+FD1=Outlet 11 Is Controllable
+SD=Outlet 11 Is Controllable
+RE=Outlet 11 Controllable
+HS=Outlet 11 Is Controllable
+]
+[
+ObjTp=Dp
+H=176
+Tp=3
+DT=1
+FD1=Outlet 11 Is Present
+SD=Outlet 11 Is Present
+RE=Outlet 11 Present
+HS=Outlet 11 Is Present
+]
+[
+ObjTp=Dp
+H=179
+Tp=3
+DT=1
+FD1=Outlet 12 Power Is On
+SD=Outlet 12 Power Is On
+RE=Outlet 12 Power On
+HS=Outlet 12 Power Is On
+]
+[
+ObjTp=Dp
+H=180
+Tp=3
+DT=1
+FD1=Outlet 12 Power Is Off
+SD=Outlet 12 Power Is Off
+RE=Outlet 12 Power Off
+HS=Outlet 12 Power Is Off
+]
+[
+ObjTp=Dp
+H=181
+Tp=7
+DT=4
+FD1=Outlet 12 Name Text
+SD=Outlet 12 Name Text
+]
+[
+ObjTp=Dp
+H=182
+Tp=3
+DT=1
+FD1=Outlet 12 Is Controllable
+SD=Outlet 12 Is Controllable
+RE=Outlet 12 Controllable
+HS=Outlet 12 Is Controllable
+]
+[
+ObjTp=Dp
+H=183
+Tp=3
+DT=1
+FD1=Outlet 12 Is Present
+SD=Outlet 12 Is Present
+RE=Outlet 12 Present
+HS=Outlet 12 Is Present
+]
+[
+ObjTp=Dp
+H=186
+Tp=3
+DT=1
+FD1=Outlet 13 Power Is On
+SD=Outlet 13 Power Is On
+RE=Outlet 13 Power On
+HS=Outlet 13 Power Is On
+]
+[
+ObjTp=Dp
+H=187
+Tp=3
+DT=1
+FD1=Outlet 13 Power Is Off
+SD=Outlet 13 Power Is Off
+RE=Outlet 13 Power Off
+HS=Outlet 13 Power Is Off
+]
+[
+ObjTp=Dp
+H=188
+Tp=7
+DT=4
+FD1=Outlet 13 Name Text
+SD=Outlet 13 Name Text
+]
+[
+ObjTp=Dp
+H=189
+Tp=3
+DT=1
+FD1=Outlet 13 Is Controllable
+SD=Outlet 13 Is Controllable
+RE=Outlet 13 Controllable
+HS=Outlet 13 Is Controllable
+]
+[
+ObjTp=Dp
+H=190
+Tp=3
+DT=1
+FD1=Outlet 13 Is Present
+SD=Outlet 13 Is Present
+RE=Outlet 13 Present
+HS=Outlet 13 Is Present
+]
+[
+ObjTp=Dp
+H=193
+Tp=3
+DT=1
+FD1=Outlet 14 Power Is On
+SD=Outlet 14 Power Is On
+RE=Outlet 14 Power On
+HS=Outlet 14 Power Is On
+]
+[
+ObjTp=Dp
+H=194
+Tp=3
+DT=1
+FD1=Outlet 14 Power Is Off
+SD=Outlet 14 Power Is Off
+RE=Outlet 14 Power Off
+HS=Outlet 14 Power Is Off
+]
+[
+ObjTp=Dp
+H=195
+Tp=7
+DT=4
+FD1=Outlet 14 Name Text
+SD=Outlet 14 Name Text
+]
+[
+ObjTp=Dp
+H=196
+Tp=3
+DT=1
+FD1=Outlet 14 Is Controllable
+SD=Outlet 14 Is Controllable
+RE=Outlet 14 Controllable
+HS=Outlet 14 Is Controllable
+]
+[
+ObjTp=Dp
+H=197
+Tp=3
+DT=1
+FD1=Outlet 14 Is Present
+SD=Outlet 14 Is Present
+RE=Outlet 14 Present
+HS=Outlet 14 Is Present
+]
+[
+ObjTp=Dp
+H=200
+Tp=3
+DT=1
+FD1=Outlet 15 Power Is On
+SD=Outlet 15 Power Is On
+RE=Outlet 15 Power On
+HS=Outlet 15 Power Is On
+]
+[
+ObjTp=Dp
+H=201
+Tp=3
+DT=1
+FD1=Outlet 15 Power Is Off
+SD=Outlet 15 Power Is Off
+RE=Outlet 15 Power Off
+HS=Outlet 15 Power Is Off
+]
+[
+ObjTp=Dp
+H=202
+Tp=7
+DT=4
+FD1=Outlet 15 Name Text
+SD=Outlet 15 Name Text
+]
+[
+ObjTp=Dp
+H=203
+Tp=3
+DT=1
+FD1=Outlet 15 Is Controllable
+SD=Outlet 15 Is Controllable
+RE=Outlet 15 Controllable
+HS=Outlet 15 Is Controllable
+]
+[
+ObjTp=Dp
+H=204
+Tp=3
+DT=1
+FD1=Outlet 15 Is Present
+SD=Outlet 15 Is Present
+RE=Outlet 15 Present
+HS=Outlet 15 Is Present
+]
+[
+ObjTp=Dp
+H=207
+Tp=3
+DT=1
+FD1=Outlet 16 Power Is On
+SD=Outlet 16 Power Is On
+RE=Outlet 16 Power On
+HS=Outlet 16 Power Is On
+]
+[
+ObjTp=Dp
+H=208
+Tp=3
+DT=1
+FD1=Outlet 16 Power Is Off
+SD=Outlet 16 Power Is Off
+RE=Outlet 16 Power Off
+HS=Outlet 16 Power Is Off
+]
+[
+ObjTp=Dp
+H=209
+Tp=7
+DT=4
+FD1=Outlet 16 Name Text
+SD=Outlet 16 Name Text
+]
+[
+ObjTp=Dp
+H=210
+Tp=3
+DT=1
+FD1=Outlet 16 Is Controllable
+SD=Outlet 16 Is Controllable
+RE=Outlet 16 Controllable
+HS=Outlet 16 Is Controllable
+]
+[
+ObjTp=Dp
+H=211
+Tp=3
+DT=1
+FD1=Outlet 16 Is Present
+SD=Outlet 16 Is Present
+RE=Outlet 16 Present
+HS=Outlet 16 Is Present
+]
+[
+ObjTp=Dp
+H=214
+Tp=3
+DT=1
+FD1=Power Is Sequencing Up
+SD=Power Is Sequencing Up
+RE=Power Sequencing Up
+HS=Power Is Sequencing Up
+]
+[
+ObjTp=Dp
+H=215
+Tp=3
+DT=1
+FD1=Power Is Sequencing Down
+SD=Power Is Sequencing Down
+RE=Power Sequencing Down
+HS=Power Is Sequencing Down
+]
+[
+ObjTp=Dp
+H=216
+Tp=7
+DT=4
+FD1=Power Sequence Text
+SD=Power Sequence Text
+]
+[
+ObjTp=Dp
+H=219
+Tp=1
+HD=TRUE
+DV=user
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=220
+Tp=1
+HD=TRUE
+DV=password
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]

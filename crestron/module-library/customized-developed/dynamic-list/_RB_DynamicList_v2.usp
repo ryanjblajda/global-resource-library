@@ -1,0 +1,97 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** Compiler Directives ****/
+#SYMBOL_NAME "Dynamic String List Generator v2"
+#HINT "takes a list of strings that may not be defined, and turns it into a sequential list of strings"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#DEFINE_CONSTANT MAXITEMS 255
+//#DEFINE_CONSTANT DEBUG 1
+#DEFINE_CONSTANT MAXIGNORE 5
+//#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+#HELP_END
+
+/*** INPUTS ***/
+ANALOG_INPUT _SKIP_;
+ANALOG_INPUT  List_Item_Clicked;
+STRING_INPUT  _SKIP_;
+STRING_INPUT  Item_Text_[MAXITEMS][MAXITEMS];
+
+/*** PARAMETERS ***/
+
+/*** OUTPUTS ***/
+DIGITAL_OUTPUT Absolute_Item_Available_[MAXITEMS];
+ANALOG_OUTPUT Absolute_Item_Clicked;
+ANALOG_OUTPUT _SKIP_;
+ANALOG_OUTPUT List_Number_Of_Items;
+STRING_OUTPUT _SKIP_;
+STRING_OUTPUT List_Item_Text_[MAXITEMS];
+
+/*** GLOBAL VARIABLES ***/
+STRING gs_ItemText[MAXITEMS][MAXITEMS];
+INTEGER gi_InputsDefined;
+INTEGER gi_ListItemMap[MAXITEMS];
+INTEGER gi_ListGenerating;
+
+/*** FUNCTIONS ***/
+FUNCTION Main() {
+	INTEGER iInputIndex;
+
+	waitForInitializationComplete();
+
+	for(iInputIndex = GetNumArrayRows(Item_Text_) to 1 step -1) {
+		if(isSignalDefined(Item_Text_[iInputIndex]) = ON) { break; }
+	}
+
+	//print("Total Number Of Items Defined: %d", iInputIndex);
+	gi_InputsDefined = iInputIndex;
+
+	SetArray(gi_ListItemMap, 0);
+}
+
+FUNCTION GenerateDynamicList() {
+	INTEGER iListCount, index;
+	
+	if (gi_ListGenerating = OFF) {
+		//set the list generating var to true, so that any other events wont trigger the loop
+		gi_ListGenerating = ON;
+
+		for (index = 1 to gi_InputsDefined) {
+			if(gs_ItemText[index] <> "") {
+				iListCount = iListCount + 1; //increment the output list count so that we push input items consecutively to the output list
+				List_Item_Text_[iListCount] = gs_ItemText[index]; //starting at output item 1, push the input item
+				gi_ListItemMap[iListCount] = index; //stores the input index value at the location we added this item to the output list so that conversions select the absolute item
+				//print("iListCount = %d, gs_ItemText[%d] = %s // gs_ListItemMap[%d] = %d", iListCount, iListCount, gs_ItemText[iListCount], iListCount, index);
+				Absolute_Item_Available_[index] = ON;
+				//print("Absolute_Item_Available_[%d] = ON", index); 
+			}
+			else { 
+				Absolute_Item_Available_[index] = OFF;
+				//print("Absolute_Item_Available_[%d] = OFF", index); 
+			}
+			ProcessLogic();
+		}
+	
+		List_Number_Of_Items = iListCount;
+		gi_ListGenerating = OFF;
+	}
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE Item_Text_ {
+	INTEGER iChanged;
+	iChanged = getLastModifiedArrayIndex(); //get the array index that changed
+	gs_ItemText[iChanged] = Item_Text_[iChanged]; // store the newly changed value in our array so that MSP is not necessary
+	GenerateDynamicList();
+}
+
+CHANGE List_Item_Clicked {
+	Absolute_Item_Clicked = gi_ListItemMap[List_Item_Clicked];
+}

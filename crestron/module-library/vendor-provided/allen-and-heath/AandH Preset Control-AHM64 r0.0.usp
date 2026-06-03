@@ -1,0 +1,173 @@
+// SIMPL+ Module Information
+/*
+Dealer Name:	Front Side Solutions, Inc.
+Programmer:		cdr
+Comments:			A&H AHM64 Preset Control
+*/
+
+// Compiler Directives
+#ENABLE_DYNAMIC
+#SYMBOL_NAME "AandH Preset Control-AHM64"
+#CATEGORY "34" // Mixer
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#HELP_BEGIN
+AandH Preset Control-AHM64 r0.0.usp
+
+Controls Presets 1d~500d.
+
+Inputs:
+ Digital-
+  Take:	Sends the command to the AHM64 for whichever Preset is currently on
+  the Preset analog. 
+  Can be latched with a 1 to automatically send whenever the analogs change.
+
+ Analog-
+  Preset: Preset to recall. Valid range 1-500d.
+
+ Serial-
+  FmMixer: Connect to the TCP/IP symbol Receive line.
+
+Outputs:
+ Analog-
+  PresetFb: Feedback on last recalled Preset. Valid range 1d-16d.
+      This is tracked both internally (when module is used to send preset) and if the
+      preset is changed externally. However, this will not sync to the active
+      preset on the unit when the Crestron processor comes online.
+
+ Digital-
+  PresetRecalled:	Pulses to indicate a preset has been recalled by this module or externally.
+      This can be used to trigger a poll on level or other modules to sync them to any
+      changes the preset may have made.
+
+ Serial-
+  ToMixer: Connect to the TCP/IP symbol Transmit line.
+
+
+Notes:
+ Reference the AHM64 protocol for valid Control Channels for the
+  selected control type.
+
+ For more information Reference: AHM-TCP-Protocol-V1.pdf
+
+ Tested with AHM64 Firmware V1.02 - Rev59154
+
+ Release: 2020-Dec-16 Release r0.0
+
+#HELP_END
+
+
+// DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+DIGITAL_INPUT Take;
+ANALOG_INPUT 	Preset;
+BUFFER_INPUT 	FmMixer[1024];
+
+DIGITAL_OUTPUT PresetRecalled;
+ANALOG_OUTPUT	PresetFb;
+STRING_OUTPUT ToMixer;
+
+// Functions
+Function BuildPreset(Integer nPreset)
+{
+  If(nPreset >= 1 && nPreset <= 500)
+ 	{
+
+	  If (nPreset > 0 && nPreset < 129)
+			Makestring(ToMixer, "\xB0\x00\x00\xC0%s", CHR(nPreset - 1));
+	  Else If (nPreset > 128 && nPreset < 257)
+			Makestring(ToMixer, "\xB0\x00\x01\xC0%s", CHR(nPreset - 129));
+	  Else If (nPreset > 256 && nPreset < 385)
+			Makestring(ToMixer, "\xB0\x00\x02\xC0%s", CHR(nPreset - 257));
+	  Else If (nPreset > 384 && nPreset < 501)
+			Makestring(ToMixer, "\xB0\x00\x03\xC0%s", CHR(nPreset - 385));
+		PresetFb = nPreset;
+		Pulse(50,PresetRecalled);
+	}
+}
+
+// Global Variables
+//INTEGER	nPreset;
+
+// Event Handlers
+CHANGE Preset
+{
+	If(Take)
+		BuildPreset(Preset);	
+}
+
+PUSH Take
+{
+	BuildPreset(Preset);	
+}
+
+THREADSAFE CHANGE FmMixer
+{
+//	String cTemp[5], cPsetFb[1];
+	Integer nLast;
+// Standard Preset unsolicited Responses 
+// \xB0\x00\x00\xC0\xXX	(Presets 1-128)
+// \xB0\x00\x01\xC0\xXX	(Presets 129-256)
+// \xB0\x00\x02\xC0\xXX	(Presets 257-384)
+// \xB0\x00\x03\xC0\xXX	(Presets 385-500)
+
+
+	If (Find ("\xB0\x00\x00\xC0",FmMixer))
+	{
+    nLast = (Byte (FmMixer, 5));
+		PresetFb = nLast + 1;
+		Pulse(50,PresetRecalled);
+		ClearBuffer(FmMixer);
+	}
+	Else If (Find ("\xB0\x00\x01\xC0",FmMixer))
+	{
+    nLast = (Byte (FmMixer, 5));
+		PresetFb = nLast + 129;
+		Pulse(50,PresetRecalled);
+		ClearBuffer(FmMixer);
+	}
+	Else If (Find ("\xB0\x00\x02\xC0",FmMixer))
+	{
+    nLast = (Byte (FmMixer, 5));
+		PresetFb = nLast + 257;
+		Pulse(50,PresetRecalled);
+		ClearBuffer(FmMixer);
+	}
+	Else If (Find ("\xB0\x00\x03\xC0",FmMixer))
+	{
+    nLast = (Byte (FmMixer, 5));
+		PresetFb = nLast + 385;
+		Pulse(50,PresetRecalled);
+		ClearBuffer(FmMixer);
+	}
+	Else
+	{
+		ClearBuffer(FmMixer);
+	}
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+/*
+Function Main()
+{
+    // TODO:  Add code here
+    // Initialize declared global and local variables/arrays as needed.
+
+    // WaitForInitializationComplete();
+    // If you are reading any Input or Output variables, uncomment
+    //   the WaitForInitializationComplete statement above and read
+    //   them afterwards.  Input/Output variables will not have
+    //   their correct values set until after the logic processor
+    //   runs and propagates the values to them.
+}
+*/
+

@@ -1,0 +1,58 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "Volume Command Generator"
+#HINT ""
+#CATEGORY "46" "RBLAJDA_PROCESSOR" 
+#PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+/**LIBRARIES**/
+
+/**INPUTS**/
+ANALOG_INPUT Volume_Level;
+
+/**OUTPUTS**/ 
+STRING_OUTPUT Command;
+
+/**SOCKETS**/
+
+/**PARAMETERS**/
+STRING_PARAMETER Command_Prefix[255];
+STRING_PARAMETER Command_Suffix[255];
+
+/**PARAMETER PROPERTIES**/
+
+/**GLOBAL VARIABLES**/
+
+/**FUNCTIONS**/
+
+/**EVENT HANDLERS**/
+
+CHANGE Volume_Level
+{
+	Command = Command_Prefix + itoa(Volume_Level) + Command_Suffix;	
+}

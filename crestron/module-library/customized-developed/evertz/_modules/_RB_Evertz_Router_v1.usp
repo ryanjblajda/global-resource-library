@@ -1,0 +1,134 @@
+/***
+PROGRAMMER: RJB
+***/
+
+/*** COMPILER DIRECTIVES ****/
+#SYMBOL_NAME ""
+#HINT ""
+#CATEGORY "46" "RBLAJDA" // Custom
+#PRINT_TO_TRACE
+#ENABLE_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#DEFINE_CONSTANT DEBUG 1
+
+#HELP_BEGIN
+#HELP_END
+
+/*** INPUTS ***/
+BUFFER_INPUT 	device_rx[255];
+STRING_OUTPUT 	device_tx;
+
+/*** OUTPUTS ***/
+
+/*** GLOBAL VARIABLES ***/
+string gsCarriageReturn[255];
+
+								//use 3 leading zeros for destination and source
+//SET XPT MESSAGE			<.S{LEVEL}{DEST},{SRC}\x0D>
+//UPDATE REPLY				<.U{LEVEL}{DEST},{SRC}\x0D>
+
+								//salvo is an ascii string of 3 numeric characters
+//FIRE SYSTEM SALVO			<.F{SALVO}\x0D
+//SYSTEM SALVO REPLY		<.A\x0D
+
+//INTERROGATE ROUTE			<.I{LEVEL}{DEST}\x0D>
+//ACK REPLY					<.A{LEVEL}{DEST},{SRC}\x0D>
+                            
+//// ---- MAIN MNEMONIC TABLE ---- ////
+
+//READ NAME TABLE [dest]	<.RD{DEST}\x0D>
+//READ NAME TABLE [src ]	<.RS{SRC}\x0D>
+								
+								//level can only be V,A,B,C,D,E,F,G
+//READ NAME TABLE [level]	<.RL{LEVEL}\x0D>
+
+//WRITE NAME TABLE [dest]	<.WD{DEST}\x0D>
+//WRITE NAME TABLE [src ]	<.WS{SRC}\x0D>
+								
+								//level can only be V,A,B,C,D,E,F,G
+//WRITE NAME TABLE [level]	<.WL{LEVEL}\x0D>
+
+//REPLY [dest]				<.RAD{DEST},{MNEMONIC}\x0D>
+//REPLY [src ]				<.RAS{SRC},{MNEMONIC}\x0D>
+//REPLY [level]				<.RAL{LEVEL},{MNEMONIC}\x0D>
+
+//// ---- LCD MNEMONIC TABLE ---- ////
+
+//READ NAME TABLE [dest]	<.RE{DEST}\x0D>
+//READ NAME TABLE [src ]	<.RT{SRC}\x0D>
+								
+								//level can only be V,A,B,C,D,E,F,G
+//READ NAME TABLE [level]	<.RM{LEVEL}\x0D>
+
+//WRITE NAME TABLE [dest]	<.WE{DEST}\x0D>
+//WRITE NAME TABLE [src ]	<.WT{SRC}\x0D>
+								
+								//level can only be V,A,B,C,D,E,F,G
+//WRITE NAME TABLE [level]	<.WM{LEVEL}\x0D>
+
+//REPLY [dest]				<.RAE{DEST},{MNEMONIC}\x0D>
+//REPLY [src ]				<.RAT{SRC},{MNEMONIC}\x0D>
+//REPLY [level]				<.RAM{LEVEL},{MNEMONIC}\x0D>
+
+//REPLY POWER UP			<\x0D.P\x0D> 
+
+//ERR 						<.E\x0D>
+
+/*** FUNCTIONS ***/
+FUNCTION Main() {
+	WaitForInitializationComplete();
+	gsCarriageReturn = "\x0D";
+}
+
+FUNCTION CheckReplyType(string reply) {
+}
+
+FUNCTION HandleSingularResponse(string response) {
+	string responseType;
+	print("Evertz | Response: %s", response);
+	
+	responseType = mid(response, 0, 2, 1);
+	CheckReplyType(
+}
+
+CALLBACK GatherEventHandler OnGatherResponse(GatherEventArgs args) {
+	if (args.RESULTS = 0) {	
+		Print("Evertz | Valid Response");
+		//re-arm the event handler
+		RearmGatherAsync(args.INPUT);
+
+		HandleSingularResponse(args.RxString);
+	}
+	else {
+		Print("Evertz | Gather Timeout");
+	}
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE device_rx {
+	integer result;
+	string resultString[50];
+
+	if(find(gsCarriageReturn, device_rx) <> 0) {
+		#IF_DEFINED DEBUG
+			print("Evertz | Found End Of Message");
+		#ENDIF
+
+		result = GatherAsync("\x0D", device_rx, OnGatherResponse);
+
+		#IF_DEFINED DEBUG
+			if (result = 0) { resultString = "Success"; }
+			else if (result = -1) { resultString = "Issue with Parameter"; }
+			else if (result = 1) { resultString = "Success"; }
+			else { resultString = "Error"; }
+			print("Evertz | GatherAsync Result: %s", resultString);
+		#ENDIF
+
+	}
+	else {
+		#IF_DEFINED DEBUG
+			print("Evertz | No End Of Message Found");
+		#ENDIF
+	}
+}

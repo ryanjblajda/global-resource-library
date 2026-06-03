@@ -1,0 +1,162 @@
+/*
+Dealer Name: Crestron
+System Name:
+System Number: V1
+Programmer: JMG
+Comments:
+*/
+//Compiler Directives
+//#HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+//INCLUDES
+
+#CATEGORY "0" //Hidden
+
+#USER_SIMPLSHARP_LIBRARY "QsysControl"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Initialize;
+ANALOG_INPUT Debug,Poll_Rate;
+STRING_INPUT Host[500];
+String_Input Custom_String[500];
+// BUFFER_INPUT 
+
+DIGITAL_OUTPUT Initialized, Connected,IsRedundantCore,IsEmulator;
+
+ANALOG_OUTPUT Errors_Logged;
+// ANALOG_OUTPUT 
+STRING_OUTPUT Platform,State,DesignName;
+
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER Core_ID;			//Used to Identify what Core in program.
+STRING_PARAMETER Login_User[50];
+STRING_PARAMETER Login_Pin[50];		
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER giID;		//Core ID
+STRING gsHost[500];		//Core Host
+
+QSYSCore myCore;
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+Callback Function cbf_ErrorLogged(integer ErrCount)				//Reports number of Errors Returned from Core.
+{
+ 	Errors_Logged = ErrCount;
+}
+Callback Function cbf_Initialized(integer InitValue)
+{
+ 	Initialized = InitValue;
+}
+
+
+EventHandler CoreChangeEvent ( QSYSCore sender, QSYSCoreChangeArgs e )
+{
+ 	Connected = e.Status;
+}
+EventHandler CoreStatusChangeEvent ( QSYSCore sender, QSYSStatusChangeArgs e )
+{
+ 		Platform = e.Platform;
+        State = e.State;
+        DesignName = e.DesignName;
+        IsRedundantCore = e.IsRedundant;
+        IsEmulator = e.IsEmulator;
+		
+}
+
+PUSH Initialize 
+{
+ 	if(len(gsHost) > 0)
+	{
+		myCore.User = Login_User;
+    	myCore.Pin = Login_Pin;
+
+     	myCore.CoreID = giID;
+		myCore._CoreIPAddress = gsHost;
+	
+	}   
+}
+
+
+CHANGE Debug
+{
+ 	myCore.CoreDebug = Debug;
+}
+
+CHANGE Host
+{  
+   gsHost = Host;  
+   if(Initialized = 1)        //If already Intialized
+	{
+	   if(len(gsHost) > 0)
+		{
+			myCore.User = Login_User;
+	    	myCore.Pin = Login_Pin;
+	
+	     	myCore.CoreID = giID;
+			myCore._CoreIPAddress = gsHost;
+		
+		} 	
+   	}
+}
+change Poll_Rate
+{
+ 	myCore._pollRate = Poll_Rate;
+}
+change Custom_String
+{
+	myCore.QSYSCustomString(Custom_String);
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    
+
+    WaitForInitializationComplete();
+	giID = Core_ID;
+	gsHost = Host;
+	myCore.User = Login_User;
+    myCore.Pin = Login_Pin;
+
+
+	//RegisterCoreEvents and Delegates
+	RegisterEvent(myCore, onCoreChangeEvent, CoreChangeEvent); 
+	RegisterEvent(myCore, onCoreStatusChangeEvent, CoreStatusChangeEvent);
+	RegisterDelegate(myCore, delCoreErrors, cbf_ErrorLogged); 
+	RegisterDelegate(myCore, delInitialized, cbf_Initialized);
+    
+	delay(500);
+
+	if(Initialize)
+	{
+     
+     	myCore.CoreID = giID;
+		myCore._CoreIPAddress = gsHost;	
+	}    
+
+}
+
