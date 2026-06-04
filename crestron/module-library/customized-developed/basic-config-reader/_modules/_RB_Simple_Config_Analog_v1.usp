@@ -1,0 +1,97 @@
+				/*
+		Programmer: Ryan Blajda
+		
+        +MMMMMMMM7. .?MMMMMMMM.         
+     MMMMMMMMMMMMMMMMM8 .MMMMMMM        
+   MMMM  ...IMMMMM+. IMMMM.,MMMMM .N.   
+    .NMMMMMM=...   ..MM. MM$.MMMM .MMM  
+ .MMMMMM  MMM .... . M .M. M, MMM .MMMM 
+MMMMMM  MM..M:.        .M..M..MM,.MMMMMN
+MMMMM.:MM. M. M.        .,M..MM. MMMMMM.
+MMMM. MMM.,M..M. M  ... . MMM .MMMMMM.  
+ MMM  MMMM.$MM .MM. . ....=MMMMMMM.     
+  .M  MMMMM, MMMMI  ?MMMMM7. ...MMMM.   
+       MMMMMMM. 8MMMMMMMMMMMMMMMMM      
+         DMMMMMMM? ..7MMMMMMMM?.        
+            .. +DMN7 .
+
+				*/
+
+/**COMPILER DIRECTIVES**/
+
+#SYMBOL_NAME "JSON Config File [Analog Data]"
+#HINT "reads string data in from a json config file"
+#CATEGORY "46" "RBLAJDA-C#" 
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENABLE_DYNAMIC
+#DEFINE_CONSTANT ciMaxStringLength 100
+#DEFINE_CONSTANT ciMaxItems 255
+
+#HELP_BEGIN
+#HELP_END
+
+/**LIBRARIES**/
+#USER_SIMPLSHARP_LIBRARY "BasicConfigReader"
+
+/**INPUTS**/
+DIGITAL_INPUT _SKIP_, Refresh, Enable_Auto_Refresh;
+ANALOG_INPUT Auto_Refresh_Time_Seconds;
+
+/**OUTPUTS**/
+#OUTPUT_SHIFT 1
+DIGITAL_OUTPUT File_Load_Success_Fb, _SKIP_, _SKIP_;
+ANALOG_OUTPUT  Value_For_Analog_Item[ciMaxItems]; 
+
+/**PARAMETERS**/
+STRING_PARAMETER ConfigFile[ciMaxStringLength], _SKIP_, _SKIP_, _SKIP_;
+//STRING_PARAMETER Digital_Items[ciMaxItems];
+//STRING_PARAMETER Analog_Items[ciMaxItems];
+STRING_PARAMETER Analog_Item[ciMaxItems][ciMaxStringLength];
+
+/**GLOBAL VARIABLES**/
+ConfigReader thisReader;
+
+/**FUNCTIONS**/
+FUNCTION Main()
+{
+	integer i;
+
+	WaitForInitializationComplete();
+	
+	thisReader.FilePath = ConfigFile;
+    
+	RegisterDelegate(thisReader, Complete, OnComplete);
+	//RegisterDelegate(thisReader, UpdateStringItem, OnUpdateStringItem);
+	RegisterDelegate(thisReader, UpdateAnalogItem, OnUpdateAnalogItem);
+	//RegisterDelegate(thisReader, UpdateDigitalItem, OnUpdateDigitalItem);
+
+	for(i = 1 to ciMaxItems) { 
+		if(Analog_Item[i] <> "") { thisReader.AddItem(i, Analog_Item[i], 2); } 
+	}
+}
+
+CALLBACK FUNCTION OnComplete(integer result)
+{
+	File_Load_Success_Fb = result;
+}
+
+CALLBACK FUNCTION OnUpdateAnalogItem(integer output, signed_integer value)
+{
+	Value_For_Analog_Item[output] = value;
+}
+
+/**EVENT HANDLERS**/
+
+PUSH Refresh
+{
+	SetArray(Value_For_Analog_Item, 0);
+	thisReader.Refresh(ConfigFile);
+}
+
+CHANGE Enable_Auto_Refresh
+{
+	thisReader.EnablePeriodicRefresh(Enable_Auto_Refresh, Auto_Refresh_Time_Seconds);
+}
