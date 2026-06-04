@@ -31,3 +31,21 @@
 [submodule "crestron/module-library/customized-developed/xpoints"]
 	path = crestron/module-library/customized-developed/xpoints
 	url = https://github.com/blajda-dev/crestron-csharp-xpoints
+[submodule "q-sys/__template"]
+	path = q-sys/__template
+	url = https://github.com/ryanjblajda/q-sys_plugin_template
+[submodule "q-sys/q-sys-super-gain"]
+	path = q-sys/q-sys-super-gain
+	url = https://github.com/blajda-dev/qsys-super-gain-plugin
+[submodule "q-sys/qsys-super-gain"]
+	path = q-sys/qsys-super-gain
+	url = https://github.com/blajda-dev/qsys-super-gain-plugin
+[submodule "q-sys/shutdown-manager"]
+	path = q-sys/shutdown-manager
+	url = https://github.com/blajda-dev/shutdown-manager
+[submodule "q-sys/page-manager"]
+	path = q-sys/page-manager
+	url = https://github.com/blajda-dev/page-manager
+[submodule "q-sys/axis-visca-plugin-rjb"]
+	path = q-sys/axis-visca-plugin-rjb
+	url = https://github.com/blajda-dev/qsys-axis-camera
