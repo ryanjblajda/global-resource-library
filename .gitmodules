@@ -1,0 +1,33 @@
+[submodule "crestron/module-library/customized-developed/black-magic-design"]
+	path = crestron/module-library/customized-developed/black-magic-design
+	url = https://github.com/blajda-dev/blackmagicdesign-crestron
+[submodule "crestron/module-library/customized-developed/default-functionality"]
+	path = crestron/module-library/customized-developed/default-functionality
+	url = https://github.com/blajda-dev/ccs-default-functionality
+[submodule "crestron/module-library/customized-developed/generic-udp-server"]
+	path = crestron/module-library/customized-developed/generic-udp-server
+	url = https://github.com/blajda-dev/generic-udp-server
+[submodule "crestron/module-library/customized-developed/global-cache"]
+	path = crestron/module-library/customized-developed/global-cache
+	url = https://github.com/blajda-dev/global-cache-devices
+[submodule "crestron/module-library/customized-developed/kiloview/Kiloview"]
+	path = crestron/module-library/customized-developed/kiloview/Kiloview
+	url = https://github.com/blajda-dev/kiloview
+[submodule "crestron/module-library/customized-developed/netgear"]
+	path = crestron/module-library/customized-developed/netgear
+	url = https://github.com/blajda-dev/netgear
+[submodule "crestron/module-library/customized-developed/room-combination-handler"]
+	path = crestron/module-library/customized-developed/room-combination-handler
+	url = https://github.com/blajda-dev/dynamic-room-combination
+[submodule "crestron/module-library/customized-developed/shure"]
+	path = crestron/module-library/customized-developed/shure
+	url = https://github.com/blajda-dev/shure-devices
+[submodule "crestron/module-library/customized-developed/tech-program"]
+	path = crestron/module-library/customized-developed/tech-program
+	url = https://github.com/blajda-dev/tech-program-user-modules
+[submodule "crestron/module-library/customized-developed/user-notifications"]
+	path = crestron/module-library/customized-developed/user-notifications
+	url = https://github.com/blajda-dev/generic-publisher-subscriber-messaging
+[submodule "crestron/module-library/customized-developed/xpoints"]
+	path = crestron/module-library/customized-developed/xpoints
+	url = https://github.com/blajda-dev/crestron-csharp-xpoints
