@@ -1,0 +1,177 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.05.01
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=AandH XPointMute Control-AHM64 r0.0\\\\Controls Input to Zone, and||1
+  Cmn2=Zone to Zone mutes.\\\\Parameters:\\ Input ControlType: 	Select||1
+  Cmn3=Input, Zone or Group.\\ Input ControlChnl: 	Select valid range from||1
+  Cmn4=control type in decimal format.\\ Output ControlType: 	Select Input,||1
+  Cmn5=Zone or Group.\\ Output ControlChnl: 	Select valid range from control||1
+  Cmn6=type in decimal format.\\\\Inputs:\\ Digital-\\  MuteOn/Off/Toggle:
+  Cmn7=||1Pulse to turn mute on/off or toggle state.\\	Poll: Pulse to poll||1
+  Cmn8=the current Mute. Should only be needed for initial \\			reading||1
+  Cmn9=of Mute at code start and after recalling a preset. \\\\ Serial-
+  Cmn10=\\  FmMixer: Connect to the TCP/IP symbol receive line.\\\\Outputs:
+  Cmn11=\\ Digital-\\  MuteOnFb/OffFb: Mute Feedback. This is tracked internally\\
+  Cmn12=||3by the module. It is also updated when the mixer sends\\   feedback||1
+  Cmn13=when the control is nudged.\\\\ Serial-\\  ToMixer: Connect to the||1
+  Cmn14=TCP/IP symbol Transmit line.\\\\Notes:\\ Reference the AHM64 protocol||1
+  Cmn15=for valid Control Channels for the\\  selected control type.\\\\
+  Cmn16=||1For more information Reference: AHM-TCP-Protocol-V1.pdf\\\\ Tested||1
+  Cmn17=with AHM64 Firmware V1.02 - Rev59154\\\\ Release: 2020-Nov-19 Release||1
+  Cmn18=r0.0\\
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=
+  Inclusions_CDS=5,6,7
+  Name=AandH XPointMute Control-AHM64
+  SmplCName=AandH XPoint Mute Control-AHM64 r0.0.usp
+  Code=1
+  SysRev5=4.006
+  SMWRev=3.00.00
+  InputCue1=[~UNUSED~]
+  InputSigType1=Digital
+  InputCue2=[~UNUSED~]
+  InputSigType2=Digital
+  InputCue3=[~UNUSED~]
+  InputSigType3=Digital
+  InputCue4=[~UNUSED~]
+  InputSigType4=Digital
+  InputCue5=MuteOn
+  InputSigType5=Digital
+  InputCue6=MuteOff
+  InputSigType6=Digital
+  InputCue7=MuteToggle
+  InputSigType7=Digital
+  InputCue8=Poll
+  InputSigType8=Digital
+  OutputCue1=[~UNUSED~]
+  OutputSigType1=Digital
+  OutputCue2=[~UNUSED~]
+  OutputSigType2=Digital
+  OutputCue3=[~UNUSED~]
+  OutputSigType3=Digital
+  OutputCue4=[~UNUSED~]
+  OutputSigType4=Digital
+  OutputCue5=MuteOnFb
+  OutputSigType5=Digital
+  OutputCue6=MuteOffFb
+  OutputSigType6=Digital
+  InputList2Cue1=FmMixer
+  InputList2SigType1=Serial
+  OutputList2Cue1=[~UNUSED~]
+  OutputList2SigType1=Serial
+  OutputList2Cue2=[~UNUSED~]
+  OutputList2SigType2=Serial
+  OutputList2Cue3=ToMixer
+  OutputList2SigType3=Serial
+  ParamCue1=[Reference Name]
+  ParamCue2=IptControlType,1d,2d
+  ParamSigType2=List
+  ParamCue3=IptControlChnl
+  ParamSigType3=Constant
+  ParamCue4=OptControlChnl
+  ParamSigType4=Constant
+  MinVariableInputs=8
+  MaxVariableInputs=8
+  MinVariableInputsList2=1
+  MaxVariableInputsList2=1
+  MinVariableOutputs=6
+  MaxVariableOutputs=6
+  MinVariableOutputsList2=3
+  MaxVariableOutputsList2=3
+  MinVariableParams=3
+  MaxVariableParams=3
+  Expand=expand_separately
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=34
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  Pp3=3
+  Pp4=4
+  MPp=4
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_AandH_XPoint_Mute_Control_AHM64_r0_0
+  SymJam=NonExclusive
+  FileName=AandH XPoint Mute Control-AHM64 r0.0.ush
+  SIMPLPlusModuleEncoding=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  HD=False
+  Sgn=0
+  Lng=False
+  NF=1
+  NoS=True
+  DNF=1
+  VVS=2
+  VN=2
+  Val1=1d
+  Lbl1=Input
+  Val2=2d
+  Lbl2=Zone
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=3
+  Tp=1
+  HD=True
+  DV=1d
+  Sgn=0
+  Lng=False
+  NF=1
+  NoS=True
+  DNF=1
+  VVS=1
+  LR=1d
+  HR=128d
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  HD=True
+  DV=1d
+  Sgn=0
+  Lng=False
+  NF=1
+  NoS=True
+  DNF=1
+  VVS=1
+  LR=1d
+  HR=128d
+[END]

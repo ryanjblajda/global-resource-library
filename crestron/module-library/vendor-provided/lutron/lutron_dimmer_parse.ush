@@ -1,0 +1,52 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+[END]
+[BEGIN]
+  InputList2Cue1=lutron_rx$
+  InputList2SigType1=Serial
+  InputList2Cue2=main_unit
+  InputList2SigType2=Analog
+  OutputList2Cue1=zone_i[#]
+  OutputList2SigType1=Analog
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,310,
+  Name=LUTRON_DIMMER_PARSE
+  SmplCName=lutron_dimmer_parse.usp
+  Code=1
+  MinVariableInputs=0
+  MaxVariableInputs=0
+  MinVariableInputsList2=2
+  MaxVariableInputsList2=2
+  MinVariableOutputs=0
+  MaxVariableOutputs=0
+  MinVariableOutputsList2=1
+  MaxVariableOutputsList2=8
+  Expand=expand_randomly
+  ProgramTree=Logic
+  SymbolTree=6
+  Hint=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  NVStorage=10
+  ParamSigType1=String
+  ParamCue1=[Reference Name]
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlusShortSaveName=LUTRON~1.UF
+  SPlusLongSaveName=LUTRON_DIMMER_PARSE.UF
+  SPlus2CompiledName=S2_lutron_dimmer_parse
+  SymJam=NonExclusive
+[END]

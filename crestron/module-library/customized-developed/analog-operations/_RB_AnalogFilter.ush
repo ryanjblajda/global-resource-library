@@ -1,0 +1,2929 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.06.00
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=INPUTS\\Clear_Output_On_Filter_Matched: this will set Value_Filtered||1
+  Cmn2=to zero, if this signal is HIGH & Value_To_Filter's current state||1
+  Cmn3=is within the FilterList.\\		NOTE: THIS TAKES PRECEDENCE OVER NewValueFor[n].
+  Cmn4=||1if this signal is HIGH, then the number change wont happen.\\\\
+  Cmn5=Filter_Number: analog value determining the rooms "mode" and which||1
+  Cmn6=Items should be visible in that mode, based on the paramter list||1
+  Cmn7=associated with that output\\Value_To_Filter: a number we wish to||1
+  Cmn8=check for values that could cause trouble if passed. think VTC getting||1
+  Cmn9=sent as a program audio source\\\\OUTPUTS\\Value_Filtered: the filtered||1
+  Cmn10=value, which will either change, if using the \\\\PARAMETERS\\\\
+  Cmn11=Filter_List: a list of values you dont want to get passed to the||1
+  Cmn12=output(you dont need a delimiter but for readability use commas,||1
+  Cmn13=i.e 1,2,3,5)\\             NOTE: dont put any values you want to||1
+  Cmn14=change here. \\\\NewValueFor[n]: a new value you want to change||1
+  Cmn15=[n] to.\\	i.e = on a DMPS to select the AirMedia as a video source,||1
+  Cmn16=you must select 9, however if you want it as an audio source, you||1
+  Cmn17=must select 14. (stupid i know.)\\		  you would increment the parameter||1
+  Cmn18=list, until you reach 9, and then enter the value 14 in its field.
+  Cmn19=||1anytime 9 comes in to this module (provided it is not in the filter||1
+  Cmn20=list)\\          it will be changed to 14\\	NOTE = use this "" for||1
+  Cmn21=unused parameters. if you want only certain values to be set to||1
+  Cmn22=zero use 0d
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=
+  Inclusions_CDS=5,6,7
+  Name=Analog Value Filter v2
+  SmplCName=_RB_AnalogFilter.usp
+  Code=1
+  SysRev5=4.000
+  SMWRev=2.02.05
+  InputCue1=Clear_Output_On_Filter_Matched
+  InputSigType1=Digital
+  InputList2Cue1=Value_To_Filter
+  InputList2SigType1=Analog
+  OutputList2Cue1=[~UNUSED~]
+  OutputList2SigType1=Analog
+  OutputList2Cue2=Value_Filtered
+  OutputList2SigType2=Analog
+  ParamCue1=[Reference Name]
+  ParamCue2=[~UNUSED~]
+  ParamSigType2=Constant
+  ParamCue3=[~UNUSED~]
+  ParamSigType3=Constant
+  ParamCue4=Filter_List
+  ParamSigType4=String
+  ParamCue5=NewValueForZero
+  ParamSigType5=String
+  ParamCue6=NewValueFor[1]
+  ParamSigType6=String
+  ParamCue7=NewValueFor[2]
+  ParamSigType7=String
+  ParamCue8=NewValueFor[3]
+  ParamSigType8=String
+  ParamCue9=NewValueFor[4]
+  ParamSigType9=String
+  ParamCue10=NewValueFor[5]
+  ParamSigType10=String
+  ParamCue11=NewValueFor[6]
+  ParamSigType11=String
+  ParamCue12=NewValueFor[7]
+  ParamSigType12=String
+  ParamCue13=NewValueFor[8]
+  ParamSigType13=String
+  ParamCue14=NewValueFor[9]
+  ParamSigType14=String
+  ParamCue15=NewValueFor[10]
+  ParamSigType15=String
+  ParamCue16=NewValueFor[11]
+  ParamSigType16=String
+  ParamCue17=NewValueFor[12]
+  ParamSigType17=String
+  ParamCue18=NewValueFor[13]
+  ParamSigType18=String
+  ParamCue19=NewValueFor[14]
+  ParamSigType19=String
+  ParamCue20=NewValueFor[15]
+  ParamSigType20=String
+  ParamCue21=NewValueFor[16]
+  ParamSigType21=String
+  ParamCue22=NewValueFor[17]
+  ParamSigType22=String
+  ParamCue23=NewValueFor[18]
+  ParamSigType23=String
+  ParamCue24=NewValueFor[19]
+  ParamSigType24=String
+  ParamCue25=NewValueFor[20]
+  ParamSigType25=String
+  ParamCue26=NewValueFor[21]
+  ParamSigType26=String
+  ParamCue27=NewValueFor[22]
+  ParamSigType27=String
+  ParamCue28=NewValueFor[23]
+  ParamSigType28=String
+  ParamCue29=NewValueFor[24]
+  ParamSigType29=String
+  ParamCue30=NewValueFor[25]
+  ParamSigType30=String
+  ParamCue31=NewValueFor[26]
+  ParamSigType31=String
+  ParamCue32=NewValueFor[27]
+  ParamSigType32=String
+  ParamCue33=NewValueFor[28]
+  ParamSigType33=String
+  ParamCue34=NewValueFor[29]
+  ParamSigType34=String
+  ParamCue35=NewValueFor[30]
+  ParamSigType35=String
+  ParamCue36=NewValueFor[31]
+  ParamSigType36=String
+  ParamCue37=NewValueFor[32]
+  ParamSigType37=String
+  ParamCue38=NewValueFor[33]
+  ParamSigType38=String
+  ParamCue39=NewValueFor[34]
+  ParamSigType39=String
+  ParamCue40=NewValueFor[35]
+  ParamSigType40=String
+  ParamCue41=NewValueFor[36]
+  ParamSigType41=String
+  ParamCue42=NewValueFor[37]
+  ParamSigType42=String
+  ParamCue43=NewValueFor[38]
+  ParamSigType43=String
+  ParamCue44=NewValueFor[39]
+  ParamSigType44=String
+  ParamCue45=NewValueFor[40]
+  ParamSigType45=String
+  ParamCue46=NewValueFor[41]
+  ParamSigType46=String
+  ParamCue47=NewValueFor[42]
+  ParamSigType47=String
+  ParamCue48=NewValueFor[43]
+  ParamSigType48=String
+  ParamCue49=NewValueFor[44]
+  ParamSigType49=String
+  ParamCue50=NewValueFor[45]
+  ParamSigType50=String
+  ParamCue51=NewValueFor[46]
+  ParamSigType51=String
+  ParamCue52=NewValueFor[47]
+  ParamSigType52=String
+  ParamCue53=NewValueFor[48]
+  ParamSigType53=String
+  ParamCue54=NewValueFor[49]
+  ParamSigType54=String
+  ParamCue55=NewValueFor[50]
+  ParamSigType55=String
+  ParamCue56=NewValueFor[51]
+  ParamSigType56=String
+  ParamCue57=NewValueFor[52]
+  ParamSigType57=String
+  ParamCue58=NewValueFor[53]
+  ParamSigType58=String
+  ParamCue59=NewValueFor[54]
+  ParamSigType59=String
+  ParamCue60=NewValueFor[55]
+  ParamSigType60=String
+  ParamCue61=NewValueFor[56]
+  ParamSigType61=String
+  ParamCue62=NewValueFor[57]
+  ParamSigType62=String
+  ParamCue63=NewValueFor[58]
+  ParamSigType63=String
+  ParamCue64=NewValueFor[59]
+  ParamSigType64=String
+  ParamCue65=NewValueFor[60]
+  ParamSigType65=String
+  ParamCue66=NewValueFor[61]
+  ParamSigType66=String
+  ParamCue67=NewValueFor[62]
+  ParamSigType67=String
+  ParamCue68=NewValueFor[63]
+  ParamSigType68=String
+  ParamCue69=NewValueFor[64]
+  ParamSigType69=String
+  ParamCue70=NewValueFor[65]
+  ParamSigType70=String
+  ParamCue71=NewValueFor[66]
+  ParamSigType71=String
+  ParamCue72=NewValueFor[67]
+  ParamSigType72=String
+  ParamCue73=NewValueFor[68]
+  ParamSigType73=String
+  ParamCue74=NewValueFor[69]
+  ParamSigType74=String
+  ParamCue75=NewValueFor[70]
+  ParamSigType75=String
+  ParamCue76=NewValueFor[71]
+  ParamSigType76=String
+  ParamCue77=NewValueFor[72]
+  ParamSigType77=String
+  ParamCue78=NewValueFor[73]
+  ParamSigType78=String
+  ParamCue79=NewValueFor[74]
+  ParamSigType79=String
+  ParamCue80=NewValueFor[75]
+  ParamSigType80=String
+  ParamCue81=NewValueFor[76]
+  ParamSigType81=String
+  ParamCue82=NewValueFor[77]
+  ParamSigType82=String
+  ParamCue83=NewValueFor[78]
+  ParamSigType83=String
+  ParamCue84=NewValueFor[79]
+  ParamSigType84=String
+  ParamCue85=NewValueFor[80]
+  ParamSigType85=String
+  ParamCue86=NewValueFor[81]
+  ParamSigType86=String
+  ParamCue87=NewValueFor[82]
+  ParamSigType87=String
+  ParamCue88=NewValueFor[83]
+  ParamSigType88=String
+  ParamCue89=NewValueFor[84]
+  ParamSigType89=String
+  ParamCue90=NewValueFor[85]
+  ParamSigType90=String
+  ParamCue91=NewValueFor[86]
+  ParamSigType91=String
+  ParamCue92=NewValueFor[87]
+  ParamSigType92=String
+  ParamCue93=NewValueFor[88]
+  ParamSigType93=String
+  ParamCue94=NewValueFor[89]
+  ParamSigType94=String
+  ParamCue95=NewValueFor[90]
+  ParamSigType95=String
+  ParamCue96=NewValueFor[91]
+  ParamSigType96=String
+  ParamCue97=NewValueFor[92]
+  ParamSigType97=String
+  ParamCue98=NewValueFor[93]
+  ParamSigType98=String
+  ParamCue99=NewValueFor[94]
+  ParamSigType99=String
+  ParamCue100=NewValueFor[95]
+  ParamSigType100=String
+  ParamCue101=NewValueFor[96]
+  ParamSigType101=String
+  ParamCue102=NewValueFor[97]
+  ParamSigType102=String
+  ParamCue103=NewValueFor[98]
+  ParamSigType103=String
+  ParamCue104=NewValueFor[99]
+  ParamSigType104=String
+  ParamCue105=NewValueFor[100]
+  ParamSigType105=String
+  ParamCue106=NewValueFor[101]
+  ParamSigType106=String
+  ParamCue107=NewValueFor[102]
+  ParamSigType107=String
+  ParamCue108=NewValueFor[103]
+  ParamSigType108=String
+  ParamCue109=NewValueFor[104]
+  ParamSigType109=String
+  ParamCue110=NewValueFor[105]
+  ParamSigType110=String
+  ParamCue111=NewValueFor[106]
+  ParamSigType111=String
+  ParamCue112=NewValueFor[107]
+  ParamSigType112=String
+  ParamCue113=NewValueFor[108]
+  ParamSigType113=String
+  ParamCue114=NewValueFor[109]
+  ParamSigType114=String
+  ParamCue115=NewValueFor[110]
+  ParamSigType115=String
+  ParamCue116=NewValueFor[111]
+  ParamSigType116=String
+  ParamCue117=NewValueFor[112]
+  ParamSigType117=String
+  ParamCue118=NewValueFor[113]
+  ParamSigType118=String
+  ParamCue119=NewValueFor[114]
+  ParamSigType119=String
+  ParamCue120=NewValueFor[115]
+  ParamSigType120=String
+  ParamCue121=NewValueFor[116]
+  ParamSigType121=String
+  ParamCue122=NewValueFor[117]
+  ParamSigType122=String
+  ParamCue123=NewValueFor[118]
+  ParamSigType123=String
+  ParamCue124=NewValueFor[119]
+  ParamSigType124=String
+  ParamCue125=NewValueFor[120]
+  ParamSigType125=String
+  ParamCue126=NewValueFor[121]
+  ParamSigType126=String
+  ParamCue127=NewValueFor[122]
+  ParamSigType127=String
+  ParamCue128=NewValueFor[123]
+  ParamSigType128=String
+  ParamCue129=NewValueFor[124]
+  ParamSigType129=String
+  ParamCue130=NewValueFor[125]
+  ParamSigType130=String
+  ParamCue131=NewValueFor[126]
+  ParamSigType131=String
+  ParamCue132=NewValueFor[127]
+  ParamSigType132=String
+  ParamCue133=NewValueFor[128]
+  ParamSigType133=String
+  ParamCue134=NewValueFor[129]
+  ParamSigType134=String
+  ParamCue135=NewValueFor[130]
+  ParamSigType135=String
+  ParamCue136=NewValueFor[131]
+  ParamSigType136=String
+  ParamCue137=NewValueFor[132]
+  ParamSigType137=String
+  ParamCue138=NewValueFor[133]
+  ParamSigType138=String
+  ParamCue139=NewValueFor[134]
+  ParamSigType139=String
+  ParamCue140=NewValueFor[135]
+  ParamSigType140=String
+  ParamCue141=NewValueFor[136]
+  ParamSigType141=String
+  ParamCue142=NewValueFor[137]
+  ParamSigType142=String
+  ParamCue143=NewValueFor[138]
+  ParamSigType143=String
+  ParamCue144=NewValueFor[139]
+  ParamSigType144=String
+  ParamCue145=NewValueFor[140]
+  ParamSigType145=String
+  ParamCue146=NewValueFor[141]
+  ParamSigType146=String
+  ParamCue147=NewValueFor[142]
+  ParamSigType147=String
+  ParamCue148=NewValueFor[143]
+  ParamSigType148=String
+  ParamCue149=NewValueFor[144]
+  ParamSigType149=String
+  ParamCue150=NewValueFor[145]
+  ParamSigType150=String
+  ParamCue151=NewValueFor[146]
+  ParamSigType151=String
+  ParamCue152=NewValueFor[147]
+  ParamSigType152=String
+  ParamCue153=NewValueFor[148]
+  ParamSigType153=String
+  ParamCue154=NewValueFor[149]
+  ParamSigType154=String
+  ParamCue155=NewValueFor[150]
+  ParamSigType155=String
+  ParamCue156=NewValueFor[151]
+  ParamSigType156=String
+  ParamCue157=NewValueFor[152]
+  ParamSigType157=String
+  ParamCue158=NewValueFor[153]
+  ParamSigType158=String
+  ParamCue159=NewValueFor[154]
+  ParamSigType159=String
+  ParamCue160=NewValueFor[155]
+  ParamSigType160=String
+  ParamCue161=NewValueFor[156]
+  ParamSigType161=String
+  ParamCue162=NewValueFor[157]
+  ParamSigType162=String
+  ParamCue163=NewValueFor[158]
+  ParamSigType163=String
+  ParamCue164=NewValueFor[159]
+  ParamSigType164=String
+  ParamCue165=NewValueFor[160]
+  ParamSigType165=String
+  ParamCue166=NewValueFor[161]
+  ParamSigType166=String
+  ParamCue167=NewValueFor[162]
+  ParamSigType167=String
+  ParamCue168=NewValueFor[163]
+  ParamSigType168=String
+  ParamCue169=NewValueFor[164]
+  ParamSigType169=String
+  ParamCue170=NewValueFor[165]
+  ParamSigType170=String
+  ParamCue171=NewValueFor[166]
+  ParamSigType171=String
+  ParamCue172=NewValueFor[167]
+  ParamSigType172=String
+  ParamCue173=NewValueFor[168]
+  ParamSigType173=String
+  ParamCue174=NewValueFor[169]
+  ParamSigType174=String
+  ParamCue175=NewValueFor[170]
+  ParamSigType175=String
+  ParamCue176=NewValueFor[171]
+  ParamSigType176=String
+  ParamCue177=NewValueFor[172]
+  ParamSigType177=String
+  ParamCue178=NewValueFor[173]
+  ParamSigType178=String
+  ParamCue179=NewValueFor[174]
+  ParamSigType179=String
+  ParamCue180=NewValueFor[175]
+  ParamSigType180=String
+  ParamCue181=NewValueFor[176]
+  ParamSigType181=String
+  ParamCue182=NewValueFor[177]
+  ParamSigType182=String
+  ParamCue183=NewValueFor[178]
+  ParamSigType183=String
+  ParamCue184=NewValueFor[179]
+  ParamSigType184=String
+  ParamCue185=NewValueFor[180]
+  ParamSigType185=String
+  ParamCue186=NewValueFor[181]
+  ParamSigType186=String
+  ParamCue187=NewValueFor[182]
+  ParamSigType187=String
+  ParamCue188=NewValueFor[183]
+  ParamSigType188=String
+  ParamCue189=NewValueFor[184]
+  ParamSigType189=String
+  ParamCue190=NewValueFor[185]
+  ParamSigType190=String
+  ParamCue191=NewValueFor[186]
+  ParamSigType191=String
+  ParamCue192=NewValueFor[187]
+  ParamSigType192=String
+  ParamCue193=NewValueFor[188]
+  ParamSigType193=String
+  ParamCue194=NewValueFor[189]
+  ParamSigType194=String
+  ParamCue195=NewValueFor[190]
+  ParamSigType195=String
+  ParamCue196=NewValueFor[191]
+  ParamSigType196=String
+  ParamCue197=NewValueFor[192]
+  ParamSigType197=String
+  ParamCue198=NewValueFor[193]
+  ParamSigType198=String
+  ParamCue199=NewValueFor[194]
+  ParamSigType199=String
+  ParamCue200=NewValueFor[195]
+  ParamSigType200=String
+  ParamCue201=NewValueFor[196]
+  ParamSigType201=String
+  ParamCue202=NewValueFor[197]
+  ParamSigType202=String
+  ParamCue203=NewValueFor[198]
+  ParamSigType203=String
+  ParamCue204=NewValueFor[199]
+  ParamSigType204=String
+  ParamCue205=NewValueFor[200]
+  ParamSigType205=String
+  ParamCue206=NewValueFor[201]
+  ParamSigType206=String
+  ParamCue207=NewValueFor[202]
+  ParamSigType207=String
+  ParamCue208=NewValueFor[203]
+  ParamSigType208=String
+  ParamCue209=NewValueFor[204]
+  ParamSigType209=String
+  ParamCue210=NewValueFor[205]
+  ParamSigType210=String
+  ParamCue211=NewValueFor[206]
+  ParamSigType211=String
+  ParamCue212=NewValueFor[207]
+  ParamSigType212=String
+  ParamCue213=NewValueFor[208]
+  ParamSigType213=String
+  ParamCue214=NewValueFor[209]
+  ParamSigType214=String
+  ParamCue215=NewValueFor[210]
+  ParamSigType215=String
+  ParamCue216=NewValueFor[211]
+  ParamSigType216=String
+  ParamCue217=NewValueFor[212]
+  ParamSigType217=String
+  ParamCue218=NewValueFor[213]
+  ParamSigType218=String
+  ParamCue219=NewValueFor[214]
+  ParamSigType219=String
+  ParamCue220=NewValueFor[215]
+  ParamSigType220=String
+  ParamCue221=NewValueFor[216]
+  ParamSigType221=String
+  ParamCue222=NewValueFor[217]
+  ParamSigType222=String
+  ParamCue223=NewValueFor[218]
+  ParamSigType223=String
+  ParamCue224=NewValueFor[219]
+  ParamSigType224=String
+  ParamCue225=NewValueFor[220]
+  ParamSigType225=String
+  ParamCue226=NewValueFor[221]
+  ParamSigType226=String
+  ParamCue227=NewValueFor[222]
+  ParamSigType227=String
+  ParamCue228=NewValueFor[223]
+  ParamSigType228=String
+  ParamCue229=NewValueFor[224]
+  ParamSigType229=String
+  ParamCue230=NewValueFor[225]
+  ParamSigType230=String
+  ParamCue231=NewValueFor[226]
+  ParamSigType231=String
+  ParamCue232=NewValueFor[227]
+  ParamSigType232=String
+  ParamCue233=NewValueFor[228]
+  ParamSigType233=String
+  ParamCue234=NewValueFor[229]
+  ParamSigType234=String
+  ParamCue235=NewValueFor[230]
+  ParamSigType235=String
+  ParamCue236=NewValueFor[231]
+  ParamSigType236=String
+  ParamCue237=NewValueFor[232]
+  ParamSigType237=String
+  ParamCue238=NewValueFor[233]
+  ParamSigType238=String
+  ParamCue239=NewValueFor[234]
+  ParamSigType239=String
+  ParamCue240=NewValueFor[235]
+  ParamSigType240=String
+  ParamCue241=NewValueFor[236]
+  ParamSigType241=String
+  ParamCue242=NewValueFor[237]
+  ParamSigType242=String
+  ParamCue243=NewValueFor[238]
+  ParamSigType243=String
+  ParamCue244=NewValueFor[239]
+  ParamSigType244=String
+  ParamCue245=NewValueFor[240]
+  ParamSigType245=String
+  ParamCue246=NewValueFor[241]
+  ParamSigType246=String
+  ParamCue247=NewValueFor[242]
+  ParamSigType247=String
+  ParamCue248=NewValueFor[243]
+  ParamSigType248=String
+  ParamCue249=NewValueFor[244]
+  ParamSigType249=String
+  ParamCue250=NewValueFor[245]
+  ParamSigType250=String
+  ParamCue251=NewValueFor[246]
+  ParamSigType251=String
+  ParamCue252=NewValueFor[247]
+  ParamSigType252=String
+  ParamCue253=NewValueFor[248]
+  ParamSigType253=String
+  ParamCue254=NewValueFor[249]
+  ParamSigType254=String
+  ParamCue255=NewValueFor[250]
+  ParamSigType255=String
+  ParamCue256=NewValueFor[251]
+  ParamSigType256=String
+  ParamCue257=NewValueFor[252]
+  ParamSigType257=String
+  ParamCue258=NewValueFor[253]
+  ParamSigType258=String
+  ParamCue259=NewValueFor[254]
+  ParamSigType259=String
+  ParamCue260=NewValueFor[255]
+  ParamSigType260=String
+  MinVariableInputs=1
+  MaxVariableInputs=1
+  MinVariableInputsList2=1
+  MaxVariableInputsList2=1
+  MinVariableOutputs=0
+  MaxVariableOutputs=0
+  MinVariableOutputsList2=2
+  MaxVariableOutputsList2=2
+  MinVariableParams=5
+  MaxVariableParams=259
+  Expand=expand_separately
+  Expand2=expand_inputs_with_outputs
+  ProgramTree=Logic
+  SymbolTree=46
+  UserSymTreeName=RBLAJDA
+  Hint=Check Input Value, And Only Allow Certain Values, and Change Certain Values
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp4=4
+  Pp5=5
+  Pp6=6
+  Pp7=7
+  Pp8=8
+  Pp9=9
+  Pp10=10
+  Pp11=11
+  Pp12=12
+  Pp13=13
+  Pp14=14
+  Pp15=15
+  Pp16=16
+  Pp17=17
+  Pp18=18
+  Pp19=19
+  Pp20=20
+  Pp21=21
+  Pp22=22
+  Pp23=23
+  Pp24=24
+  Pp25=25
+  Pp26=26
+  Pp27=27
+  Pp28=28
+  Pp29=29
+  Pp30=30
+  Pp31=31
+  Pp32=32
+  Pp33=33
+  Pp34=34
+  Pp35=35
+  Pp36=36
+  Pp37=37
+  Pp38=38
+  Pp39=39
+  Pp40=40
+  Pp41=41
+  Pp42=42
+  Pp43=43
+  Pp44=44
+  Pp45=45
+  Pp46=46
+  Pp47=47
+  Pp48=48
+  Pp49=49
+  Pp50=50
+  Pp51=51
+  Pp52=52
+  Pp53=53
+  Pp54=54
+  Pp55=55
+  Pp56=56
+  Pp57=57
+  Pp58=58
+  Pp59=59
+  Pp60=60
+  Pp61=61
+  Pp62=62
+  Pp63=63
+  Pp64=64
+  Pp65=65
+  Pp66=66
+  Pp67=67
+  Pp68=68
+  Pp69=69
+  Pp70=70
+  Pp71=71
+  Pp72=72
+  Pp73=73
+  Pp74=74
+  Pp75=75
+  Pp76=76
+  Pp77=77
+  Pp78=78
+  Pp79=79
+  Pp80=80
+  Pp81=81
+  Pp82=82
+  Pp83=83
+  Pp84=84
+  Pp85=85
+  Pp86=86
+  Pp87=87
+  Pp88=88
+  Pp89=89
+  Pp90=90
+  Pp91=91
+  Pp92=92
+  Pp93=93
+  Pp94=94
+  Pp95=95
+  Pp96=96
+  Pp97=97
+  Pp98=98
+  Pp99=99
+  Pp100=100
+  Pp101=101
+  Pp102=102
+  Pp103=103
+  Pp104=104
+  Pp105=105
+  Pp106=106
+  Pp107=107
+  Pp108=108
+  Pp109=109
+  Pp110=110
+  Pp111=111
+  Pp112=112
+  Pp113=113
+  Pp114=114
+  Pp115=115
+  Pp116=116
+  Pp117=117
+  Pp118=118
+  Pp119=119
+  Pp120=120
+  Pp121=121
+  Pp122=122
+  Pp123=123
+  Pp124=124
+  Pp125=125
+  Pp126=126
+  Pp127=127
+  Pp128=128
+  Pp129=129
+  Pp130=130
+  Pp131=131
+  Pp132=132
+  Pp133=133
+  Pp134=134
+  Pp135=135
+  Pp136=136
+  Pp137=137
+  Pp138=138
+  Pp139=139
+  Pp140=140
+  Pp141=141
+  Pp142=142
+  Pp143=143
+  Pp144=144
+  Pp145=145
+  Pp146=146
+  Pp147=147
+  Pp148=148
+  Pp149=149
+  Pp150=150
+  Pp151=151
+  Pp152=152
+  Pp153=153
+  Pp154=154
+  Pp155=155
+  Pp156=156
+  Pp157=157
+  Pp158=158
+  Pp159=159
+  Pp160=160
+  Pp161=161
+  Pp162=162
+  Pp163=163
+  Pp164=164
+  Pp165=165
+  Pp166=166
+  Pp167=167
+  Pp168=168
+  Pp169=169
+  Pp170=170
+  Pp171=171
+  Pp172=172
+  Pp173=173
+  Pp174=174
+  Pp175=175
+  Pp176=176
+  Pp177=177
+  Pp178=178
+  Pp179=179
+  Pp180=180
+  Pp181=181
+  Pp182=182
+  Pp183=183
+  Pp184=184
+  Pp185=185
+  Pp186=186
+  Pp187=187
+  Pp188=188
+  Pp189=189
+  Pp190=190
+  Pp191=191
+  Pp192=192
+  Pp193=193
+  Pp194=194
+  Pp195=195
+  Pp196=196
+  Pp197=197
+  Pp198=198
+  Pp199=199
+  Pp200=200
+  Pp201=201
+  Pp202=202
+  Pp203=203
+  Pp204=204
+  Pp205=205
+  Pp206=206
+  Pp207=207
+  Pp208=208
+  Pp209=209
+  Pp210=210
+  Pp211=211
+  Pp212=212
+  Pp213=213
+  Pp214=214
+  Pp215=215
+  Pp216=216
+  Pp217=217
+  Pp218=218
+  Pp219=219
+  Pp220=220
+  Pp221=221
+  Pp222=222
+  Pp223=223
+  Pp224=224
+  Pp225=225
+  Pp226=226
+  Pp227=227
+  Pp228=228
+  Pp229=229
+  Pp230=230
+  Pp231=231
+  Pp232=232
+  Pp233=233
+  Pp234=234
+  Pp235=235
+  Pp236=236
+  Pp237=237
+  Pp238=238
+  Pp239=239
+  Pp240=240
+  Pp241=241
+  Pp242=242
+  Pp243=243
+  Pp244=244
+  Pp245=245
+  Pp246=246
+  Pp247=247
+  Pp248=248
+  Pp249=249
+  Pp250=250
+  Pp251=251
+  Pp252=252
+  Pp253=253
+  Pp254=254
+  Pp255=255
+  Pp256=256
+  Pp257=257
+  Pp258=258
+  Pp259=259
+  Pp260=260
+  MPp=260
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2__RB_AnalogFilter
+  SymJam=NonExclusive
+  FileName=_RB_AnalogFilter.ush
+  SIMPLPlusModuleEncoding=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=5
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=6
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=7
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=8
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=9
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=10
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=11
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=12
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=13
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=14
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=15
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=16
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=17
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=18
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=19
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=20
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=21
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=22
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=23
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=24
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=25
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=26
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=27
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=28
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=29
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=30
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=31
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=32
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=33
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=34
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=35
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=36
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=37
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=38
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=39
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=40
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=41
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=42
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=43
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=44
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=45
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=46
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=47
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=48
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=49
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=50
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=51
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=52
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=53
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=54
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=55
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=56
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=57
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=58
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=59
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=60
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=61
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=62
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=63
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=64
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=65
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=66
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=67
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=68
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=69
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=70
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=71
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=72
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=73
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=74
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=75
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=76
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=77
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=78
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=79
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=80
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=81
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=82
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=83
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=84
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=85
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=86
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=87
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=88
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=89
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=90
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=91
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=92
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=93
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=94
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=95
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=96
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=97
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=98
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=99
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=100
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=101
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=102
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=103
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=104
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=105
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=106
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=107
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=108
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=109
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=110
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=111
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=112
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=113
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=114
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=115
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=116
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=117
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=118
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=119
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=120
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=121
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=122
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=123
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=124
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=125
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=126
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=127
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=128
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=129
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=130
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=131
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=132
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=133
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=134
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=135
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=136
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=137
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=138
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=139
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=140
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=141
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=142
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=143
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=144
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=145
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=146
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=147
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=148
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=149
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=150
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=151
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=152
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=153
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=154
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=155
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=156
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=157
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=158
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=159
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=160
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=161
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=162
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=163
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=164
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=165
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=166
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=167
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=168
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=169
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=170
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=171
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=172
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=173
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=174
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=175
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=176
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=177
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=178
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=179
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=180
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=181
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=182
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=183
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=184
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=185
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=186
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=187
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=188
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=189
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=190
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=191
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=192
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=193
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=194
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=195
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=196
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=197
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=198
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=199
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=200
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=201
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=202
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=203
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=204
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=205
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=206
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=207
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=208
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=209
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=210
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=211
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=212
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=213
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=214
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=215
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=216
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=217
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=218
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=219
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=220
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=221
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=222
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=223
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=224
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=225
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=226
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=227
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=228
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=229
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=230
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=231
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=232
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=233
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=234
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=235
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=236
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=237
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=238
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=239
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=240
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=241
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=242
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=243
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=244
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=245
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=246
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=247
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=248
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=249
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=250
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=251
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=252
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=253
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=254
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=255
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=256
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=257
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=258
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=259
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=260
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]

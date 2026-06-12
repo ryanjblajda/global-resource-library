@@ -1,0 +1,110 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.04.01
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=a module for inserting a string prefix on an adjustable array of||1
+  Cmn2=input strings, and also allows for an alternate string to replace||1
+  Cmn3=the main prefix.\\(this module is mainly meant for adding a prefix||1
+  Cmn4=(the processor IP) to serial source icon strings, and then replacing||1
+  Cmn5=that string when a device is not \\on the local network (replacing||1
+  Cmn6=it with a dynamic dns hostname, http://mycrestron.com or similar)\\
+  Cmn7=\\\\Inputs\\\\useExternalPrefix: when this signal goes high, stringPrefix_Externa
+  Cmn8=l will replace stringPrefix_Internal on all outputString signals.
+  Cmn9=\\\\	NOTE: when this signal goes low, all strings will revert to||1
+  Cmn10=the Internal prefix\\\\stringPrefix_Internal: the main string (processor||1
+  Cmn11=IP address) to prefix all stringToPrefix strings with.\\\\stringPrefix_External:
+  Cmn12=||1the secondary (dyndns hostname) to prefix all stringToPrefix strings||1
+  Cmn13=with whenever the useExternalPrefix signal goes high.\\\\stringToPrefix:
+  Cmn14=||1an array of strings to prefix, usually icon paths on the processor||1
+  Cmn15=to be prefixed with an IP address or hostname\\\\Outputs\\\\outputString:
+  Cmn16=||1an array of strings with the prefix added into it. \\	
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=5
+  Inclusions_CDS=6
+  Name=String Prefix w. Alternate v1 (DONT USE)
+  SmplCName=_RB_StringPrefix.usp
+  Code=1
+  SysRev5=4.006
+  SMWRev=3.00.00
+  InputCue1=UseExternalPrefix
+  InputSigType1=Digital
+  InputList2Cue1=[~UNUSED~]
+  InputList2SigType1=Serial
+  InputList2Cue2=Internal_Prefix
+  InputList2SigType2=Serial
+  InputList2Cue3=External_Prefix
+  InputList2SigType3=Serial
+  InputList2Cue4=[~UNUSED~]
+  InputList2SigType4=Serial
+  InputList2Cue5=StringToPrefix[#]
+  InputList2SigType5=Serial
+  OutputList2Cue1=[~UNUSED~]
+  OutputList2SigType1=Serial
+  OutputList2Cue2=[~UNUSED~]
+  OutputList2SigType2=Serial
+  OutputList2Cue3=[~UNUSED~]
+  OutputList2SigType3=Serial
+  OutputList2Cue4=[~UNUSED~]
+  OutputList2SigType4=Serial
+  OutputList2Cue5=[~UNUSED~]
+  OutputList2SigType5=Serial
+  OutputList2Cue6=StringWithPrefix[#]
+  OutputList2SigType6=Serial
+  ParamCue1=[Reference Name]
+  MinVariableInputs=1
+  MaxVariableInputs=1
+  MinVariableInputsList2=5
+  MaxVariableInputsList2=259
+  MinVariableOutputs=0
+  MaxVariableOutputs=0
+  MinVariableOutputsList2=6
+  MaxVariableOutputsList2=260
+  MinVariableParams=0
+  MaxVariableParams=0
+  Expand=expand_separately
+  Expand2=expand_inputs_with_outputs
+  ProgramTree=Logic
+  SymbolTree=46
+  UserSymTreeName=RBLAJDA
+  Hint=adds a prefix to a string, supports an alternate prefix
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  MPp=1
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2__RB_StringPrefix
+  SymJam=NonExclusive
+  FileName=_RB_StringPrefix.ush
+  SIMPLPlusModuleEncoding=0
+  clz1=QsysControlV4_2
+  clz2=UserNotifications
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]

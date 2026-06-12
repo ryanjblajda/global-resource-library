@@ -1,0 +1,105 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.05.01
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=PARAMETERS:\\Feedback_Type: Use Percent or Use Time (see progress||1
+  Cmn2=meter description below)\\\\INPUTS\\\\In_Progress: determines the||1
+  Cmn3=time that will be used by the ramp\\\\OUTPUTS\\\\Progress_Meter:
+  Cmn4=||1a value to denote progress, either 0-100% for either cooling or||1
+  Cmn5=warming progress, or it will denote the seconds left until the action||1
+  Cmn6=(either warming or cooling) is complete.\\\\	NOTE: this value is||1
+  Cmn7=calculated by the actual time it takes the device to warm up or||1
+  Cmn8=cool down. the time for warming will be equal to warming time +||1
+  Cmn9=the source correction wait time.  \\\\Is_Busy: this signal will||1
+  Cmn10=be high while Progress_Meter is ramping
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=
+  Inclusions_CDS=5,6,7
+  Name=Dynamic Progress
+  SmplCName=_RB_Dynamic_Progress.usp
+  Code=1
+  SysRev5=4.000
+  SMWRev=2.02.05
+  InputCue1=In_Progress
+  InputSigType1=Digital
+  OutputCue1=Is_Busy
+  OutputSigType1=Digital
+  OutputList2Cue1=Progress_Meter
+  OutputList2SigType1=Analog
+  ParamCue1=[Reference Name]
+  ParamCue2=Feedback_Type,1d,2d
+  ParamSigType2=List
+  MinVariableInputs=1
+  MaxVariableInputs=1
+  MinVariableInputsList2=0
+  MaxVariableInputsList2=0
+  MinVariableOutputs=1
+  MaxVariableOutputs=1
+  MinVariableOutputsList2=1
+  MaxVariableOutputsList2=1
+  MinVariableParams=1
+  MaxVariableParams=1
+  Expand=expand_separately
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=46
+  UserSymTreeName=RBLAJDA
+  Hint=generates a dynamic progress bar based on a digital high/low time
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  MPp=2
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2__RB_Dynamic_Progress
+  SymJam=NonExclusive
+  FileName=_RB_Dynamic_Progress.ush
+  SIMPLPlusModuleEncoding=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  HD=True
+  DV=1d
+  Sgn=0
+  Lng=False
+  NF=1
+  NoS=True
+  DNF=1
+  VVS=2
+  VN=2
+  Val1=1d
+  Lbl1=Use Percent
+  Val2=2d
+  Lbl2=Use Time
+[END]

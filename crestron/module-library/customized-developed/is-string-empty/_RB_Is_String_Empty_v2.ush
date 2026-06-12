@@ -1,0 +1,248 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.06.00
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=PARAMETERS\\StringToIgnore: a predetermined string that you wish||1
+  Cmn2=to ignore when checking to see if the string is empty, this is expandable\\
+  Cmn3=\\INPUTS \\\\String_To_Check: expandable array of string inputs||1
+  Cmn4=to be checked\\\\OUTPUTS\\\\Not_Empty: an expandable array of digital||1
+  Cmn5=outputs (these should match the number of inputs you have in theory,||1
+  Cmn6=but not required) \\and will go high if the string is not empty||1
+  Cmn7=and does not match the specified string to ignore\\\\Items_Not_Empty:
+  Cmn8=||1this will count the amount of strings that are active, useful for||1
+  Cmn9=determining the size of dynamic lists.\\
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=
+  Inclusions_CDS=5,6,7
+  Name=Is String Empty? v2
+  SmplCName=_RB_Is_String_Empty_v2.usp
+  Code=1
+  SysRev5=4.000
+  SMWRev=2.02.05
+  OutputCue1=Not_Empty[#]
+  OutputSigType1=Digital
+  InputList2Cue1=String_To_Check[#]
+  InputList2SigType1=Serial
+  OutputList2Cue1=Items_Not_Empty
+  OutputList2SigType1=Analog
+  ParamCue1=[Reference Name]
+  ParamCue2=StringToIgnore[1]
+  ParamSigType2=String
+  ParamCue3=StringToIgnore[2]
+  ParamSigType3=String
+  ParamCue4=StringToIgnore[3]
+  ParamSigType4=String
+  ParamCue5=StringToIgnore[4]
+  ParamSigType5=String
+  ParamCue6=StringToIgnore[5]
+  ParamSigType6=String
+  ParamCue7=StringToIgnore[6]
+  ParamSigType7=String
+  ParamCue8=StringToIgnore[7]
+  ParamSigType8=String
+  ParamCue9=StringToIgnore[8]
+  ParamSigType9=String
+  ParamCue10=StringToIgnore[9]
+  ParamSigType10=String
+  ParamCue11=StringToIgnore[10]
+  ParamSigType11=String
+  ParamCue12=StringToIgnore[11]
+  ParamSigType12=String
+  ParamCue13=StringToIgnore[12]
+  ParamSigType13=String
+  ParamCue14=StringToIgnore[13]
+  ParamSigType14=String
+  ParamCue15=StringToIgnore[14]
+  ParamSigType15=String
+  ParamCue16=StringToIgnore[15]
+  ParamSigType16=String
+  MinVariableInputs=0
+  MaxVariableInputs=0
+  MinVariableInputsList2=1
+  MaxVariableInputsList2=255
+  MinVariableOutputs=1
+  MaxVariableOutputs=255
+  MinVariableOutputsList2=1
+  MaxVariableOutputsList2=1
+  MinVariableParams=1
+  MaxVariableParams=15
+  Expand=expand_inputs_with_outputs
+  Expand2=expand_inputs_with_outputs
+  ProgramTree=Logic
+  SymbolTree=46
+  UserSymTreeName=RBLAJDA
+  Hint=Checks If A String Is Empty - REQUIRES MSP
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  Pp3=3
+  Pp4=4
+  Pp5=5
+  Pp6=6
+  Pp7=7
+  Pp8=8
+  Pp9=9
+  Pp10=10
+  Pp11=11
+  Pp12=12
+  Pp13=13
+  Pp14=14
+  Pp15=15
+  Pp16=16
+  MPp=16
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2__RB_Is_String_Empty_v2
+  SymJam=NonExclusive
+  FileName=_RB_Is_String_Empty_v2.ush
+  SIMPLPlusModuleEncoding=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=3
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=5
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=6
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=7
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=8
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=9
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=10
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=11
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=12
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=13
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=14
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=15
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=16
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]

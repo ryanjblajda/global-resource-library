@@ -1,0 +1,107 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.06.00
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=
+  Inclusions_CDS=5,6,7
+  Name=CoAP Packet Generator
+  SmplCName=_RB_CoAP_PacketGenerator.usp
+  Code=1
+  SysRev5=4.000
+  SMWRev=2.02.05
+  InputCue1=[~UNUSED~]
+  InputSigType1=Digital
+  InputCue2=[~UNUSED~]
+  InputSigType2=Digital
+  InputCue3=Send
+  InputSigType3=Digital
+  InputList2Cue1=[~UNUSED~]
+  InputList2SigType1=Analog
+  InputList2Cue2=Packet_ID_High_Byte
+  InputList2SigType2=Analog
+  InputList2Cue3=Packet_ID_Low_Byte
+  InputList2SigType3=Analog
+  InputList2Cue4=Payload
+  InputList2SigType4=Analog
+  OutputList2Cue1=Generated_Packet
+  OutputList2SigType1=Serial
+  ParamCue1=[Reference Name]
+  ParamCue2=Packet_Header
+  ParamSigType2=String
+  ParamCue3=Packet_Options
+  ParamSigType3=String
+  MinVariableInputs=3
+  MaxVariableInputs=3
+  MinVariableInputsList2=4
+  MaxVariableInputsList2=4
+  MinVariableOutputs=0
+  MaxVariableOutputs=0
+  MinVariableOutputsList2=1
+  MaxVariableOutputsList2=1
+  MinVariableParams=2
+  MaxVariableParams=2
+  Expand=expand_separately
+  Expand2=expand_inputs_with_outputs
+  OffsetOutputs=2
+  ProgramTree=Logic
+  SymbolTree=46
+  UserSymTreeName=RBLAJDA
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  Pp3=3
+  MPp=3
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2__RB_CoAP_PacketGenerator
+  SymJam=NonExclusive
+  FileName=_RB_CoAP_PacketGenerator.ush
+  SIMPLPlusModuleEncoding=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=3
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]

@@ -1,0 +1,414 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.06.00
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  IncludePath1=C:\Visual Commands\Visual Commands\VC-RDM\Crestron - Simpl#\Current\bin\Release
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,718,756,767,830,841,842,854,883,955,1032,1062,1079,1128,1129,1134,1140,1157,1158,1195,1199,1220,1221,1222,1223,1299,1348,1349,1439,1472,1473,1499,1746,1803,1975,2229,2354,2514,2523,2532,2706,2707,3235,3236,3427,3454,3567,3568,3601,3602,3708,3902,3903,3912,3918,3925,3926,4206,4207,
+  Exclusions_CDS=5
+  Inclusions_CDS=6,7
+  Name=vcRdm_Digital_Extender_v2.6.0+
+  SmplCName=vcRdm_Digital_Extender_v2.6.0+.usp
+  Code=1
+  SysRev5=4.000
+  SMWRev=2.02.00
+  InputCue1=[~UNUSED~]
+  InputSigType1=Digital
+  InputCue2=[~UNUSED~]
+  InputSigType2=Digital
+  InputCue3=Parameter_Digital_To_RDM[#]
+  InputSigType3=Digital
+  OutputCue1=[~UNUSED~]
+  OutputSigType1=Digital
+  OutputCue2=[~UNUSED~]
+  OutputSigType2=Digital
+  OutputCue3=Parameter_Digital_From_RDM_On_Pulse[1]
+  OutputSigType3=Digital
+  OutputCue4=Parameter_Digital_From_RDM_On_Pulse[2]
+  OutputSigType4=Digital
+  OutputCue5=Parameter_Digital_From_RDM_On_Pulse[3]
+  OutputSigType5=Digital
+  OutputCue6=Parameter_Digital_From_RDM_On_Pulse[4]
+  OutputSigType6=Digital
+  OutputCue7=Parameter_Digital_From_RDM_On_Pulse[5]
+  OutputSigType7=Digital
+  OutputCue8=Parameter_Digital_From_RDM_On_Pulse[6]
+  OutputSigType8=Digital
+  OutputCue9=Parameter_Digital_From_RDM_On_Pulse[7]
+  OutputSigType9=Digital
+  OutputCue10=Parameter_Digital_From_RDM_On_Pulse[8]
+  OutputSigType10=Digital
+  OutputCue11=Parameter_Digital_From_RDM_On_Pulse[9]
+  OutputSigType11=Digital
+  OutputCue12=Parameter_Digital_From_RDM_On_Pulse[10]
+  OutputSigType12=Digital
+  OutputCue13=Parameter_Digital_From_RDM_On_Pulse[11]
+  OutputSigType13=Digital
+  OutputCue14=Parameter_Digital_From_RDM_On_Pulse[12]
+  OutputSigType14=Digital
+  OutputCue15=Parameter_Digital_From_RDM_On_Pulse[13]
+  OutputSigType15=Digital
+  OutputCue16=Parameter_Digital_From_RDM_On_Pulse[14]
+  OutputSigType16=Digital
+  OutputCue17=Parameter_Digital_From_RDM_On_Pulse[15]
+  OutputSigType17=Digital
+  OutputCue18=Parameter_Digital_From_RDM_On_Pulse[16]
+  OutputSigType18=Digital
+  OutputCue19=Parameter_Digital_From_RDM_On_Pulse[17]
+  OutputSigType19=Digital
+  OutputCue20=Parameter_Digital_From_RDM_On_Pulse[18]
+  OutputSigType20=Digital
+  OutputCue21=Parameter_Digital_From_RDM_On_Pulse[19]
+  OutputSigType21=Digital
+  OutputCue22=Parameter_Digital_From_RDM_On_Pulse[20]
+  OutputSigType22=Digital
+  OutputCue23=Parameter_Digital_From_RDM_Off_Pulse[#]
+  OutputSigType23=Digital
+  ParamCue1=[Reference Name]
+  ParamCue2=Slot
+  ParamSigType2=Constant
+  ParamCue3=ID$
+  ParamSigType3=String
+  ParamCue4=Digital_Attribute_Settings$[1]
+  ParamSigType4=String
+  ParamCue5=Digital_Attribute_Settings$[2]
+  ParamSigType5=String
+  ParamCue6=Digital_Attribute_Settings$[3]
+  ParamSigType6=String
+  ParamCue7=Digital_Attribute_Settings$[4]
+  ParamSigType7=String
+  ParamCue8=Digital_Attribute_Settings$[5]
+  ParamSigType8=String
+  ParamCue9=Digital_Attribute_Settings$[6]
+  ParamSigType9=String
+  ParamCue10=Digital_Attribute_Settings$[7]
+  ParamSigType10=String
+  ParamCue11=Digital_Attribute_Settings$[8]
+  ParamSigType11=String
+  ParamCue12=Digital_Attribute_Settings$[9]
+  ParamSigType12=String
+  ParamCue13=Digital_Attribute_Settings$[10]
+  ParamSigType13=String
+  ParamCue14=Digital_Attribute_Settings$[11]
+  ParamSigType14=String
+  ParamCue15=Digital_Attribute_Settings$[12]
+  ParamSigType15=String
+  ParamCue16=Digital_Attribute_Settings$[13]
+  ParamSigType16=String
+  ParamCue17=Digital_Attribute_Settings$[14]
+  ParamSigType17=String
+  ParamCue18=Digital_Attribute_Settings$[15]
+  ParamSigType18=String
+  ParamCue19=Digital_Attribute_Settings$[16]
+  ParamSigType19=String
+  ParamCue20=Digital_Attribute_Settings$[17]
+  ParamSigType20=String
+  ParamCue21=Digital_Attribute_Settings$[18]
+  ParamSigType21=String
+  ParamCue22=Digital_Attribute_Settings$[19]
+  ParamSigType22=String
+  ParamCue23=Digital_Attribute_Settings$[20]
+  ParamSigType23=String
+  MinVariableInputs=3
+  MaxVariableInputs=22
+  MinVariableInputsList2=0
+  MaxVariableInputsList2=0
+  MinVariableOutputs=23
+  MaxVariableOutputs=42
+  MinVariableOutputsList2=0
+  MaxVariableOutputsList2=0
+  MinVariableParams=3
+  MaxVariableParams=22
+  Expand=expand_inputs_with_outputs
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=46
+  UserSymTreeName=Visual Commands
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  Pp3=3
+  Pp4=4
+  Pp5=5
+  Pp6=6
+  Pp7=7
+  Pp8=8
+  Pp9=9
+  Pp10=10
+  Pp11=11
+  Pp12=12
+  Pp13=13
+  Pp14=14
+  Pp15=15
+  Pp16=16
+  Pp17=17
+  Pp18=18
+  Pp19=19
+  Pp20=20
+  Pp21=21
+  Pp22=22
+  Pp23=23
+  MPp=23
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_vcRdm_Digital_Extender_v2_6_0_
+  SymJam=NonExclusive
+  FileName=vcRdm_Digital_Extender_v2.6.0+.ush
+  SIMPLPlusModuleEncoding=0
+  clz1=VCRDMLib
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  SD=Slot must match existing Room Slot
+  HD=True
+  DV=1d
+  Sgn=0
+  Lng=False
+  NF=63
+  NoS=True
+  DNF=1
+  VVS=1
+  LR=1d
+  HR=50d
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=3
+  Tp=1
+  SD=ID must match existing device ID
+  HD=True
+  DV=ID
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=5
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=6
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=7
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=8
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=9
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=10
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=11
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=12
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=13
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=14
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=15
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=16
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=17
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=18
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=19
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=20
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=21
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=22
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=23
+  Tp=1
+  SD=Name|val0,val1|Control
+  HD=True
+  DV=Name|val0,val1|Control
+  NoS=False
+  VVS=0
+[END]

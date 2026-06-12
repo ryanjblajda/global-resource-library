@@ -1,0 +1,95 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.05.01
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=AandH Audio Play Back-AHM64 r0.0\\\\Triggers Playing Tracks saved||1
+  Cmn2=to the SHM64.\\\\Inputs:\\ Digital-\\ 	Play: Play selected TrackID.
+  Cmn3=||1Can be pulsed or Latch to 1 to always play. \\ Analog-\\  TrackID:
+  Cmn4=||1Decimal Value of Track to play. Valid range is 1d ~ 128d.\\  MonoChnl:
+  Cmn5=||1Assigns to Mono 1 or 2. Ignored if unit is in stereo mode. Valid||1
+  Cmn6=range is 1d ~ 2d.\\ Serial-\\  FmMixer: Connect to the TCP/IP symbol||1
+  Cmn7=receive line. For Future expansion.\\   \\  \\Outputs:\\ Serial-
+  Cmn8=\\  ToMixer: Connect to the TCP/IP symbol Transmit line.\\\\Notes:
+  Cmn9=\\ Reference the AHM64 protocol for valid Control Channels for the\\
+  Cmn10=||2selected control type.\\\\ For more information Reference: AHM-
+  Cmn11=TCP-Protocol-V1.pdf\\\\ Tested with AHM64 Firmware V1.02 - Rev59154\\
+  Cmn12=\\ Release: 2020-Nov-19 Release r0.0\\
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,
+  Exclusions_CDS=
+  Inclusions_CDS=5,6,7
+  Name=AandH Audio Play Back-AHM64
+  SmplCName=AandH Audio Play Back-AHM64 r0.0.usp
+  Code=1
+  SysRev5=4.000
+  SMWRev=2.02.05
+  InputCue1=Play
+  InputSigType1=Digital
+  InputList2Cue1=TrackID
+  InputList2SigType1=Analog
+  InputList2Cue2=MonoChnl
+  InputList2SigType2=Analog
+  InputList2Cue3=FmMixer
+  InputList2SigType3=Serial
+  OutputList2Cue1=[~UNUSED~]
+  OutputList2SigType1=Serial
+  OutputList2Cue2=[~UNUSED~]
+  OutputList2SigType2=Serial
+  OutputList2Cue3=[~UNUSED~]
+  OutputList2SigType3=Serial
+  OutputList2Cue4=ToMixer
+  OutputList2SigType4=Serial
+  ParamCue1=[Reference Name]
+  MinVariableInputs=1
+  MaxVariableInputs=1
+  MinVariableInputsList2=3
+  MaxVariableInputsList2=3
+  MinVariableOutputs=0
+  MaxVariableOutputs=0
+  MinVariableOutputsList2=4
+  MaxVariableOutputsList2=4
+  MinVariableParams=0
+  MaxVariableParams=0
+  Expand=expand_separately
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=34
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  MPp=1
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_AandH_Audio_Play_Back_AHM64_r0_0
+  SymJam=NonExclusive
+  FileName=AandH Audio Play Back-AHM64 r0.0.ush
+  SIMPLPlusModuleEncoding=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]

@@ -1,0 +1,89 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.02.20
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=||3This module will parse time data output from RoomView Express||1
+  Cmn2=(ver. 6.x) or, Server (ver. 7.x)\\   Both data formats can be sent||1
+  Cmn3=at anytime and will be processed as transmitted.\\   \\   Inputs\\
+  Cmn4=||3	System_in_DST: digital 0 = no daylight savings, 1 = daylight||1
+  Cmn5=savings effective\\   	Local_GMT_Offset: analog value representing||1
+  Cmn6=the GMT offset for time\\   	Time_From_RV$: this is the input data||1
+  Cmn7=string from the Roomview symbol for RV time\\   	\\   Outpus\\||2
+  Cmn8=||1	Console_TX$: formatted string to send to console virtual device.
+  Cmn9=||1this sets the processor\\   				 time when transmitted.\\   Parameters\\
+  Cmn10=||4GMT_Defualt: This is the default setting for GMT offset. This||1
+  Cmn11=is your time zone offset\\    			 from Greenwich Mean Time. Example:
+  Cmn12=||1Eastern time in the US would be -5\\    			 This can be overidden||1
+  Cmn13=at runtime with the Analog input Local_GMT_Offset	\\||4
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,718,756,854,1766,2567,2574,2590,2651,2655,2817,2886,2938,2947,3181,3197,3233,3680,3682,3706,3710,3735,3736,3816,3888,4176,4193,4308,4476,4591,4769,5360,5388,5420,5455,
+  Exclusions_CDS=6
+  Inclusions_CDS=5
+  Name=RoomView Time Parser rev2.1
+  SmplCName=RoomView Time Parser rev2.1.usp
+  Code=1
+  SysRev5=4.000
+  SMWRev=2.02.05
+  InputCue1=System_In_DST
+  InputSigType1=Digital
+  InputList2Cue1=Local_GMT_Offset
+  InputList2SigType1=Analog
+  InputList2Cue2=Time_From_RV$
+  InputList2SigType2=Serial
+  OutputList2Cue1=Console_TX$
+  OutputList2SigType1=Serial
+  OutputList2Cue2=Module_Status$
+  OutputList2SigType2=Serial
+  ParamCue1=[Reference Name]
+  MinVariableInputs=1
+  MaxVariableInputs=1
+  MinVariableInputsList2=2
+  MaxVariableInputsList2=2
+  MinVariableOutputs=0
+  MaxVariableOutputs=0
+  MinVariableOutputsList2=2
+  MaxVariableOutputsList2=2
+  MinVariableParams=0
+  MaxVariableParams=0
+  Expand=expand_separately
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=32
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  MPp=1
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_RoomView_Time_Parser_rev2_1
+  SymJam=NonExclusive
+  FileName=RoomView Time Parser rev2.1.ush
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]

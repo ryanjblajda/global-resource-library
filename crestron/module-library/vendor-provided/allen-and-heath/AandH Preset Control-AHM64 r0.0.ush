@@ -1,0 +1,99 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.05.01
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=AandH Preset Control-AHM64 r0.0.usp\\\\Controls Presets 1d~500d.
+  Cmn2=\\\\Inputs:\\ Digital-\\  Take:	Sends the command to the AHM64 for||1
+  Cmn3=whichever Preset is currently on\\  the Preset analog. \\  Can be||1
+  Cmn4=latched with a 1 to automatically send whenever the analogs change.
+  Cmn5=\\\\ Analog-\\  Preset: Preset to recall. Valid range 1-500d.\\\\
+  Cmn6=||1Serial-\\  FmMixer: Connect to the TCP/IP symbol Receive line.\\
+  Cmn7=\\Outputs:\\ Analog-\\  PresetFb: Feedback on last recalled Preset.
+  Cmn8=||1Valid range 1d-16d.\\      This is tracked both internally (when||1
+  Cmn9=module is used to send preset) and if the\\      preset is changed||1
+  Cmn10=externally. However, this will not sync to the active\\      preset||1
+  Cmn11=on the unit when the Crestron processor comes online.\\\\ Digital-
+  Cmn12=\\  PresetRecalled:	Pulses to indicate a preset has been recalled||1
+  Cmn13=by this module or externally.\\      This can be used to trigger||1
+  Cmn14=a poll on level or other modules to sync them to any\\      changes||1
+  Cmn15=the preset may have made.\\\\ Serial-\\  ToMixer: Connect to the||1
+  Cmn16=TCP/IP symbol Transmit line.\\\\\\Notes:\\ Reference the AHM64 protocol||1
+  Cmn17=for valid Control Channels for the\\  selected control type.\\\\
+  Cmn18=||1For more information Reference: AHM-TCP-Protocol-V1.pdf\\\\ Tested||1
+  Cmn19=with AHM64 Firmware V1.02 - Rev59154\\\\ Release: 2020-Dec-16 Release||1
+  Cmn20=r0.0\\
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,718,756,767,830,841,842,854,883,955,1032,1062,1079,1128,1129,1134,1140,1157,1158,1195,1199,1220,1221,1222,1223,1299,1348,1349,1439,1472,1473,1499,1746,1803,1975,2229,2354,2514,2523,2532,2706,2707,3235,3236,3427,3454,3567,3568,3601,3602,3708,3902,3903,3912,3918,3925,3926,4206,4207,
+  Exclusions_CDS=5
+  Inclusions_CDS=6,7
+  Name=AandH Preset Control-AHM64
+  SmplCName=AandH Preset Control-AHM64 r0.0.usp
+  Code=1
+  SysRev5=4.006
+  SMWRev=3.00.00
+  InputCue1=Take
+  InputSigType1=Digital
+  OutputCue1=PresetRecalled
+  OutputSigType1=Digital
+  InputList2Cue1=Preset
+  InputList2SigType1=Analog
+  InputList2Cue2=FmMixer
+  InputList2SigType2=Serial
+  OutputList2Cue1=PresetFb
+  OutputList2SigType1=Analog
+  OutputList2Cue2=ToMixer
+  OutputList2SigType2=Serial
+  ParamCue1=[Reference Name]
+  MinVariableInputs=1
+  MaxVariableInputs=1
+  MinVariableInputsList2=2
+  MaxVariableInputsList2=2
+  MinVariableOutputs=1
+  MaxVariableOutputs=1
+  MinVariableOutputsList2=2
+  MaxVariableOutputsList2=2
+  MinVariableParams=0
+  MaxVariableParams=0
+  Expand=expand_separately
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=34
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  MPp=1
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_AandH_Preset_Control_AHM64_r0_0
+  SymJam=NonExclusive
+  FileName=AandH Preset Control-AHM64 r0.0.ush
+  SIMPLPlusModuleEncoding=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
