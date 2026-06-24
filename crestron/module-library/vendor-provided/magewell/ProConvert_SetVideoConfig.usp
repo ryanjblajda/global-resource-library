@@ -1,0 +1,116 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_SetVideoConfig"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,Set_Video_Config_OSD, Set_Video_Config_Process, Set_Video_Config_Source, Set_Video_Config_Follow_Input;
+DIGITAL_INPUT _skip_,Show_Title_Input, Show_Tally_Input, Show_Vu_Meter_Input, Show_Center_Cross_Input, H_Flip_Input, V_Flip_Input, In_Auto_Color_Fmt_Input, Follow_Input_Mode_Input;
+STRING_INPUT Vu_Meter_Mode_Input[256], Safe_Area_Mode_Input[256], Ident_Mode_Input[256], Ident_Text_Input[256], Deinterlace_Mode_Input[256], Ar_Convert_Mode_Input[256], Alpha_Disp_Mode_Input[256], In_Color_Fmt_Input[256], Switch_Mode_Input[256];
+
+STRING_INPUT _skip_,Cookie[256];
+
+ANALOG_OUTPUT _skip_,Status;
+
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH Set_Video_Config_OSD
+{
+    Status = magewell.sSetVideoConfigOSD(Show_Title_Input, Show_Tally_Input, Show_Vu_Meter_Input, Vu_Meter_Mode_Input, Show_Center_Cross_Input, Safe_Area_Mode_Input, Ident_Mode_Input, Ident_Text_Input);
+}
+ 
+PUSH Set_Video_Config_Process
+{
+	Status = magewell.sSetVideoConfigProcess(H_Flip_Input, V_Flip_Input, Deinterlace_Mode_Input, Ar_Convert_Mode_Input, Alpha_Disp_Mode_Input);
+}
+
+PUSH Set_Video_Config_Source
+{
+	Status = magewell.sSetVideoConfigSource(In_Auto_Color_Fmt_Input, In_Color_Fmt_Input, Switch_Mode_Input);
+}
+
+PUSH Set_Video_Config_Follow_Input
+{
+    Status = magewell.sSetVideoConfigFollowInput(Follow_Input_Mode_Input);
+}
+
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp;
+}
+

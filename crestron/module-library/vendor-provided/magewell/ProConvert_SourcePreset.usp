@@ -1,0 +1,505 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_SourcePreset"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,List_Channels,Modify_Channel, Delete_Channel, Add_Channel, Clear_Channels;
+DIGITAL_INPUT _skip_,Set_Channel_By_Index[150];
+DIGITAL_INPUT _skip_,Modify_Channel_By_Index[150];
+DIGITAL_INPUT _skip_,Delete_Channel_By_Index[150, 150];
+// ANALOG_INPUT 
+STRING_INPUT _skip_,Cookie[256];
+STRING_INPUT _skip_,Set_Channel[256];
+STRING_INPUT _skip_,Channel_Name[256], New_Channel_Name[256], Url[4096];
+// BUFFER_INPUT 
+
+// DIGITAL_OUTPUT 
+// ANALOG_OUTPUT 
+DIGITAL_OUTPUT _skip_,Channel_Selected[150], _skip_, Channel_Visible[150,150];
+ANALOG_OUTPUT _skip_,Status;
+ANALOG_OUTPUT SourceList_Count;
+STRING_OUTPUT _skip_,Source_Name[150],_skip_,Source_Url[150,150];
+
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+Callback Function SourcePresetFunction(SourcePresetArg arg)
+{
+	integer i, sourceCount; 
+    sourceCount = arg.GetSourceCount();
+
+    SourceList_Count = arg.GetSourceCount();
+
+	for(i=1 to 150)
+	{
+        if(i-1<sourceCount)
+        {
+  		    Source_Name[i] = arg.GetName(i-1);
+    		Source_Url[i] = arg.GetUrl(i-1);
+        }
+        else
+        {
+		    Source_Name[i] = "";
+	    	Source_Url[i] = "";
+        }
+	}
+}
+                
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+         
+PUSH List_Channels
+{
+    integer i;
+	Status = magewell.sListChannels(); 
+    Status = magewell.sGetChannel();
+    if(Status=0)
+	{
+        for(i=1 to 150)
+	    {
+            if(i-1<SourceList_Count)
+            {
+                Channel_Visible[i] = 1;
+            }
+            else
+            {
+                Channel_Visible[i] = 0;
+            }
+            if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+            {
+                Channel_Selected[i] = 1;
+            }
+            else
+            {
+        	    Channel_Selected[i] = 0;
+            }
+        } 
+  	}
+    else
+    {
+        for(i=1 to 150)
+	    { 
+            Channel_Visible[i] = 0;
+      	    Channel_Selected[i] = 0;
+        } 
+    }
+}
+                     
+PUSH Set_Channel_By_Index
+{
+    integer i;
+    Status = magewell.sSetChannelByIndex(GetLastModifiedArrayIndex()-1, 0); 
+    if(Status=0)
+    {
+        Status = magewell.sGetChannel();
+	    if(Status=0)
+	    {
+            for(i=1 to 150)
+	        {
+                if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+                {
+                    Channel_Selected[i] = 1;
+                }
+                else
+                {
+            	    Channel_Selected[i] = 0;
+                }
+            }
+  	    }
+        else
+        {
+	        for(i=1 to 150)
+	        { 
+                Channel_Visible[i] = 0;
+      	        Channel_Selected[i] = 0;
+            }
+        }
+    }
+}
+
+PUSH Modify_Channel_By_Index
+{
+    integer i;
+    integer pageStartIndex;
+    Status = magewell.sModifyChannelByIndex(GetLastModifiedArrayIndex()-1, New_Channel_Name, Url); 
+    //Reset the channel list.
+	Status = magewell.sListChannels(); 
+    Status = magewell.sGetChannel();
+    if(Status=0)
+	{
+        for(i=1 to 150)
+	    {
+            if(i-1<SourceList_Count)
+            {
+                Channel_Visible[i] = 1;
+            }
+            else
+            {
+                Channel_Visible[i] = 0;
+            }
+            if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+            {
+                Channel_Selected[i] = 1;
+            }
+            else
+            {
+        	    Channel_Selected[i] = 0;
+            }
+        }
+   	}
+    else
+    {	
+        for(i=1 to 150)
+        {
+            Channel_Visible[i] = 0;
+  	        Channel_Selected[i] = 0;
+        } 
+    }
+}
+
+PUSH Modify_Channel
+{
+    integer i;
+    Status = magewell.sModifyChannel(Channel_Name, New_Channel_Name, Url);
+    //Reset the channel list.
+	Status = magewell.sListChannels(); 
+    Status = magewell.sGetChannel();
+    if(Status=0)
+	{
+        for(i=1 to 150)
+        {
+            if(i-1<SourceList_Count)
+            {
+                Channel_Visible[i] = 1;
+            }
+            else
+            {
+                Channel_Visible[i] = 0;
+            }
+            if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+            {
+    	        Channel_Selected[i] = 1;
+            }
+            else
+            {
+    	        Channel_Selected[i] = 0;
+            }
+        } 
+    }
+    else
+    {
+        for(i=1 to 150)
+        { 
+            Channel_Visible[i] = 0;
+  	        Channel_Selected[i] = 0;
+        }
+    }
+}
+
+PUSH Delete_Channel_By_Index
+{
+    integer i;
+    Status = magewell.sDelChannelByIndex(GetLastModifiedArrayIndex()-1); 
+    //Reset the channel list.
+	Status = magewell.sListChannels(); 
+    Status = magewell.sGetChannel();
+    if(Status=0)
+	{
+        for(i=1 to 150)
+        {
+            if(i-1<SourceList_Count)
+            {
+                Channel_Visible[i] = 1;
+            }
+            else
+            {
+                Channel_Visible[i] = 0;
+            }
+            if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+            {
+    	        Channel_Selected[i] = 1;
+            }
+            else
+            {
+    	        Channel_Selected[i] = 0;
+            }
+        }
+  	}
+    else
+    {
+        for(i=1 to 150)
+        { 
+            Channel_Visible[i] = 0;
+  	        Channel_Selected[i] = 0;
+        }
+    }
+}
+
+PUSH Delete_Channel
+{
+    integer i;
+    Status = magewell.sDelChannel(Channel_Name);
+    //Reset the channel list.
+	Status = magewell.sListChannels();
+    Status = magewell.sGetChannel();
+    if(Status=0)
+	{
+        for(i=1 to 150)
+        {
+            if(i-1<SourceList_Count)
+            {
+                Channel_Visible[i] = 1;
+            }
+            else
+            {
+                Channel_Visible[i] = 0;
+            }
+            if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+            {
+    	        Channel_Selected[i] = 1;
+            }
+            else
+            {
+    	        Channel_Selected[i] = 0;
+            }
+        }
+   	}
+    else
+    {	
+        for(i=1 to 150)
+	    { 
+            Channel_Visible[i] = 0;
+      	    Channel_Selected[i] = 0;
+        }
+    }
+}
+
+PUSH Add_Channel
+{
+    integer i;
+    Status = magewell.sAddChannel(New_Channel_Name, Url);
+    //Reset the channel list.
+	Status = magewell.sListChannels(); 
+    Status = magewell.sGetChannel();
+    if(Status=0)
+	{
+        for(i=1 to 150)
+        {
+            if(i-1<SourceList_Count)
+            {
+                Channel_Visible[i] = 1;
+            }
+            else
+            {
+                Channel_Visible[i] = 0;
+            }
+            if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+            {
+                Channel_Selected[i] = 1;
+            }
+            else
+            {
+        	    Channel_Selected[i] = 0;
+            }
+        }
+   	}
+    else
+    {
+        for(i=1 to 150)
+	    { 
+            Channel_Visible[i] = 0;
+      	    Channel_Selected[i] = 0;
+        } 
+    }
+}
+
+PUSH Clear_Channels
+{
+    integer i; 
+    Status = magewell.sClearChannels();
+    //Reset the channel list.
+	Status = magewell.sListChannels(); 
+    Status = magewell.sGetChannel();
+    if(Status=0)
+	{
+        for(i=1 to 150)
+        {
+            if(i-1<SourceList_Count)
+            {
+                Channel_Visible[i] = 1;
+            }
+            else
+            {
+                Channel_Visible[i] = 0;
+            }
+            if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+            {
+    	        Channel_Selected[i] = 1;
+            }
+            else
+            {
+    	        Channel_Selected[i] = 0;
+            }
+        }
+   	}
+    else
+    {
+        for(i=1 to 150)
+        { 
+            Channel_Visible[i] = 0;
+  	        Channel_Selected[i] = 0;
+        }
+    }
+}
+
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+ 
+CHANGE Set_Channel
+{
+    integer i;
+	Status = magewell.sSetChannel(Set_Channel, 0);
+    if(Status=0)
+    {
+        Status = magewell.sGetChannel();
+	    if(Status=0)
+	    {
+            for(i=1 to 150)
+            {
+                if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+                {
+        	        Channel_Selected[i] = 1;
+                }
+                else
+                {
+        	        Channel_Selected[i] = 0;
+                }
+            }
+ 	    }
+        else
+        { 
+   	        for(i=1 to 150)
+    	    { 
+                Channel_Visible[i] = 0;
+          	    Channel_Selected[i] = 0;
+            }
+        }
+    }
+}
+
+Function Main()
+{
+    integer i, ret;
+    integer pageStartIndex;
+	Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp;	
+
+	RegisterDelegate ( magewell , SourcePresetCallBack , SourcePresetFunction ); 
+
+    while(1)
+    {    
+        //Reset the channel list.
+	    ret = magewell.sListChannels();
+        ret = magewell.sGetChannel();
+        if(ret=0)
+    	{
+   	        for(i=1 to 150)
+   	        {
+                if(i-1<SourceList_Count)
+                {
+                    Channel_Visible[i] = 1;
+                }
+                else
+                {
+                    Channel_Visible[i] = 0;
+                }
+                if(i-1<SourceList_Count && magewell.sIsChannelSelected(i-1)>0)
+                {
+        	        Channel_Selected[i] = 1;
+                }
+                else
+                {
+        	        Channel_Selected[i] = 0;
+                }
+            }
+      	}
+        else
+        {
+   	        for(i=1 to 150)
+   	        { 
+                Channel_Visible[i] = 0;
+      	        Channel_Selected[i] = 0;
+            }
+        }
+       	Delay ( 100 );
+    }
+}

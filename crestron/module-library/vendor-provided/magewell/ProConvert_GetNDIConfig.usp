@@ -1,0 +1,192 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "ProConvert_GetNdiConfig"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+#INCLUDEPATH "C:\My File\Project\WORK\2022-7-29 NDI API\Pro Convert\proConvertLib\bin\Debug"
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT _skip_,Enable_Debug,Get_Ndi_Config;
+DIGITAL_INPUT _skip_, Enable_Discovery_Input, Low_Band_Width_Input, Enable_Mcast_Input, Enable_Rudp_Input, Enable_Tcp_Input, Enable_Udp_Input, Ignore_Ndi_Hx_Video_Pts_Input;
+STRING_INPUT _skip_,Cookie[256];
+
+ANALOG_OUTPUT _skip_, Status;
+DIGITAL_OUTPUT _skip_, Enable_Discovery_Output, Low_Band_Width_Output, Enable_Mcast_Output, Enable_Rudp_Output, Enable_Tcp_Output, Enable_Udp_Output, Ignore_Ndi_Hx_Video_Pts_Output;
+STRING_OUTPUT _skip_, Discovery_Server_Output, Source_Name_Output, Group_Name_Output;
+
+MainProg magewell;
+
+STRING_PARAMETER HostIp[16];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+// INTEGER
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+// STRING
+
+Callback Function NdiConfigFunc(NdiConfigArg arg)
+{   
+    Enable_Discovery_Output = arg.enableDiscovery;
+    Discovery_Server_Output = arg.discoveryServer; 
+    Source_Name_Output = arg.sourceName;
+    Group_Name_Output = arg.groupName;
+    Low_Band_Width_Output = arg.lowBandWidth;
+    Enable_Mcast_Output = arg.enableMcast;
+    Enable_Rudp_Output = arg.enableRudp;
+    Enable_Tcp_Output = arg.enableTcp;
+    Enable_Udp_Output = arg.enableUdp;
+    Ignore_Ndi_Hx_Video_Pts_Output = arg.ignoreNdiHxVideoPts;
+}
+
+PUSH Enable_Discovery_Input
+{
+    Enable_Discovery_Output = !Enable_Discovery_Output;
+}
+
+PUSH Low_Band_Width_Input
+{
+    Low_Band_Width_Output = !Low_Band_Width_Output;
+}
+
+PUSH Enable_Mcast_Input
+{
+    if(Enable_Mcast_Output=0)
+    {
+        Enable_Mcast_Output = 1; 
+        Enable_Rudp_Output = 0;
+        Enable_Tcp_Output = 0;
+        Enable_Udp_Output = 0;
+    }
+    else
+    {
+        Enable_Mcast_Output = 0;
+    }
+}
+
+PUSH Enable_Rudp_Input
+{
+    if(Enable_Rudp_Output=0)
+    {
+        Enable_Rudp_Output = 1;
+        Enable_Mcast_Output = 0;
+        Enable_Tcp_Output = 0;
+        Enable_Udp_Output = 0;
+    }
+    else
+    {
+        Enable_Rudp_Output = 0;
+    }
+}
+
+PUSH Enable_Tcp_Input
+{    
+    if(Enable_Tcp_Output=0)
+    {
+        Enable_Tcp_Output = 1;
+        Enable_Rudp_Output = 0;
+        Enable_Mcast_Output = 0;
+        Enable_Udp_Output = 0;       
+    }
+    else
+    {
+        Enable_Tcp_Output = 0;
+    }
+}
+ 
+PUSH Enable_Udp_Input
+{
+    if(Enable_Udp_Output=0)
+    {
+        Enable_Udp_Output = 1;      
+        Enable_Rudp_Output = 0;
+        Enable_Mcast_Output = 0;
+        Enable_Tcp_Output = 0;
+    }
+    else
+    {
+        Enable_Udp_Output = 0;
+    }
+}
+
+PUSH Ignore_Ndi_Hx_Video_Pts_Input
+{
+    Ignore_Ndi_Hx_Video_Pts_Output = !Ignore_Ndi_Hx_Video_Pts_Output;
+}
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH Get_Ndi_Config
+{
+    Status = magewell.sGetNdiConfig();
+}
+
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	
+	magewell.pDebugging = 1;
+		
+	magewell.pHostIp = HostIp; 
+
+    RegisterDelegate ( magewell,  NdiConfigCallBack, NdiConfigFunc );
+}
+
