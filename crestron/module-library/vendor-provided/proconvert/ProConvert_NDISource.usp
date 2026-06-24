@@ -16,6 +16,7 @@ Comments:
 *******************************************************************************************/
 // #ENABLE_DYNAMIC
 #SYMBOL_NAME "ProConvert_NDISource"
+#CATEGORY "46" "Magewell" // Custom
 // #HINT ""
 // #DEFINE_CONSTANT
 // #CATEGORY "" 
