@@ -1,0 +1,127 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+#SYMBOL_NAME "Magewell Pro Convert - Basic Control v1.0"
+#CATEGORY "46" "Magewell" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+
+#HELP_BEGIN
+   	created from the base modules provided by magewell
+	do not set the port number in the string this is handled for you
+	
+#HELP_END
+
+
+#USER_SIMPLSHARP_LIBRARY "proConvertLib"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Enable_Debug, _SKIP_, Poll, Login, Logout, _SKIP_;
+
+STRING_INPUT IP_Address[16], Username[32], Password[32];
+
+ANALOG_INPUT _SKIP_, NDI_Source;
+
+ANALOG_OUTPUT _SKIP_, _SKIP_, _SKIP_, Status, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, NDI_Source_Fb;
+
+MainProg magewell;
+
+/*
+STRING_PARAMETER HostIp[16],Username[20],Password[20];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Username,Password   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "Admin";
+#END_PARAMETER_PROPERTIES
+*/
+
+STRING deviceIPAddress[16];
+STRING deviceUsername[32];
+STRING devicePassword[32];
+
+PUSH Enable_Debug
+{
+	magewell.pDebugging = Enable_Debug;
+}
+PUSH Login
+{
+	STRING fullHost[32];
+	if (deviceIPAddress <> "" && deviceUsername <> "" && devicePassword <> "") 
+	 {
+		makestring(fullHost, "%s:50080", deviceIPAddress);
+		magewell.pHostIp = fullHost;		
+		magewell.pUsername = deviceUsername;
+		magewell.pPassword = devicePassword;
+
+		Status = magewell.sLogin();
+	}
+	else { if (Enable_Debug = ON) { print("cannot login without credentials"); } }
+}
+
+PUSH Logout
+{
+	Status = magewell.sLogout();
+}
+
+CHANGE IP_Address 	{ deviceIPAddress = IP_Address; }
+CHANGE Username 	{ deviceUserName = Username; }
+CHANGE Password 	{ devicePassword = Password; }
+
+CHANGE NDI_Source 
+{
+	INTEGER index;
+	//get a zero based index
+	index = NDI_Source - 1;
+	//set the source via index
+	magewell.sSetChannelByIndex(index, 1);
+	//get the connection status
+	Status = magewell.sGetChannel();
+	//update feedback
+	if (magewell.sIsNdiSourceSelected(index) <> 0) { NDI_Source_Fb = NDI_Source; }
+}
+
+PUSH Poll 
+{
+	INTEGER index;
+    index = NDI_Source - 1;
+                 	
+	Status = magewell.sGetNdiSources();
+    Status = magewell.sGetChannel();
+
+	if (magewell.sIsNdiSourceSelected(index) <> 0) { NDI_Source_Fb = NDI_Source; }
+	else { NDI_Source_Fb = 0; }
+}
+
+Function Main()
+{	
+	WaitForInitializationComplete();
+	magewell.pDebugging = 1;
+}
