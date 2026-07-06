@@ -1,0 +1,107 @@
+#SYMBOL_NAME "IPToUSB_stream_status_get"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+
+//INPUT
+DIGITAL_INPUT stream_status_get_Push;
+//type default 'static' which means a record added to device; 'dynamic' means avaliable source in current local network.
+//STRING_INPUT input_source_add_type[32];
+
+
+//OUTPUT
+STRING_OUTPUT stream_status_get_message;
+STRING_OUTPUT stream_status_get_code;
+ANALOG_OUTPUT stream_status_get_status;
+
+//audio
+STRING_OUTPUT audio_codec;
+ANALOG_OUTPUT audio_bit_count, audio_channels;
+STRING_OUTPUT audio_jitter_output, audio_sample_rate_output, audio_kbps_output, audio_drops_output;
+
+//video
+ANALOG_OUTPUT video_width, video_height;
+STRING_OUTPUT video_codec, video_field_rate;
+STRING_OUTPUT video_jitter_output, video_kbps_output, video_scan_mode_output, video_drops_output;
+           
+//extra
+STRING_OUTPUT extra_tally_preview, extra_tally_program;
+
+ANALOG_OUTPUT state;
+STRING_OUTPUT uptime,name,protocol;
+
+STRING_INPUT HostIp[16],Cookie[256];
+                           
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH stream_status_get_Push
+{	
+	stream_status_get_status = magewell.stream_status_get();
+	stream_status_get_code = magewell.GetCode();
+    stream_status_get_message = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function StreamStatusGetFunction(RetStructStreamStatusGet status)
+{
+	LONG_INTEGER  audio_jitter, audio_sample_rate, audio_kbps, audio_drops;
+	LONG_INTEGER video_jitter, video_kbps, video_drops;
+
+
+	state = status.data.state;
+	uptime = status.data.uptime;
+	name = status.data.name;
+	protocol = status.data.protocol;
+
+	//audio
+	audio_codec = status.data.audio.codec;
+	audio_jitter = status.data.audio.jitter;
+	audio_kbps = status.data.audio.kbps;
+	audio_sample_rate = status.data.audio.sample_rate;
+	audio_bit_count = status.data.audio.bit_count;
+	audio_channels = status.data.audio.channels;
+	audio_drops = status.data.audio.drops;
+
+	audio_jitter_output = LtoA(audio_jitter);
+	audio_sample_rate_output = LtoA(audio_sample_rate);
+	audio_kbps_output = LtoA(audio_kbps);
+	audio_drops_output = LtoA(audio_drops);
+
+	//video
+	video_codec = status.data.video.codec;
+	video_jitter = status.data.video.jitter;
+	video_kbps = status.data.video.kbps;
+	video_scan_mode_output = status.data.video.scan_mode;
+	video_width = status.data.video.width;
+	video_height = status.data.video.height;
+	video_field_rate = status.data.video.field_rate;
+	video_drops = status.data.video.drops;	
+
+	video_jitter_output = LtoA(video_jitter);
+	video_kbps_output = LtoA(video_kbps);
+	video_drops_output = LtoA(video_drops);
+
+	//extra
+	extra_tally_preview = status.data.extra.tally_preview;
+	extra_tally_program = status.data.extra.tally_program;
+}
+
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+    RegisterDelegate ( magewell , delegate_stream_status_get_callback , StreamStatusGetFunction);
+
+}
+

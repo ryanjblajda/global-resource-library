@@ -1,0 +1,47 @@
+#SYMBOL_NAME "IPToUSB_ndi_config_get"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT ndi_config_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT ndi_config_message;
+ANALOG_OUTPUT ndi_config_status;
+STRING_OUTPUT ndi_config_code_output, ndi_config_enable_output, ndi_config_discovery_server_output, ndi_config_groups_output;
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH ndi_config_Push
+{                      
+	ndi_config_status = magewell.ndi_config_get();
+    ndi_config_message = magewell.GetMessage();
+	ndi_config_code_output = magewell.GetCode();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function NDIConfigGetFunction(RetStructNDIConfigGet ndi_config)
+{
+	ndi_config_code_output = ndi_config.code;
+    ndi_config_enable_output = ndi_config.data.enable;
+    ndi_config_discovery_server_output = ndi_config.data.discovery_server;
+    ndi_config_groups_output = ndi_config.data.groups;
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+	RegisterDelegate ( magewell , delegate_ndi_config_get_callback , NDIConfigGetFunction);
+}
+

@@ -1,0 +1,41 @@
+#SYMBOL_NAME "IPToUSB_factory_reset"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+DIGITAL_INPUT factory_reset;
+STRING_INPUT HostIp[16],Cookie[256];
+
+ANALOG_OUTPUT status_output, estimated_duration_output;
+STRING_OUTPUT message_output, code_output;
+
+MainProg magewell;
+
+PUSH factory_reset
+{
+    status_output = magewell.factory_reset();
+    code_output = magewell.GetCode();
+	message_output = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+
+Callback Function FactoryResetFunc(RetStructFactoryReset ret)
+{	
+    estimated_duration_output = ret.estimated_duration;
+}
+
+Function Main()
+{	
+    Delay ( 100 );
+	RegisterDelegate ( magewell,  FactoryResetCallBack, FactoryResetFunc);
+}
+

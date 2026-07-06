@@ -1,0 +1,47 @@
+#SYMBOL_NAME "IPToUSB_video_config_get"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT video_config_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT video_config_message;
+ANALOG_OUTPUT video_config_status;
+STRING_OUTPUT h_flip_output, v_flip_output, ar_convert_mode_output, code_output;
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH video_config_Push
+{                      
+	video_config_status = magewell.video_config_get();
+    video_config_message = magewell.GetMessage();
+	code_output  = magewell.GetCode();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function VideoConfigGetFunction(RetStructVideoConfigGet video_config)
+{
+	code_output = video_config.code;
+    h_flip_output = video_config.data.h_flip;
+    v_flip_output = video_config.data.v_flip;
+    ar_convert_mode_output = video_config.data.ar_convert_mode;
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+	RegisterDelegate ( magewell , delegate_video_config_get_callback , VideoConfigGetFunction);
+}
+

@@ -1,0 +1,45 @@
+#SYMBOL_NAME "IPToUSB_summary_get"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT summary_get_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT summary_get_message_output, summary_get_code_output;
+ANALOG_OUTPUT summary_get_status_output;
+STRING_OUTPUT cpu_temp;
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH summary_get_Push
+{                      
+	summary_get_status_output = magewell.summary_get();
+    summary_get_code_output = magewell.GetCode();
+    summary_get_message_output = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function SummaryGetFunction(RetStructSummaryGet summary)
+{
+	cpu_temp = LtoA(summary.data.cpu_temp);
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+	RegisterDelegate ( magewell , delegate_summary_get_callback , SummaryGetFunction);
+
+}
+

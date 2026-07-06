@@ -1,0 +1,123 @@
+#SYMBOL_NAME "IPToUSB_source_list_get"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT source_list_get_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+//type default 'static' which means a record added to device; 'dynamic' means avaliable source in current local network.
+STRING_INPUT input_source_list_type[32];
+ANALOG_INPUT input_source_list_page, input_source_list_page_size;
+
+//OUTPUT
+ANALOG_OUTPUT source_list_count;
+
+STRING_OUTPUT source_list_message;
+STRING_OUTPUT source_list_code;
+ANALOG_OUTPUT source_list_status;
+ANALOG_OUTPUT output_source_list_page;
+ANALOG_OUTPUT output_source_list_page_size;
+ANALOG_OUTPUT output_source_list_total;
+STRING_OUTPUT output_source_list_selected;
+
+ANALOG_OUTPUT source_item_id[10];
+STRING_OUTPUT source_item_config_name[10];
+STRING_OUTPUT source_item_config_protocol[10];
+STRING_OUTPUT source_item_config_type[10];
+
+STRING_OUTPUT config_data_url[10];
+ANALOG_OUTPUT config_data_buffer_ms[10];
+STRING_OUTPUT config_data_ptz_en[10];
+STRING_OUTPUT config_data_ptz_protocol[10];
+STRING_OUTPUT config_data_ptz_ip[10];
+ANALOG_OUTPUT config_data_ptz_port[10];
+ANALOG_OUTPUT config_data_ptz_device_id[10,10];
+STRING_OUTPUT config_data_ptz_message_header[10];
+STRING_OUTPUT config_data_ptz_invert_pan[10];
+STRING_OUTPUT config_data_ptz_invert_tilt[10];
+
+STRING_OUTPUT config_data_name[10];
+STRING_OUTPUT config_data_low_bw[10];
+STRING_OUTPUT config_data_transport[10];
+STRING_OUTPUT config_data_pts_mode[10,10];
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH source_list_get_Push
+{                      
+	source_list_status = magewell.source_list_get(input_source_list_type, input_source_list_page, input_source_list_page_size);
+    source_list_message = magewell.GetMessage();
+	source_list_code = magewell.GetCode();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function SourceListGetFunction(RetStructSourceListGet source_list)
+{
+	integer i,count;
+	STRING type[10];
+	source_list_code = source_list.code;
+	output_source_list_page = source_list.page;
+    output_source_list_page_size = source_list.page_size;
+	output_source_list_total = source_list.total;
+	output_source_list_selected = source_list.selected;
+
+	count = SMIN(source_list.get_source_list_count(),10);
+	source_list_count = count;
+
+	for(i=1 to count)
+	{
+    	source_item_id[i] = source_list.data[i-1].id;
+		source_item_config_name[i] = source_list.data[i-1].config.name;
+        source_item_config_protocol[i] = source_list.data[i-1].config.protocol;
+        source_item_config_type[i] = source_list.data[i-1].config.type;
+		type = source_list.data[i-1].config.type;
+
+		if(type = "ndi")
+		{
+			config_data_name[i]               = source_list.data[i-1].config.data.get_name();
+            config_data_url[i]                = source_list.data[i-1].config.data.url;//ok
+			config_data_low_bw[i]             = source_list.data[i-1].config.data.get_low_bw();//empty
+            config_data_transport[i]          = source_list.data[i-1].config.data.transport;//empty
+            config_data_pts_mode[i]           = source_list.data[i-1].config.data.pts_mode;//empty
+			config_data_buffer_ms[i]          = source_list.data[i-1].config.data.buffer_ms;//ok
+		}
+        else if(type = "url")
+		{
+            config_data_url[i]                = source_list.data[i-1].config.data.url;//ok
+            config_data_buffer_ms[i]          = source_list.data[i-1].config.data.buffer_ms;//ok
+            config_data_ptz_en[i]             = source_list.data[i-1].config.data.get_ptz_en();//ok
+            config_data_ptz_protocol[i]       = source_list.data[i-1].config.data.ptz.protocol;//ok
+			config_data_ptz_ip[i]             = source_list.data[i-1].config.data.ptz.ip;//ok  
+			config_data_ptz_port[i]           = source_list.data[i-1].config.data.ptz.port;//ok
+			config_data_ptz_device_id[i]      = source_list.data[i-1].config.data.ptz.device_id;//ok
+			config_data_ptz_message_header[i] = source_list.data[i-1].config.data.ptz.get_message_header();
+			config_data_ptz_invert_pan[i]     = source_list.data[i-1].config.data.ptz.get_invert_pan();
+			config_data_ptz_invert_tilt[i]    = source_list.data[i-1].config.data.ptz.get_invert_tilt();
+
+		}
+		else if(type = "d_ndi")		
+		{
+			config_data_name[i]               = source_list.data[i-1].config.data.get_name();
+            config_data_url[i]                = source_list.data[i-1].config.data.url;
+		}
+	}	
+
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+	RegisterDelegate ( magewell , delegate_source_list_get_callback , SourceListGetFunction);
+
+}
+

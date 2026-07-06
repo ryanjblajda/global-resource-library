@@ -1,0 +1,86 @@
+#SYMBOL_NAME "IPToUSB_DeviceInfo"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT Device_Info_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+//OUTPUT
+STRING_OUTPUT device_info_message;
+ANALOG_OUTPUT device_info_status;
+
+STRING_OUTPUT device_info_code;
+STRING_OUTPUT device_info_device_name;
+STRING_OUTPUT device_info_product_id;
+STRING_OUTPUT device_info_product_name;
+STRING_OUTPUT device_info_model;
+STRING_OUTPUT device_info_firmware_name;
+STRING_OUTPUT device_info_hardware_rev;
+STRING_OUTPUT device_info_serial_number;
+STRING_OUTPUT device_info_firmware_ver;
+STRING_OUTPUT device_info_build_time;
+
+STRING_OUTPUT device_info_capability_support_usbc_name;
+STRING_OUTPUT device_info_capability_support_timezone;
+STRING_OUTPUT device_info_capability_support_ntp;
+STRING_OUTPUT device_info_capability_support_station;
+STRING_OUTPUT device_info_capability_support_ap;
+STRING_OUTPUT device_info_capability_support_online_upgrade;
+STRING_OUTPUT device_info_capability_support_sc_control;
+STRING_OUTPUT device_info_capability_support_if_prio;
+STRING_OUTPUT device_info_capability_support_usb_ncm;
+STRING_OUTPUT device_info_capability_support_wifi_mutex;
+STRING_OUTPUT device_info_capability_support_ipv6;
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH Device_Info_Push
+{                       
+	device_info_status = magewell.device_info();
+    device_info_message = magewell.GetMessage();
+	device_info_code = magewell.GetCode();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function DeviceinfoFunction(RetStructDeviceInfo device_info)
+{	
+	device_info_code = device_info.code;
+	device_info_device_name = device_info.device_name;
+	device_info_product_id = device_info.product_id;
+	device_info_product_name = device_info.product_name;
+	device_info_model = device_info.model;
+	device_info_firmware_name = device_info.firmware_name;
+	device_info_hardware_rev = device_info.hardware_rev;
+	device_info_serial_number = device_info.serial_number;
+	device_info_firmware_ver = device_info.firmware_ver;
+	device_info_build_time = device_info.build_time;
+	
+	device_info_capability_support_usbc_name = device_info.capability.support_usbc_name;
+	device_info_capability_support_timezone = device_info.capability.support_timezone;
+	device_info_capability_support_ntp = device_info.capability.support_ntp;
+	device_info_capability_support_station = device_info.capability.support_station;
+	device_info_capability_support_ap = device_info.capability.support_ap;
+	device_info_capability_support_online_upgrade = device_info.capability.support_online_upgrade;
+	device_info_capability_support_sc_control = device_info.capability.support_sc_control;
+	device_info_capability_support_if_prio = device_info.capability.support_if_prio;
+	device_info_capability_support_usb_ncm = device_info.capability.support_usb_ncm;
+	device_info_capability_support_wifi_mutex = device_info.capability.support_wifi_mutex;
+	device_info_capability_support_ipv6 = device_info.capability.support_ipv6;
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+	RegisterDelegate ( magewell , delegate_deviceinfo_callBack , DeviceinfoFunction );
+
+}
+

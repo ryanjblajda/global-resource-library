@@ -1,0 +1,54 @@
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "IPToUSB_Login"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+DIGITAL_INPUT _skip_,_skip_,_skip_,Login,Logout;
+
+ANALOG_OUTPUT _skip_,_skip_,_skip_,Status;
+STRING_OUTPUT Cookie,Message,OutputHostIP,Code;
+//MainProg is C# class name
+MainProg magewell;
+//input parameter. 16 means max length
+STRING_PARAMETER HostIp[16],Username[20],Password[20];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "10.10.37.202";//10.10.33.55:80 BIC default port 80
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Username,Password   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "Admin";
+#END_PARAMETER_PROPERTIES
+
+PUSH Login
+{
+	Status = magewell.sLogin();//C# object's member function
+    Message = magewell.GetMessage();
+	Code = magewell.GetCode();
+    Cookie = magewell.sGetApiCookie();
+    OutputHostIP = magewell.GetHostIP();
+}
+
+PUSH Logout
+{
+	Status = magewell.sLogout();
+	Code = magewell.GetCode();
+}
+
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+			
+	magewell.HostIp = HostIp;
+	magewell.Username = Username;
+	magewell.Password = Password;
+}
+

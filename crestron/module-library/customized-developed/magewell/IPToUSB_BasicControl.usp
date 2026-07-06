@@ -1,0 +1,164 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+#SYMBOL_NAME "Magewell Pro Convert IP To USB - Basic Control v1.0"
+#CATEGORY "46" "Magewell" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// Replicating mwStatusEnum for SIMPL+ Compatibility
+#DEFINE_CONSTANT MW_STATUS_SUCCESS            0
+#DEFINE_CONSTANT MW_STATUS_PENDING            1
+#DEFINE_CONSTANT MW_STATUS_TIMEOUT            2
+#DEFINE_CONSTANT MW_STATUS_INTERRUPTED        3
+#DEFINE_CONSTANT MW_STATUS_TRY_AGAIN          4
+#DEFINE_CONSTANT MW_STATUS_NOT_IMPLEMENTED    5
+#DEFINE_CONSTANT MW_STATUS_UNKNOWN_ERROR      6
+#DEFINE_CONSTANT MW_STATUS_INVALID_ARG        7
+#DEFINE_CONSTANT MW_STATUS_NO_MEMORY          8
+#DEFINE_CONSTANT MW_STATUS_UNSUPPORTED        9
+#DEFINE_CONSTANT MW_STATUS_FILE_BUSY          10
+#DEFINE_CONSTANT MW_STATUS_DEVICE_BUSY        11
+#DEFINE_CONSTANT MW_STATUS_DEVICE_LOST        12
+#DEFINE_CONSTANT MW_STATUS_IO_FAILED          13
+#DEFINE_CONSTANT MW_STATUS_READ_FAILED        14
+#DEFINE_CONSTANT MW_STATUS_WRITE_FAILED       15
+#DEFINE_CONSTANT MW_STATUS_NOT_EXIST          16
+#DEFINE_CONSTANT MW_STATUS_TOO_MANY           17
+#DEFINE_CONSTANT MW_STATUS_TOO_LARGE          18
+#DEFINE_CONSTANT MW_STATUS_OVERFLOW           19
+#DEFINE_CONSTANT MW_STATUS_UNDERFLOW          20
+#DEFINE_CONSTANT MW_STATUS_FORMAT_ERROR       21
+#DEFINE_CONSTANT MW_STATUS_FILE_EXISTS        22
+#DEFINE_CONSTANT MW_STATUS_FILE_TYPE_ERROR    23
+#DEFINE_CONSTANT MW_STATUS_DEVICE_TYPE_ERROR  24
+#DEFINE_CONSTANT MW_STATUS_IS_DIRECTORY       25
+#DEFINE_CONSTANT MW_STATUS_READ_ONLY          26
+#DEFINE_CONSTANT MW_STATUS_RANGE_ERROR        27
+#DEFINE_CONSTANT MW_STATUS_BROKEN_PIPE        28
+#DEFINE_CONSTANT MW_STATUS_NO_SPACE           29
+#DEFINE_CONSTANT MW_STATUS_NOT_DIRECTORY      30
+#DEFINE_CONSTANT MW_STATUS_NOT_PERMITTED      31
+#DEFINE_CONSTANT MW_STATUS_BAD_ADDRESS        32
+#DEFINE_CONSTANT MW_STATUS_SEEK_ERROR         33
+#DEFINE_CONSTANT MW_STATUS_CROSS_DEVICE_LINK  34
+#DEFINE_CONSTANT MW_STATUS_NOT_INITIALIED     35
+#DEFINE_CONSTANT MW_STATUS_AUTH_FAILED        36
+#DEFINE_CONSTANT MW_STATUS_NOT_LOGGED_IN      37
+#DEFINE_CONSTANT MW_STATUS_WRONG_STATE        38
+#DEFINE_CONSTANT MW_STATUS_MISMATCH           39
+#DEFINE_CONSTANT MW_STATUS_VERIFY_FAILED      40
+#DEFINE_CONSTANT MW_STATUS_CONSTRAINT_VIOLATION 41
+#DEFINE_CONSTANT MW_STATUS_PROG_ERROR           42
+
+
+#HELP_BEGIN
+   	created from the base modules provided by magewell
+	do not set the port number in the string this is handled for you
+	
+#HELP_END
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Enable_Debug, _SKIP_, Poll, Login, Logout, _SKIP_;
+
+STRING_INPUT IP_Address[16], Username[32], Password[32];
+
+ANALOG_INPUT _SKIP_, NDI_Source;
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, Login_Fb;
+ANALOG_OUTPUT _SKIP_, Status, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, _SKIP_, NDI_Source_Fb;
+
+MainProg magewell;
+
+/*
+STRING_PARAMETER HostIp[16],Username[20],Password[20];
+
+#BEGIN_PARAMETER_PROPERTIES HostIp   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "58.213.29.2:50080";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Username,Password   
+	propValidUnits = unitString;
+   	propDefaultUnit = unitString;
+   	propDefaultValue = "Admin";
+#END_PARAMETER_PROPERTIES
+*/
+
+STRING deviceIPAddress[16];
+STRING deviceUsername[32];
+STRING devicePassword[32];
+
+FUNCTION DetermineLoginStatus(signed_long_integer status)
+{
+	if (status = MW_STATUS_AUTH_FAILED || status = MW_STATUS_NOT_LOGGED_IN) { Login_Fb = OFF; }
+	else { Login_Fb = ON; }
+}
+
+PUSH Enable_Debug
+{
+}
+
+PUSH Login
+{
+	STRING fullHost[32];
+	if (deviceIPAddress <> "" && deviceUsername <> "" && devicePassword <> "") 
+	 {
+		makestring(fullHost, "%s", deviceIPAddress);
+		magewell.HostIp = fullHost;		
+		magewell.Username = deviceUsername;
+		magewell.Password = devicePassword;
+
+		Status = magewell.sLogin();
+
+		DetermineLoginStatus(Status);
+	}
+	else { if (Enable_Debug = ON) { print("cannot login without credentials"); } }
+}
+
+PUSH Logout
+{
+	Status = magewell.sLogout();
+}
+
+CHANGE IP_Address 	{ deviceIPAddress = IP_Address; }
+CHANGE Username 	{ deviceUserName = Username; }
+CHANGE Password 	{ devicePassword = Password; }
+
+CHANGE NDI_Source 
+{
+	Status = magewell.source_select(NDI_Source);
+	DetermineLoginStatus(Status);
+}
+
+PUSH Poll 
+{
+}
+
+Function Main()
+{	
+	WaitForInitializationComplete();
+}

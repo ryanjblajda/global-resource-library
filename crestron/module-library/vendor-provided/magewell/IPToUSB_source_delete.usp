@@ -1,0 +1,44 @@
+#SYMBOL_NAME "IPToUSB_source_delete"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+//INPUT
+DIGITAL_INPUT source_delete_Push;
+//type default 'static' which means a record added to device; 'dynamic' means avaliable source in current local network.
+//STRING_INPUT input_source_add_type[32];
+ANALOG_INPUT source_item_id;
+
+//OUTPUT
+STRING_OUTPUT source_delete_message;
+STRING_OUTPUT source_delete_code;
+ANALOG_OUTPUT source_delete_status;
+
+STRING_INPUT HostIp[16],Cookie[256];
+                           
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH source_delete_Push
+{
+	source_delete_status = magewell.source_delete(source_item_id);
+	source_delete_code = magewell.GetCode();
+    source_delete_message = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+
+}
+

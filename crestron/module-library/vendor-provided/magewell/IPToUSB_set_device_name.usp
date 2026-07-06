@@ -1,0 +1,40 @@
+#SYMBOL_NAME "IPToUSB_set_device_name"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT set_device_name_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT set_device_name_message_output, set_device_name_code_output;
+ANALOG_OUTPUT set_device_name_status_output;
+STRING_INPUT device_name[32];
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH set_device_name_Push
+{                      
+	set_device_name_status_output = magewell.set_device_name(device_name);
+    set_device_name_code_output = magewell.GetCode();
+    set_device_name_message_output = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+}
+

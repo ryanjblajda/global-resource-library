@@ -1,0 +1,45 @@
+#SYMBOL_NAME "IPToUSB_usb_mode_get"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT usb_mode_get_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT usb_mode_get_message_output,usb_mode_get_code_output;
+ANALOG_OUTPUT usb_mode_get_status_output;
+STRING_OUTPUT usb_mode_output;
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH usb_mode_get_Push
+{                      
+	usb_mode_get_status_output = magewell.usb_mode_get();
+    usb_mode_get_code_output = magewell.GetCode();
+    usb_mode_get_message_output = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function USBModeGetFunction(RetStructUSBModeGet usb_mode)
+{
+	usb_mode_output = usb_mode.data.mode;
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+	RegisterDelegate ( magewell , delegate_usb_mode_get_callback , USBModeGetFunction);
+
+}
+

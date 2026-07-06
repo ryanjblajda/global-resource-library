@@ -1,0 +1,40 @@
+#SYMBOL_NAME "IPToUSB_ndi_config_set"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT ndi_config_set_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT ndi_config_set_message_output,ndi_config_set_code;
+ANALOG_OUTPUT ndi_config_set_status_output;
+STRING_INPUT ndi_config_input_enable[32], ndi_config_input_discovery_server[32], ndi_config_input_groups[32];
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH ndi_config_set_Push
+{                      
+	ndi_config_set_status_output = magewell.ndi_config_set(ndi_config_input_enable, ndi_config_input_discovery_server, ndi_config_input_groups);
+    ndi_config_set_code = magewell.GetCode();
+    ndi_config_set_message_output = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+}
+

@@ -1,0 +1,94 @@
+#SYMBOL_NAME "IPToUSB_Info"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT Info_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT info_message;
+ANALOG_OUTPUT info_status;
+
+STRING_OUTPUT info_code;
+STRING_OUTPUT info_device_name;
+STRING_OUTPUT info_mdns_url;
+STRING_OUTPUT info_uptime;
+
+STRING_OUTPUT info_cpu_total;
+STRING_OUTPUT info_cpu_idle;
+STRING_OUTPUT info_cpu_usage;
+
+STRING_OUTPUT info_mem_total;
+STRING_OUTPUT info_mem_avail;
+
+STRING_OUTPUT info_datetime_cur_time;
+STRING_OUTPUT info_datetime_zonename;
+STRING_OUTPUT info_datetime_ntp_enable;
+STRING_OUTPUT info_datetime_ntp_server1;
+STRING_OUTPUT info_datetime_ntp_server2;
+
+STRING_OUTPUT info_auto_reboot_enable;
+STRING_OUTPUT info_auto_reboot_hour;
+STRING_OUTPUT info_auto_reboot_min;
+STRING_OUTPUT info_auto_reboot_week[7,7];
+
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH Info_Push
+{                       
+	info_status = magewell.info();
+    info_message = magewell.GetMessage();
+	info_code = magewell.GetCode();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function InfoFunction(RetStructInfo info)
+{	
+	INTEGER i;
+	LONG_INTEGER uptime;
+
+	info_code = info.code;
+	info_device_name = info.device_name;
+	info_mdns_url = info.mdns_url;
+	info_uptime = LtoA(info.uptime);    
+
+	info_cpu_total = LtoA(info.cpu.total);
+	info_cpu_idle = LtoA(info.cpu.idle);
+	info_cpu_usage = LtoA(info.cpu.usage);
+
+	info_mem_total = LtoA(info.mem.total);
+	info_mem_avail = LtoA(info.mem.avail);
+
+	info_datetime_cur_time = info.datetime.cur_time;
+	info_datetime_zonename = info.datetime.zonename;
+	info_datetime_ntp_enable = info.datetime.ntp_enable;
+	info_datetime_ntp_server1 = info.datetime.ntp_server1;
+	info_datetime_ntp_server2 = info.datetime.ntp_server2;
+
+	info_auto_reboot_enable = info.auto_reboot.enable;
+	info_auto_reboot_hour = LtoA(info.auto_reboot.hour);
+	info_auto_reboot_min = LtoA(info.auto_reboot.min);
+	for(i=1 to info.auto_reboot.get_week_size())
+	{
+		info_auto_reboot_week[i] = LtoA(info.auto_reboot.week[i-1]);
+	}
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+	RegisterDelegate ( magewell , delegate_info_callback , InfoFunction );
+
+}
+

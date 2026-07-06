@@ -1,0 +1,50 @@
+#SYMBOL_NAME "IPToUSB_ethernet_network_config"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+//INPUT
+DIGITAL_INPUT ethernet_network_config_Push;
+STRING_INPUT HostIp[16],Cookie[256];
+
+//OUTPUT
+STRING_OUTPUT ethernet_network_config_message;
+ANALOG_OUTPUT ethernet_network_config_status;
+STRING_OUTPUT ethernet_network_config_code;
+
+STRING_INPUT iface[32], use_dhcp[32], ipaddr[32];
+STRING_INPUT netmask[32], gateway[32], dns1[32], dns2[32]; 
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH ethernet_network_config_Push
+{                      
+	ethernet_network_config_status = magewell.ethernet_network_config(
+																	iface
+																	, use_dhcp
+																	, ipaddr
+																	, netmask
+                                                                    , gateway
+                                                                    , dns1
+                                                                    , dns2
+	);
+    ethernet_network_config_message = magewell.GetMessage();
+    ethernet_network_config_code = magewell.GetCode();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+}
+

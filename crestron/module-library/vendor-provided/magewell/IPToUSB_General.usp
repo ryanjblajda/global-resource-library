@@ -1,0 +1,47 @@
+#SYMBOL_NAME "IPToUSB_General"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+DIGITAL_INPUT _skip_,Ping,Reboot;
+STRING_INPUT _skip_,HostIp[16],Cookie[256];
+
+ANALOG_OUTPUT _skip_,status_output;
+STRING_OUTPUT _skip_, delay_sec_output, estimate_sec_output, message_output, code_output;
+
+MainProg magewell;
+
+Callback Function RebootFunc(RebootArg arg)
+{   
+    delay_sec_output = arg.delay;
+    estimate_sec_output = arg.estimateSec;
+}
+                      
+PUSH Ping
+{
+    status_output = magewell.sPing();
+    code_output = magewell.GetCode();
+	message_output = magewell.GetMessage();
+} 
+PUSH Reboot
+{
+	status_output = magewell.sReboot();
+    code_output = magewell.GetCode();
+	message_output = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Function Main()
+{	
+    Delay ( 100 );
+	RegisterDelegate ( magewell,  RebootCallBack, RebootFunc );
+}
+

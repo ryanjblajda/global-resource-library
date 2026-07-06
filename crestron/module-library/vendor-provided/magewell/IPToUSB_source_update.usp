@@ -1,0 +1,125 @@
+#SYMBOL_NAME "IPToUSB_source_update"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+
+//INPUT
+DIGITAL_INPUT source_update_Push;
+//type default 'static' which means a record added to device; 'dynamic' means avaliable source in current local network.
+//STRING_INPUT input_source_add_type[32];
+ANALOG_INPUT source_item_id;
+
+STRING_INPUT source_item_config_name[20];
+STRING_INPUT source_item_config_protocol[10];
+STRING_INPUT source_item_config_type[10];//"url" "d_ndi" "ndi"
+
+STRING_INPUT config_data_url[100];
+ANALOG_INPUT config_data_buffer_ms;
+STRING_INPUT config_data_ptz_en[10];
+
+STRING_INPUT config_data_ptz_protocol[20];
+STRING_INPUT config_data_ptz_ip[20];
+ANALOG_INPUT config_data_ptz_port;
+ANALOG_INPUT config_data_ptz_device_id;
+STRING_INPUT config_data_ptz_message_header[10];
+STRING_INPUT config_data_ptz_invert_pan[10];
+STRING_INPUT config_data_ptz_invert_tilt[10];
+
+STRING_INPUT config_data_name[255];
+STRING_INPUT config_data_low_bw[10];
+STRING_INPUT config_data_transport[20];
+STRING_INPUT config_data_pts_mode[20];
+
+
+//OUTPUT
+STRING_OUTPUT source_update_message;
+STRING_OUTPUT source_update_message2;
+STRING_OUTPUT source_update_code;
+ANALOG_OUTPUT source_update_status;
+
+STRING_INPUT HostIp[16],Cookie[256];
+                           
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH source_update_Push
+{
+	//1 name : required
+	if(source_item_config_name = "")
+	{
+		source_update_message = "error! source_item_config_name empty!";
+	}
+	else
+	{
+        source_update_message = "name ok";
+	}
+
+	//2 protocol : required
+	if(source_item_config_protocol = "ndi" || source_item_config_protocol = "rtmp" || source_item_config_protocol = "ts-srt" 
+      || source_item_config_protocol = "ts-udp" || source_item_config_protocol = "ts-rtp" || source_item_config_protocol = "rtsp"
+      || source_item_config_protocol = "http")
+	{
+		source_update_message = "protocol ok";
+	}
+	else
+	{
+        source_update_message = "error! source_item_config_protocol type! (ndi/rtmp/ts-srt/ts-udp/ts-rtp/rtsp/http)";
+	}
+
+
+	//3 type : required ("url" "d_ndi" "ndi")
+	if(source_item_config_type = "url" || source_item_config_type = "ndi" || source_item_config_type = "d_ndi")
+	{
+		source_update_message = "type ok";
+	}
+	else
+	{
+        source_update_message = "error source_item_config_type type! (url/d_ndi/ndi)";
+	}
+
+    source_update_message = "SIMPL call source_update";
+    source_update_message2 = "before call source_update";
+	source_update_status = magewell.source_update(
+		source_item_id
+		, source_item_config_name
+		, source_item_config_protocol
+		, source_item_config_type	
+		, config_data_url
+		, config_data_buffer_ms
+		, config_data_ptz_en		
+		, config_data_ptz_protocol
+        , config_data_ptz_ip
+		, config_data_ptz_port
+		, config_data_ptz_device_id
+		, config_data_ptz_message_header
+		, config_data_ptz_invert_pan
+		, config_data_ptz_invert_tilt
+        , config_data_name
+        , config_data_low_bw
+        , config_data_transport
+        , config_data_pts_mode);
+
+	source_update_message = "after call source_update";
+
+	source_update_code = magewell.GetCode();
+    source_update_message2 = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+
+}
+

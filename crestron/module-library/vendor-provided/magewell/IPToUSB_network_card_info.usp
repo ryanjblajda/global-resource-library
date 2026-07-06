@@ -1,0 +1,129 @@
+#SYMBOL_NAME "IPToUSB_network_card_info"
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#USER_SIMPLSHARP_LIBRARY "IPToUSB"
+
+
+//INPUT
+DIGITAL_INPUT network_card_info_Push;
+
+//OUTPUT
+STRING_OUTPUT network_card_info_message;
+STRING_OUTPUT network_card_info_code;
+ANALOG_OUTPUT network_card_info_status;
+
+STRING_OUTPUT device_name_output;
+
+STRING_INPUT HostIp[16],Cookie[256];
+                           
+//NetData
+STRING_OUTPUT support_enable[3];
+STRING_OUTPUT enable[3];
+ANALOG_OUTPUT prio[3];
+STRING_OUTPUT iface[3];
+ANALOG_OUTPUT type[3];
+STRING_OUTPUT use_dhcp[3];
+STRING_OUTPUT ipaddr[3];
+STRING_OUTPUT ipv6addr[3];
+STRING_OUTPUT netmask[3];
+STRING_OUTPUT gateway[3];
+STRING_OUTPUT dns1[3];
+STRING_OUTPUT dns2[3];
+STRING_OUTPUT mac[3];
+STRING_OUTPUT link_speed_output[3];
+ANALOG_OUTPUT link_state[3];
+STRING_OUTPUT tx_speed_kbps[3];
+STRING_OUTPUT rx_speed_kbps[3];
+ANALOG_OUTPUT mode[3];
+STRING_OUTPUT mode_lock[3];
+STRING_OUTPUT ssid[3];
+STRING_OUTPUT reboot_require[3];
+STRING_OUTPUT enable_ncm[3];
+ANALOG_OUTPUT sim_state[3];
+ANALOG_OUTPUT pin_remaind[3];
+ANALOG_OUTPUT standard[3,3];
+
+STRING_OUTPUT rssi[3];
+STRING_OUTPUT rsrp[3];
+STRING_OUTPUT rsrq[3];
+STRING_OUTPUT sinr[3];
+STRING_OUTPUT imei_no[3];
+STRING_OUTPUT operator1[3];
+STRING_OUTPUT phone_number[3];
+STRING_OUTPUT vendor[3];
+STRING_OUTPUT product[3,3];
+
+//MainProg is C# class name
+MainProg magewell;
+
+PUSH network_card_info_Push
+{	
+	network_card_info_status = magewell.network_card_info();
+	network_card_info_code = magewell.GetCode();
+    network_card_info_message = magewell.GetMessage();
+}
+CHANGE Cookie
+{
+    magewell.sSetApiCookie(Cookie);
+}
+CHANGE HostIp
+{
+    magewell.SetHostIp(HostIp);
+}
+Callback Function NetworkCardInfoFunction(RetStructNetworkCardInfo info)
+{
+	integer i,count;
+
+    device_name_output = info.device_name;
+
+	count = MIN(info.get_length(), 3);
+
+	for(i = 1 to count)
+	{
+       	support_enable[i] = info.net[i-1].support_enable;
+		enable[i] = info.net[i-1].enable;
+		prio[i] = info.net[i-1].prio;
+		iface[i] = info.net[i-1].iface;
+		type[i] = info.net[i-1].type;
+		use_dhcp[i] = info.net[i-1].use_dhcp;
+		ipaddr[i] = info.net[i-1].ipaddr;
+		ipv6addr[i] = info.net[i-1].ipv6addr;
+		netmask[i] = info.net[i-1].netmask;
+		gateway[i] = info.net[i-1].gateway;
+		dns1[i] = info.net[i-1].dns1;
+		dns2[i] = info.net[i-1].dns2;
+		mac[i] = info.net[i-1].mac;
+		link_speed_output[i] = LtoA(info.net[i-1].link_speed);
+        link_state[i] = info.net[i-1].link_state;
+        tx_speed_kbps[i] = LtoA(info.net[i-1].tx_speed_kbps);
+        rx_speed_kbps[i] = LtoA(info.net[i-1].rx_speed_kbps);
+        mode[i] = info.net[i-1].mode;
+        mode_lock[i] = info.net[i-1].mode_lock;
+        ssid[i] = info.net[i-1].ssid;
+        reboot_require[i] = info.net[i-1].reboot_require;
+        enable_ncm[i] = info.net[i-1].enable_ncm;
+        sim_state[i] = info.net[i-1].sim_state;
+        pin_remaind[i] = info.net[i-1].pin_remaind;
+        standard[i] = info.net[i-1].standard;
+        rssi[i] = LtoA(info.net[i-1].rssi);
+        rsrp[i] = LtoA(info.net[i-1].rsrp);
+        rsrq[i] = LtoA(info.net[i-1].rsrq);
+        sinr[i] = LtoA(info.net[i-1].sinr);
+        imei_no[i] = info.net[i-1].imei_no;
+        operator1[i] = info.net[i-1].operator1;
+        phone_number[i] = info.net[i-1].phone_number;
+        vendor[i] = info.net[i-1].vendor;
+        product[i] = info.net[i-1].product;
+	}
+}
+
+Function Main()
+{	
+    Delay ( 100 );//ms 100
+    RegisterDelegate ( magewell , delegate_network_card_info_callback , NetworkCardInfoFunction);
+
+}
+
