@@ -1,7 +1,7 @@
 @echo off
 set "TARGET=%~dp0"
 set DEBUG=0
-set "SOURCES=C:\path\to\library\root"
+set "SOURCES=path\to\global-resource-library\crestron"
 
 if "%DEBUG%"=="0" (
     echo Starting...
