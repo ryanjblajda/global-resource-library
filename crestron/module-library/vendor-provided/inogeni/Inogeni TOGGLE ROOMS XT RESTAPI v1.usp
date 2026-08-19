@@ -1,0 +1,2119 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: INOGENI
+System Name: Inogeni TOGGLE ROOMS XT
+System Number:
+Programmer: DANIEL
+Comments: HTTPS Client from https://github.com/bitm0de/HttpsUtility
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+//#DEFINE_CONSTANT debug 1
+#DEFINE_CONSTANT ciQUEUESIZE	20
+#DEFINE_CONSTANT MAX_URL_LENGTH            255
+#DEFINE_CONSTANT MAX_HEADERS_STRING_LENGTH 2048
+#DEFINE_CONSTANT MAX_CONTENT_STRING_LENGTH 4096
+
+#CATEGORY "23" // Switcher
+#PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+#OUTPUT_SHIFT 10
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#USER_SIMPLSHARP_LIBRARY "HttpsClientkeepalive"
+//#USER_LIBRARY "base64lib"
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+
+#HELP_BEGIN
+FILENAME: Inogeni TOGGLE ROOMS / XT
+MANUFACTURER: Inogeni
+MODEL: TOGGLE ROOMS / XT
+
+CATEGORY: Video/USB Selector
+VERSION: 2
+
+SUMMARY: Provides RS232, Telnet Or REST API control for device commands
+
+TOGGLE ROOMS Telnet server auto close connection when it does not receive communication for 10 sec.
+It is normal to see Telnet connection going down when Polling is disabled.
+
+
+SETUP OF CRESTRON HARDWARE:
+BAUD RATE - 9600
+PARITY - NONE
+DATA BITS - 8
+STOP BITS - 1
+
+VENDOR FIRMWARE: v1.21
+
+******************************************************************
+PARAMETERS:
+
+NAME              TYPE DESCRIPTION
+
+Control            P   Select RS232, Telnet Or REST API control.
+                   
+
+******************************************************************
+INPUT DESCRIPTIONS:
+
+NAME                  TYPE DESCRIPTION  
+
+
+Module_Enable         D    Enable module and start communication with the device.
+Reboot                D    Reboot the device
+FactoryDefault        D    Erase the current configuration onboard and return to default values.
+Version               D    Pulse to get Firmware version
+Status                D    Pulse to get current device status
+USBC4K60EN            D    Pulse to Toggle USB-C support 4K60, no effect when using 4K60 and up Fixed EDID
+DisplayScaler         D    Pulse to Toggle down scaling of Display output, all inputs scale to 1080p
+ShareScaler           D    Pulse to Toggle down scaling of Share output, all inputs scale to 1080p
+DisplayCECPowerOn     D    Pulse to send CEC Power ON command.
+DisplayCECPowerOff    D    Pulse to send CEC Power OFF command.
+CECPassthrough         D    Pulse to Toggle, CEC passthrough allows CEC controls from the selected HDMI input to the Display.
+AutoHDMIcecPower      D    Pulse to Toggle, Auto Power ON / Off based on HDMI video presence. (Disable CECpassthrough if not working as expected.)
+
+POLL                  D    Set high/1 to enable polling. Returns the current view of the device, firmware version and inputs resolutions.
+debug                 D    Set high/1 to enable debug print
+ 
+HostMeeting           A    Change value to change Host Meeting (Video and USB to same Host)
+HostMeetingPriority   A    Change value to set a preferred Host, default 3 (last connected)
+DisplaySource         A    Change value to set Display out source.
+ShareSource           A    Change value to set Share out source.
+USB_Host              A    Change value to set USB Host source
+
+OperationMode         A    Change value to set Operation Mode, default 0 (BYOD with content sharing)
+
+//Only valid in Custom Mode (Operation Mode 2)
+USBSwitchMode         A    Change value to set desired Mode
+USBPriority           A    Change value to set desired Priority
+DisplaySwitchMode     A    Change value to set desired Mode
+DisplayPriority       A    Change value to set desired Priority
+ShareSwitchMode       A    Change value to set desired Mode
+SharePriority         A    Change value to set desired Priority
+
+USBDevicePower_RoomPC A    Change value to control USB Ports Power in RoomPC Host
+USBDevicePower_LUSBc  A    Change value to control USB Ports Power in Laptop USB-C Host
+USBDevicePower_LHdmi  A    Change value to control USB Ports Power in Laptop HDMI Host
+USBDevicePower_Nohost A    Change value to control USB Ports Power in No Host
+
+Rx$                   S    Serial data string to be routed from a COM port.
+
+
+******************************************************************
+OUTPUT DESCRIPTIONS:
+
+NAME                  TYPE DESCRIPTION
+
+TelnetConnected_fb    D    High when Telnet is connected only with IP control.
+USBC4K60EN_fb         D    HIGH when USB-C support 4K60
+CECPassthrough_fb      D    HIGH when CEC Passthrough is enabled 
+AutoHDMIcecPower_fb   D    HIGH when Auto CEC controls is enabled.
+DisplayScaler_fb      D    HIGH when Display out is scaled to 1080p
+ShareScaler_fb        D    HIGH when Share out is scaled to 1080p
+
+TelnetSocketStatus_fb A    Current value of Crestron TCP client
+DisplaySource_fb      A    Current value of Display out source
+ShareSource_fb        A    Current value of Share out source
+USB_Host_fb           A    Current value of USB Host source
+HostMeetingPriority_fb A   Current value of Host Meeting Priority
+
+OperationMode_fb      A   Current value of Operation Mode
+
+USBSwitchMode_fb      A   Current value of USB switching mode
+USBPriority_fb        A   Current value of USB Host Priority
+DisplaySwitchMode_fb  A   Current value of Display out switch mode
+DisplayPriority_fb    A   Current value of Display out Priority
+ShareSwitchMode_fb    A   Current value of Share out switch mode
+SharePriority_fb      A   Current value of Share out Priority
+
+USBDevicePower_RoomPC_fb A    Current value of USB Ports Power in RoomPC Host
+USBDevicePower_LUSBc_fb  A    Current value of USB Ports Power in Laptop USB-C Host
+USBDevicePower_LHdmi_fb  A    Current value of USB Ports Power in Laptop HDMI Host
+USBDevicePower_Nohost_fb A    Current value of USB Ports Power in No Host
+                   
+FirmV                 S    Report Firmware version
+IP_Address            S    Report IP Address
+IP_SubnetMask         S    Report SubnetMask
+IP_Gateway            S    Report Gateway
+MAC_Address           S    Report MAC Address
+
+HostMeeting_fb        S    Report String of current Host Meeting, based on USB Host value and Display out value. 
+
+USBC_Video_fb         S    Report Detected Laptop USB-C video formats
+Laptop_Video_fb       S    Report Detected Laptop HDMI video formats
+RoomPC_Video_fb       S    Report Detected RoomPC video formats             
+
+Tx$                   S    Serial data string to be routed to a COM port.
+#HELP_END
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT  	_SKIP_, _SKIP_,_SKIP_, Module_Enable, _SKIP_, _SKIP_, Host_Button, _SKIP_ , FactoryDefault, Reboot, Version, Status, USBC4K60EN, _SKIP_, DisplayScaler, ShareScaler, LaptopScaler,
+				DisplayCECPowerOn, DisplayCECPowerOff, CECPassthrough, AutoHDMIcecPower, _SKIP_, _SKIP_, _SKIP_, POLL, debug, HostMeeting[3] ;
+
+ANALOG_INPUT    _SKIP_, HostMeetingPriority, DisplaySource, ShareSource, USB_Host, LaptopSource, _SKIP_, OperationMode, _SKIP_, USBSwitchMode, USBPriority, DisplaySwitchMode, 
+				DisplayPriority, ShareSwitchMode, SharePriority, LaptopSwitchMode, LaptopPriority, _SKIP_, _SKIP_, USBDevicePower_RoomPC, USBDevicePower_LUSBc, USBDevicePower_LHdmi,
+				USBDevicePower_Nohost; 
+
+BUFFER_INPUT   _SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,Rx$[65534];
+
+DIGITAL_OUTPUT  DeviceConnected_fb, _SKIP_, USBC4K60EN_fb, CECPassthrough_fb, AutoHDMIcecPower_fb, DisplayScaler_fb, ShareScaler_fb, LaptopScaler_fb, Link_fb, TCPTunneling_fb;
+
+ANALOG_OUTPUT	TelnetSocketStatus_fb, _SKIP_, DisplaySource_fb, ShareSource_fb, USB_Host_fb,LaptopSource_fb,  HostMeetingPriority_fb, _SKIP_, OperationMode_fb, _SKIP_, 
+				USBSwitchMode_fb, USBPriority_fb, DisplaySwitchMode_fb, DisplayPriority_fb, ShareSwitchMode_fb, SharePriority_fb, LaptopSwitchMode_fb, LaptopPriority_fb, _SKIP_, 
+				USBDevicePower_RoomPC_fb, USBDevicePower_LUSBc_fb, USBDevicePower_LHdmi_fb, USBDevicePower_Nohost_fb ;
+
+
+STRING_OUTPUT 	_SKIP_, _SKIP_, FirmV, IP_Address, IP_SubnetMask, IP_Gateway, MAC_Address, _SKIP_, HostMeeting_fb, USBC_Video_fb, Laptop_Video_fb, RoomPC_Video_fb, LinkLength_fb,
+				 _SKIP_, Tx$;
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+                 
+
+STRING_PARAMETER  CommMode[10], IP[25], APIToken[64];
+TCP_CLIENT TCPClient[4096];
+SimplHttpsClient HTTPSobj;
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES CommMode
+	propDefaultValue = "REST API";
+    propList =  { "Serial", "Serial" } , {"Telnet","Telnet"},{ "REST API","REST API" } ;
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+
+
+
+INTEGER i, start, end, iStatusRequest, iReady, iNextSend, iNextStore, ReadyToPoll, iUSBssMode, iDisplaySrc, iUSBHost, iCECPassthrough, iAutoHDMIcecPower, iCtrlsChanged;
+INTEGER Module_Enable_dly, DeviceIsXT;
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING Lastcommand[10], sLines[500], sTempCommand[255], mCommand[255], sTempSend[255], sFirmVersion[5], sMAC[17], sIP[15], sFirmMem[4], sSubnetMem[15], sGatewayMem[15], sVideoMem[3][50] ,
+		sMajor[2], sMinor[2], sLinkLenght[4];
+
+//http var
+STRING _url[MAX_URL_LENGTH], _headers[MAX_HEADERS_STRING_LENGTH], _content[MAX_CONTENT_STRING_LENGTH], response_content[MAX_CONTENT_STRING_LENGTH];
+
+STRING	sQueue[ciQUEUESIZE][1024]; 
+STRING GeneralInfo[10][25], ConfigurationInfo[41][1], Laptop1Info[5][25],  Laptop2Info[5][25], RoomPCInfo[5][25], DisplayInfo[5][25], ShareInfo[5][25], LaptopInfo[5][25];
+STRING GeneralToken[10][25], ConfigurationToken[41][25], VideoGeneralToken[5][25], LinkInfoToken[2][25], LinkInfo[5][25];
+ 
+
+/*******************************************************************************************
+  Functions
+*******************************************************************************************/
+
+Function fTimeOut(INTEGER fTime)
+{
+	wait(fTime, wTimeOut)//Wait for command response
+	{
+		if(Debug) print("Error No Reply from device after timeout\n");
+		iReady = 1;	
+		ReadyToPoll = 1;
+		DeviceConnected_fb = 0;
+		mCommand = "";
+		iNextStore = 1;
+		iNextSend = 1; //Clear send/store pointer	
+					
+	}
+}
+Function fPollTimeOut()
+{
+	wait(100, polldelay)//wait 1 sec before polling again
+	{
+		ReadyToPoll = 1;
+	}
+}
+ 
+FUNCTION SendStoreCommand(STRING cmd)
+{	
+	if(Module_Enable_dly = 1)
+	{
+		cancelwait(polldelay);
+		ReadyToPoll = 0;
+					
+	    if(iReady = 1 && iNextStore = iNextSend)
+		{
+			iReady = 0;
+			mCommand = cmd;
+			
+			
+			if(find("STATUS", cmd) || find("status", cmd) )
+			{
+				iStatusRequest = 1;
+			}
+			
+			fTimeOut(1000); //wait for command response.			
+			if(CommMode = "Serial")
+			{
+				//fTimeOut(400);
+				Tx$ = cmd;
+				if(Debug) print("Command sent : %s\n", cmd) ;
+			}
+			else if(CommMode = "Telnet") 	
+			{
+				if(tcpclient.SocketStatus = 2)
+				{
+					//fTimeOut(400);
+					SocketSend(TCPClient, cmd);	
+					if(Debug) print("Command sent : %s\n", cmd) ;
+
+				}
+			}
+			else if(CommMode = "REST API") 	
+			{
+				//fTimeOut(500);
+				//sTempSend = _url + cmd + "\r\n";
+				sTempSend = _url + cmd;
+				if(Debug) print("Command sent : %s\n", cmd) ;
+				HTTPSobj.SendGet(sTempSend, _headers);	
+			}
+			
+
+	   								
+		}
+		else if(iReady = 1 && iNextStore <> iNextSend)
+		{
+			iReady = 0;
+			mCommand = sQueue[iNextSend];
+			
+
+			if(find("STATUS", sQueue[iNextSend]) || find("status", sQueue[iNextSend]) )
+			{
+				iStatusRequest = 1;
+			}
+
+			fTimeOut(500); //wait for command response, 5sec is enough for all protocols
+			
+			if(CommMode = "Serial")
+			{
+				//fTimeOut(200);
+				Tx$ = sQueue[iNextSend];
+				if(Debug) print("Command %s From memory %d", sQueue[iNextSend] , iNextSend ) ;	
+				sQueue[iNextSend] = "";
+				iNextSend = iNextSend + 1;
+				if(iNextSend > ciQUEUESIZE)	
+					iNextSend = 1;	
+			}
+			else if(CommMode = "Telnet") 	
+			{
+				if(tcpclient.SocketStatus = 2)
+				{	
+					//fTimeOut(200);
+					SocketSend(TCPClient, sQueue[iNextSend]);
+					if(Debug) print("Command %s From memory %d", sQueue[iNextSend] , iNextSend ) ;	
+					sQueue[iNextSend] = "";
+					iNextSend = iNextSend + 1;
+					if(iNextSend > ciQUEUESIZE)	
+						iNextSend = 1;		
+				}				
+			}	
+			else if(CommMode = "REST API") 	
+			{
+				sTempSend = _url + sQueue[iNextSend] + "\r\n";
+				//need to change memmory first to avoid sending same command again caused by SIMPL# module
+				sQueue[iNextSend] = "";
+				iNextSend = iNextSend + 1;
+				if(iNextSend > ciQUEUESIZE)	
+					iNextSend = 1;	
+
+				//fTimeOut(500); //HTTPS client time out is 5sec.
+				if(Debug) print("Command %s From memory %d", sQueue[iNextSend] , iNextSend ) ;
+				HTTPSobj.SendGet(sTempSend, _headers);	
+			}
+				
+
+	    }
+		else
+	 	{
+	 	 
+			sQueue[iNextStore] = cmd;
+			if(debug) print("Command %s put in memory %d\n", cmd , iNextStore ) ;
+			
+			iNextStore = iNextStore + 1;
+			if(iNextStore > ciQUEUESIZE)
+			{
+				iNextStore = 1;
+			}
+						
+	    }
+     }
+}
+ 
+Function Polling()
+{	
+    	ReadyToPoll = 0;		
+		if (CommMode = "REST API")
+		{	
+			SendStoreCommand("status");	
+			if(DeviceIsXT)
+			{
+				SendStoreCommand("link");
+			}
+		}
+		else
+		{
+			SendStoreCommand("STATUS\x0d\x0a");
+		}				
+}
+
+//REST API parsing
+
+Integer_Function TRJSONParse(string JSONdata)
+{
+    string stemp2[MAX_CONTENT_STRING_LENGTH];
+    signed_integer i, count, start, end;
+   	string temp[255];
+
+	// 	
+   	setarray(GeneralInfo, "");
+   	setarray(ConfigurationInfo, "");
+   	setarray(Laptop1Info, "");
+   	setarray(Laptop2Info, "");
+   	setarray(RoomPCInfo, "");
+   	setarray(DisplayInfo, "");
+   	setarray(ShareInfo, ""); 
+	setarray(LaptopInfo, ""); 
+
+	GeneralToken[1] = "major";
+	GeneralToken[2] = "minor";
+	GeneralToken[3] = "hwmajor";
+	GeneralToken[4] = "hwminor";
+	GeneralToken[5] = "mac";
+	GeneralToken[6] = "serial";
+	GeneralToken[7] = "dhcp";
+	GeneralToken[8] = "ip";
+	GeneralToken[9] = "subnet";
+	GeneralToken[10] = "gateway";
+	
+
+	ConfigurationToken[1] = "opMode";
+	ConfigurationToken[2] = "usbHost";
+	ConfigurationToken[3] = "displaySrc";
+	ConfigurationToken[4] = "shareSrc";
+	ConfigurationToken[5] = "usbHostSwMode";
+	ConfigurationToken[6] = "priorUsbHost";
+	ConfigurationToken[7] = "displaySrcSwMode";
+	ConfigurationToken[8] = "priorDisplaySrc";
+	ConfigurationToken[9] = "shareSrcSwMode";
+	ConfigurationToken[10] = "priorShareSrc";
+	ConfigurationToken[11] = "usbc4K60En";
+	ConfigurationToken[12] = "usbcCharging";
+	ConfigurationToken[13] = "gpi1Function";
+	ConfigurationToken[14] = "gpi1Mode";
+	ConfigurationToken[15] = "gpi2Function";
+	ConfigurationToken[16] = "gpi2Mode";
+	ConfigurationToken[17] = "vout";
+	ConfigurationToken[18] = "baudRate";
+	ConfigurationToken[19] = "telnetEn";
+	ConfigurationToken[20] = "httpEn";
+	ConfigurationToken[21] = "mdnsEn";
+	ConfigurationToken[22] = "usbDevEn0";
+	ConfigurationToken[23] = "usbDevEn1";
+	ConfigurationToken[24] = "usbDevEn2";
+	ConfigurationToken[25] = "usbDevEn3";
+	ConfigurationToken[26] = "hdcp0";
+	ConfigurationToken[27] = "hdcp1";
+	ConfigurationToken[28] = "hdcp2";
+	ConfigurationToken[29] = "scaler0";
+	ConfigurationToken[30] = "scaler1";
+	ConfigurationToken[31] = "edid0";
+	ConfigurationToken[32] = "edid1";
+	ConfigurationToken[33] = "edid2";
+	ConfigurationToken[34] = "autoHdmiCecPwr";
+	ConfigurationToken[35] = "cecPassthroughEn";
+	ConfigurationToken[36] = "priorHostMeeting";
+	ConfigurationToken[37] = "accessTokenEn";
+	ConfigurationToken[38] = "priorLaptopSrc";
+	ConfigurationToken[39] = "laptopSrcSwMode";
+	ConfigurationToken[40] = "laptopSrc";
+	ConfigurationToken[41] = "scaler2";
+
+
+	VideoGeneralToken[1] = "resolution";
+	VideoGeneralToken[2] = "colorspace";
+	VideoGeneralToken[3] = "detected";
+	VideoGeneralToken[4] = "colordepth";
+	VideoGeneralToken[5] = "hdcp";
+
+ 
+   	
+						
+		for( count = 1 to GetNumArrayRows(GeneralToken))
+		{
+			//if(Debug) Print("searching GeneralToken[%d] = %s from data", count, GeneralToken[count]);
+			if(find(GeneralToken[count], JSONdata))
+			{			
+				start = find(GeneralToken[count], JSONdata) + len(GeneralToken[count]) + 3;
+				if(find(",", JSONdata, start) < find("\x0a", JSONdata, start))
+					end = find(",", JSONdata, start) - start;
+				else
+					end = find("\x0a", JSONdata, start) - start;
+			
+				temp = mid(JSONdata, start, end);
+					if(find("\x22", temp))//info are in double quote
+					{		
+						temp = mid(temp, 2, len(temp)-2 );						
+					}			
+				GeneralInfo[count] = temp;
+				//if(Debug) Print("GeneralInfo[%d] = %s", count, GeneralInfo[count]);
+			}
+			else { GeneralInfo[count] = ""; //if(Debug) Print("Not Found %s",GeneralToken[count] );
+			}
+		}
+
+		for( count = 1 to GetNumArrayRows(ConfigurationToken))
+		{
+			//if(Debug) Print("searching ConfigurationToken[%d] = %s from data", count, ConfigurationToken[count]);
+			if(find(ConfigurationToken[count], JSONdata))
+			{	
+				start = find(ConfigurationToken[count], JSONdata) + len(ConfigurationToken[count]) + 3;
+				if(find(",", JSONdata, start) < find("\x0a", JSONdata, start))
+					end = find(",", JSONdata, start) - start;
+				else
+					end = find("\x0a", JSONdata, start) - start;
+
+				temp = mid(JSONdata, start, end);
+					if(find("\x22", temp))//info are in double quote
+					{		
+						temp = mid(temp, 2, len(temp)-2 );						
+					}			
+				ConfigurationInfo[count] = temp;
+				//if(Debug) Print("ConfigurationInfo[%d] = %s", count, ConfigurationInfo[count]);
+			}
+			else { ConfigurationInfo[count] = ""; //if(Debug) Print("Not Found %s",ConfigurationToken[count]);
+				}
+		}	
+
+
+		if(find("Laptop-USBC", JSONdata ))
+		{
+			start = find("{",JSONdata, find("Laptop-USBC", JSONdata )) +1;
+			end = find("}",JSONdata, start) - start;
+			stemp2 = mid(JSONdata,start , end );
+
+
+			for( count = 1 to GetNumArrayRows(VideoGeneralToken))
+			{
+				//if(Debug) Print("searching Laptop USB-C VideoGeneralToken[%d] = %s from data", count, VideoGeneralToken[count]);
+				if(find(VideoGeneralToken[count], stemp2))
+				{		
+					start = find(VideoGeneralToken[count], stemp2) + len(VideoGeneralToken[count]) + 3;		
+					if(find(",", stemp2, start) > 1  )
+						end = find(",", stemp2, start) - start;
+					else
+						end = find("\x0a", stemp2, start) - start;
+
+					temp = mid(stemp2, start, end);
+						if(find("\x22", temp))//info are in double quote
+						{		
+							temp = mid(temp, 2, find("\x22", temp, 2)-2 );						
+						}			
+					Laptop1Info[count] = temp;
+					//if(debug) Print("Laptop1Info[%d] = %s", count, Laptop1Info[count]);
+				}
+				else { Laptop1Info[count] = ""; //if(Debug) Print("Not Found %s",VideoGeneralToken[count] );
+					}
+			}
+		
+		}
+
+		if(find("Laptop-HDMI", JSONdata ))
+		{
+			start = find("{",JSONdata, find("Laptop-HDMI", JSONdata ));
+			end = find("}",JSONdata, start) - start +1;
+			stemp2 = mid(JSONdata,start , end );
+
+			for( count = 1 to GetNumArrayRows(VideoGeneralToken))
+			{
+				//if(Debug) Print("searching Laptop HDMI VideoGeneralToken[%d] = %s from data", count, VideoGeneralToken[count]);
+				if(find(VideoGeneralToken[count], stemp2))
+				{				
+					start = find(VideoGeneralToken[count], stemp2) + len(VideoGeneralToken[count]) + 3;	
+					if(find(",", stemp2, start) > 1  )
+						end = find(",", stemp2, start) - start;
+					else
+						end = find("\x0a", stemp2, start) - start;
+
+					temp = mid(stemp2, start, end);
+						if(find("\x22", temp))//info are in double quote
+						{		
+							temp = mid(temp, 2, find("\x22", temp, 2)-2 );						
+						}			
+					Laptop2Info[count] = temp;
+					//if(debug) Print("Laptop2Info[%d] = %s", count, Laptop2Info[count]);
+				}
+				else { Laptop2Info[count] = ""; //if(Debug) Print("Not Found %s",VideoGeneralToken[count] );
+					}
+			}
+		
+		}
+
+		if(find("RoomPC", JSONdata ))
+		{
+			start = find("{",JSONdata, find("RoomPC", JSONdata )) +1;
+			end = find("}",JSONdata, start) - start;
+			stemp2 = mid(JSONdata,start , end );
+			
+			for( count = 1 to GetNumArrayRows(VideoGeneralToken))
+			{
+				//if(Debug) Print("searching RoomPC VideoGeneralToken[%d] = %s from data", count, VideoGeneralToken[count]);
+				if(find(VideoGeneralToken[count], stemp2))
+				{	
+					start = find(VideoGeneralToken[count], stemp2) + len(VideoGeneralToken[count]) + 3;	
+					if(find(",", stemp2, start) > 1  )
+						end = find(",", stemp2, start) - start;
+					else
+						end = find("\x0a", stemp2, start) - start;
+
+					temp = mid(stemp2, start, end);
+						if(find("\x22", temp))//info are in double quote
+						{		
+							temp = mid(temp, 2, find("\x22", temp, 2)-2 );						
+						}			
+					RoomPCInfo[count] = temp;
+					//if(debug) Print("RoomPCInfo[%d] = %s", count, RoomPCInfo[count]);
+				}
+				else { RoomPCInfo[count] = ""; //if(Debug) Print("Not Found %s",VideoGeneralToken[count] );
+					}
+			}
+		
+		}
+
+		if(find("Display-Out", JSONdata ))
+		{
+			start = find("{",JSONdata, find("Display-Out", JSONdata )) +1;
+			end = find("}",JSONdata, start) - start;
+			stemp2 = mid(JSONdata,start , end );
+			
+			for( count = 1 to GetNumArrayRows(VideoGeneralToken))
+			{
+				//if(Debug) Print("searching DisplayOut VideoGeneralToken[%d] = %s from data", count, VideoGeneralToken[count]);
+				if(find(VideoGeneralToken[count], stemp2))
+				{					
+					start = find(VideoGeneralToken[count], stemp2) + len(VideoGeneralToken[count]) + 3;		
+					if(find(",", stemp2, start) > 1  )
+						end = find(",", stemp2, start) - start;
+					else
+						end = find("\x0a", stemp2, start) - start;
+
+					temp = mid(stemp2, start, end);
+						if(find("\x22", temp))//info are in double quote
+						{		
+							temp = mid(temp, 2, find("\x22", temp, 2)-2 );						
+						}			
+					DisplayInfo[count] = temp;
+					//if(debug) Print("DisplayInfo[%d] = %s", count, DisplayInfo[count]);
+				}
+				else { DisplayInfo[count] = ""; //if(Debug) Print("Not Found %s",VideoGeneralToken[count] );
+					}
+			}
+		
+		}
+
+		if(find("Share-Out", JSONdata ))
+		{
+			start = find("{",JSONdata, find("Share-Out", JSONdata )) +1;
+			end = find("}",JSONdata, start) - start;
+			stemp2 = mid(JSONdata,start , end );
+			
+			for( count = 1 to GetNumArrayRows(VideoGeneralToken))
+			{
+				//if(Debug) Print("searching ShareOut VideoGeneralToken[%d] = %s from data", count, VideoGeneralToken[count]);
+				if(find(VideoGeneralToken[count], stemp2))
+				{	
+					start = find(VideoGeneralToken[count], stemp2) + len(VideoGeneralToken[count]) + 3;	
+					if(find(",", stemp2, start) > 1  )
+						end = find(",", stemp2, start) - start;
+					else
+						end = find("\x0a", stemp2, start) - start;
+
+					temp = mid(stemp2, start, end);
+						if(find("\x22", temp))//info are in double quote
+						{		
+							temp = mid(temp, 2, find("\x22", temp, 2)-2 );						
+						}			
+					ShareInfo[count] = temp;
+				}
+				else { ShareInfo[count] = ""; //if(Debug) Print("Not Found %s",VideoGeneralToken[count] );
+					}
+			}
+		
+		}
+
+		if(find("Laptop-Out", JSONdata ))
+		{
+			start = find("{",JSONdata, find("Laptop-Out", JSONdata )) +1;
+			end = find("}",JSONdata, start) - start;
+			stemp2 = mid(JSONdata,start , end );
+			
+			for( count = 1 to GetNumArrayRows(VideoGeneralToken))
+			{
+				//if(Debug) Print("searching LaptopOut VideoGeneralToken[%d] = %s from data", count, VideoGeneralToken[count]);
+				if(find(VideoGeneralToken[count], stemp2))
+				{	
+					start = find(VideoGeneralToken[count], stemp2) + len(VideoGeneralToken[count]) + 3;	
+					if(find(",", stemp2, start) > 1  )
+						end = find(",", stemp2, start) - start;
+					else
+						end = find("\x0a", stemp2, start) - start;
+
+					temp = mid(stemp2, start, end);
+						if(find("\x22", temp))//info are in double quote
+						{		
+							temp = mid(temp, 2, find("\x22", temp, 2)-2 );						
+						}			
+					LaptopInfo[count] = temp;
+				}
+				else { LaptopInfo[count] = ""; //if(Debug) Print("Not Found %s",VideoGeneralToken[count] );
+					}
+			}
+		
+		}
+				
+		
+		
+		//if(Debug) Print("finished parsing JSON");
+
+		return(1);			
+						
+}
+ 
+Function StatusParserHTTP(integer code, string cmd, integer cmdlen)
+{
+	string sTemp2[MAX_CONTENT_STRING_LENGTH];
+	string videotemp[255], temp[255];
+	integer count;
+	
+	if((len(cmd) < cmdlen))
+	{
+		response_content = response_content + cmd;
+	}
+	else
+	{
+		response_content = cmd;
+	}
+	
+	if(len(response_content) = cmdlen)
+	{
+			
+		sTemp2 = response_content;
+		response_content= "";
+		
+		//if (Debug) print("received data len: %d, with data:%s", len(sTemp2), stemp2 );
+
+		if(code = 200)
+		{
+			//if (Debug) print("ParsingThis: %s", sTemp2);
+			DeviceConnected_fb = 1;
+
+			
+			if(find("success", sTemp2))
+			{
+				if (Debug) print("Command %s Success",mCommand );
+				iReady = 1;
+			}
+			if(find("failed", sTemp2))
+			{
+				if (Debug) print("Command %s Error",mCommand );
+				iReady = 1;
+			}
+			else if(iStatusRequest)
+			{
+				TRJSONParse(stemp2);
+				
+				
+				sFirmVersion = GeneralInfo[1] + "." + GeneralInfo[2] ;
+				if(sFirmMem != sFirmVersion)
+				{
+					sFirmMem = sFirmVersion;
+					Firmv = sFirmVersion;			
+				}
+				
+				//BoardV = GeneralInfo[3] + "." + GeneralInfo[4] ;
+				if(find("XT", GeneralInfo[6],1))
+				{
+					DeviceIsXT = 1;
+				}
+				else if(find("TR", GeneralInfo[6], 1))
+				{
+					DeviceIsXT = 0;
+				}
+				if(sMAC != GeneralInfo[5])
+				{
+					sMAC = GeneralInfo[5];
+					MAC_Address = sMAc;
+				}
+				if(sIP != GeneralInfo[8])
+				{
+					sIP = GeneralInfo[8];
+					IP_Address = sIP;
+				}
+				if(sSubnetMem != GeneralInfo[9])
+				{
+					sSubnetMem = GeneralInfo[9];
+					IP_SubnetMask = sSubnetMem;
+				}
+				if(sGatewayMem != GeneralInfo[10])
+				{
+					sGatewayMem = GeneralInfo[10];
+					IP_Gateway = sGatewayMem;
+				}
+				if(OperationMode_fb != atoi(ConfigurationInfo[1]))
+					OperationMode_fb =  atoi(ConfigurationInfo[1]);
+				if(iUSBHost != atoi(ConfigurationInfo[2]))
+				{
+					iUSBHost = atoi(ConfigurationInfo[2]);
+					if(iUSBHost = 4) //RoomPC with no Link
+						iUSBHost = 0;
+					if(USB_Host_fb != iUSBHost)
+					{
+						USB_Host_fb = iUSBHost; 
+						iCtrlsChanged = 1;
+					}
+				}
+				if(iDisplaySrc != atoi(ConfigurationInfo[3]))
+				{
+					iDisplaySrc = atoi(ConfigurationInfo[3]);
+					DisplaySource_fb = iDisplaySrc;  
+					iCtrlsChanged = 1;  
+				}
+				if(ShareSource_fb != atoi(ConfigurationInfo[4]))
+				{
+					ShareSource_fb = atoi(ConfigurationInfo[4]); 
+				}
+				if(iUSBssMode != atoi(ConfigurationInfo[11])) //TR only
+				{
+					USBC4K60EN_fb = atoi(ConfigurationInfo[11]); 
+				}
+				if(LaptopSource_fb != atoi(ConfigurationInfo[40])) //TR XT only
+				{
+					LaptopSource_fb = atoi(ConfigurationInfo[40]); 
+				}
+				if(USBSwitchMode_fb != atoi(ConfigurationInfo[5]))
+				{
+					USBSwitchMode_fb = atoi(ConfigurationInfo[5]); 
+				}
+				if(USBPriority_fb != atoi(ConfigurationInfo[6]))
+				{
+					USBPriority_fb = atoi(ConfigurationInfo[6]); 
+				}
+				if(DisplaySwitchMode_fb != atoi(ConfigurationInfo[7]))
+				{
+					DisplaySwitchMode_fb = atoi(ConfigurationInfo[7]); 
+				}
+				if(DisplayPriority_fb != atoi(ConfigurationInfo[8]))
+				{
+					DisplayPriority_fb = atoi(ConfigurationInfo[8]); 
+				}
+				if(ShareSwitchMode_fb != atoi(ConfigurationInfo[9]))
+				{
+					ShareSwitchMode_fb = atoi(ConfigurationInfo[9]); 
+				}
+				if(SharePriority_fb != atoi(ConfigurationInfo[10]))
+				{
+					SharePriority_fb = atoi(ConfigurationInfo[10]); 
+				}
+				if(LaptopSwitchMode_fb != atoi(ConfigurationInfo[39]))
+				{
+					LaptopSwitchMode_fb = atoi(ConfigurationInfo[39]); 
+				}
+				if(LaptopPriority_fb != atoi(ConfigurationInfo[38]))
+				{
+					LaptopPriority_fb = atoi(ConfigurationInfo[38]); 
+				}
+				if(DisplayScaler_fb != atoi(ConfigurationInfo[29]))
+				{
+					DisplayScaler_fb = atoi(ConfigurationInfo[29]); 
+				}
+				if(ShareScaler_fb != atoi(ConfigurationInfo[30]))
+				{
+					ShareScaler_fb = atoi(ConfigurationInfo[30]); 
+				}
+				if(LaptopScaler_fb != atoi(ConfigurationInfo[41]))
+				{
+					LaptopScaler_fb = atoi(ConfigurationInfo[41]); 
+				}
+				if(Laptop1Info[3] = "true")
+				{
+					Makestring(videotemp, "%s,%s", Laptop1Info[1], Laptop1Info[5]);
+					if(sVideoMem[1] != videotemp)
+					{
+						sVideoMem[1] = videotemp;
+						USBC_Video_fb = sVideoMem[1];
+					}
+					
+				}
+				else
+				{
+					if(sVideoMem[1] != "Not Detected")
+					{
+						sVideoMem[1] = "Not Detected";
+						USBC_Video_fb = sVideoMem[1];
+					}
+				}
+				if(Laptop2Info[3] = "true")
+				{
+					Makestring(videotemp, "%s,%s", Laptop2Info[1], Laptop2Info[5]);
+					if(sVideoMem[2] != videotemp)
+					{
+						sVideoMem[2] = videotemp;
+						Laptop_Video_fb = sVideoMem[2];
+					}
+					
+				}
+				else
+				{
+					if(sVideoMem[2] != "Not Detected")
+					{
+						sVideoMem[2] = "Not Detected";
+						Laptop_Video_fb = sVideoMem[2];
+					}
+				}
+				if(RoomPCInfo[3] = "true")
+				{
+					Makestring(videotemp, "%s,%s", RoomPCInfo[1], RoomPCInfo[5]);
+					if(sVideoMem[3] != videotemp)
+					{
+						sVideoMem[3] = videotemp;
+						RoomPC_Video_fb = sVideoMem[3];
+					}
+				}
+				else
+				{
+					if(sVideoMem[3] != "Not Detected")
+					{
+						sVideoMem[3] = "Not Detected";
+						RoomPC_Video_fb = sVideoMem[3];
+					}
+				}
+				if(iCECPassthrough != atoi(ConfigurationInfo[35]))
+				{
+					iCECPassthrough = atoi(ConfigurationInfo[35]);
+					CECPassthrough_fb = iCECPassthrough; 
+				}
+				if(iAutoHDMIcecPower != atoi(ConfigurationInfo[34]))
+				{
+					iAutoHDMIcecPower = atoi(ConfigurationInfo[34]);
+					AutoHDMIcecPower_fb = iAutoHDMIcecPower; 
+				}
+				if(USBDevicePower_RoomPC_fb != atoi(ConfigurationInfo[22]))
+				{
+					USBDevicePower_RoomPC_fb = atoi(ConfigurationInfo[22]); 
+				}
+				if(USBDevicePower_LUSBc_fb != atoi(ConfigurationInfo[23]))
+				{
+					USBDevicePower_LUSBc_fb = atoi(ConfigurationInfo[23]); 
+				}
+				if(USBDevicePower_LHdmi_fb != atoi(ConfigurationInfo[24]))
+				{
+					USBDevicePower_LHdmi_fb = atoi(ConfigurationInfo[24]); 
+				}
+				if(USBDevicePower_Nohost_fb != atoi(ConfigurationInfo[25]))
+				{
+					USBDevicePower_Nohost_fb = atoi(ConfigurationInfo[25]); 
+				}
+				if(HostMeetingPriority_fb != atoi(ConfigurationInfo[36]))
+				{
+					HostMeetingPriority_fb = atoi(ConfigurationInfo[36]); 
+				}
+
+				//Add new commands here
+				
+				if(iCtrlsChanged)
+				{
+					iCtrlsChanged = 0;
+					if(iDisplaySrc = iUSBHost) //evaluate Hostmeeting
+					{
+						switch(DisplaySource_fb)
+						{
+							case (0):
+							{		
+								HostMeeting_fb = "RoomPC";
+							}
+							case (1):
+							{
+								HostMeeting_fb = "Laptop USB-C";
+							}
+							case (2):
+							{
+								HostMeeting_fb = "Laptop HDMI";
+							}
+							Default:
+							{  
+								HostMeeting_fb = "None";
+							}
+						}
+					}
+					else
+					{
+						HostMeeting_fb = "Custom HDMI/USB Routing";
+					}
+
+				}
+				iStatusRequest = 0;
+				iReady = 1;
+				if (Debug) print("Status completed");
+			}	
+			else if(find("link", mCommand))
+			{
+				//decode Link info json data
+				LinkInfoToken[1] = "HdbtLink";
+				LinkInfoToken[2] = "HdbtCableLength";
+							
+				for( count = 1 to GetNumArrayRows(LinkInfoToken))
+				{
+					
+					if(find(LinkInfoToken[count], stemp2))
+					{	
+						//if(Debug) Print("Foud %s",LinkInfoToken[count] );
+				
+						start = find(LinkInfoToken[count], stemp2) + len(LinkInfoToken[count]) + 3;
+						end = find(",", stemp2, start) - start;
+						
+						temp = mid(stemp2, start, end);
+							if(find("\x22", temp))//info are in double quote
+							{		
+								temp = mid(temp, 2, len(temp)-2 );						
+							}			
+							LinkInfo[count] = temp;
+					}
+					else { LinkInfo[count] = ""; //if(Debug) Print("Not Found %s",LinkInfoToken[count] );
+					}
+				}
+
+
+				if(Link_fb != atoi(LinkInfo[1]))
+				{
+					Link_fb = atoi(LinkInfo[1]); 
+				}
+				else
+				if(sLinkLenght != LinkInfo[2])
+				{
+					sLinkLenght = LinkInfo[2]; 
+					if(LinkInfo[2] != "0")
+						LinkLength_fb = sLinkLenght; 
+					else
+						LinkLength_fb = "";
+				}
+				
+				
+				iReady = 1;
+				
+			}		
+		}
+		else if(code = 400)
+		{
+			if (Debug) print("400 Error : %s", stemp2);
+			iReady = 1;	
+		}
+		else if(code = 401)
+		{
+			
+			if (Debug) print("401 Authentification Error, verify API Token");
+			iNextStore = iNextSend; //stop sending command in memory
+			iReady = 1;
+			DeviceConnected_fb = 0 ;
+
+		}
+		else
+		{
+			if (Debug) print("Bad Command, %s", stemp2);
+			iNextStore = iNextSend;
+			iReady = 1;
+		}
+	
+
+		if(iReady = 1)
+		{
+			if(iNextStore <> iNextSend)
+			{
+				SendStoreCommand(sQueue[iNextSend]);
+			}
+			else
+			{
+				fPollTimeOut();
+			}
+		}
+	}
+}
+ 
+//RS232 Telnet Parsing
+Function StatusParser(string s)
+{
+	integer temp;
+	//cancelwait(wTimeOut);//cancel no response timeouOn ACK or NACK only
+
+	//if (Debug) print("ParsingThis: %s", s);
+	if(find("NACK",s))
+	{
+		cancelwait(wTimeOut);//cancel no response timeouOn ACK or NACK only
+		if (Debug) print("Invalid selection or Command Error, plese check command");
+		iReady = 1;
+	}
+	else if(find("ACK",s) = 1) //filter NACK by searching ACK at start of string
+	{	
+		cancelwait(wTimeOut);//cancel no response timeouOn ACK or NACK onlyP
+		DeviceConnected_fb = 1;	
+		if(iStatusRequest)
+		{
+			
+			sFirmVersion = sMajor + "." + sMinor;
+			if(sFirmMem != sFirmVersion)
+			{
+				sFirmMem = sFirmVersion;
+				Firmv = sFirmVersion;			
+			}
+			if(iCtrlsChanged)
+			{
+				iCtrlsChanged = 0;
+				if(iDisplaySrc = iUSBHost) //evaluate Hostmeeting
+				{	
+					switch(DisplaySource_fb)
+					{
+						case (0):
+						{		
+							HostMeeting_fb = "RoomPC";
+						}
+						case (1):
+						{
+							HostMeeting_fb = "Laptop USB-C";
+						}
+						case (2):
+						{
+							HostMeeting_fb = "Laptop HDMI";
+						}
+						Default:
+						{  
+							HostMeeting_fb = "None";
+						}
+					}
+				}
+				else if(iDisplaySrc = 3) //Share Source
+				{
+					switch(ShareSource_fb)
+					{
+						case (0):
+						{
+							HostMeeting_fb = "RoomPC";
+						}
+						case (1):
+						{
+							HostMeeting_fb = "Laptop USB-C";
+						}
+						case (2):
+						{
+							HostMeeting_fb = "Laptop HDMI";
+						}
+						Default:
+						{
+							HostMeeting_fb = "None";
+						}
+					}
+				}
+				else if(iDisplaySrc = 4) //Laptop Source
+				{
+					switch(LaptopSource_fb)
+					{
+						case (0):
+						{
+							HostMeeting_fb = "RoomPC";
+						}
+						case (1):
+						{
+							HostMeeting_fb = "Laptop USB-C";
+						}
+						case (2):
+						{
+							HostMeeting_fb = "Laptop HDMI";
+						}
+						Default:
+						{
+							HostMeeting_fb = "None";
+						}
+					}
+				
+				}
+				else
+				{
+					HostMeeting_fb = "Custom HDMI/USB Routing";
+				}
+			}
+			iStatusRequest = 0;
+			//updating Info		
+		}
+		else if(find("PRIORHOSTMEETING", mCommand) || find("CECPOWER", mCommand) )
+		{
+			if(find("PRIORHOSTMEETING ", mCommand)) //command with space mean we change the value
+				HostMeetingPriority_fb = HostMeetingPriority; //force feedback on ACK response
+		}
+		else if(find("SCALER 0", mCommand))
+		{
+			DisplayScaler_fb = atoi(mid(mCommand,10, 1));//force feedback on ACK response				
+		}
+		else if(find("SCALER 1",mCommand))
+		{
+			ShareScaler_fb = atoi(mid(mCommand,10, 1));	//force feedback on ACK response	
+		}
+		else if(find("SCALER 2",mCommand))
+		{
+			LaptopScaler_fb = atoi(mid(mCommand,10, 1));	//force feedback on ACK response	
+		}
+		else if(find("REBOOT", mCommand))
+		{
+			if (Debug) print("Please Wait unit is rebooting");
+			wait(400)
+			{
+				SendStoreCommand("STATUS\x0d\x0a");
+			}
+
+		}
+		else if(find("RSTR", mCommand))
+		{
+			if (Debug) print("Factory Reset please wait, will re-enable Telnet if control mode is Telnet");
+			
+			wait(400)
+			{
+				if (CommMode = "Telnet")
+					SendStoreCommand("TELNETEN 1\x0d\x0a");
+					
+				SendStoreCommand("STATUS\x0d\x0a");
+			}
+		}
+				
+		iReady = 1;
+		
+		
+	}
+	else if(find("STATUS", mCommand))
+	{		
+		start = find("=",s) + 1;
+		end = len(s)-start-1;
+				
+		//if (Debug) print("searching into, %s from %d to %d", s, start, end);
+	
+		if(find("MAJOR",s) = 1)
+			sMajor = mid(s, start, end);
+		if(find("MINOR",s) = 1)
+			sMinor = mid(s, start, end);			
+		if(find("MAC",s))
+		{
+			if(sMAC != mid(s, start, end))
+			{
+				sMAC = mid(s, start, end);
+				MAC_Address = sMAc;
+			}
+		}
+		if(find("IP=",s))
+		{
+			if(sIP != mid(s, start, end))
+			{
+				sIP = mid(s, start, end);
+				IP_Address = sIP;
+			}
+		}		
+		if(find("SUBNET",s))
+		{
+			if(sSubnetMem != mid(s, start, end))
+			{
+				sSubnetMem = mid(s, start, end);
+				IP_SubnetMask = sSubnetMem;
+			}
+		}
+		if(find("GATEWAY",s))
+		{
+			if(sGatewayMem != mid(s, start, end))
+			{
+				sGatewayMem = mid(s, start, end);
+				IP_Gateway = sGatewayMem;
+			}
+		}
+		if(find("OPMODE=",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != OperationMode_fb)
+				OperationMode_fb =  temp;
+		}
+		if(find("USBHOST=",s) = 1)
+		{
+			iUSBHost = atoi(mid(s, start, end));		//keep track of USBHost
+			if(iUSBHost = 4)
+				iUSBHost = 0;
+			if(USB_Host_fb != iUSBHost)
+			{
+				USB_Host_fb = iUSBHost; 
+				iCtrlsChanged = 1;
+			}
+		}
+		if(find("DISPLAYSRC=",s) = 1)
+		{
+			iDisplaySrc = atoi(mid(s, start, end)); //keep track of DISPLAYSRC
+			if(DisplaySource_fb != iDisplaySrc)
+			{
+				DisplaySource_fb = iDisplaySrc;  
+				iCtrlsChanged = 1;
+			}   
+		}
+		if(find("SHARESRC=",s) = 1)
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != ShareSource_fb)
+				ShareSource_fb = temp;
+
+		}	
+		if(find("LAPTOPSRC=",s) = 1)
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != LaptopSource_fb)
+				LaptopSource_fb = temp;
+
+		}			
+		if(find("USBHOSTSWMODE",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != USBSwitchMode_fb)
+				USBSwitchMode_fb = temp;
+		}
+		if(find("SHARESWMODE",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != ShareSwitchMode_fb)
+				ShareSwitchMode_fb = temp;
+		}
+		if(find("DISPLAYSWMODE",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != DisplaySwitchMode_fb)
+				DisplaySwitchMode_fb = temp;
+		}
+		if(find("LAPTOPSWMODE",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != LaptopSwitchMode_fb)
+				LaptopSwitchMode_fb = temp;
+		}
+
+		if(find("PRIORDISPLAYSRC",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != DisplayPriority_fb)
+				DisplayPriority_fb = temp;
+		}
+		if(find("PRIORLAPTOPSRC",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != LaptopPriority_fb)
+				LaptopPriority_fb = temp;
+		}
+
+		if(find("PRIORSHARESRC",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != SharePriority_fb)
+				SharePriority_fb = temp;
+		}
+		if(find("PRIORUSBHOST",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(temp != USBPriority_fb)
+				USBPriority_fb = temp;
+		}			
+		if(find("LAPTOP-USBC",s) && sVideoMem[1] != mid(s, start, end) )
+		{	
+			sVideoMem[1] = mid(s, start, end);
+			USBC_Video_fb = sVideoMem[1];
+		}
+		if(find("LAPTOP-HDMI",s) && sVideoMem[2] != mid(s, start, end))
+		{		
+			sVideoMem[2] = mid(s, start, end);
+			Laptop_Video_fb = sVideoMem[2];
+			
+		}			
+		if(find("ROOMPC",s) && sVideoMem[3] != mid(s, start, end))
+		{
+			sVideoMem[3] = mid(s, start, end);
+			RoomPC_Video_fb = sVideoMem[3];
+		}
+		if(find("USBC4K60EN",s))
+		{
+			USBC4K60EN_fb = atoi(mid(s, start, end));
+		}
+		if(find("CECPASSTHROUGHEN",s))
+			CECPassthrough_fb = atoi(mid(s, start, end));
+		if(find("AUTOHDMICECPWR",s))
+			AutoHDMIcecPower_fb = atoi(mid(s, start, end));
+			
+		if(find("USBDEVEN0",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(USBDevicePower_RoomPC_fb != temp)
+				USBDevicePower_RoomPC_fb = temp;
+		}
+		if(find("USBDEVEN1",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(USBDevicePower_LUSBc_fb != temp)
+				USBDevicePower_LUSBc_fb = temp;
+		}
+		if(find("USBDEVEN2",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(USBDevicePower_LHdmi_fb != temp)
+				USBDevicePower_LHdmi_fb = temp;
+		}
+		if(find("USBDEVEN3",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(USBDevicePower_Nohost_fb != temp)
+				USBDevicePower_Nohost_fb = temp;
+		}
+		if(find("PRIORHOSTMEETING",s))
+		{
+			temp = atoi(mid(s, start, end));
+			if(HostMeetingPriority_fb != temp)
+				HostMeetingPriority_fb = temp;
+		}
+		if(find("HDBTLINK",s))
+		{
+			DeviceIsXT = 1;
+			temp = atoi(mid(s, start, end));
+			if(Link_fb != temp)
+				Link_fb = temp;
+		}
+		if(find("HDBTCABLEL",s))
+		{
+			if(sLinkLenght != mid(s, start, end))
+			{
+				sLinkLenght = mid(s, start, end);
+				LinkLength_fb = sLinkLenght;
+			}
+		}
+								
+        
+		//continue !!			
+	}
+	else if(find("SCALER 0",mCommand))
+	{
+		start = find("=",s) + 1;
+		end = len(s)-start-1;
+		
+		if(find("ENABLE",s))
+			DisplayScaler_fb = atoi(mid(s, start, end));		
+	}
+	else if(find("SCALER 1",mCommand))
+	{
+		start = find("=",s) + 1;
+		end = len(s)-start-1;
+		
+		if(find("ENABLE",s))
+			ShareScaler_fb = atoi(mid(s, start, end));			
+	}
+	else if(find("SCALER 2",mCommand))
+	{
+		start = find("=",s) + 1;
+		end = len(s)-start-1;
+		
+		if(find("ENABLE",s))
+			LaptopScaler_fb = atoi(mid(s, start, end));			
+	}
+
+	
+
+	if(iReady = 1)
+	{
+		if(iNextStore <> iNextSend)
+		{
+			SendStoreCommand(sQueue[iNextSend]);
+		}
+		else
+		{
+			fPollTimeOut();
+		}
+
+	}
+
+		
+}
+
+//Telnet Socket management
+Function CheckSocketStatus()
+{
+	wait(200, TelnetDelay)
+	{
+		if(TCPClient.SocketStatus = 2)
+		{ 
+			if (Debug) print("Telnet Connected clear buffer and begin polling");
+			clearbuffer(TCPClient.SocketRxBuf);
+			iCtrlsChanged = 1;
+			iReady = 1;
+			iNextSend = 1;
+			iNextStore = 1;
+			ReadyToPoll = 1;
+			Module_Enable_dly = 1;
+
+			SendStoreCommand("SCALER 0\x0d\x0a");
+			SendStoreCommand("SCALER 1\x0d\x0a");
+			SendStoreCommand("SCALER 2\x0d\x0a");
+			//ReadyToPoll = 1;		
+		}
+		else
+		{
+			//TCP socket did not connect within expected time, retry
+			if (Debug) print("Telnet Not connected in time, close and retry");
+			SocketDisconnectClient(TCPClient);
+			delay(100);
+            SOCKETCONNECTCLIENT(TCPClient, IP, 23, 0);
+        } 
+	}	      
+}
+SocketStatus TCPClient
+{
+	TelnetSocketStatus_fb = TCPClient.SocketStatus;
+	cancelwait(TelnetDelay) ;
+	if(Module_Enable)
+		CheckSocketStatus();  
+			
+}
+SocketReceive TCPClient
+{
+	string sTCPdata[300];
+
+	//if(DeviceConnected_fb = 0)		//throw away telnet header
+	//	clearbuffer(TCPClient.SocketRxBuf);
+		
+	while(len(TCPClient.SocketRxBuf) > 0)
+	{
+		sTCPdata = Gather("\x0D\x0A",TCPClient.SocketRxBuf);
+		if (Debug) print("Telnet Received= %s",sTCPdata);
+		StatusParser(sTCPdata);
+	}      
+}
+
+
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+CHANGE Rx$ //serial port received data
+{
+	while(len(rx$) > 0)
+	{
+		sLines = Gather("\x0D\x0A",RX$);
+		if (Debug) print("Serial Received= %s",sLines);
+		StatusParser(sLines);
+	}
+}
+
+CHANGE OperationMode  //0 , 1 ,2
+{
+	if(OperationMode !=	OperationMode_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "opMode?opMode=%d", OperationMode);
+		}
+		else
+		{
+			Makestring(sTempCommand, "OPMODE %d\x0d\x0a", OperationMode);
+		}	
+		SendStoreCommand(sTempCommand);
+	}
+} 
+PUSH HostMeeting  //0 , 1 ,2
+{
+	integer x;
+	x = getlastmodifiedarrayindex();
+
+
+	if (CommMode = "REST API")
+	{	
+		Makestring(sTempCommand, "hostMeeting?host=%d", x-1);
+	}
+	else
+	{
+		Makestring(sTempCommand, "HOSTMEETING %d\x0d\x0a", x-1);
+	}	
+	SendStoreCommand(sTempCommand);
+
+}
+CHANGE DisplaySource  //0 , 1 ,2 3
+{
+	if(DisplaySource != DisplaySource_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "displaySrc?displaySrc=%d", DisplaySource);
+		}
+		else
+		{
+			Makestring(sTempCommand, "DISPLAYSRC %d\x0d\x0a", DisplaySource);
+		}	
+		SendStoreCommand(sTempCommand);
+	}
+}
+CHANGE ShareSource  //0 , 1 ,2 , 3
+{
+	if(ShareSource != ShareSource_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "shareSrc?shareSrc=%d", ShareSource);
+		}
+		else
+		{
+			Makestring(sTempCommand, "SHARESRC %d\x0d\x0a", ShareSource);
+		}	
+		SendStoreCommand(sTempCommand);
+	}
+}
+CHANGE LaptopSource  //1 ,2, 3
+{
+	if(DeviceIsXT)
+	{
+		if(LaptopSource != LaptopSource_fb && LaptopSource > 0) //LaptopSrc do not support RoomPC routing "0"
+		{
+			if (CommMode = "REST API")
+			{	
+				Makestring(sTempCommand, "laptopSrc?laptopSrc=%d", LaptopSource);
+			}
+			else
+			{
+				Makestring(sTempCommand, "LAPTOPSRC %d\x0d\x0a", LaptopSource);
+			}	
+			SendStoreCommand(sTempCommand);	
+		}
+	}
+	else if(debug)
+		print("TOGGLE ROOMS XT not detected");
+	
+}
+CHANGE USB_Host  //0 , 1 ,2
+{
+	if(USB_Host != USB_Host_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "usbHost?usbHost=%d", USB_Host);
+		}
+		else
+		{
+			Makestring(sTempCommand, "USBHOST %d\x0d\x0a", USB_Host);
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+} 
+CHANGE HostMeetingPriority  //0 , 1 ,2, 3
+{
+	if( HostMeetingPriority != HostMeetingPriority_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "priorHostMeeting?host=%d", HostMeetingPriority);
+		}
+		else
+		{
+			Makestring(sTempCommand, "PRIORHOSTMEETING %d\x0d\x0a", HostMeetingPriority);
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+}
+//only valid in OPMODE 2 
+CHANGE USBSwitchMode  //0 , 1 ,2, 3
+{
+   	if(OperationMode_fb = 2 && USBSwitchMode != USBSwitchMode_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "usbHostSwMode?usbHostSwMode=%d", USBSwitchMode);
+		}
+		else
+		{
+			Makestring(sTempCommand, "USBHOSTSWMODE %d\x0d\x0a", USBSwitchMode);
+		}	
+		SendStoreCommand(sTempCommand);
+	}
+	else if(debug)
+		print("Not supported in current Operation Mode %d", OperationMode_fb);
+}
+CHANGE USBPriority  //0 , 1 ,2, 3
+{
+   	if(OperationMode_fb = 2 && USBPriority != USBPriority_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "priorUsbHost?priorUsbHost=%d", USBPriority);
+		}
+		else
+		{
+			Makestring(sTempCommand, "PRIORUSBHOST %d\x0d\x0a", USBPriority);
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+	else if(debug)
+		print("Not supported in current Operation Mode");		
+}
+CHANGE DisplaySwitchMode  //0 , 1 ,2, 3
+{
+	if(OperationMode_fb = 2 && DisplaySwitchMode != DisplaySwitchMode_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "displaySwMode?displaySwMode=%d", DisplaySwitchMode);	
+		}
+		else
+		{
+			Makestring(sTempCommand, "DISPLAYSWMODE %d\x0d\x0a", DisplaySwitchMode);	
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+	else if(debug)
+		print("Not supported in current Operation Mode");	
+}
+CHANGE DisplayPriority  //0 , 1 ,2, 3
+{
+	if(OperationMode_fb = 2 && DisplayPriority != DisplayPriority_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "priorDisplaySrc?priorDisplaySrc=%d", DisplayPriority);
+		}
+		else
+		{
+			Makestring(sTempCommand, "PRIORDISPLAYSRC %d\x0d\x0a", DisplayPriority);
+		}	
+		SendStoreCommand(sTempCommand);			
+	}
+	else if(debug)
+		print("Not supported in current Operation Mode");
+}
+CHANGE ShareSwitchMode  //0 , 1 ,2, 3
+{
+	if(OperationMode_fb = 2 && ShareSwitchMode != ShareSwitchMode_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "shareSwMode?shareSwMode=%d", ShareSwitchMode);	
+		}
+		else
+		{
+			Makestring(sTempCommand, "SHARESWMODE %d\x0d\x0a", ShareSwitchMode);	
+		}	
+		SendStoreCommand(sTempCommand);			
+	}
+	else if(debug)
+		print("Not supported in current Operation Mode");	
+}
+CHANGE SharePriority  //0 , 1 ,2, 3
+{
+	if(OperationMode_fb = 2 && SharePriority != SharePriority_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "priorShareSrc?priorShareSrc=%d", SharePriority);
+		}
+		else
+		{
+			Makestring(sTempCommand, "PRIORSHARESRC %d\x0d\x0a", SharePriority);
+		}	
+		SendStoreCommand(sTempCommand);		
+	}
+	else if(debug)
+		print("Not supported in current Operation Mode");		
+}
+CHANGE LaptopSwitchMode  //0 , 1 ,2, 3
+{
+	if(DeviceIsXT)
+	{
+		if(OperationMode_fb = 2 && LaptopSwitchMode != LaptopSwitchMode_fb)
+		{
+			if (CommMode = "REST API")
+			{	
+				Makestring(sTempCommand, "laptopSwMode?laptopSwMode=%d", LaptopSwitchMode);	
+			}
+			else
+			{
+				Makestring(sTempCommand, "LAPTOPSWMODE %d\x0d\x0a", LaptopSwitchMode);	
+			}	
+			SendStoreCommand(sTempCommand);		
+		}
+		else if(debug)
+			print("Not supported in current Operation Mode");	
+	}
+	else if(debug)
+		print("TOGGLE ROOMS XT not detected");
+}
+CHANGE LaptopPriority  // 1 ,2, 3
+{
+	if(DeviceIsXT)
+	{
+		if(OperationMode_fb = 2 && LaptopPriority > 0 && LaptopPriority != LaptopPriority_fb)
+		{
+			if (CommMode = "REST API")
+			{	
+				Makestring(sTempCommand, "priorLaptopSrc?priorLaptopSrc=%d", LaptopPriority);
+			}
+			else
+			{
+				Makestring(sTempCommand, "PRIORLAPTOPSRC %d\x0d\x0a", LaptopPriority);
+			}	
+			SendStoreCommand(sTempCommand);		
+		}
+		else if(debug)
+			print("Not supported in current Operation Mode");	
+	}	
+	else if(debug)
+		print("TOGGLE ROOMS XT not detected");
+
+}
+PUSH Poll //Returns the current view of the device 
+{
+	if(ReadyToPoll = 1)
+    {
+		Polling();
+	}
+}
+PUSH Reboot 		//Reboot the device
+{
+	if (CommMode = "REST API")
+	{	
+		SendStoreCommand("reboot");	
+	}
+	else
+	{
+		SendStoreCommand("REBOOT\x0d\x0a");
+	}	
+	
+}
+PUSH FactoryDefault 	//Erase the current configuration onboard and return to default values
+{
+	if (CommMode = "REST API")
+	{	
+		//rstr will reset all settings to default and reboot the device.
+		SendStoreCommand("rstr");	
+	}
+	else
+	{
+		//RSTR 0, will factory reset without rebooting unit.
+		SendStoreCommand("RSTR 0\x0d\x0a");
+	}
+}
+PUSH Version
+{
+	if (CommMode = "REST API")
+	{	
+		SendStoreCommand("version");	
+	}
+	else
+	{
+		SendStoreCommand("VERSION\x0d\x0a");
+	}
+}
+PUSH Status
+{
+	if (CommMode = "REST API")
+	{	
+		SendStoreCommand("status");	
+	}
+	else
+	{
+		SendStoreCommand("STATUS\x0d\x0a");
+	}	
+}
+PUSH Host_button
+{
+	if (CommMode = "REST API")
+	{	
+		SendStoreCommand("hostButton");	
+	}
+	else
+	{
+		SendStoreCommand("HOSTBUTTON\x0d\x0a");	
+	}	
+}
+CHANGE USBC4K60EN
+{
+	if(!DeviceIsXT)
+	{
+
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "usbc4K60En?usbc4K60En=%d", !USBC4K60EN_fb);
+			SendStoreCommand(sTempCommand);	
+		}
+		else
+		{
+			Makestring(sTempCommand, "USBC4K60EN %d\x0d\x0a", !USBC4K60EN_fb);
+			SendStoreCommand(sTempCommand);	
+		}
+		
+	}
+	else if(debug)
+		print("TOGGLE ROOMS XT do not support USB-C 4K");
+		
+}
+CHANGE Module_Enable
+{
+	DeviceConnected_fb = 0;
+
+	if(Module_Enable = 1)
+	{
+		if(CommMode = "Telnet")
+		{		
+			SOCKETCONNECTCLIENT(TCPClient, IP, 23, 0);
+		}
+		else
+		{
+        	iCtrlsChanged = 1;
+			iReady = 1;
+			iNextSend = 1;
+			iNextStore = 1;
+			ReadyToPoll = 1;
+			Module_Enable_dly = 1;
+		}
+	}
+	else
+	{
+		SocketDisconnectClient(TCPClient);
+		iReady = 0;
+		iNextSend = 1;
+		iNextStore = 1;
+		ReadyToPoll = 0;
+		Module_Enable_dly = 0;
+	}
+	
+}
+PUSH DisplayCECPowerOn
+{
+	if (CommMode = "REST API")
+	{	
+		SendStoreCommand("cecPower?ctrl=1");	
+	}
+	else
+	{
+		SendStoreCommand("CECPOWER 1\x0d\x0a");	
+	}
+}
+PUSH DisplayCECPowerOff
+{
+	if (CommMode = "REST API")
+	{	
+		SendStoreCommand("cecPower?ctrl=0");	
+	}
+	else
+	{
+		SendStoreCommand("CECPOWER 0\x0d\x0a");	
+	}
+}
+PUSH CECPassthrough
+{		
+	if (CommMode = "REST API")
+	{	
+		Makestring(sTempCommand, "cecPassthroughEn?enable=%d", !CECPassthrough_fb);
+	}
+	else
+	{
+		Makestring(sTempCommand, "CECPASSTHROUGHEN %d\x0d\x0a", !CECPassthrough_fb);
+	}	
+	SendStoreCommand(sTempCommand);	
+}
+CHANGE AutoHDMIcecPower
+{		
+	if (CommMode = "REST API")
+	{	
+		Makestring(sTempCommand, "autoHdmiCecPwr?enable=%d", !AutoHDMIcecPower_fb);
+	}
+	else
+	{
+		Makestring(sTempCommand, "AUTOHDMICECPWR %d\x0d\x0a", !AutoHDMIcecPower_fb);
+	}	
+	SendStoreCommand(sTempCommand);		
+}
+CHANGE USBDevicePower_RoomPC  //0 , 1 ,2, 3,4,5,6,7
+{
+	if(USBDevicePower_RoomPC != USBDevicePower_RoomPC_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "usbDevEn?host=0&devices=%d", USBDevicePower_RoomPC);
+		}
+		else
+		{
+			Makestring(sTempCommand, "USBDEVEN 0 %d\x0d\x0a", USBDevicePower_RoomPC);
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+}
+CHANGE USBDevicePower_LUSBc  //0 , 1 ,2, 3,4,5,6,7
+{
+	if(USBDevicePower_LUSBc != USBDevicePower_LUSBc_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "usbDevEn?host=1&devices=%d", USBDevicePower_LUSBc);
+		}
+		else
+		{
+			Makestring(sTempCommand, "USBDEVEN 1 %d\x0d\x0a", USBDevicePower_LUSBc);
+		}	
+		SendStoreCommand(sTempCommand);		
+	}
+	
+}
+CHANGE USBDevicePower_LHdmi  //0 , 1 ,2, 3,4,5,6,7
+{
+	if(USBDevicePower_LHdmi != USBDevicePower_LHdmi_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "usbDevEn?host=2&devices=%d", USBDevicePower_LHdmi);
+		}
+		else
+		{
+			Makestring(sTempCommand, "USBDEVEN 2 %d\x0d\x0a", USBDevicePower_LHdmi);
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+}
+CHANGE USBDevicePower_Nohost  //0 , 1 ,2, 3,4,5,6,7
+{
+	if(USBDevicePower_Nohost != USBDevicePower_Nohost_fb)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "usbDevEn?host=3&devices=%d", USBDevicePower_Nohost);
+		}
+		else
+		{
+			Makestring(sTempCommand, "USBDEVEN 3 %d\x0d\x0a", USBDevicePower_Nohost);
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+}
+PUSH DisplayScaler
+{			
+	if (CommMode = "REST API")
+	{	
+		Makestring(sTempCommand, "scaler?output=0&enable=%d", !DisplayScaler_fb);
+	}
+	else
+	{
+		Makestring(sTempCommand, "SCALER 0 %d\x0d\x0a", !DisplayScaler_fb);
+	}	
+	SendStoreCommand(sTempCommand);	
+}
+PUSH ShareScaler
+{		
+	if (CommMode = "REST API")
+	{	
+		Makestring(sTempCommand, "scaler?output=1&enable=%d", !ShareScaler_fb);
+	}
+	else
+	{
+		Makestring(sTempCommand, "SCALER 1 %d\x0d\x0a", !ShareScaler_fb);
+	}	
+	SendStoreCommand(sTempCommand);		
+}
+PUSH LaptopScaler
+{	
+	if(DeviceIsXT)
+	{
+		if (CommMode = "REST API")
+		{	
+			Makestring(sTempCommand, "scaler?output=2&enable=%d", !LaptopScaler_fb);
+		}
+		else
+		{
+			Makestring(sTempCommand, "SCALER 2 %d\x0d\x0a", !LaptopScaler_fb);
+		}	
+		SendStoreCommand(sTempCommand);	
+	}
+	else if(debug)
+		print("TOGGLE ROOMS XT not detected");
+}
+
+ 
+CALLBACK FUNCTION SimplHttpsClientResponseHandler(INTEGER statusCode, STRING responseUrl, STRING messageBody, SIGNED_LONG_INTEGER contentLength)
+{
+	//if(debug) print("HTTPS Response received: %d, %s, %s, %d", statusCode, responseUrl, messageBody, contentLength);
+	cancelwait(wTimeOut); //cancel no response timeout
+	StatusParserHTTP(statusCode, messageBody, LowWord(contentLength) ); //Parse received data		
+}
+ 
+			            
+
+FUNCTION Main()
+{
+	
+	WaitForInitializationComplete();  
+    
+	DeviceConnected_fb = 0;
+	
+    iReady = 1;
+	iNextSend = 1;
+	iNextStore = 1;
+	
+		
+	iDisplaySrc = 5;
+	iUSBHost = 5;
+	setarray(sQueue, "");
+	
+	if (CommMode = "REST API")
+	{
+		RegisterDelegate(HTTPSobj, SimplHttpsClientResponse, SimplHttpsClientResponseHandler);
+		_url = "https://" + IP + "/api/v1/";
+		_headers = "Authorization: Bearer " + APIToken; //multiple header need pipe separator
+		response_content = "";	  	
+	}
+	/*
+	DisplaySource_fb = 9;
+	ShareSource_fb = 9;
+	LaptopSource_fb = 9;
+	USB_Host_fb = 9;
+	HostMeetingPriority_fb = 9;
+	OperationMode_fb = 9;
+	USBSwitchMode_fb = 9;
+	USBPriority_fb = 9;
+	DisplaySwitchMode_fb = 9;
+	DisplayPriority_fb = 9;
+	ShareSwitchMode_fb = 9;
+	SharePriority_fb = 9;
+	LaptopSwitchMode_fb = 9;
+	LaptopPriority_fb = 9;
+	USBDevicePower_RoomPC_fb = 9;
+	USBDevicePower_LUSBc_fb = 9;
+	USBDevicePower_LHdmi_fb = 9;
+	USBDevicePower_Nohost_fb = 9;  	
+	*/
+
+}

@@ -1,0 +1,36 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: INOGENI
+System Name:
+System Number:
+Programmer: Daniel 
+Comments: Convert Analog Value to coresponding String number
+*/
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+ ANALOG_INPUT InputValue;
+ STRING_OUTPUT StringEquate;
+ STRING_PARAMETER StringValue[255][15];
+ 
+integer mem;
+
+change InputValue
+{
+	if(mem != InputValue)
+	{
+		StringEquate = StringValue[InputValue + 1];
+		mem = InputValue;
+	}
+}
+
+Function Main()
+{
+    mem = 999;
+}
+
