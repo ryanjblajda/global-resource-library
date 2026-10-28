@@ -905,11 +905,8 @@
   SymJam=NonExclusive
   FileName=Cisco SX80 Drive v2.3.9.ush
   SIMPLPlusModuleEncoding=0
-  clz1=Configuration
-  clz2=QsysControlV4_2
-  clz3=UserNotifications
-  clz4=Cisco SX80 Corporate Phone Book
-  clz5=Cisco SX80 Phone Book
+  clz1=Cisco SX80 Corporate Phone Book
+  clz2=Cisco SX80 Phone Book
 [END]
 [BEGIN]
   ObjTp=Dp
