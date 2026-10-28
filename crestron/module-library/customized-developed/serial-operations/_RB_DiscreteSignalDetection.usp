@@ -1,0 +1,83 @@
+/*
+Programmer: Ryan Blajda
+Comments:
+*/
+
+/*** DIRECTIVES ****/
+#SYMBOL_NAME "Discrete Signal Detection Handler"
+#HINT "displays a message based on each input for detection status"
+#CATEGORY "46" "RBLAJDA" // Custom
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#PRINT_TO_TRACE
+#DEFINE_CONSTANT ciMaximumEndpointConnections 32
+#DIGITAL_EXPAND InputsWithOutputs
+#ANALOG_SERIAL_EXPAND InputsWithOutputs
+
+#HELP_BEGIN
+#HELP_END
+
+/*** INPUTS ***/
+DIGITAL_INPUT Detected_[ciMaximumEndpointConnections];
+STRING_INPUT  _SKIP_, Detected_Message[256], Not_Detected_Message[256];
+
+/*** PARAMETERS ***/
+
+/*** OUTPUTS ***/
+STRING_OUTPUT Detection_Message[ciMaximumEndpointConnections];
+
+/*** GLOBAL VARIABLES ***/
+STRING gsDetectedMessage[256];
+STRING gsNotDetectedMessage[256];
+INTEGER giDefinedInputs;
+
+/*** FUNCTIONS ***/
+FUNCTION UpdateDetectionState(INTEGER in)
+{
+	if (Detected_[in] = ON) { Detection_Message[in] = gsDetectedMessage; }
+	else { Detection_Message[in] = gsNotDetectedMessage; }
+}
+
+FUNCTION UpdateDetectionMessage()
+{
+	INTEGER i;
+	for (i = 1 to giDefinedInputs)
+	{
+		UpdateDetectionState(i);
+	}
+}
+
+FUNCTION Main()
+{
+	INTEGER i;
+
+	for (i = GetNumArrayCols(Detected_) to 1 step -1)
+	{
+		if (IsSignalDefined(Detected_[i]) <> OFF) 
+		{ 
+			giDefinedInputs = i;
+			break;
+		}
+	}
+}
+
+/*** EVENT HANDLERS ***/
+CHANGE Detected_Message
+{
+	gsDetectedMessage = Detected_Message;
+	UpdateDetectionMessage();
+}
+
+CHANGE Not_Detected_Message
+{
+	gsNotDetectedMessage = Not_Detected_Message;
+	UpdateDetectionMessage();
+}
+
+CHANGE Detected_
+{
+	INTEGER iChanged;
+	iChanged = GetLastModifiedArrayIndex();
+    UpdateDetectionState(iChanged);
+}
