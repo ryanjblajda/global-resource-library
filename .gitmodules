@@ -49,3 +49,7 @@
 [submodule "q-sys/axis-visca-plugin-rjb"]
 	path = q-sys/axis-visca-plugin-rjb
 	url = https://github.com/blajda-dev/qsys-axis-camera
+[submodule "q-sys/qsys-display-controller"]
+	path = q-sys/qsys-display-controller
+	url = https://github.com/ryanjblajda/qsys-display-controller
+
